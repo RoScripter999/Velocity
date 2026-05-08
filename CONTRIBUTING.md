@@ -15,9 +15,10 @@ Pull requests can be made either to the `main` or the `dev` branch. However, unl
 Writing a plugin is the primary way to contribute.
 
 Before starting your plugin:
+
 - Check existing pull requests to see if someone is already working on a similar plugin
-- Check our [plugin requests](https://github.com/Velocitcs/Velocity/issues?q=is:open+label:%22plugin%20request%22) to see if there is an existing request, or if the same idea has been rejected
-- If there isn't an existing request, [open one](https://github.com/Velocitcs/Velocity/issues/new?assignees=&labels=&projects=&template=request.yml) yourself
+- Check our [plugin requests](https://github.com/RoScripter999/Velocity/issues?q=is:open+label:%22plugin%20request%22) to see if there is an existing request, or if the same idea has been rejected
+- If there isn't an existing request, [open one](https://github.com/RoScripter999/Velocity/issues/new?assignees=&labels=&projects=&template=request.yml) yourself
   and include that you'd like to work on this yourself. Then wait for feedback to see if the idea even has any chance of being accepted. Or maybe others have some ideas to improve it!
 - Familarise yourself with our plugin rules below to ensure your plugin is not banned
 
