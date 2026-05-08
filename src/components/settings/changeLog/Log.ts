@@ -22,10 +22,6 @@ import { ChangelogEntryType, type ChangelogModalProps } from ".";
 
 export default {
     subtitle: `Version: ${gitHash}`,
-    /* banner: {
-         type: "VIDEO",
-         src: "https://www.youtube.com/embed/_Lei-K6e3PQ"
-     },*/
     changes: [
         {
             title: "RELEASE",
