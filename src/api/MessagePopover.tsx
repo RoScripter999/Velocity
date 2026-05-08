@@ -1,0 +1,109 @@
+/*
+ * Velocity, a modification for Discord's desktop app
+ * Copyright (c) 2025 Velocitcs and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import ErrorBoundary from "@components/ErrorBoundary";
+import { getOrderedNames } from "@components/settings/tabs/plugins/UIElements";
+import { Logger } from "@utils/Logger";
+import type { IconComponent } from "@utils/types";
+import type { Channel, Message } from "@velocity-types";
+import type { ComponentType, MouseEventHandler } from "react";
+
+import { useSettings } from "./Settings";
+
+const logger = new Logger("MessagePopover");
+
+export interface MessagePopoverButtonItem {
+    key?: string,
+    label: string,
+    icon: ComponentType<any>,
+    message: Message,
+    channel: Channel,
+    onClick?: MouseEventHandler<HTMLButtonElement>,
+    onContextMenu?: MouseEventHandler<HTMLButtonElement>;
+}
+
+export type MessagePopoverButtonFactory = (message: Message) => MessagePopoverButtonItem | null;
+export type MessagePopoverButtonData = {
+    render: MessagePopoverButtonFactory;
+    /**
+     * This icon is used only for Settings UI. Your render function must still return an icon,
+     * and it can be different from this one.
+     */
+    icon: IconComponent;
+    required?: boolean;
+};
+
+export const MessagePopoverButtonMap = new Map<string, MessagePopoverButtonData>();
+
+/**
+ * The icon argument is used only for Settings UI. Your render function must still return an icon,
+ * and it can be different from this one.
+ */
+export function addMessagePopoverButton(
+    identifier: string,
+    render: MessagePopoverButtonFactory,
+    icon: IconComponent,
+    required: boolean
+) {
+    MessagePopoverButtonMap.set(identifier, { render, icon, required });
+}
+
+export function removeMessagePopoverButton(identifier: string) {
+    MessagePopoverButtonMap.delete(identifier);
+}
+
+function VelocityPopoverButtons(props: { Component: ComponentType<MessagePopoverButtonItem>, message: Message; }) {
+    const { Component, message } = props;
+
+    const { messagePopoverButtons } = useSettings(["uiElements.messagePopoverButtons.*"]).uiElements;
+    const orderedKeys = getOrderedNames(MessagePopoverButtonMap, messagePopoverButtons);
+
+    const elements = orderedKeys.map(key => {
+        const data = MessagePopoverButtonMap.get(key);
+        if (!data) return null;
+
+        const required = data.required ?? false;
+
+        // required buttons must ignore disabled state from settings.
+        if (messagePopoverButtons[key]?.enabled === false && !required) return null;
+
+        try {
+            // FIXME: this should use proper React to ensure hooks work
+            const item = data.render(message);
+            if (!item) return null;
+
+            return (
+                <ErrorBoundary noop key={key}>
+                    <Component {...item} />
+                </ErrorBoundary>
+            );
+        } catch (err) {
+            logger.error(`[${key}]`, err);
+            return null;
+        }
+    });
+
+    return <>{elements}</>;
+}
+
+export function _buildPopoverElements(
+    Component: ComponentType<MessagePopoverButtonItem>,
+    message: Message
+) {
+    return <VelocityPopoverButtons Component={Component} message={message} />;
+}

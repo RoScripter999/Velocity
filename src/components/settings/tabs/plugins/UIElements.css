@@ -1,0 +1,67 @@
+.vc-plugin-ui-elements-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: var(--background-mod-muted);
+    margin-top: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 8px;
+
+    &:hover {
+        background-color: var(--background-mod-subtle, var(--background-modifier-hover));
+    }
+}
+
+.vc-plugin-ui-elements-button-icon {
+    background: var(--card-background-default);
+    padding: 8px;
+    border-radius: 8px;
+    color: var(--interactive-icon-active);
+    flex-shrink: 0;
+}
+
+.vc-plugin-ui-elements-modal-content {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.vc-plugin-ui-elements-switches {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.vc-plugin-ui-elements-switches-row {
+    display: flex;
+    gap: 1em;
+    width: 100%;
+    align-items: center;
+    -webkit-user-drag: element;
+    cursor: grab;
+}
+
+.vc-plugin-ui-elements-switches-row:active {
+    cursor: grabbing;
+}
+
+.vc-plugin-ui-elements-switches-row-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+.vc-plugin-ui-elements-switches-row-wrapper:hover {
+    background-color: var(--background-mod-subtle);
+}
+
+.vc-plugin-ui-elements-switches-row-wrapper[data-dragging="true"] {
+    opacity: 0.4;
+}

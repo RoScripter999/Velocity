@@ -1,0 +1,45 @@
+.vc-card-primary {
+    border-radius: var(--radius-sm, 8px);
+    color: var(--text-default);
+    background-color: var(--card-background-default);
+}
+
+.vc-card-outline {
+    border: 1px solid var(--border-subtle);
+
+    &.vc-card-warning {
+        border: 1px solid var(--text-feedback-warning);
+    }
+
+    &.vc-card-brand {
+        border: 1px solid var(--text-feedback-brand);
+    }
+
+    &.vc-card-danger {
+        border: 1px solid var(--text-feedback-critical);
+    }
+
+    &.vc-card-success {
+        border: 1px solid var(--text-feedback-positive);
+    }
+}
+
+.vc-card-brand {
+    background-color: var(--background-brand);
+    color: var(--text-brand);
+}
+
+.vc-card-danger {
+    background-color: var(--background-feedback-critical);
+    color: var(--text-feedback-critical);
+}
+
+.vc-card-warning {
+    background-color: var(--background-feedback-warning);
+    color: var(--text-feedback-warning);
+}
+
+.vc-card-success {
+    background-color: var(--background-feedback-positive);
+    color: var(--text-feedback-positive);
+}

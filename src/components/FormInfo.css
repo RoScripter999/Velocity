@@ -1,0 +1,17 @@
+.vc-forminfo-group {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-16);
+}
+
+.vc-forminfo-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--background-base-low);
+    border-radius: var(--radius-sm);
+    color: var(--text-default);
+    gap: var(--space-12);
+    padding: var(--space-8) var(--space-4);
+    width: max-content;
+}

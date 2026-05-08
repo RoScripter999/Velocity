@@ -1,0 +1,119 @@
+/*
+ * Velocity, a modification for Discord's desktop app
+ * Copyright (c) 2025 Velocitcs and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import "./AddonCard.css";
+
+import { Card } from "@components/Card";
+import { AddonBadge } from "@components/settings/AddonBadge";
+import { Switch } from "@components/Switch";
+import { classNameFactory } from "@utils/css";
+import { Text, Tooltip, useRef } from "@webpack/common";
+import type { MouseEventHandler, ReactNode } from "react";
+
+const cl = classNameFactory("vc-addon-");
+
+interface Props {
+    name: ReactNode;
+    description: ReactNode;
+    enabled: boolean;
+    setEnabled: (enabled: boolean) => void;
+    disabled?: boolean;
+    isNew?: boolean;
+    badge?: ReactNode;
+    onMouseEnter?: MouseEventHandler<HTMLDivElement>;
+    onMouseLeave?: MouseEventHandler<HTMLDivElement>;
+
+    infoButton?: ReactNode;
+    infoButtonTooltip?: string;
+    footer?: ReactNode;
+    author?: ReactNode;
+    enabledTooltip?: string;
+    disabledTooltip?: string;
+}
+
+export function AddonCard({ disabled, isNew, badge, name, infoButton, infoButtonTooltip, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave, enabledTooltip, disabledTooltip }: Props) {
+    const titleRef = useRef<HTMLDivElement>(null);
+    const titleContainerRef = useRef<HTMLDivElement>(null);
+
+    return (
+        <Card
+            className={cl("card", { "card-disabled": disabled })}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+        >
+            <div className={cl("header")}>
+                <div className={cl("name-author")}>
+                    <Text variant="text-md/semibold" className={cl("name")}>
+                        <div ref={titleContainerRef} className={cl("title-container")}>
+                            <div
+                                ref={titleRef}
+                                className={cl("title")}
+                                onMouseOver={() => {
+                                    const title = titleRef.current!;
+                                    const titleContainer = titleContainerRef.current!;
+
+                                    title.style.setProperty("--offset", `${titleContainer.clientWidth - title.scrollWidth}px`);
+                                    title.style.setProperty("--duration", `${Math.max(0.5, (title.scrollWidth - titleContainer.clientWidth) / 7)}s`);
+                                }}
+                            >
+                                {name}
+                            </div>
+                        </div>
+
+                        {isNew && <AddonBadge text="NEW" color="#ED4245" />}
+                        {badge}
+                    </Text>
+
+                    {!!author && (
+                        <Text variant="text-sm/normal" className={cl("author")}>
+                            {author}
+                        </Text>
+                    )}
+                </div>
+
+                {infoButton && (
+                    <Tooltip text={infoButtonTooltip ?? ""} shouldShow={!!infoButtonTooltip}>
+                        {props => <div {...props}>{infoButton}</div>}
+                    </Tooltip>
+                )}
+
+                <Tooltip text={enabled ? (enabledTooltip ?? "Disable") : (disabledTooltip ?? "Enable")}>
+                    {props => (
+                        <div {...props}>
+                            <Switch
+                                checked={enabled}
+                                onChange={setEnabled}
+                                disabled={disabled}
+                            />
+                        </div>
+                    )}
+                </Tooltip>
+            </div>
+
+            <Tooltip text={description as string} shouldShow={(description as string)?.length > 80}>
+                {props => (
+                    <Text {...props} className={cl("note")} variant="text-sm/normal">
+                        {description}
+                    </Text>
+                )}
+            </Tooltip>
+
+            {footer}
+        </Card>
+    );
+}

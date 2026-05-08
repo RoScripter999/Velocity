@@ -1,0 +1,85 @@
+.vc-changelog-modal-root {
+    border-width: 2px;
+}
+
+.vc-changelog-modal-header {
+    position: sticky;
+    top: 54px;
+    z-index: 1;
+    background: var(--modal-background);
+}
+
+.vc-changelog-modal-content ul {
+    margin: 17px 0 8px 18px;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.vc-changelog-modal-content ul li {
+    position: relative;
+    user-select: text;
+    color: var(--text-default);
+}
+
+.vc-changelog-modal-content ul li::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: -15px;
+    width: 6px;
+    height: 6px;
+    margin-top: -4px;
+    margin-left: -3px;
+    border-radius: 50%;
+    opacity: 0.3;
+    background-color: hsl(216deg calc(var(--saturation-factor, 1) * 9.8%) 90%);
+}
+
+.vc-changelog-modal-content ul li li::before {
+    top: 12px;
+    height: 2px;
+    border-radius: 0;
+}
+
+.vc-changelog-modal-content img,
+.vc-changelog-modal-content video,
+.vc-changelog-modal-content iframe {
+    width: 100%;
+    border-radius: 5px;
+    max-height: 254px;
+    margin-bottom: 5px;
+}
+
+.vc-changelog-modal-content iframe {
+    height: 346px;
+}
+
+.vc-changelog-modal-content a {
+    color: hsl(200deg calc(var(--saturation-factor, 1) * 100%) 49.4%);
+    transition: 0.05s;
+    text-decoration: none;
+}
+
+.vc-changelog-modal-content a:hover {
+    text-decoration: underline;
+}
+
+.vc-changelog-modal-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+}
+
+.vc-changelog-modal-footer-buttons {
+    color: var(--text-muted);
+    transition: color 0.1s;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--text-strong);
+    }
+}

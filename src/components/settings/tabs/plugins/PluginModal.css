@@ -1,0 +1,92 @@
+.vc-settings-modal-content {
+    padding-bottom: 24px;
+}
+
+/* #region Info section */
+.vc-plugin-modal-info {
+    display: flex;
+    gap: 1em;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.vc-plugin-modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-block: 8px 12px;
+}
+
+.vc-plugin-modal-tag {
+    align-items: center;
+    border: 1px solid var(--border-normal);
+    border-radius: 9999px;
+    display: flex;
+    justify-content: center;
+    padding: 6px 8px;
+    color: var(--text-default);
+}
+
+.vc-plugin-modal-keywords {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 8px;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.vc-plugin-modal-keywords svg {
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.vc-settings-modal-links {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* #endregion */
+
+/* #region Authors */
+.vc-plugin-modal-authors {
+    width: fit-content;
+    background-color: unset;
+}
+
+.vc-plugin-modal-author-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.vc-plugin-modal-author-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    padding-left: var(--space-4);
+    border-radius: 999px;
+    background-color: var(--background-base-low);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: var(--background-base-lower);
+    }
+
+    &.vc-plugin-modal-author-overflow {
+        color: var(--text-muted);
+        cursor: default;
+    }
+}
+
+/* #endregion */
+
+.vc-plugin-modal-no-settings {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-8);
+    color: var(--text-muted);
+}

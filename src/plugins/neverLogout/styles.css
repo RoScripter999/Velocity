@@ -1,0 +1,42 @@
+.vc-nl-user-row {
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-muted);
+    background: var(--background-mod-subtle);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &:hover {
+        background: var(--background-mod-normal);
+        border-color: var(--border-normal);
+    }
+
+    &:active {
+        background: var(--background-mod-strong);
+    }
+}
+
+.vc-nl-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.vc-nl-user-info > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vc-nl-quick-login {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    margin-bottom: var(--space-12);
+}

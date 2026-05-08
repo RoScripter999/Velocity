@@ -1,0 +1,107 @@
+.vc-settings-card {
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+.vc-warning-card {
+    padding: 1em;
+    background-color: var(--background-feedback-warning);
+    border: 1px solid var(--icon-feedback-warning);
+    color: var(--text-feedback-warning);
+}
+
+
+/* #region velocity */
+.vc-settings-velocity-row {
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--card-background-default);
+    transition: background 0.2s ease;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &:hover {
+        background: var(--background-base-lower);
+    }
+}
+
+.vc-settings-velocity-row-icon {
+    background: var(--background-accent);
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vc-settings-velocity-hint {
+    padding: 10px 12px;
+    margin-top: var(--space-16);
+    background: var(--background-mod-subtle);
+    border: 1px solid var(--border-subtle);
+}
+
+.vc-settings-velocity-no-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* #endregion */
+
+/* #region SectionHeader.tsx */
+.vc-settings-section-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.vc-settings-section-header-wrapper-horizontal {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.vc-settings-section-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.vc-settings-section-header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vc-settings-section-header-title {
+    color: var(--text-default);
+}
+
+.vc-settings-section-header-description {
+    margin-left: 2px;
+}
+
+.vc-settings-section-header-tooltip {
+    color: var(--text-muted);
+    display: inline-flex;
+    margin-left: 2px;
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: var(--text-strong);
+    }
+}
+
+/* #endregion */

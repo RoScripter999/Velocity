@@ -1,0 +1,56 @@
+/* #region ThemesTab.tsx */
+.vc-settings-themes-row {
+    display: flex;
+    flex-flow: row wrap;
+    gap: var(--space-16)
+}
+
+.vc-settings-themes-settings-icon {
+    height: 24px;
+    width: 24px;
+    padding: 0;
+    background: transparent;
+    color: var(--icon-muted, var(--icon-secondary));
+    transition: color 0.1s ease;
+
+    &:hover {
+        color: var(--interactive-icon-hover, var(--interactive-hover));
+    }
+}
+
+.vc-settings-themes-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+/* #endregion */
+
+/* #region CspErrorCard.tsx */
+.vc-settings-themes-csp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vc-settings-themes-csp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    & > div {
+        flex: 1
+    }
+
+    & a {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        line-height: 1.2em;
+    }
+
+    --custom-button-button-md-height: 26px;
+}
+
+/* #endregion */

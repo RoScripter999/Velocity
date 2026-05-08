@@ -1,0 +1,16 @@
+.vc-autoresponder-cogwheel-button {
+    height: 24px;
+    width: 24px;
+    background: transparent;
+}
+
+.vc-autoresponder-delete-button {
+    height: 24px;
+    width: 24px;
+    background: transparent;
+    color: var(--status-danger);
+}
+
+.vc-autoresponder-err-text {
+    color: var(--text-feedback-critical, var(--text-danger))
+}

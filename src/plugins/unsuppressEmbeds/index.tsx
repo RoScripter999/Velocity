@@ -1,0 +1,69 @@
+/*
+ * Velocity, a modification for Discord's desktop app
+ * Copyright (c) 2026 Velocitcs and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
+import { ImageInvisible, ImageVisible } from "@components/Icons";
+import { Devs } from "@utils/constants";
+import definePlugin from "@utils/types";
+import type { Channel, Message } from "@velocity-types";
+import { MessageFlags } from "@velocity-types/enums";
+import { CMIconClasses, Constants, Menu, PermissionsBits, PermissionStore, RestAPI, UserStore } from "@webpack/common";
+
+const messageContextMenuPatch: NavContextMenuPatchCallback = (
+    children,
+    { channel, message: { author, messageSnapshots, embeds, flags, id: messageId } }: { channel: Channel; message: Message; }
+) => {
+    const isEmbedSuppressed = (flags & MessageFlags.SUPPRESS_EMBEDS) !== 0;
+    const hasRealEmbeds = embeds.some(e => e.type !== "poll_result");
+    const hasRealSnapshots = messageSnapshots.some(s => s.message.embeds.some(e => e.type !== "poll_result"));
+
+    if (!isEmbedSuppressed && !hasRealEmbeds && !hasRealSnapshots) return;
+
+    const hasEmbedPerms = channel.isPrivate() || !!(PermissionStore.can(PermissionsBits.EMBED_LINKS, channel));
+    if (author.id === UserStore.getCurrentUser().id && !hasEmbedPerms) return;
+
+    const menuGroup = findGroupChildrenByChildId("delete", children);
+    const deleteIndex = menuGroup?.findIndex(i => i?.props?.id === "delete");
+    if (!deleteIndex || !menuGroup) return;
+
+    menuGroup.splice(deleteIndex - 1, 0, (
+        <Menu.MenuItem
+            id="unsuppress-embeds"
+            key="unsuppress-embeds"
+            label={isEmbedSuppressed ? "Unsuppress Embeds" : "Suppress Embeds"}
+            color={isEmbedSuppressed ? undefined : "danger"}
+            icon={isEmbedSuppressed ? () => <ImageVisible colorClass={CMIconClasses.icon} /> : () => <ImageInvisible colorClass={CMIconClasses.icon} />}
+            action={() =>
+                RestAPI.patch({
+                    url: Constants.Endpoints.MESSAGE(channel.id, messageId),
+                    body: { flags: isEmbedSuppressed ? flags & ~MessageFlags.SUPPRESS_EMBEDS : flags | MessageFlags.SUPPRESS_EMBEDS }
+                })
+            }
+        />
+    ));
+};
+
+export default definePlugin({
+    name: "UnsuppressEmbeds",
+    authors: [Devs.rad, Devs.HypedDomi],
+    description: "Allows you to unsuppress embeds in messages",
+    tags: ["Chat", "Utility"],
+    contextMenus: {
+        "message": messageContextMenuPatch
+    }
+});

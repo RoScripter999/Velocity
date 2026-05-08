@@ -1,0 +1,102 @@
+.vc-icon-preview-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 16px;
+    border-radius: 15px;
+    color: var(--interactive-icon-default);
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--background-mod-subtle);
+        color: var(--interactive-icon-hover, var(--interactive-hover));
+    }
+}
+
+.vc-icon-preview-name {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.vc-icon-preview-modal-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vc-icon-preview-modal-icon {
+    width: max-content;
+    height: max-content;
+    color: var(--interactive-icon-default);
+    background-color: var(--background-mod-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.vc-icon-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+}
+
+.vc-icon-info-header-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background-mod-subtle);
+}
+
+.vc-icon-info-header-icon {
+    color: var(--interactive-icon-default);
+    width: 28px;
+    height: 28px;
+}
+
+.vc-icon-info-preview-card {
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.vc-icon-info-preview-area {
+    background: var(--background-mod-subtle);
+    border-radius: 8px;
+    padding: 24px;
+    min-height: 80px;
+    margin-top: 12px;
+}
+
+.vc-icon-info-path-card {
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.vc-icon-info-path-data {
+    background: var(--background-code);
+    border-radius: 6px;
+    padding: 8px;
+    max-height: 80px;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.vc-icon-info-path-attr code {
+    background: var(--background-mod-subtle);
+    padding: 1px 4px;
+    border-radius: 4px;
+}

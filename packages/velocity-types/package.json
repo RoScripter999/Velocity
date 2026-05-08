@@ -1,0 +1,21 @@
+{
+    "name": "velocity-types",
+    "author": "RoScripter999",
+    "private": false,
+    "description": "Typescript definitions for the webpack modules of the Velocity discord mod",
+    "version": "1.0.0",
+    "license": "LGPL-3.0-or-later",
+    "types": "src/index.d.ts",
+    "type": "module",
+    "dependencies": {
+      "moment": "^2.22.2",
+      "type-fest": "^4.41.0"
+    },
+    "peerDependencies": {
+      "@types/react": "19.2.14"
+    },
+    "devDependencies": {
+      "typescript": "^5.9.3",
+      "@types/react": "19.2.14"
+    }
+  }

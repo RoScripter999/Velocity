@@ -1,0 +1,41 @@
+.vc-gu-header {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.vc-gu-avatar-container {
+    margin-bottom: 10px;
+}
+
+.vc-gu-detail-section {
+    background-color: var(--background-base-lower);
+    border-radius: var(--radius-sm);
+    margin-bottom: 15px;
+}
+
+.vc-gu-section-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+    margin: 0 16px;
+}
+
+.vc-gu-suggestion-text {
+    color: var(--text-link);
+    cursor: pointer;
+}
+
+.vc-gu-suggestion-text:hover {
+    text-decoration: underline;
+}
+
+.vc-gu-footer {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+}

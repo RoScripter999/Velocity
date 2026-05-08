@@ -1,0 +1,21 @@
+.vc-st-format-label {
+    --border-subtle: transparent;
+}
+
+.vc-st-picker {
+    width: 100%;
+    max-width: 400px;
+    margin: 5px auto;
+}
+
+.vc-st-modal-title {
+    margin: 0;
+}
+
+.vc-st-modal-close-button {
+    padding: 0;
+}
+
+.vc-st-preview-text {
+    margin-bottom: 1em;
+}

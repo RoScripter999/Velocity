@@ -1,0 +1,49 @@
+@keyframes slidedown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vc-cm-tag {
+    margin-bottom: 1em;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.vc-cm-tag-header {
+    padding: 12px 16px;
+    background: var(--background-secondary);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    transition: background-color 0.1s;
+}
+
+.vc-cm-tag-header:hover {
+    background: var(--background-secondary-alt);
+}
+
+.vc-cm-tag-chevron {
+    transition: transform 0.2s;
+    color: var(--text-default);
+}
+
+.vc-cm-tag-chevron-expanded {
+    transform: rotate(90deg);
+}
+
+.vc-cm-tag-content {
+    padding: 16px;
+    animation: slidedown 0.2s ease-out;
+}

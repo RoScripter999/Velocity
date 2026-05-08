@@ -1,0 +1,17 @@
+.vc-error-card {
+    padding: 2em;
+    border: 1px solid #e782845b;
+    border-radius: 5px;
+    color: var(--text-default, white);
+
+    & a:hover {
+        text-decoration: underline;
+    }
+}
+
+.vc-error-code {
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    background: #210d0fa6;
+    padding: 8px 4px;
+}

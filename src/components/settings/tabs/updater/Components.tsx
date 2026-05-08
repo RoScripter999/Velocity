@@ -1,0 +1,169 @@
+/*
+ * Velocity, a modification for Discord's desktop app
+ * Copyright (c) 2025 Velocitcs and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import { Card } from "@components/Card";
+import { ErrorCard } from "@components/ErrorBoundary";
+import { Flex } from "@components/Flex";
+import { Link } from "@components/Link";
+import { Margins } from "@components/margins";
+import { Paragraph } from "@components/Paragraph";
+import { classes } from "@utils/misc";
+import { relaunch } from "@utils/native";
+import { changes, checkForUpdates, update, updateError } from "@utils/updater";
+import { Alerts, Buttons, Toasts, useState } from "@webpack/common";
+import type { Dispatch, SetStateAction } from "react";
+
+import { runWithDispatch } from "./runWithDispatch";
+
+export interface CommonProps {
+    repo: string;
+    repoPending: boolean;
+    checkingUpdate?: boolean;
+    setCheckingUpdate?: Dispatch<SetStateAction<boolean>>;
+}
+
+export function HashLink({ repo, hash, disabled = false }: { repo: string; hash: string; disabled?: boolean; }) {
+    return (
+        <Link href={`${repo}/commit/${hash}`} disabled={disabled}>
+            {hash}
+        </Link>
+    );
+}
+
+export function Changes({ updates, repo, repoPending }: CommonProps & { updates: typeof changes; }) {
+    return (
+        <Card style={{ padding: "0 0.5em" }}>
+            {updates.map(({ hash, author, message }) => (
+                <div
+                    key={hash}
+                    style={{
+                        marginTop: "0.5em",
+                        marginBottom: "0.5em"
+                    }}
+                >
+                    <code>
+                        <HashLink {...{ repo, hash }} disabled={repoPending} />
+                    </code>
+
+                    <span
+                        style={{
+                            marginLeft: "0.5em",
+                            color: "var(--text-default)"
+                        }}
+                    >
+                        {message} - {author}
+                    </span>
+                </div>
+            ))}
+        </Card>
+    );
+}
+
+export function Newer(props: CommonProps) {
+    return (
+        <>
+            <Paragraph className={Margins.bottom8}>
+                Your local copy has more recent commits. Please stash or reset them.
+            </Paragraph>
+            <Changes {...props} updates={changes} />
+        </>
+    );
+}
+
+export function Updatable(props: CommonProps) {
+    const [updates, setUpdates] = useState(changes);
+    const [isChecking, setIsChecking] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    const isOutdated = (updates?.length ?? 0) > 0;
+
+    return (
+        <>
+            {!updates && updateError ? (
+                <>
+                    <Paragraph>Failed to check updates. Check the console for more info</Paragraph>
+                    <ErrorCard style={{ padding: "1em" }}>
+                        <p>{updateError.stderr || updateError.stdout || "An unknown error occurred"}</p>
+                    </ErrorCard>
+                </>
+            ) : (
+                <Paragraph className={Margins.bottom8}>
+                    {isOutdated
+                        ? updates.length === 1
+                            ? "There is 1 Update"
+                            : `There are ${updates.length} Updates`
+                        : "Up to Date!"}
+                </Paragraph>
+            )}
+
+            {isOutdated && <Changes updates={updates} {...props} />}
+
+            <Flex className={classes(Margins.bottom8, Margins.top8)}>
+                {isOutdated && (
+                    <Buttons.Button
+                        size="sm"
+                        disabled={isUpdating || isChecking}
+                        text="Update Now"
+                        onClick={runWithDispatch(setIsUpdating, async () => {
+                            if (await update()) {
+                                setUpdates([]);
+
+                                await new Promise<void>(r => {
+                                    Alerts.show({
+                                        title: "Update Success!",
+                                        body: "Successfully updated. Restart now to apply the changes?",
+                                        confirmText: "Restart",
+                                        cancelText: "Not now!",
+                                        onConfirm() {
+                                            relaunch();
+                                            r();
+                                        },
+                                        onCancel: r
+                                    });
+                                });
+                            }
+                        })}
+                    />
+                )}
+                <Buttons.Button
+                    size="sm"
+                    disabled={isUpdating || isChecking}
+                    text="Check for Updates"
+                    onClick={runWithDispatch(setIsChecking, async () => {
+                        const outdated = await checkForUpdates();
+
+                        if (outdated) {
+                            setUpdates(changes);
+                        } else {
+                            setUpdates([]);
+
+                            Toasts.show({
+                                message: "No updates found!",
+                                id: Toasts.genId(),
+                                type: Toasts.Type.MESSAGE,
+                                options: {
+                                    position: Toasts.Position.BOTTOM
+                                }
+                            });
+                        }
+                    })}
+                />
+            </Flex>
+        </>
+    );
+}

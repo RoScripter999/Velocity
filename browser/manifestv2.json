@@ -1,0 +1,50 @@
+{
+    "manifest_version": 2,
+    "minimum_chrome_version": "91",
+    "name": "Velocity Web",
+    "description": "The funniest Discord mod now in your browser",
+    "author": "Velocitcy",
+    "homepage_url": "https://github.com/Velocitcy/Velocity",
+    "icons": {
+        "128": "icon.png"
+    },
+    "permissions": [
+        "webRequest",
+        "webRequestBlocking",
+        "*://*.discord.com/*",
+        "https://raw.githubusercontent.com/*"
+    ],
+    "content_scripts": [
+        {
+            "run_at": "document_start",
+            "matches": [
+                "*://*.discord.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "all_frames": true,
+            "world": "ISOLATED"
+        },
+        {
+            "run_at": "document_start",
+            "matches": [
+                "*://*.discord.com/*"
+            ],
+            "js": [
+                "dist/Velocity.js"
+            ],
+            "all_frames": true,
+            "world": "MAIN"
+        }
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "web_accessible_resources": [
+        "dist/Velocity.js",
+        "dist/Velocity.css"
+    ]
+}

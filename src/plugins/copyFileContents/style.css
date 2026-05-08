@@ -1,0 +1,10 @@
+.vc-cfc-button {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+    cursor: pointer;
+}
+
+.vc-cfc-button:hover {
+    color: var(--interactive-icon-default, var(--interactive-normal));
+}
