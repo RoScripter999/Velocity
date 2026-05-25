@@ -48,10 +48,6 @@ import plugins, { PluginMeta } from "~plugins";
 
 const logger = new Logger("SupportHelper");
 
-const AdditionalAllowedChannelIds = [
-    "1024286218801926184" // Velocity > #bot-spam
-];
-
 const TrustedRolesIds = [
     CONTRIB_ROLE_ID,
     REGULAR_ROLE_ID,
@@ -63,7 +59,7 @@ const pluginLinkRegex = /velocity:\/\/plugins\/([a-zA-Z0-9_-]+)/;
 const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
 
 const isSupportAllowedChannel = (channel: Channel) =>
-    channel.parent_id === SUPPORT_CATEGORY_ID || AdditionalAllowedChannelIds.includes(channel.id);
+    channel.parent_id === SUPPORT_CATEGORY_ID;
 
 async function forceUpdate() {
     const outdated = await checkForUpdates();
@@ -238,7 +234,7 @@ export default definePlugin({
     name: "SupportHelper",
     required: true,
     description: "Helps us provide support to you",
-    authors: [Devs.Ven],
+    authors: [Devs.Ven, Devs.Rift],
     dependencies: ["UserSettingsAPI"],
 
     settings,
@@ -286,7 +282,7 @@ export default definePlugin({
             if (!selfId || isPluginDev(selfId)) return;
 
             if (!IS_UPDATER_DISABLED) {
-                await checkForUpdatesOnce().catch(() => {});
+                await checkForUpdatesOnce().catch(() => { });
 
                 if (isOutdated) {
                     openModal(props => (
@@ -393,7 +389,6 @@ export default definePlugin({
         if (shouldAddUpdateButton) {
             buttons.push(
                 <Buttons.Button
-                    key="vc-update"
                     variant="active"
                     text="Update Now"
                     onClick={async () => {
@@ -414,13 +409,11 @@ export default definePlugin({
         if (hasDebugCommand && props.channel.parent_id === SUPPORT_CATEGORY_ID && PermissionStore.can(PermissionsBits.SEND_MESSAGES, props.channel)) {
             buttons.push(
                 <Buttons.Button
-                    key="vc-dbg"
                     onClick={async () => sendMessage(props.channel.id, { content: await generateDebugInfoMessage() })}
                     text="Run /velocity-debug"
                     size="sm"
                 />,
                 <Buttons.Button
-                    key="vc-plg-list"
                     onClick={() => sendPluginList(props.channel.id)}
                     text="Run /velocity-plugins"
                     size="sm"
