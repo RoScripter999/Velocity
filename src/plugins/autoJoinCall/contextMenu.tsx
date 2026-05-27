@@ -16,36 +16,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
-import AutoJoinCallPlugin from "@plugins/autoJoinCall";
+import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
+import { openPluginModal } from "@components/settings";
 import { Icons, Menu } from "@webpack/common";
 
-export const streamContextMenuPatch: NavContextMenuPatchCallback = children => {
-    children.splice(4, 0,
+import AutoJoinCallPlugin, { settings } from ".";
+
+export const StreamSettingsContextMenuPatch: NavContextMenuPatchCallback = children => {
+    const group = findGroupChildrenByChildId("voice-and-video-settings", children) ?? children;
+    const idx = group?.findIndex(i => i?.props?.id === "voice-and-video-settings");
+
+    group.splice(idx - 1, 0,
         <Menu.MenuItem
             id="vc-autojoin-settings"
             label="Auto Join Settings"
             icon={Icons.SettingsIcon}
+            leadingAccessory={{ type: "icon", icon: Icons.SettingsIcon }}
             action={() => openPluginModal(AutoJoinCallPlugin)}
         />
     );
 };
 
-export function streamEnablingPatch(): NavContextMenuPatchCallback {
-    return children => {
-        const { autoStream } = AutoJoinCallPlugin.settings.use(["autoStream"]);
+export const AutoStreamPatch: NavContextMenuPatchCallback = children => {
+    const { autoStream } = settings.use(["autoStream"]);
 
-        children.splice(2, 0,
-            <Menu.MenuSeparator />,
-            <Menu.MenuCheckboxItem
-                id="vc-stream-checkbox"
-                label="Auto Stream"
-                checked={autoStream ?? false}
-                action={() => {
-                    AutoJoinCallPlugin.settings.store.autoStream = !AutoJoinCallPlugin.settings.store.autoStream;
-                }}
-            />
-        );
-    };
-}
+    children.splice(2, 0,
+        <Menu.MenuSeparator />,
+        <Menu.MenuCheckboxItem
+            id="vc-stream-checkbox"
+            label="Auto Stream"
+            checked={autoStream ?? false}
+            action={() => settings.store.autoStream = !settings.store.autoStream}
+        />
+    );
+};
