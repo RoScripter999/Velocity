@@ -18,12 +18,15 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
+import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByCodeLazy } from "@webpack";
-import { ApplicationStreamingSettingsStore, ApplicationStreamingStore, ChannelActions, ChannelStore, MediaEngineStore, OverlayRTCConnectionStore, VoiceActions, VoiceStateStore } from "@webpack/common";
+import { findByCodeLazy, findComponentByCodeLazy } from "@webpack";
+import { ApplicationStreamingSettingsStore, ApplicationStreamingStore, ChannelActions, ChannelStore, Icons, MediaEngineStore, OverlayRTCConnectionStore, Popout, useRef, VoiceActions, VoiceStateStore } from "@webpack/common";
 
-import { AutoStreamPatch, StreamSettingsContextMenuPatch } from "./contextMenu";
+import { AutoJoinMenu, AutoStreamPatch, StreamSettingsContextMenuPatch } from "./contextMenu";
+
+const TrayButton = findComponentByCodeLazy('"activeLight":"primaryLight"', "caretAriaLabel", "isTrayButton");
 
 const StatusSettings = getUserSettingLazy<string>("status", "status")!;
 
@@ -36,11 +39,28 @@ interface Screen {
     url: Base64URLString;
 }
 
+export const statusOptions = [
+    { label: "Invisible", value: "invisible" },
+    { label: "Do not disturb", value: "dnd" },
+    { label: "Idle", value: "idle" },
+    { label: "Online", value: "online" }
+];
+
 export const settings = definePluginSettings({
+    autoJoinEnabled: {
+        type: OptionType.BOOLEAN,
+        description: "Enable auto join (can also be toggled via the voice tray button)",
+        default: true
+    },
     channelId: {
         type: OptionType.STRING,
         description: "Check for channel ids",
         default: ""
+    },
+    showVoiceButton: {
+        type: OptionType.BOOLEAN,
+        description: "Shows an button in the voice tray actions (only visible when in call)",
+        default: true
     },
     voiceSetting: {
         type: OptionType.SELECT,
@@ -55,12 +75,7 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "On which status will it automatically join the call",
         default: ["invisible", "dnd", "online"],
-        options: [
-            { label: "Invisible", value: "invisible" },
-            { label: "Do not disturb", value: "dnd" },
-            { label: "Idle", value: "idle" },
-            { label: "Online", value: "online" }
-        ]
+        options: statusOptions
     },
     autoStream: {
         type: OptionType.BOOLEAN,
@@ -143,6 +158,37 @@ async function joinCall(channelId: string) {
     }
 }
 
+function AutoJoinToggleButton() {
+    const { autoJoinEnabled } = settings.use(["autoJoinEnabled"]);
+    const ref = useRef<HTMLDivElement>(null);
+
+    return (
+        <Popout
+            position="top"
+            align="center"
+            animation={Popout.Animation.FADE}
+            spacing={4}
+            targetElementRef={ref}
+            renderPopout={({ closePopout }) => <AutoJoinMenu closePopout={closePopout} />}
+        >
+            {({ onClick: openPopout }, { isShown }) => (
+                <TrayButton
+                    ref={ref}
+                    iconComponent={Icons.PhoneCallIcon}
+                    label={autoJoinEnabled ? "Disable Auto Join" : "Enable Auto Join"}
+                    isActive={autoJoinEnabled}
+                    color={autoJoinEnabled ? "green" : undefined}
+                    isTrayButton={true}
+                    shouldShowTooltip={!isShown}
+                    onPopoutClick={openPopout}
+                    popoutOpen={isShown}
+                    onClick={() => { settings.store.autoJoinEnabled = !settings.store.autoJoinEnabled; }}
+                />
+            )}
+        </Popout>
+    );
+}
+
 function getChannelIds(): string[] {
     const { channelId } = settings.store;
     if (!channelId) return [];
@@ -166,6 +212,14 @@ export default definePlugin({
 
     patches: [
         {
+            find: '"CenterControlTray: currentUser cannot be undefined"',
+            replacement: {
+                match: /(exitFullScreen:\w+,canGoLive:\w+,hasPermission:\w+\}\))(?=,!\w+&&)/,
+                replace: "$1,$self.AutoJoinToggleButton()"
+            },
+            predicate: () => settings.store.showVoiceButton
+        },
+        {
             find: '"MediaEngineStore"',
             replacement: [{
                 // VOICE_CHANNEL_SELECT: replace hardcoded false values so Discord won't
@@ -181,26 +235,9 @@ export default definePlugin({
         }
     ],
 
-    changeUserVoiceState() {
-        const { voiceSetting } = settings.store;
-        if (voiceSetting === "none") return;
-        if (!MediaEngineStore.isSelfMute() && (voiceSetting === "mute" || voiceSetting === "deafen"))
-            VoiceActions.toggleSelfMute();
-        if (!MediaEngineStore.isSelfDeaf() && voiceSetting === "deafen")
-            VoiceActions.toggleSelfDeaf();
-    },
-
-    get getMuteValue() {
-        return settings.store.voiceSetting === "mute";
-    },
-
-    get getDeafValue() {
-        return settings.store.voiceSetting === "deafen";
-    },
-
     start() {
         const channelIds = getChannelIds();
-        if (channelIds.length === 0 || !shouldJoinBasedOnStatus()) return;
+        if (!settings.store.autoJoinEnabled || channelIds.length === 0 || !shouldJoinBasedOnStatus()) return;
 
         channelIds.forEach(id => joinCall(id));
     },
@@ -213,7 +250,7 @@ export default definePlugin({
     flux: {
         CALL_CREATE(data: { channelId: string; }) {
             const channelIds = getChannelIds();
-            if (channelIds.length === 0 || !shouldJoinBasedOnStatus()) return;
+            if (!settings.store.autoJoinEnabled || channelIds.length === 0 || !shouldJoinBasedOnStatus()) return;
 
             if (channelIds.includes(data.channelId)) {
                 setTimeout(() => joinCall(data.channelId), 100);
@@ -222,7 +259,7 @@ export default definePlugin({
 
         CALL_UPDATE(data: { channelId: string; ringing?: string[]; }) {
             const channelIds = getChannelIds();
-            if (channelIds.length === 0 || !shouldJoinBasedOnStatus()) return;
+            if (!settings.store.autoJoinEnabled || channelIds.length === 0 || !shouldJoinBasedOnStatus()) return;
 
             const isRinging = Array.isArray(data.ringing) && data.ringing.length > 0;
 
@@ -230,5 +267,24 @@ export default definePlugin({
                 setTimeout(() => joinCall(data.channelId), 100);
             }
         }
+    },
+
+    AutoJoinToggleButton: ErrorBoundary.wrap(AutoJoinToggleButton, { noop: true }),
+
+    get getMuteValue() {
+        return settings.store.voiceSetting === "mute";
+    },
+
+    get getDeafValue() {
+        return settings.store.voiceSetting === "deafen";
+    },
+
+    changeUserVoiceState() {
+        const { voiceSetting } = settings.store;
+        if (voiceSetting === "none") return;
+        if (!MediaEngineStore.isSelfMute() && (voiceSetting === "mute" || voiceSetting === "deafen"))
+            VoiceActions.toggleSelfMute();
+        if (!MediaEngineStore.isSelfDeaf() && voiceSetting === "deafen")
+            VoiceActions.toggleSelfDeaf();
     }
 });
