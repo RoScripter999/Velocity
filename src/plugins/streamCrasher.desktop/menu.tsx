@@ -18,7 +18,7 @@
 
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { openPluginModal } from "@components/settings";
-import StreamCrasherPlugin, { crashModeLabels, settings } from "@plugins/streamCrasher";
+import StreamCrasherPlugin, { crashModeLabels, settings } from "@plugins/streamCrasher.desktop";
 import { Icons, Menu } from "@webpack/common";
 
 export function CrasherContextMenu({ closePopout, settings }) {
