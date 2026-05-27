@@ -21,7 +21,7 @@ import { getUserSettingLazy } from "@api/UserSettings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByCodeLazy } from "@webpack";
-import { ApplicationStreamingSettingsStore, ApplicationStreamingStore, ChannelActions, ChannelStore, OverlayRTCConnectionStore, VoiceStateStore } from "@webpack/common";
+import { ApplicationStreamingSettingsStore, ApplicationStreamingStore, ChannelActions, ChannelStore, MediaEngineStore, OverlayRTCConnectionStore, VoiceActions, VoiceStateStore } from "@webpack/common";
 
 import { AutoStreamPatch, StreamSettingsContextMenuPatch } from "./contextMenu";
 
@@ -167,14 +167,28 @@ export default definePlugin({
     patches: [
         {
             find: '"MediaEngineStore"',
-            replacement: {
+            replacement: [{
                 // VOICE_CHANNEL_SELECT: replace hardcoded false values so Discord won't
                 // fight the mute/deaf state we're about to set in joinCall
                 match: /\((\w+)\.mute\|\|(\w+)\.deaf\)&&\((\w+)\(\{deaf:!1,mute:!1\}\),(\w+\.eachConnection\(\w+\))\)/,
                 replace: "($1.mute||$2.deaf)&&($3({deaf:$self.getDeafValue,mute:$self.getMuteValue}),$4)"
-            }
+            },
+            {
+                // RTC_CONNECTED function. apply mute/deafen once the connection is established.
+                match: /\.RTC_CONNECTED:(\w+)\(\)/,
+                replace: ".RTC_CONNECTED:$1(),$self.changeUserVoiceState()"
+            }]
         }
     ],
+
+    changeUserVoiceState() {
+        const { voiceSetting } = settings.store;
+        if (voiceSetting === "none") return;
+        if (!MediaEngineStore.isSelfMute() && (voiceSetting === "mute" || voiceSetting === "deafen"))
+            VoiceActions.toggleSelfMute();
+        if (!MediaEngineStore.isSelfDeaf() && voiceSetting === "deafen")
+            VoiceActions.toggleSelfDeaf();
+    },
 
     get getMuteValue() {
         return settings.store.voiceSetting === "mute";
