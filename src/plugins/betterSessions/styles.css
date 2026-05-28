@@ -8,3 +8,29 @@
     margin-left: 4px;
     translate: 0 -2px;
 }
+
+.vc-betterSessions-lowerBadge {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: var(--interactive-icon-default);
+    color: var(--background-base-lower);
+}
+
+.vc-betterSessions-icon {
+    align-items: center;
+    border-radius: var(--radius-sm);
+    display: flex;
+    height: 48px;
+    justify-content: center;
+    width: 48px
+}
+
+.vc-betterSessions-description {
+    display: flex;
+    gap: 4px;
+}

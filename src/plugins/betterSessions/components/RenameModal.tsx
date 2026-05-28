@@ -17,7 +17,7 @@
 */
 
 import type { SessionInfo } from "@plugins/betterSessions/types";
-import { getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
+import { cl, getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
 import { getIntlMessage } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
 import { Buttons, Modal, TextInput, useState } from "@webpack/common";
@@ -82,7 +82,7 @@ export function RenameModal({ props, session, state }: { props: ModalPropsRender
                     />
                 </div>
 
-                <div className="vc-betterSessions-footer-buttons">
+                <div className={cl("footer-buttons")}>
                     <Buttons.Button
                         variant="secondary"
                         text={getIntlMessage("CANCEL")}

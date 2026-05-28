@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ import "./styles.css";
 import { showNotification } from "@api/Notifications";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { Paragraph } from "@components/Paragraph";
+import { AddonBadge } from "@components/settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
@@ -29,11 +31,9 @@ import type { ComponentType } from "react";
 
 import { RenameButton } from "./components/RenameButton";
 import type { Session, SessionInfo } from "./types";
-import { fetchNamesFromDataStore, getDefaultName, GetOsColor, GetPlatformIcon, savedSessionsCache, saveSessionsToDataStore } from "./utils";
+import { cl, fetchNamesFromDataStore, getDefaultName, GetOsColor, GetPlatformIcon, savedSessionsCache, saveSessionsToDataStore } from "./utils";
 
 const TimestampClasses = findCssClassesLazy("timestamp", "blockquoteContainer");
-const SessionIconClasses = findCssClassesLazy("sessionIcon");
-
 const BlobMask = findComponentByCodeLazy("!1,lowerBadgeSize:");
 
 const settings = definePluginSettings({
@@ -71,22 +71,23 @@ export default definePlugin({
 
     patches: [
         {
-            find: "#{intl::AUTH_SESSIONS_OTHERS_LOG_OUT_SELECTED_TITLE}",
-            lazy: true,
+            find: "#{intl::AUTH_SESSIONS_OS_UNKNOWN}",
             replacement: [
-                // Replace children with a single label with state
                 {
-                    match: /({variant:"eyebrow",className:\i\.\i,children:).{70,110}{children:"\\xb7"}\),\(0,\i\.\i\)\("span",{children:\i\[\d+\]}\)\]}\)\]/,
-                    replace: "$1$self.renderName(arguments[0])"
+                    match: /(#{intl::AUTH_SESSIONS_ACTIVE_RECENTLY}.{0,230}role:"listitem",children:\[.{0,15},\{Icon:)\i/,
+                    replace: "$1()=>$self.renderIcon(arguments[0])"
                 },
                 {
-                    match: /({variant:"text-sm\/medium",className:\i\.\i,children:.{70,110}{children:"\\xb7"}\),\(0,\i\.\i\)\("span",{children:)(\i\[\d+\])}/,
-                    replace: "$1$self.renderTimestamp({...arguments[0],timeLabel:$2})}"
+                    match: /("horizontal",gap:"xs",children:)\[.{0,250}"text-subtle",children:\i\}\)\]\}\),/,
+                    replace: "$1$self.renderName(arguments[0])}),"
                 },
                 {
-                    // Replace the icon
-                    match: /(?<=Icon:(\i).{0,250}className:\i\.\i,children:\[)/,
-                    replace: "$self.renderIcon({...arguments[0],DeviceIcon:$1}),false&&"
+                    match: /("text-muted",children:)\i(?=\}\)\]\}\),.{0,120}\.client_info\?\.location)/,
+                    replace: "$1$self.renderDescription(arguments[0])"
+                },
+                {
+                    match: /:\i\(\i\.approx_last_used_time\).{0,40}\(0,\i\.jsxs?\)\(\i,\{/,
+                    replace: "$&session:arguments[0]?.session,"
                 }
             ]
         }
@@ -101,37 +102,42 @@ export default definePlugin({
         // Show a "NEW" badge if the session is seen for the first time
         return (
             <>
-                <span>{title}</span>
-                {(savedSession == null || savedSession.isNew) && (
-                    <div
-                        className="vc-addon-badge"
-                        style={{
-                            backgroundColor: "#ED4245",
-                            marginLeft: "2px"
-                        }}
-                    >
-                        NEW
-                    </div>
-                )}
-                <RenameButton session={session} state={state} />
+                <Paragraph size="md" weight="semibold" color="text-strong">{title}</Paragraph>
+                <div className={cl("footer-buttons")}>
+                    {(savedSession == null || savedSession.isNew) && (
+                        <AddonBadge text="NEW" />
+                    )}
+                    <RenameButton session={session} state={state} />
+                </div>
             </>
         );
     }, { noop: true }),
 
-    renderTimestamp: ErrorBoundary.wrap(({ session, timeLabel }: { session: Session, timeLabel: string; }) => {
+    renderDescription: ErrorBoundary.wrap(({ session, description }: { session: Session, description: string; }) => {
+        const [label, timeLabel] = description.split(" \xb7 ");
+
         return (
-            <Tooltip text={session.approx_last_used_time.toLocaleString()}>
-                {props => (
-                    <span {...props} className={TimestampClasses.timestamp}>
-                        {timeLabel}
-                    </span>
+            <div className={cl("description")}>
+                <Paragraph size="sm" weight="normal" color="text-muted">{label}</Paragraph>
+                {timeLabel && (
+                    <>
+                        {" \xb7 "}
+                        <Tooltip text={session.approx_last_used_time.toLocaleString()}>
+                            {props => (
+                                <span {...props} className={TimestampClasses.timestamp}>
+                                    {timeLabel}
+                                </span>
+                            )}
+                        </Tooltip>
+                    </>
                 )}
-            </Tooltip>
+            </div>
         );
     }, { noop: true }),
+
     renderIcon: ErrorBoundary.wrap(({ session, DeviceIcon }: { session: Session, DeviceIcon: ComponentType<any>; }) => {
         const PlatformIcon = GetPlatformIcon(session.client_info.platform) as ComponentType<any>;
-        const iconResult = <PlatformIcon width={24} height={24} fill="none" viewBox="0 0 24 24" className="vc-icon" />;
+        const iconResult = <PlatformIcon width={24} height={24} fill="none" viewBox="0 0 24 24" />;
         const icon = typeof iconResult === "function" ? iconResult : iconResult;
 
         return (
@@ -141,17 +147,7 @@ export default definePlugin({
                 selected={false}
                 lowerBadge={
                     <div
-                        style={{
-                            width: "20px",
-                            height: "20px",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            overflow: "hidden",
-                            borderRadius: "50%",
-                            backgroundColor: "var(--interactive-icon-default, var(--interactive-normal))",
-                            color: "var(--background-base-lower)"
-                        }}
+                        className={cl("lowerBadge")}
                     >
                         {icon}
                     </div>
@@ -162,7 +158,7 @@ export default definePlugin({
                 }}
             >
                 <div
-                    className={SessionIconClasses.sessionIcon}
+                    className={cl("icon")}
                     style={{ backgroundColor: GetOsColor(session.client_info.os) }}
                 >
                     <DeviceIcon size="md" color="currentColor" />

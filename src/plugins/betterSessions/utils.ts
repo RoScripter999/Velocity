@@ -17,6 +17,7 @@
 */
 
 import * as DataStore from "@api/DataStore";
+import { classNameFactory } from "@utils/css";
 import { Icons, UserStore } from "@webpack/common";
 
 import { ChromeIcon, EdgeIcon, FirefoxIcon, IEIcon, OperaIcon, SafariIcon } from "./components/icons";
@@ -25,6 +26,8 @@ import type { SessionInfo } from "./types";
 const getDataKey = () => `BetterSessions_savedSessions_${UserStore.getCurrentUser().id}`;
 
 export const savedSessionsCache: Map<string, { name: string, isNew: boolean; }> = new Map();
+
+export const cl = classNameFactory("vc-betterSessions-");
 
 export function getDefaultName(clientInfo: SessionInfo["session"]["client_info"]) {
     return `${clientInfo.os} · ${clientInfo.platform}`;
