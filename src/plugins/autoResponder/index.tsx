@@ -16,100 +16,88 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { settings, stringToRegex } from "@plugins/autoResponder/pluginSettings";
+import { type Rule, settings, stringToRegex } from "@plugins/autoResponder/pluginSettings";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { UserStore } from "@webpack/common";
 
+const logger = new Logger("AutoResponder");
 const processedMessages = new Set<string>();
-let lastResponseTime = 0;
 const ruleLastResponseTimes = new Map<string, number>();
+let lastResponseTime = 0;
 
-function checkRules(content: string, messageId: string): { response: string; delay: number; } | null {
-    if (content.length === 0) return null;
-    if (processedMessages.has(messageId)) return null;
+function matchStringRule(rule: Rule, content: string): boolean {
+    let checkContent = content;
+    let checkTrigger = rule.trigger;
 
-    const now = Date.now();
-
-    // Global plugin cooldown
-    const globalCooldownMs = settings.store.cooldown * 1000;
-    if (now - lastResponseTime < globalCooldownMs) return null;
-
-    for (const rule of settings.store.stringRules) {
-        if (!rule.trigger || !rule.response) continue;
-        if (rule.onlyIfIncludes && !content.includes(rule.onlyIfIncludes)) continue;
-
-        const ruleKey = `string:${rule.trigger}`;
-        const ruleLastTime = ruleLastResponseTimes.get(ruleKey) || 0;
-
-        const responseCooldownMs = (rule.responseCooldown || 0) * 1000;
-        if (now - ruleLastTime < responseCooldownMs) continue;
-
-        let checkContent = content;
-        let checkTrigger = rule.trigger;
-
-        if (!rule.caseSensitive) {
-            checkContent = checkContent.toLowerCase();
-            checkTrigger = checkTrigger.toLowerCase();
-        }
-
-        let matches = false;
-        if (rule.matchWholeWord) {
-            const regex = new RegExp(
-                `\\b${checkTrigger.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-                rule.caseSensitive ? "" : "i"
-            );
-            matches = regex.test(content);
-        } else {
-            matches = checkContent.includes(checkTrigger);
-        }
-
-        if (matches) {
-            processedMessages.add(messageId);
-            lastResponseTime = now;
-            ruleLastResponseTimes.set(ruleKey, now);
-            setTimeout(() => processedMessages.delete(messageId), 5000);
-
-            return {
-                response: rule.response.replaceAll("\\n", "\n"),
-                delay: (rule.ruleCooldown || 0) * 1000
-            };
-        }
+    if (!rule.caseSensitive) {
+        checkContent = checkContent.toLowerCase();
+        checkTrigger = checkTrigger.toLowerCase();
     }
 
-    for (const rule of settings.store.regexRules) {
+    if (rule.matchWholeWord) {
+        const regex = new RegExp(
+            `\\b${checkTrigger.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+            rule.caseSensitive ? "" : "i"
+        );
+        return regex.test(content);
+    }
+
+    return checkContent.includes(checkTrigger);
+}
+
+function matchRegexRule(rule: Rule, content: string): boolean {
+    try {
+        return stringToRegex(rule.trigger).test(content);
+    } catch (e) {
+        logger.error(`Invalid regex: ${rule.trigger}`);
+        return false;
+    }
+}
+
+function tryMatch(
+    content: string,
+    messageId: string,
+    rules: Rule[],
+    prefix: string,
+    matcher: (rule: Rule, content: string) => boolean
+): { response: string; delay: number; } | null {
+    const now = Date.now();
+
+    for (const rule of rules) {
         if (!rule.trigger || !rule.response) continue;
         if (rule.onlyIfIncludes && !content.includes(rule.onlyIfIncludes)) continue;
 
-        const ruleKey = `regex:${rule.trigger}`;
-        const ruleLastTime = ruleLastResponseTimes.get(ruleKey) || 0;
+        const key = `${prefix}:${rule.trigger}`;
+        if (now - (ruleLastResponseTimes.get(key) ?? 0) < (rule.responseCooldown ?? 0) * 1000) continue;
 
-        const responseCooldownMs = (rule.responseCooldown || 0) * 1000;
-        if (now - ruleLastTime < responseCooldownMs) continue;
+        if (!matcher(rule, content)) continue;
 
-        try {
-            const regex = stringToRegex(rule.trigger);
-            if (regex.test(content)) {
-                processedMessages.add(messageId);
-                lastResponseTime = now;
-                ruleLastResponseTimes.set(ruleKey, now);
-                setTimeout(() => processedMessages.delete(messageId), 5000);
+        processedMessages.add(messageId);
+        lastResponseTime = now;
+        ruleLastResponseTimes.set(key, now);
+        setTimeout(() => processedMessages.delete(messageId), 5000);
 
-                return {
-                    response: rule.response.replaceAll("\\n", "\n"),
-                    delay: (rule.ruleCooldown || 0) * 1000
-                };
-            }
-        } catch (e) {
-            new Logger("AutoResponder").error(`Invalid regex: ${rule.trigger}`);
-        }
+        return {
+            response: rule.response.replaceAll("\\n", "\n"),
+            delay: (rule.ruleCooldown ?? 0) * 1000
+        };
     }
 
     return null;
 }
 
+function checkRules(content: string, messageId: string): { response: string; delay: number; } | null {
+    if (!content.length || processedMessages.has(messageId)) return null;
+    if (Date.now() - lastResponseTime < settings.store.cooldown * 1000) return null;
+
+    return (
+        tryMatch(content, messageId, settings.store.stringRules, "string", matchStringRule) ??
+        tryMatch(content, messageId, settings.store.regexRules, "regex", matchRegexRule)
+    );
+}
 
 export default definePlugin({
     name: "AutoResponder",
@@ -119,6 +107,12 @@ export default definePlugin({
 
     settings,
 
+    stop() {
+        processedMessages.clear();
+        ruleLastResponseTimes.clear();
+        lastResponseTime = 0;
+    },
+
     flux: {
         MESSAGE_CREATE(event) {
             const { message } = event;
@@ -126,16 +120,12 @@ export default definePlugin({
 
             if (settings.store.ignoreSelf && message.author.id === currentUser?.id) return;
             if (settings.store.ignoreBots && message.author.bot) return;
-
             if (settings.store.ignoreServers && message.guild_id) return;
 
             const result = checkRules(message.content, message.id);
             if (result) {
-                setTimeout(() => {
-                    sendMessage(message.channel_id, { content: result.response });
-                }, result.delay);
+                setTimeout(() => sendMessage(message.channel_id, { content: result.response }), result.delay);
             }
         }
     }
-
 });

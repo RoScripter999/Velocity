@@ -22,13 +22,13 @@ import { definePluginSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
 import { Span } from "@components/Span";
+import { RuleSettingsModal } from "@plugins/autoResponder/components/autoResponderModal";
 import { classNameFactory } from "@utils/css";
+import { useForceUpdater } from "@utils/react";
 import { OptionType } from "@utils/types";
 import { Buttons, Forms, Icons, openModal, React, TextInput, useState } from "@webpack/common";
 
-import { RuleSettingsModal } from "./components/autoResponderModal";
-
-export const cl = classNameFactory("vc-autoresponder-");
+const cl = classNameFactory("vc-autoresponder-");
 
 export type Rule = Record<"trigger" | "response" | "onlyIfIncludes", string> & {
     caseSensitive?: boolean;
@@ -104,12 +104,12 @@ function Input({ initialValue, onChange, placeholder }: {
 
 function AutoResponder({ title, rulesArray }: AutoResponderProps) {
     const isRegexRules = title === "Using Regex";
-    const [, forceUpdate] = useState({});
+    const forceUpdate = useForceUpdater();
 
     function onClickRemove(index: number) {
         if (index === rulesArray.length - 1) return;
         rulesArray.splice(index, 1);
-        forceUpdate({});
+        forceUpdate();
     }
 
     function onChange(e: string, index: number, key: string) {
@@ -122,7 +122,7 @@ function AutoResponder({ title, rulesArray }: AutoResponderProps) {
         if ((!rulesArray[index].trigger || !rulesArray[index].response) && index !== rulesArray.length - 1) {
             rulesArray.splice(index, 1);
         }
-        forceUpdate({});
+        forceUpdate();
     }
 
     function onClickSettings(rule: Rule, index: number) {
@@ -130,13 +130,12 @@ function AutoResponder({ title, rulesArray }: AutoResponderProps) {
 
         openModal(props => (
             <RuleSettingsModal
+                {...props}
                 rule={rule}
                 onSave={updatedRule => {
                     rulesArray[index] = updatedRule;
-                    forceUpdate({});
+                    forceUpdate();
                 }}
-                onClose={props.onClose}
-                transitionState={props.transitionState}
             />
         ));
     }
@@ -166,18 +165,18 @@ function AutoResponder({ title, rulesArray }: AutoResponderProps) {
                                     onChange={e => onChange(e, index, "onlyIfIncludes")}
                                 />
                                 {!isEmptyRule && (
-                                    <React.Fragment>
+                                    <>
                                         <Buttons.IconButton
                                             onClick={() => onClickSettings(rule, index)}
-                                            icon={() => <Icons.SettingsIcon color="currentColor" className={cl("cogwheel-button")} />}
+                                            icon={() => <Icons.SettingsIcon color="currentColor" />}
                                             variant="secondary"
                                         />
                                         <Buttons.IconButton
                                             variant="secondary"
-                                            icon={() => <Icons.TrashIcon color="currentColor" className={cl("delete-button")} />}
+                                            icon={() => <Icons.TrashIcon color="var(--icon-feedback-critical)" />}
                                             onClick={() => onClickRemove(index)}
                                         />
-                                    </React.Fragment>
+                                    </>
                                 )}
                             </Flex>
                             {isRegexRules && renderTriggerError(rule.trigger)}
