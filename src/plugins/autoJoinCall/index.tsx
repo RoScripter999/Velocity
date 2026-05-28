@@ -207,6 +207,7 @@ export default definePlugin({
     name: "AutoJoinCall",
     description: "Automatically joins the specified DM or guild call(s)",
     authors: [Devs.RoScripter999],
+    dependencies: ["UserSettingsAPI"],
     tags: ["Voice", "Shortcuts", "Friends"],
     settings,
 
