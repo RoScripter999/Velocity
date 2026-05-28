@@ -75,7 +75,7 @@ export const settings = definePluginSettings({
 // Same as GameActivityToggle
 const Button = findComponentByCodeLazy(".GREEN,positionKeyStemOverride:");
 const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron");
-const buttonClasses = findCssClassesLazy("redGlow", "enabled", "disabled", "plated");
+const ButtonClasses = findCssClassesLazy("redGlow", "enabled", "disabled", "plated");
 
 const CrashIcon = ({ isEnabled }) => (
     <Icon width="24" height="24" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@ const CrashIcon = ({ isEnabled }) => (
 );
 
 const ChevronIcon = ({ isEnabled, isShown }) => (
-    <Icon width="15" height="15" fill="none" viewBox="0 0 24 24" style={{ transform: isShown ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+    <Icon width="15" height="15" fill="none" style={{ transform: isShown ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
         <path fill={isEnabled ? "var(--icon-voice-muted)" : "currentColor"} d="M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z" />
     </Icon>
 );
@@ -111,11 +111,7 @@ function CrashButton() {
                 aria-checked={isEnabled}
                 aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
                 icon={() => <CrashIcon isEnabled={isEnabled} />}
-                iconForeground={undefined}
-                innerClassName={undefined}
                 onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
-                onMouseEnter={undefined}
-                onMouseLeave={undefined}
                 plated={false}
                 redGlow={isEnabled}
                 role="switch"
@@ -131,26 +127,20 @@ function CrashButton() {
             animation={Popout.Animation.FADE}
             spacing={4}
             targetElementRef={buttonRef}
-            renderPopout={({ closePopout }) => (
-                <CrasherContextMenu closePopout={closePopout} settings={settings} />
-            )}
+            renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} settings={settings} />}
         >
             {({ onClick: openPopout }, { isShown }) => (
                 <div
                     ref={buttonRef}
-                    className={classes(Classes.audioButtonParent, isEnabled && buttonClasses.redGlow, isShown && Classes.popoutOpen)}
+                    className={classes(Classes.audioButtonParent, isEnabled && ButtonClasses.redGlow, isShown && Classes.popoutOpen)}
                 >
                     <Button
                         aria-checked={isEnabled}
                         aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                        className={classes(Classes.audioButtonWithMenu, buttonClasses.enabled)}
+                        className={classes(Classes.audioButtonWithMenu, ButtonClasses.enabled)}
                         icon={() => <CrashIcon isEnabled={isEnabled} />}
-                        iconForeground={undefined}
-                        innerClassName={undefined}
                         onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
                         onContextMenu={openPopout}
-                        onMouseEnter={undefined}
-                        onMouseLeave={undefined}
                         plated={false}
                         redGlow={isEnabled}
                         role="switch"
@@ -159,19 +149,15 @@ function CrashButton() {
                     />
                     <Button
                         aria-label="Crasher Options"
-                        className={classes(Classes.buttonChevron, isShown && Classes.popoutOpen, buttonClasses.enabled)}
+                        className={classes(Classes.buttonChevron, isShown && Classes.popoutOpen, ButtonClasses.enabled)}
                         icon={() => <ChevronIcon isEnabled={isEnabled} isShown={isShown} />}
                         onClick={openPopout}
                         onContextMenu={openPopout}
-                        onMouseEnter={undefined}
-                        onMouseLeave={undefined}
                         plated={false}
                         redGlow={isEnabled}
                         tooltipForceOpen={false}
-                        tooltipPositionKey={undefined}
                         tooltipShouldShow={!isShown}
                         tooltipText="Crasher Options"
-                        tooltipType={undefined}
                     />
                 </div>
             )}

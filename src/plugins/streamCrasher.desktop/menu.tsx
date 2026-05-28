@@ -56,6 +56,7 @@ export function CrasherContextMenu({ closePopout, settings }) {
                 id="settings"
                 label="Crasher Settings"
                 icon={Icons.SettingsIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.SettingsIcon }}
                 action={() => openPluginModal(StreamCrasherPlugin)}
             />
         </Menu.Menu>
