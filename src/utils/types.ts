@@ -395,19 +395,21 @@ export interface PluginSettingComponentProps {
 }
 
 /** Maps a `PluginSettingDef` to its value type */
+type SelectValueType<O extends PluginSettingSelectDef> =
+    O["options"] extends readonly PluginSettingSelectOption[] ? O["options"][number]["value"] : string;
+
 type PluginSettingType<O extends PluginSettingDef> = O extends PluginSettingStringDef ? string :
     O extends PluginSettingNumberDef ? number :
     O extends PluginSettingBigIntDef ? BigInt :
     O extends PluginSettingBooleanDef ? boolean :
-    O extends PluginSettingSelectDef ? O["options"] extends readonly PluginSettingSelectOption[] ? O["options"][number]["value"] : string :
+    O extends PluginSettingSelectDef ? O["default"] extends any[] ? SelectValueType<O>[] : SelectValueType<O> :
     O extends PluginSettingSliderDef ? number :
     O extends PluginSettingComponentDef ? O extends { default: infer Default; } ? Default : any :
     O extends PluginSettingCustomDef ? O extends { default: infer Default; } ? Default : any :
     never;
 
-type PluginSettingDefaultType<O extends PluginSettingDef> = O extends PluginSettingSelectDef ? (
-    O["options"] extends readonly { default?: boolean; value: any; }[] ? O["options"][number]["value"] : undefined
-) : O extends { default: infer T; } ? T : undefined;
+type PluginSettingDefaultType<O extends PluginSettingDef> = O extends PluginSettingSelectDef ? never :
+    O extends { default: infer T; } ? T : undefined;
 
 type SettingsStore<D extends SettingsDefinition> = {
     [K in keyof D]: PluginSettingType<D[K]> | PluginSettingDefaultType<D[K]>;
