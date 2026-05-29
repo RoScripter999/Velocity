@@ -17,5 +17,14 @@
 */
 
 export const VelocityFragment = /* #__PURE__*/ Symbol.for("react.fragment");
-export let VelocityCreateElement =
-    (...args) => (VelocityCreateElement = Velocity.Webpack.Common.React.createElement)(...args);
+export let VelocityCreateElement = (...args) => {
+    const createElement = Velocity.Webpack.Common.React.createElement;
+    VelocityCreateElement = (type, props, ...children) => {
+        if (typeof type === "function" && type.__velocitySettingsFactory) {
+            const flat = children.flat();
+            return type({ ...(props ?? {}), children: flat.length === 0 ? undefined : flat.length === 1 ? flat[0] : flat });
+        }
+        return createElement(type, props, ...children);
+    };
+    return VelocityCreateElement(...args);
+};
