@@ -65,11 +65,13 @@ export interface SectionNode extends LayoutNode {
 export interface SidebarItemNode extends LayoutBuilderNode {
     type: LayoutType.SIDEBAR_ITEM;
     useTitle(): ReactNode | string;
+    /** Return an empty array if you only need {@link onClick} with no panel content. */
     buildLayout(): PanelNode[];
+    /** When false, the sidebar item is hidden entirely. */
     usePredicate?(): boolean;
     icon: ReactNode | ComponentType;
     onClick?(): void;
-    /** @override When used, {@link useTitle} and {@link icon} Disappear, rendering a custom component. Discord uses this at the hoisted button. */
+    /** @override When used, {@link useTitle} and {@link icon} are hidden and this component is rendered instead. Discord uses this for the hoisted button. */
     StronglyDiscouragedCustomComponent?(): ReactNode;
     /** Color of the button. @default "default" */
     variant?: "default" | "destructive";
@@ -101,11 +103,11 @@ export interface CategoryNode extends LayoutBuilderNode {
     useTitle?(): ReactNode | string;
     buildLayout?(): ContentNode[];
     useSubtitle?(): ReactNode | string;
-    /** Changes the label Subnav category button from the default value of {@link useTitle} */
+    /** Overrides the label shown in the subnav category button (defaults to {@link useTitle}). */
     useSubnavLabel?(): ReactNode | string;
     /**
-     * Creates a notice under the {@link useSubtitle} or {@link useTitle}
-     * @see {@link InlineNoticeType}.
+     * Renders a notice below the title/subtitle.
+     * @see {@link InlineNoticeType}
      */
     useInlineNotice?(): InlineNoticeNode;
     useHeaderDecoration?(): ReactNode;
@@ -157,8 +159,11 @@ export interface FieldSetNode extends LayoutNode {
 export interface TabItemNode extends LayoutNode {
     type: LayoutType.TAB_ITEM;
     getTitle(): string;
-    onItemSelect?: () => void;
-    /** Does not require to have a {@link CategoryNode} on top level. Only {@link PanelNode panels} do. */
+    onItemSelect?(): void;
+    /**
+     * Unlike {@link PanelNode}, top-level `layout` entries do NOT need to be {@link CategoryNode categories}.
+     * Use {@link CategoryNode.layout} (not `buildLayout`) inside categories nested here.
+     */
     layout: ContentNode[];
 }
 
@@ -168,12 +173,12 @@ export interface TabItemNode extends LayoutNode {
  */
 export interface NestedPanelNode extends LayoutNode {
     type: LayoutType.NESTED_PANEL;
-    buildLayout: () => PanelNode[];
-    useTitle: () => string;
-    useSubtitle?: () => string;
+    buildLayout(): PanelNode[];
+    useTitle(): string;
+    useSubtitle?(): string;
     useLeadingDecoration?: () => {
         type: NestedPanelLeadingDecorationType.ICON;
-        icon: ReactNode;
+        icon: ReactNode | ComponentType;
         /** Color of the {@link icon} @default currentColor */
         color?: RawCSSColor;
         /** Discord expects it to use the color variables which return a table containing a property called "css". @default "var(--background-mod-muted)" */

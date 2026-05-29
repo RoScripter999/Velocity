@@ -22,14 +22,13 @@ import { openChangelogModal } from "@components/settings";
 import { BackupAndRestoreTab, CloudTab, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
 import { IconCreator, IconsTab, TestTab } from "@components/settings/tabs/devtools";
 import { ThemesLibTab } from "@components/settings/tabs/themeLibary";
+import { Category, Custom, NestedPanel, Panel, Section, SidebarButton, TabItem } from "@components/userSettings";
 import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
-import type { LayoutNode, PanelNode, SectionNode, SidebarItemNode } from "@velocity-types";
-import { LayoutType } from "@velocity-types/enums";
-import { wreq } from "@webpack";
+import type { LayoutNode, SidebarItemNode } from "@velocity-types";
 import { Buttons, Icons, Tooltip } from "@webpack/common";
-import type { ComponentType, PropsWithChildren } from "react";
+import type { ComponentType, JSX, PropsWithChildren } from "react";
 
 import gitHash from "~git-hash";
 
@@ -95,6 +94,7 @@ export default definePlugin({
             }
         }
     ],
+
     wrapSectionTitle() {
         return (
             <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
@@ -124,40 +124,31 @@ export default definePlugin({
         Icon: ComponentType<any>;
     }): SidebarItemNode {
         const { key, title, panelTitle = title, Component, Icon } = options;
-
-        const panel: PanelNode = {
-            key: key + "_panel",
-            type: LayoutType.PANEL,
-            useTitle: () => panelTitle,
-            buildLayout: () => [{
-                type: LayoutType.CATEGORY,
-                key: key + "_category",
-                layout: [{
-                    type: LayoutType.CUSTOM,
-                    key: key + "_custom",
-                    Component: () => <Component />,
-                    useSearchTerms: () => [title]
-                }]
-            }]
-        };
-
-        return {
+        return SidebarButton({
             key,
-            type: LayoutType.SIDEBAR_ITEM,
-            useTitle: () => title,
+            title,
             icon: () => <Icon size="refresh_sm" color="currentColor" />,
-            buildLayout: () => [panel]
-        };
+            children: Panel({
+                key: key + "_panel",
+                title: panelTitle,
+                children: Category({
+                    key: key + "_category",
+                    children: Custom({
+                        key: key + "_custom",
+                        Component: () => <Component />,
+                        useSearchTerms: () => [title]
+                    })
+                })
+            })
+        });
     },
 
     buildLayout(originalLayoutBuilder: { key?: string; buildLayout(): LayoutNode[]; }) {
-        const layout = originalLayoutBuilder.buildLayout();
-        window.fuckyou = originalLayoutBuilder;
+        const layout: (LayoutNode | JSX.Element)[] = originalLayoutBuilder.buildLayout();
         if (originalLayoutBuilder.key !== "$Root" || !Array.isArray(layout)) return layout;
         if (layout.some(s => s?.key === "velocity_section")) return layout;
-        const eN = wreq("933297");
 
-        const velocityEntries: SidebarItemNode[] = [
+        const velocityEntries: (SidebarItemNode | JSX.Element)[] = [
             this.buildEntry({
                 key: "velocity_main",
                 title: "Velocity",
@@ -171,63 +162,29 @@ export default definePlugin({
                 Component: PluginsTab,
                 Icon: PluginsIcon
             }),
-
-            {
-                key: "velocity_themes",
-                type: LayoutType.SIDEBAR_ITEM,
-                useTitle: () => "Themes",
-                icon: () => <Icons.PaintbrushThickIcon size="refresh_sm" color="currentColor" />,
-                buildLayout: () => [
-                    {
-                        key: "themes_category_panel",
-                        type: LayoutType.PANEL,
-                        useTitle: () => "Themes",
-                        buildLayout: () => [
-                            {
-                                key: "themes_nested",
-                                type: LayoutType.CATEGORY,
-                                useTitle: () => "Themes",
-                                buildLayout: () => [
-                                    {
-                                        key: "themes_nested_panel",
-                                        type: LayoutType.NESTED_PANEL,
-                                        useTitle: () => "Theme Library",
-                                        useSubtitle: () => "Download online themes directly from Discord",
-                                        useLeadingDecoration: () => ({
-                                            type: 0,
-                                            icon: Icons.PaintPaletteIcon
-                                        }),
-
-                                        buildLayout: () => [
-                                            {
-                                                key: "themes_inner_panel",
-                                                type: LayoutType.PANEL,
-                                                useTitle: () => "Theme Library",
-                                                buildLayout: () => [
-                                                    {
-                                                        key: "theme_lib_category",
-                                                        type: LayoutType.CATEGORY,
-                                                        useTitle: () => "Theme Libary",
-                                                        buildLayout: () => [{
-                                                            type: LayoutType.CUSTOM,
-                                                            Component: ThemesLibTab
-                                                        }]
-                                                    }
-
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        type: LayoutType.CUSTOM,
-                                        Component: ThemesTab
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            } as SidebarItemNode,
+            <SidebarButton
+                key="velocity_themes"
+                title="Themes"
+                icon={() => <Icons.PaintbrushThickIcon size="refresh_sm" color="currentColor" />}
+            >
+                <Panel key="themes_category_panel" title="Themes">
+                    <Category key="themes_nested" title="Themes">
+                        <NestedPanel
+                            key="themes_nested_panel"
+                            title="Theme Library"
+                            subtitle="Download online themes directly from Discord"
+                            useLeadingDecoration={() => ({ type: 0, icon: Icons.PaintPaletteIcon })}
+                        >
+                            <Panel key="themes_inner_panel" title="Theme Library">
+                                <Category key="theme_lib_category" title="Theme Libary">
+                                    <Custom Component={ThemesLibTab} />
+                                </Category>
+                            </Panel>
+                        </NestedPanel>
+                        <Custom Component={ThemesTab} />
+                    </Category>
+                </Panel>
+            </SidebarButton>,
             !IS_UPDATER_DISABLED && UpdaterTab && this.buildEntry({
                 key: "velocity_updater",
                 title: "Updater",
@@ -248,49 +205,19 @@ export default definePlugin({
                 Component: BackupAndRestoreTab,
                 Icon: Icons.RefreshIcon
             }),
-            IS_DEV && {
-                key: "velocity_developer_tools",
-                type: LayoutType.SIDEBAR_ITEM,
-                parent: {},
-                icon: Icons.ScienceIcon,
-                useTitle: () => "Developer Tools",
-                buildLayout: () => [
-                    {
-                        key: "velocity_developer_tools_panel",
-                        type: LayoutType.PANEL,
-                        useTitle: () => "Developer Tools",
-                        buildLayout: () => [
-                            {
-                                key: "icons_preview",
-                                type: LayoutType.TAB_ITEM,
-                                getTitle: () => "Icons Preview",
-                                layout: [{
-                                    type: LayoutType.CUSTOM,
-                                    Component: IconsTab
-                                }]
-                            },
-                            {
-                                key: "icon_creator",
-                                type: LayoutType.TAB_ITEM,
-                                getTitle: () => "Icon Creator",
-                                layout: [{
-                                    type: LayoutType.CUSTOM,
-                                    Component: IconCreator
-                                }]
-                            },
-                            {
-                                key: "gay",
-                                type: LayoutType.TAB_ITEM,
-                                getTitle: () => "GAY",
-                                layout: [{
-                                    type: LayoutType.CUSTOM,
-                                    Component: TestTab
-                                }]
-                            }
-                        ]
-                    }
-                ]
-            } as SidebarItemNode,
+            IS_DEV && <SidebarButton key="velocity_developer_tools" title="Developer Tools" icon={Icons.ScienceIcon}>
+                <Panel key="velocity_developer_tools_panel" title="Developer Tools">
+                    <TabItem key="icons_preview" title="Icons Preview">
+                        <Custom Component={IconsTab} />
+                    </TabItem>
+                    <TabItem key="icon_creator" title="Icon Creator">
+                        <Custom Component={IconCreator} />
+                    </TabItem>
+                    <TabItem key="gay" title="GAY">
+                        <Custom Component={TestTab} />
+                    </TabItem>
+                </Panel>
+            </SidebarButton>,
             IS_DEV && HelpersTab && this.buildEntry({
                 key: "velocity_helper",
                 title: "Helpers",
@@ -300,12 +227,9 @@ export default definePlugin({
             ...this.customEntries
         ].filter(isTruthy);
 
-        const velocitySection: SectionNode = {
-            key: "velocity_section",
-            type: LayoutType.SECTION,
-            useTitle: () => this.wrapSectionTitle(),
-            buildLayout: () => velocityEntries
-        };
+        const velocitySection = <Section key="velocity_section" title={this.wrapSectionTitle()}>
+            {velocityEntries}
+        </Section>;
 
         const { settingsLocation } = settings.store;
 
