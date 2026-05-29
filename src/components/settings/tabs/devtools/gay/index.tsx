@@ -106,13 +106,13 @@ function MultiStepWrapper(props: ModalPropsRender) {
 function openMultiStepModal() {
     const key = openModal((modalProps: ModalPropsRender) => (
         <MultiStepWrapper {...modalProps} />
-    ), { contextKey: "IM SO FUCKING GAY BRO OMFG" });
+    ), { contextKey: "IM SO GAY BRO" });
     console.log(key);
 }
 
+// "gay" is a quick word for development testing i use, please also use it. it's just quicker (and no im not actually gay lol)
 function TestTab() {
     const ref = useRef<HTMLButtonElement>(null);
-
     return (
         <div>
             <Buttons.ButtonGroup>
