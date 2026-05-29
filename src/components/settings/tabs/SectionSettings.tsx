@@ -17,10 +17,9 @@
 */
 
 import ErrorBoundary from "@components/ErrorBoundary";
-import { ManaModalProps } from "@utils/manaModal";
 import { onlyOnce } from "@utils/onlyOnce";
 import { maybePromptToUpdate } from "@utils/updater";
-import type { ModalPropsRender } from "@velocity-types";
+import type { ModalProps, ModalPropsRender } from "@velocity-types";
 import { Modal, openModal } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
@@ -43,7 +42,7 @@ export function SettingsTab({ children }: PropsWithChildren) {
     );
 }
 
-export function openSettingsTabModal(Tab: ComponentType<any>, Size: ManaModalProps["size"] = "lg") {
+export function openSettingsTabModal(Tab: ComponentType<any>, Size: ModalProps["size"] = "lg") {
     try {
         openModal((modalProps: ModalPropsRender) => (
             <Modal
