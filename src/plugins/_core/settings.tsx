@@ -27,7 +27,6 @@ import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
 import type { LayoutNode, PanelNode, SectionNode, SidebarItemNode } from "@velocity-types";
 import { LayoutType } from "@velocity-types/enums";
-import { wreq } from "@webpack";
 import { Buttons, Icons, Tooltip } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
@@ -152,10 +151,8 @@ export default definePlugin({
 
     buildLayout(originalLayoutBuilder: { key?: string; buildLayout(): LayoutNode[]; }) {
         const layout = originalLayoutBuilder.buildLayout();
-        window.fuckyou = originalLayoutBuilder;
         if (originalLayoutBuilder.key !== "$Root" || !Array.isArray(layout)) return layout;
         if (layout.some(s => s?.key === "velocity_section")) return layout;
-        const eN = wreq("933297");
 
         const velocityEntries: SidebarItemNode[] = [
             this.buildEntry({
