@@ -25,16 +25,15 @@ export const KEY = "NeverLogout";
 
 interface UserData {
     token: string;
-    tokenInvalid?: boolean;
     userInfo: {
         username: string;
         avatar: { src: string; decoration?: string; };
     };
 }
 
-export async function getSavedTokens(): Promise<Record<string, UserData>> {
+export async function getSavedTokens() {
     try {
-        const tokens = await get(KEY);
+        const tokens = await get<Record<string, UserData>>(KEY);
         return tokens || {};
     } catch {
         return {};
