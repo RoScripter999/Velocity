@@ -46,7 +46,7 @@ function LoginModal(modalProps: ModalPropsRender) {
 
     useEffect(() => {
         getSavedTokens().then(tokens => {
-            setUsers(Object.entries(tokens).map(([id, data]: any) => ({
+            setUsers(Object.entries(tokens).map(([id, data]) => ({
                 id,
                 name: data.userInfo?.username,
                 avatar: {
@@ -57,11 +57,10 @@ function LoginModal(modalProps: ModalPropsRender) {
         });
     }, [updater]);
 
-    const tokenRegex = /^[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}$/;
-    const isValidToken = tokenRegex.test(token);
+    const isValidToken = /^[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}$/.test(token);
 
     return (
-        <Modal title="Auto Login" subtitle="Select an account to switch to" size="lg" {...modalProps}>
+        <Modal title="Manage Account Tokens" subtitle="Select an account to switch to" size="lg" {...modalProps}>
             <div className={cl("quick-login")}>
                 <TextInput
                     placeholder="Paste your user token here"
@@ -108,13 +107,13 @@ function LoginButton(array?: boolean) {
 
     return array
         ? {
-            text: "Auto Login",
+            text: "Account Tokens",
             variant: "secondary",
             onClick: handleClick
         }
 
         : <Buttons.TextButton
-            text="Auto Login"
+            text="Use Account Tokens"
             textVariant="text-sm/medium"
             variant="secondary"
             onClick={handleClick}
@@ -135,7 +134,6 @@ const NeverLogoutSidebar = () => (
         />)}
     />
 );
-
 
 export default definePlugin({
     name: "NeverLogout",
@@ -162,7 +160,7 @@ export default definePlugin({
             find: "#{intl::SWITCH_ACCOUNTS_CHOOSE_ACCOUNT_HELPER}",
             lazy: true,
             replacement: {
-                match: /(9g2mqT[\s\S]*?onClick:\s*\w+\s*\}\)\s*\}\))/,
+                match: /(#{intl::SWITCH_ACCOUNTS_ADD_AN_ACCOUNT_BUTTON}[\s\S]*?onClick:\s*\w+\s*\}\)\s*\}\))/,
                 replace: "$1, $self.LoginButton(false)"
             }
         },
@@ -170,7 +168,7 @@ export default definePlugin({
             find: "#{intl::SWITCH_ACCOUNTS_ADD_AN_ACCOUNT_BUTTON}),variant",
             lazy: true,
             replacement: {
-                match: /(actions:\s*\[\s*\{\s*text:[\s\S]*?g\.t\["9g2mqT"\]\)?,[\s\S]*?\}\s*)(\])/,
+                match: /(actions:\s*\[\s*\{\s*text:[\s\S]*?g\.\i#{intl::SWITCH_ACCOUNTS_ADD_AN_ACCOUNT_BUTTON}\)?,[\s\S]*?\}\s*)(\])/,
                 replace: "$1,$self.LoginButton(true)$2"
             }
         },
@@ -203,7 +201,7 @@ export default definePlugin({
 
             if (userId && token && currentUser) {
                 const avatarUrl = IconUtils.getUserAvatarURL(currentUser, true);
-                const decorationUrl = IconUtils.getAvatarDecorationURL({ avatarDecoration: currentUser?.avatarDecoration as any, size: 128, canAnimate: true });
+                const decorationUrl = IconUtils.getAvatarDecorationURL({ avatarDecoration: currentUser?.avatarDecoration, size: 128, canAnimate: true });
 
                 saveToken(userId, token, currentUser.username, {
                     src: avatarUrl,

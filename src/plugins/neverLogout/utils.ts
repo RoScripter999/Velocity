@@ -32,9 +32,9 @@ interface UserData {
     };
 }
 
-export async function getSavedTokens(): Promise<Record<string, UserData>> {
+export async function getSavedTokens() {
     try {
-        const tokens = await get(KEY);
+        const tokens = await get<Record<string, UserData>>(KEY);
         return tokens || {};
     } catch {
         return {};
