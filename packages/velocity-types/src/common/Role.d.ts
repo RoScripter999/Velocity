@@ -1,19 +1,19 @@
 export interface Role {
     color: number;
-    colorString: string | undefined;
+    colorString?: string;
     colorStrings: {
-        primaryColor: string | undefined;
-        secondaryColor: string | undefined;
-        tertiaryColor: string | undefined;
+        primaryColor?: string;
+        secondaryColor?: string;
+        tertiaryColor?: string;
     };
     colors: {
-        primary_color: number | undefined;
-        secondary_color: number | undefined;
-        tertiary_color: number | undefined;
+        primary_color?: number;
+        secondary_color?: number;
+        tertiary_color?: number;
     };
     flags: number;
     hoist: boolean;
-    icon: string | undefined;
+    icon?: string;
     id: string;
     managed: boolean;
     mentionable: boolean;
@@ -24,10 +24,10 @@ export interface Role {
     /**
      * probably incomplete
      */
-    tags: {
+    tags: ?{
         bot_id: string;
         integration_id: string;
         premium_subscriber: unknown;
-    } | undefined;
-    unicodeEmoji: string | undefined;
+    };
+    unicodeEmoji?: string;
 }
