@@ -39,11 +39,9 @@ function UserFlag({ id }: { id: string; }) {
     if (!flag) return null;
 
     return (
-        <div style={{ display: "inline-flex", alignItems: "center", marginLeft: "4px" }}>
-            <Text variant="text-md/bold" style={{ color: flag?.color }}>
-                {Parser.parse(flag.text)}
-            </Text>
-        </div>
+        <Text variant="text-md/bold" style={{ color: flag.color, marginLeft: "4px" }}>
+            {Parser.parse(flag.text)}
+        </Text>
     );
 }
 
@@ -104,40 +102,67 @@ export default definePlugin({
                     name: "remove",
                     type: ApplicationCommandOptionType.SUB_COMMAND,
                     description: "Remove flag from user",
-                    options: [
-                        {
-                            name: "user",
-                            type: ApplicationCommandOptionType.USER,
-                            description: "User to remove flag from",
-                            required: true
-                        }
-                    ]
+                    options: [{
+                        name: "user",
+                        type: ApplicationCommandOptionType.USER,
+                        description: "User to remove flag from",
+                        required: true
+                    }]
+                },
+                {
+                    name: "list",
+                    type: ApplicationCommandOptionType.SUB_COMMAND,
+                    description: "List all flagged users"
                 }
             ],
             execute: async (args, ctx) => {
                 const subcommand = args[0]?.name;
-                const userId = findOption(args[0].options, "user") as string;
 
                 switch (subcommand) {
                     case "set": {
+                        const userId = findOption(args[0].options, "user") as string;
                         const text = findOption(args[0].options, "text") as string;
-                        const color = findOption(args[0].options, "color") as string | undefined;
+                        const color = findOption(args[0].options, "color") as string;
+
+                        if (color && !/^#[0-9a-fA-F]{6}$/.test(color)) {
+                            sendBotMessage(ctx.channel.id, { content: "Invalid color — use hex format: `#RRGGBB`" });
+                            break;
+                        }
 
                         userFlags[userId] = { text, ...(color && { color }) };
                         await set(KEY, userFlags);
 
                         sendBotMessage(ctx.channel.id, {
-                            content: `Flag set on <@${userId}>: \`${text}\``
+                            content: `Flag set on <@${userId}>: \`${text}\`${color ? ` (${color})` : ""}`
                         });
                         break;
                     }
                     case "remove": {
+                        const userId = findOption(args[0].options, "user") as string;
+
+                        if (!userFlags[userId]) {
+                            sendBotMessage(ctx.channel.id, { content: `<@${userId}> has no flag set.` });
+                            break;
+                        }
+
                         delete userFlags[userId];
                         await set(KEY, userFlags);
 
-                        sendBotMessage(ctx.channel.id, {
-                            content: `Flag removed from <@${userId}>`
-                        });
+                        sendBotMessage(ctx.channel.id, { content: `Flag removed from <@${userId}>` });
+                        break;
+                    }
+                    case "list": {
+                        const entries = Object.entries(userFlags);
+                        if (!entries.length) {
+                            sendBotMessage(ctx.channel.id, { content: "No user flags set." });
+                            break;
+                        }
+
+                        const lines = entries
+                            .map(([id, f]) => `• <@${id}> — \`${f.text}\`${f.color ? ` (${f.color})` : ""}`)
+                            .join("\n");
+
+                        sendBotMessage(ctx.channel.id, { content: `**User Flags:**\n${lines}` });
                         break;
                     }
                 }

@@ -87,7 +87,7 @@ export default definePlugin({
                     replace: "$1[$2,$self.renderTimer({ channelId: this?.props?.channel?.id })]"
                 }
             ]
-        },
+        }
     ],
 
     renderTimer({ channelId }: { channelId: string; }) {

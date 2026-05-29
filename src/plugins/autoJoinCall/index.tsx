@@ -105,14 +105,13 @@ export const settings = definePluginSettings({
 });
 
 async function getScreens<Method extends "GET_SCREENS" | "GET_SCREEN_BY_SETTINGS">(method: Method): Promise<Method extends "GET_SCREENS" ? Screen[] : Screen> {
-    const streamSourceId = settings.store.streamSource;
     const screens = await DiscordNative.desktopCapture.getDesktopCaptureSources({
         types: ["screen"]
     });
 
     if (method === "GET_SCREENS") return screens;
 
-    if (method === "GET_SCREEN_BY_SETTINGS") return screens.find((s: Screen) => s.id === streamSourceId);
+    if (method === "GET_SCREEN_BY_SETTINGS") return screens.find((s: Screen) => s.id === settings.store.streamSource);
     throw new Error("Invalid method");
 }
 
