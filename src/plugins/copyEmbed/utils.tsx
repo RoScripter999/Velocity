@@ -18,7 +18,6 @@
 
 import { copyWithToast } from "@utils/discord";
 import type { Embed, EmbedJSON, Message } from "@velocity-types";
-import { Toasts } from "@webpack/common";
 
 type CopyType = "embed" | "full" | "description" | "builder";
 
@@ -142,12 +141,7 @@ export function copyEmbedContent(msg: Message, type: CopyType, embedIndex: numbe
             copyWithToast(JSON.stringify(msg, null, 2), "Full message JSON copied!");
             break;
         case "description":
-            const desc = embed.rawDescription;
-            if (!desc) {
-                Toasts.show({ message: `No description in embed ${embedIndex + 1}!`, id: Toasts.genId(), type: Toasts.Type.FAILURE });
-                return;
-            }
-            copyWithToast(desc, `Embed ${embedIndex + 1} description copied!`);
+            copyWithToast(embed.rawDescription, `Embed ${embedIndex + 1} description copied!`);
             break;
         case "builder":
             const cleanedEmbed = cleanEmbed(embed);

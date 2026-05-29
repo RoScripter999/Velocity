@@ -146,7 +146,7 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
 export default definePlugin({
     name: "CopyEmbed",
     description: "Copy embeds structure, descriptions, and generate EmbedBuilder code.",
-    tags: ["Utility", "Developers", "Commands"],
+    tags: ["Utility", "Developers"],
     authors: [Devs.RoScripter999],
 
     contextMenus: {
