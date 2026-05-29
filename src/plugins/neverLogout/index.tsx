@@ -20,13 +20,13 @@ import "./styles.css";
 
 import { Margins } from "@components/margins";
 import { SectionHeader } from "@components/settings";
+import { SidebarButton } from "@components/userSettings";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage } from "@utils/discord";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { StartAt } from "@utils/types";
-import type { ModalPropsRender, SidebarItemNode } from "@velocity-types";
-import { LayoutType } from "@velocity-types/enums";
+import type { ModalPropsRender } from "@velocity-types";
 import { findByPropsLazy } from "@webpack";
 import { Avatar, Buttons, closeAllModals, ConfirmModal, HelpMessage, Icons, IconUtils, Modal, openModal, TextInput, useEffect, UserStore, useState } from "@webpack/common";
 
@@ -121,21 +121,21 @@ function LoginButton(array?: boolean) {
         />;
 }
 
-const NeverLogoutSidebar = (): SidebarItemNode => ({
-    key: "neverlogout_logout_sidebar_item",
-    variant: "destructive",
-    type: LayoutType.SIDEBAR_ITEM,
-    useTitle: () => "Go to Login Menu",
-    icon: Icons.DoorExitIcon,
-    buildLayout: () => [],
-    onClick: () => openModal(modalProps => <ConfirmModal
-        {...modalProps}
-        title="Logout"
-        subtitle="Are you sure you wanna logout? This wont log you out of your account."
-        confirmText="Logout"
-        onConfirm={closeSuspendedUser}
-    />)
-});
+const NeverLogoutSidebar = () => (
+    <SidebarButton
+        variant="destructive"
+        title="Go to Login Menu"
+        icon={Icons.DoorExitIcon}
+        onClick={() => openModal(modalProps => <ConfirmModal
+            {...modalProps}
+            title="Logout"
+            subtitle="Are you sure you wanna logout? This won't log you out of your account."
+            confirmText="Logout"
+            onConfirm={closeSuspendedUser}
+        />)}
+    />
+);
+
 
 export default definePlugin({
     name: "NeverLogout",
