@@ -65,13 +65,13 @@ export default definePlugin({
     name: "BetterSessions",
     description: "Enhances the sessions (devices) menu. Allows you to view exact timestamps, give each session a custom name, and receive notifications about new sessions.",
     authors: [Devs.amia],
-
     tags: ["Notifications", "Customisation", "Utility"],
     settings,
 
     patches: [
         {
             find: "#{intl::AUTH_SESSIONS_OS_UNKNOWN}",
+            lazy: true,
             replacement: [
                 {
                     match: /(#{intl::AUTH_SESSIONS_ACTIVE_RECENTLY}.{0,230}role:"listitem",children:\[.{0,15},\{Icon:)\i/,
@@ -105,7 +105,7 @@ export default definePlugin({
                 <Paragraph size="md" weight="semibold" color="text-strong">{title}</Paragraph>
                 <div className={cl("footer-buttons")}>
                     {(savedSession == null || savedSession.isNew) && (
-                        <AddonBadge text="NEW" />
+                        <AddonBadge text="NEW" color="#ED4245" />
                     )}
                     <RenameButton session={session} state={state} />
                 </div>
@@ -135,7 +135,7 @@ export default definePlugin({
         );
     }, { noop: true }),
 
-    renderIcon: ErrorBoundary.wrap(({ session, DeviceIcon }: { session: Session, DeviceIcon: ComponentType<any>; }) => {
+    renderIcon: ErrorBoundary.wrap(({ session, icon: DeviceIcon }: { session: Session; icon: ComponentType<any>; }) => {
         const PlatformIcon = GetPlatformIcon(session.client_info.platform) as ComponentType<any>;
         const iconResult = <PlatformIcon width={24} height={24} fill="none" viewBox="0 0 24 24" />;
         const icon = typeof iconResult === "function" ? iconResult : iconResult;

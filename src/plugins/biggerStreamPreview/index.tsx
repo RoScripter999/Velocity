@@ -20,7 +20,7 @@ import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs } from "@utils/constants";
 import { openImageModal } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { ApplicationStreamingStore as ApplicationStreamingStoreTypes, type Channel, type User } from "@velocity-types";
+import type { ApplicationStreamingStore as ApplicationStreamingStoreTypes, Channel, User } from "@velocity-types";
 import { ApplicationStreamingStore, ApplicationStreamPreviewStore, Icons, Menu } from "@webpack/common";
 
 export interface UserContextProps {
@@ -70,7 +70,6 @@ export const addViewStreamContext: NavContextMenuPatchCallback = (children, { us
             id="view-stream-preview"
             icon={Icons.ScreenStreamIcon}
             action={() => stream && handleViewPreview(stream)}
-            disabled={!stream}
         />
     );
 

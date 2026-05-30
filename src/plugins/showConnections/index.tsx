@@ -164,7 +164,7 @@ export default definePlugin({
 
     patches: [
         {
-            find: "#{intl::USER_PROFILE_FRIEND_REQUEST_TOAST}",
+            find: '"UserProfilePopout");',
             lazy: true,
             replacement: {
                 match: /userId:\i\.id,guild:\i\}\)(?=])/,

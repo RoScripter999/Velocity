@@ -17,7 +17,7 @@
 */
 
 import type { SessionInfo } from "@plugins/betterSessions/types";
-import { cl, getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
+import { getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
 import { getIntlMessage } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
 import { Buttons, Modal, TextInput, useState } from "@webpack/common";
@@ -45,12 +45,12 @@ export function RenameModal({ props, session, state }: { props: ModalPropsRender
             title="Rename"
             actions={[
                 {
-                    text: "Cancel",
+                    text: getIntlMessage("CANCEL"),
                     variant: "secondary",
                     onClick: () => props.onClose()
                 },
                 {
-                    text: "Save",
+                    text: getIntlMessage("SAVE"),
                     variant: "primary",
                     onClick: onSaveClick
                 }
@@ -79,18 +79,6 @@ export function RenameModal({ props, session, state }: { props: ModalPropsRender
                         text="Reset Name"
                         disabled={value === ""}
                         onClick={() => setValue("")}
-                    />
-                </div>
-
-                <div className={cl("footer-buttons")}>
-                    <Buttons.Button
-                        variant="secondary"
-                        text={getIntlMessage("CANCEL")}
-                        onClick={() => props.onClose()}
-                    />
-                    <Buttons.Button
-                        text={getIntlMessage("SAVE")}
-                        onClick={onSaveClick}
                     />
                 </div>
             </div>

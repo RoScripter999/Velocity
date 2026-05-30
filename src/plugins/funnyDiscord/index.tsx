@@ -19,18 +19,26 @@
 import { gitHash } from "@shared/userAgent";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { i18n } from "@webpack/common";
 
 import { MiddleFinger } from "./components/loadingScreen";
-import getIntlMessage from "./messages";
+import MessageMap from "./messages.json";
+
+function vcIntlMessage(key: keyof typeof MessageMap) {
+    const entry = MessageMap[key];
+    const locale = i18n.intl.currentLocale as keyof typeof entry;
+
+    return entry[locale] ?? entry["en-US"] ?? key;
+}
 
 export default definePlugin({
     name: "FunnyDiscord",
-    description: "Makes the discord funnier",
+    description: "Makes the discord funnier (beware of the jokes!!!)",
     authors: [Devs.RoScripter999],
     enabledByDefault: true,
 
     MiddleFinger,
-    getIntlMessage,
+    vcIntlMessage,
 
     patches: [
         {
@@ -48,7 +56,7 @@ export default definePlugin({
             lazy: true,
             replacement: {
                 match: /\i.intl\.string\([^)]*#{intl::SETTINGS_NOTICE_MESSAGE}\)/,
-                replace: "$self.getIntlMessage('MODS_EAT_YOU')"
+                replace: "$self.vcIntlMessage('MODS_EAT_YOU')"
             }
         },
 
@@ -56,7 +64,7 @@ export default definePlugin({
             find: "#{intl::USER_SETTINGS_CUSTOMIZE_PROFILE_EXAMPLE_BUTTON}",
             replacement: {
                 match: /\w+\.intl\.string\([^)]*#{intl::USER_SETTINGS_CUSTOMIZE_PROFILE_EXAMPLE_BUTTON}\)/,
-                replace: "$self.getIntlMessage('I_AM_USELESS')"
+                replace: "$self.vcIntlMessage('I_AM_USELESS')"
             }
         },
         {
@@ -64,7 +72,7 @@ export default definePlugin({
             lazy: true,
             replacement: {
                 match: /\w+\.intl\.string\([^)]*#{intl::SWITCH_ACCOUNTS_MODAL_SUBHEADER}\)/,
-                replace: "$self.getIntlMessage('SIGN_IN_SIGN_OUT_NEVER_COME_BACK')"
+                replace: "$self.vcIntlMessage('SIGN_IN_SIGN_OUT_NEVER_COME_BACK')"
             }
         },
         {
@@ -72,7 +80,7 @@ export default definePlugin({
             lazy: true,
             replacement: {
                 match: /\w+\.intl\.string\([^)]*#{intl::APPLICATION_ENTITLEMENT_CODE_REDEMPTION_PROMPT}\)/,
-                replace: "$self.getIntlMessage('CODE_REDEMPTION_STEAL_DATA')"
+                replace: "$self.vcIntlMessage('CODE_REDEMPTION_STEAL_DATA')"
             }
         },
         {
@@ -87,10 +95,9 @@ export default definePlugin({
             lazy: true,
             replacement: {
                 match: /(BILLING_TRANSACTION_HISTORY_CATEGORY[^}]*useTitle:\(\)=>)\w+\.intl\.string\(\w+\.\w+\.\w+\)/,
-                replace: '$1"Credit Card Steal History"'
+                replace: '$1$self.vcIntlMessage("CREDIT_CARD_STEAL_HISTORY")'
             }
         }
-
     ],
 
     get gitHash() {

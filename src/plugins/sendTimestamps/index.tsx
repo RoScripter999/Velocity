@@ -20,6 +20,7 @@ import "./styles.css";
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
 import { definePluginSettings } from "@api/Settings";
+import { Icon } from "@components/Icons";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
@@ -90,9 +91,9 @@ function PickerModal(props: ModalPropsRender) {
                 }}
             />
 
-            <Forms.FormTitle>Timestamp Format</Forms.FormTitle>
             <div className={cl("format-select")}>
                 <Select
+                    label="Timestamp Format"
                     options={
                         Formats.map(m => ({
                             label: m,
@@ -119,22 +120,18 @@ function PickerModal(props: ModalPropsRender) {
     );
 }
 
-const SendTimestampIcon: IconComponent = ({ height = 20, width = 20, className }) => {
+const SendTimestampIcon: IconComponent = ({ height = 20, width = 20 }) => {
     return (
-        <svg
-            aria-hidden="true"
-            role="img"
+        <Icon
             width={width}
             height={height}
-            className={className}
-            viewBox="0 0 24 24"
             style={{ scale: "1.2" }}
         >
             <g fill="none" fillRule="evenodd">
                 <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z" />
                 <rect width="24" height="24" />
             </g>
-        </svg>
+        </Icon>
     );
 };
 

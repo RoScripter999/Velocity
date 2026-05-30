@@ -311,7 +311,7 @@ export default definePlugin({
         },
         // Allow users to use custom client themes
         {
-            find: "customUserThemeSettings:{",
+            find: '"GuildActivitySharingDefaultSetting"',
             // Discord has two separate modules for treatments 1 and 2
             all: true,
             replacement: {
