@@ -107,16 +107,28 @@ function CrashButton() {
 
     if (!showChevron) {
         return (
-            <Button
-                aria-checked={isEnabled}
-                aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                icon={() => <CrashIcon isEnabled={isEnabled} />}
-                onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
-                plated={false}
-                redGlow={isEnabled}
-                role="switch"
-                tooltipText={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-            />
+            <Popout
+                position="top"
+                align="left"
+                animation={Popout.Animation.FADE}
+                spacing={4}
+                targetElementRef={buttonRef}
+                renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} settings={settings} />}
+            >
+                {({ onClick: openPopout }) => (
+                    <Button
+                        aria-checked={isEnabled}
+                        aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
+                        icon={() => <CrashIcon isEnabled={isEnabled} />}
+                        onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
+                        onContextMenu={openPopout}
+                        plated={false}
+                        redGlow={isEnabled}
+                        role="switch"
+                        tooltipText={isEnabled ? "Disable Crasher" : "Enable Crasher"}
+                    />
+                )}
+            </Popout>
         );
     }
 
