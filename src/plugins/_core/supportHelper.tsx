@@ -96,6 +96,7 @@ async function generateDebugInfoMessage() {
         "Activity Sharing disabled": tryOrElse(() => !ShowCurrentGame.getSetting(), false),
         "Velocity DevBuild": IS_DEV,
         "Has UserPlugins": Object.values(PluginMeta).some(m => m.userPlugin),
+        "Outdated": !IS_UPDATER_DISABLED && isOutdated,
         "More than two weeks out of date": BUILD_TIMESTAMP < Date.now() - 12096e5
     };
 
