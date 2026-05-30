@@ -28,6 +28,7 @@ export interface PlaygroundGroup {
 export interface PlaygroundCollection {
     id: PropertyKey;
     name: string;
+    deprecationNotice?: string;
     groups: PlaygroundGroup[];
 }
 
