@@ -24,8 +24,7 @@ import { classes } from "@utils/misc";
 import { findComponentByCodeLazy } from "@webpack";
 import type { ReactNode } from "react";
 
-const LegacySwitch = findComponentByCodeLazy("data-toggleable-component", "animated.div");
-const BaseSwitch = findComponentByCodeLazy("hasIcon", "interactiveLabel", "auxiliaryContentPosition");
+const BaseSwitch = findComponentByCodeLazy("0,hasIcon:", ',layout:"horizontal",');
 
 const switchCls = classNameFactory("vc-switch-");
 
@@ -82,9 +81,6 @@ const BuiltInSwitch = ({ checked, onChange, disabled }: SwitchProps) => (
 
 export function Switch({ checked, onChange, disabled, title, description }: SwitchProps) {
     const { velocityStyles } = useSettings(["velocityStyles.switchRedesign"]);
-
-    if (velocityStyles.switchRedesign === "legacy")
-        return <LegacySwitch checked={checked} onChange={onChange} disabled={disabled} />;
 
     if (velocityStyles.switchRedesign === "redesigned")
         return <BaseSwitch label={title} description={description} checked={checked} onChange={onChange} disabled={disabled} />;

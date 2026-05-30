@@ -93,7 +93,7 @@ export interface Settings {
     },
 
     velocityStyles: {
-        switchRedesign: false | "redesigned" | "legacy";
+        switchRedesign: false | "redesigned";
         showRedesignedIcon: boolean;
         manaTextInputs: boolean;
         manaContextMenu: boolean;

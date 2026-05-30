@@ -77,8 +77,7 @@ export function VelocityThemesTab() {
                 <Select
                     options={[
                         { label: "Built-in", value: false },
-                        { label: "Redesigned", value: "redesigned" },
-                        { label: "Legacy", value: "legacy" }
+                        { label: "Redesigned", value: "redesigned" }
                     ]}
                     select={value => { velocityStyles.switchRedesign = value; }}
                     isSelected={value => value === velocityStyles.switchRedesign}
