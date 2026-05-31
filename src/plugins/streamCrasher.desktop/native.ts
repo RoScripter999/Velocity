@@ -18,9 +18,9 @@
 
 import { RendererSettings } from "@main/settings";
 import { BrowserWindow, desktopCapturer, type IpcMainInvokeEvent } from "electron";
-import blackHtml from "file://./modes/black.html?minify";
 import colorsHtml from "file://./modes/colors.html?minify";
 import flashingHtml from "file://./modes/flashing.html?minify";
+import staticHtml from "file://./modes/static.html?minify";
 import whiteHtml from "file://./modes/white.html?minify";
 
 let crashedWindow: BrowserWindow | null = null;
@@ -28,30 +28,58 @@ let cachedSourceId: string | null = null;
 let activeMode: string | null = null;
 
 const Modes: Record<string, string> = {
-    black: `data:text/html,${encodeURIComponent(blackHtml)}`,
     flashing: `data:text/html,${encodeURIComponent(flashingHtml)}`,
     white: `data:text/html,${encodeURIComponent(whiteHtml)}`,
-    colors: `data:text/html,${encodeURIComponent(colorsHtml)}`
+    colors: `data:text/html,${encodeURIComponent(colorsHtml)}`,
+    static: `data:text/html,${encodeURIComponent(staticHtml)}`
 };
 
 function getMode(): string {
-    return RendererSettings.store.plugins?.StreamCrasher?.crashMode;
+    return RendererSettings.store.plugins?.StreamCrasher?.crashMode ?? "freeze";
+}
+
+function getImageUrl(): string {
+    return RendererSettings.store.plugins?.StreamCrasher?.imageUrl ?? "";
+}
+
+function buildImageHtml(): string {
+    const url = getImageUrl();
+    const safeUrl = url.replace(/"/g, "%22");
+    return `data:text/html,${encodeURIComponent(`<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:#000}img{width:100%;height:100%;object-fit:cover;display:block}</style></head><body><img src="${safeUrl}"></body></html>`)}`;
+}
+
+function isWindowAlive(): boolean {
+    return crashedWindow != null && !crashedWindow.isDestroyed();
+}
+
+async function findSourceId(): Promise<string | null> {
+    for (let i = 0; i < 20; i++) {
+        const sources = await desktopCapturer.getSources({ types: ["window"] });
+        const id = sources.find(s => s.name === "crashed")?.id ?? null;
+        if (id) return id;
+        await new Promise(r => setTimeout(r, 50));
+    }
+    return null;
 }
 
 export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string | null> {
     const mode = getMode();
-    const html = Modes[mode] ?? Modes.black;
 
-    if (crashedWindow && !crashedWindow.isDestroyed()) {
-        if (activeMode !== mode) {
-            activeMode = mode;
-            crashedWindow.loadURL(html);
+    if (mode === "freeze") return "-1";
+
+    const html = mode === "image" ? buildImageHtml() : (Modes[mode] ?? Modes.white);
+    const modeKey = mode === "image" ? `image:${getImageUrl()}` : mode;
+
+    if (isWindowAlive()) {
+        if (activeMode !== modeKey) {
+            activeMode = modeKey;
+            crashedWindow!.loadURL(html);
         }
-        crashedWindow.showInactive();
+        crashedWindow!.showInactive();
         return cachedSourceId;
     }
 
-    activeMode = mode;
+    activeMode = modeKey;
     crashedWindow = new BrowserWindow({
         width: 1920,
         height: 1080,
@@ -62,36 +90,28 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
         webPreferences: { backgroundThrottling: false },
         x: -9999,
         y: -9999,
-        roundedCorners: false,
-        type: "toolbar"
+        roundedCorners: false
     });
 
     await new Promise<void>(resolve => {
-        crashedWindow!.once("ready-to-show", resolve);
-        crashedWindow!.loadURL(html);
+        crashedWindow?.once("ready-to-show", resolve);
+        crashedWindow?.loadURL(html);
     });
 
     crashedWindow.showInactive();
-
-    cachedSourceId = null;
-    for (let i = 0; i < 20; i++) {
-        const sources = await desktopCapturer.getSources({ types: ["window"] });
-        const id = sources.find(s => s.name === "crashed")?.id ?? null;
-        if (id) { cachedSourceId = id; return id; }
-        await new Promise(r => setTimeout(r, 50));
-    }
-
-    return null;
+    cachedSourceId = await findSourceId();
+    return cachedSourceId;
 }
 
 export function updateCrashMode(_e: IpcMainInvokeEvent) {
-    if (!crashedWindow || crashedWindow.isDestroyed()) return;
+    if (!isWindowAlive()) return;
     const mode = getMode();
-    activeMode = mode;
-    crashedWindow.loadURL(Modes[mode] ?? Modes.black);
+    const html = mode === "image" ? buildImageHtml() : (Modes[mode] ?? Modes.white);
+    activeMode = mode === "image" ? `image:${getImageUrl()}` : mode;
+    crashedWindow?.loadURL(html);
 }
 
 export function stopCrashSource(_e: IpcMainInvokeEvent) {
-    if (!crashedWindow || crashedWindow.isDestroyed()) return;
-    crashedWindow.hide();
+    if (!isWindowAlive()) return;
+    crashedWindow?.hide();
 }

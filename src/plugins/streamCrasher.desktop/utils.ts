@@ -17,7 +17,7 @@
 */
 
 import type { PluginNative } from "@utils/types";
-import { ApplicationStreamingStore, VoiceActions } from "@webpack/common";
+import { ApplicationStreamingSettingsStore, ApplicationStreamingStore, VoiceActions } from "@webpack/common";
 
 export let lastSourceId: string | null = null;
 let lastQualityOptions: { preset?: number; resolution?: number; frameRate?: number; } | null = null;
@@ -65,10 +65,12 @@ async function doUpdateStream(isEnabled: boolean) {
         }
 
         const sourceId = await getSourceId(isEnabled);
+        const type = sourceId.includes(":") ? sourceId.split(":")[0] : "screen";
 
+        const settings = ApplicationStreamingSettingsStore.getState();
         VoiceActions.setGoLiveSource({
-            desktopSettings: { sourceId, sound: false },
-            qualityOptions: isEnabled ? { preset: 2, resolution: 0, frameRate: 60 } : (lastQualityOptions ?? { preset: 2, resolution: 0, frameRate: 60 }),
+            desktopSettings: { sourceId, type, sound: settings.soundshareEnabled },
+            qualityOptions: isEnabled ? { preset: 2, resolution: 480, frameRate: 60 } : (lastQualityOptions ?? { preset: settings.preset, resolution: settings.resolution, frameRate: settings.fps }),
             context: "stream"
         });
 

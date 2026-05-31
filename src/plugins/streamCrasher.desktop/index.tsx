@@ -29,10 +29,12 @@ import { CrasherContextMenu, StreamCrasherPatch } from "./menu";
 import { setCrashMode, setLastSourceId, updateStream } from "./utils";
 
 export const crashModeLabels: Record<string, { value: string; subText?: string; }> = {
-    black: { value: "Black Screen" },
+    freeze: { value: "Freeze", subText: "Freezes the stream" },
     flashing: { value: "Flashing", subText: "Based on FrameRate" },
     white: { value: "White Screen" },
-    colors: { value: "Color Cycle", subText: "Based on FrameRate" }
+    colors: { value: "Color Cycle", subText: "Based on FrameRate" },
+    static: { value: "Static", subText: "TV Noise" },
+    image: { value: "Image", subText: "Custom image URL" }
 };
 
 const Native = VelocityNative.pluginHelpers.StreamCrasher as PluginNative<typeof import("./native")>;
@@ -59,6 +61,13 @@ export const settings = definePluginSettings({
         description: "What viewers see when the crasher is active",
         options: Object.entries(crashModeLabels).map(([value, { value: label, subText }], i) => ({ label, value, subtext: subText, default: i === 0 })),
         onChange: () => setCrashMode()
+    },
+    imageUrl: {
+        type: OptionType.STRING,
+        description: "Image URL to display when using Image mode",
+        default: "",
+        placeholder: "https://example.com/image.png",
+        hidden() { return this.store.crashMode !== "image"; }
     },
     buttonLocation: {
         type: OptionType.RADIO,
@@ -116,17 +125,19 @@ function CrashButton() {
                 renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} settings={settings} />}
             >
                 {({ onClick: openPopout }) => (
-                    <Button
-                        aria-checked={isEnabled}
-                        aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                        icon={() => <CrashIcon isEnabled={isEnabled} />}
-                        onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
-                        onContextMenu={openPopout}
-                        plated={false}
-                        redGlow={isEnabled}
-                        role="switch"
-                        tooltipText={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                    />
+                    <div ref={buttonRef}>
+                        <Button
+                            aria-checked={isEnabled}
+                            aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
+                            icon={() => <CrashIcon isEnabled={isEnabled} />}
+                            onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
+                            onContextMenu={openPopout}
+                            plated={false}
+                            redGlow={isEnabled}
+                            role="switch"
+                            tooltipText={isEnabled ? "Disable Crasher" : "Enable Crasher"}
+                        />
+                    </div>
                 )}
             </Popout>
         );
