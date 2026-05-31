@@ -48,7 +48,7 @@ const AccountPanelContextMenu = ErrorBoundary.wrap(() => {
                 id="vc-ap-view-alternate-popout"
                 label={prioritizeServerProfile ? "View Account Profile" : "View Server Profile"}
                 disabled={getCurrentChannel()?.getGuildId() == null}
-                action={e => {
+                action={() => {
                     openAlternatePopout = true;
                     accountPanelRef.current?.click();
                 }}
