@@ -21,7 +21,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Icon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
-import definePlugin, { OptionType, PluginNative } from "@utils/types";
+import definePlugin, { OptionType, type PluginNative } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { ApplicationStreamingStore, Popout, useEffect, useRef, UserStore, useStateFromStores } from "@webpack/common";
 
@@ -33,7 +33,8 @@ export const crashModeLabels: Record<string, { value: string; subText?: string; 
     flashing: { value: "Flashing", subText: "Based on FrameRate" },
     white: { value: "White Screen" },
     colors: { value: "Color Cycle", subText: "Based on FrameRate" },
-    static: { value: "Static", subText: "TV Noise" },
+    static: { value: "Static", subText: "TV Noise, Based on FrameRate" },
+    bsod: { value: "Crash Screen", subText: "OS-specific BSOD" },
     image: { value: "Image", subText: "Custom image URL" }
 };
 
@@ -44,7 +45,7 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Crashing state",
         default: false,
-        onChange: () => updateStream(settings.store.isEnabled)
+        onChange: val => updateStream(val)
     },
     showChevron: {
         type: OptionType.BOOLEAN,
@@ -60,13 +61,14 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         description: "What viewers see when the crasher is active",
         options: Object.entries(crashModeLabels).map(([value, { value: label, subText }], i) => ({ label, value, subtext: subText, default: i === 0 })),
-        onChange: () => setCrashMode()
+        onChange: () => settings.store.isEnabled ? updateStream(true) : setCrashMode()
     },
     imageUrl: {
         type: OptionType.STRING,
         description: "Image URL to display when using Image mode",
         default: "",
         placeholder: "https://example.com/image.png",
+        componentProps: { onBlur: setCrashMode },
         hidden() { return this.store.crashMode !== "image"; }
     },
     buttonLocation: {

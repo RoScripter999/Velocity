@@ -17,15 +17,24 @@
 */
 
 import { RendererSettings } from "@main/settings";
-import { BrowserWindow, desktopCapturer, type IpcMainInvokeEvent } from "electron";
+import { BrowserWindow, desktopCapturer, type IpcMainInvokeEvent, net } from "electron";
 import colorsHtml from "file://./modes/colors.html?minify";
 import flashingHtml from "file://./modes/flashing.html?minify";
+import imageHtml from "file://./modes/image.html?minify";
 import staticHtml from "file://./modes/static.html?minify";
 import whiteHtml from "file://./modes/white.html?minify";
+import { platform } from "os";
 
 let crashedWindow: BrowserWindow | null = null;
 let cachedSourceId: string | null = null;
 let activeMode: string | null = null;
+
+const AssetsURL = "https://raw.githubusercontent.com/Discord-Velocity/PluginAssets/main/StreamCrasher";
+
+const p = platform();
+const bsodUrl = p === "darwin" ? `${AssetsURL}/crashedMac.png`
+    : p === "linux" ? `${AssetsURL}/crashedLinux.png`
+        : `${AssetsURL}/crashedWindows10.png`;
 
 const Modes: Record<string, string> = {
     flashing: `data:text/html,${encodeURIComponent(flashingHtml)}`,
@@ -38,18 +47,25 @@ function getMode(): string {
     return RendererSettings.store.plugins?.StreamCrasher?.crashMode ?? "freeze";
 }
 
-function getImageUrl(): string {
-    return RendererSettings.store.plugins?.StreamCrasher?.imageUrl ?? "";
-}
-
-function buildImageHtml(): string {
-    const url = getImageUrl();
-    const safeUrl = url.replace(/"/g, "%22");
-    return `data:text/html,${encodeURIComponent(`<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;width:100%;height:100%;background:#000}img{width:100%;height:100%;object-fit:cover;display:block}</style></head><body><img src="${safeUrl}"></body></html>`)}`;
+function getModeUrl(mode: string): string | null {
+    if (mode === "image") return RendererSettings.store.plugins?.StreamCrasher?.imageUrl || null;
+    if (mode === "bsod") return bsodUrl;
+    return null;
 }
 
 function isWindowAlive(): boolean {
-    return crashedWindow != null && !crashedWindow.isDestroyed();
+    return crashedWindow !== null && !crashedWindow.isDestroyed();
+}
+
+async function buildImageHtml(url: string): Promise<string | null> {
+    try {
+        const buf = Buffer.from(await (await net.fetch(url)).arrayBuffer());
+        const mime = /\.png(\?|$)/i.test(url) ? "image/png" : /\.gif(\?|$)/i.test(url) ? "image/gif" : "image/jpeg";
+        const src = `data:${mime};base64,${buf.toString("base64")}`;
+        return `data:text/html,${encodeURIComponent(imageHtml.replace("__IMAGE_SRC__", src))}`;
+    } catch {
+        return null;
+    }
 }
 
 async function findSourceId(): Promise<string | null> {
@@ -67,8 +83,9 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
 
     if (mode === "freeze") return "-1";
 
-    const html = mode === "image" ? buildImageHtml() : (Modes[mode] ?? Modes.white);
-    const modeKey = mode === "image" ? `image:${getImageUrl()}` : mode;
+    const url = getModeUrl(mode);
+    const html = (url ? await buildImageHtml(url) : null) ?? Modes[mode] ?? Modes.flashing;
+    const modeKey = url ? `${mode}:${url}` : mode;
 
     if (isWindowAlive()) {
         if (activeMode !== modeKey) {
@@ -85,6 +102,9 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
         height: 1080,
         show: false,
         frame: false,
+        hasShadow: false,
+        resizable: false,
+        movable: false,
         skipTaskbar: true,
         title: "crashed",
         webPreferences: { backgroundThrottling: false },
@@ -103,11 +123,13 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
     return cachedSourceId;
 }
 
-export function updateCrashMode(_e: IpcMainInvokeEvent) {
+export async function updateCrashMode(_e: IpcMainInvokeEvent) {
     if (!isWindowAlive()) return;
     const mode = getMode();
-    const html = mode === "image" ? buildImageHtml() : (Modes[mode] ?? Modes.white);
-    activeMode = mode === "image" ? `image:${getImageUrl()}` : mode;
+    const url = getModeUrl(mode);
+    const imageHtml = url ? await buildImageHtml(url) : null;
+    const html = imageHtml ?? Modes[mode] ?? Modes.white;
+    activeMode = url ? `${mode}:${url}` : mode;
     crashedWindow?.loadURL(html);
 }
 
