@@ -105,6 +105,7 @@ const UserContext: NavContextMenuPatchCallback = (children, { user, guildId }: U
                 label="View Avatar"
                 action={() => openAvatar(IconUtils.getUserAvatarURL(user, true))}
                 icon={ImageIcon}
+                leadingAccessory={{ type: "icon", icon: ImageIcon }}
             />
             {memberAvatar && (
                 <Menu.MenuItem
@@ -117,6 +118,7 @@ const UserContext: NavContextMenuPatchCallback = (children, { user, guildId }: U
                         canAnimate: true
                     }))}
                     icon={ImageIcon}
+                    leadingAccessory={{ type: "icon", icon: ImageIcon }}
                 />
             )}
         </Menu.MenuGroup>
@@ -143,6 +145,7 @@ const GuildContext: NavContextMenuPatchCallback = (children, { guild }: GuildCon
                         })!)
                     }
                     icon={ImageIcon}
+                    leadingAccessory={{ type: "icon", icon: ImageIcon }}
                 />
             ) : null}
             {banner ? (
@@ -153,6 +156,7 @@ const GuildContext: NavContextMenuPatchCallback = (children, { guild }: GuildCon
                         openBanner(IconUtils.getGuildBannerURL(guild, true)!)
                     }
                     icon={ImageIcon}
+                    leadingAccessory={{ type: "icon", icon: ImageIcon }}
                 />
             ) : null}
         </Menu.MenuGroup>
@@ -171,6 +175,7 @@ const GroupDMContext: NavContextMenuPatchCallback = (children, { channel }: Grou
                     openAvatar(IconUtils.getChannelIconURL(channel)!)
                 }
                 icon={ImageIcon}
+                leadingAccessory={{ type: "icon", icon: ImageIcon }}
             />
         </Menu.MenuGroup>
     ));
