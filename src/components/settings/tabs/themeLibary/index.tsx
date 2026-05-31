@@ -62,7 +62,7 @@ let ThemesJSON = {} as ThemeResult;
 
 let themesLoaded = false;
 
-async function loadThemes() {
+async function loadThemes(onFail?: () => void) {
     if (themesLoaded) return;
     try {
         ThemesJSON = await VelocityNative.themes.getVelocityThemes();
@@ -71,7 +71,9 @@ async function loadThemes() {
 
         // This is required so you don't ratelimit github
         themesLoaded = true;
-    } catch { }
+    } catch {
+        onFail?.();
+    }
 }
 
 
@@ -157,11 +159,17 @@ export function ThemesLibTab() {
         search: ""
     });
 
-    useEffect(() => {
-        loadThemes().then(() => forceUpdate());
-    }, []);
+    const [loadFailed, setLoadFailed] = useState(false);
+
+    const retryLoad = () => {
+        themesLoaded = false;
+        ThemesJSON = {} as ThemeResult;
+        setLoadFailed(false);
+        loadThemes(() => setLoadFailed(true)).then(() => forceUpdate());
+    };
 
     useEffect(() => {
+        loadThemes(() => setLoadFailed(true)).then(() => forceUpdate());
         VelocityNative.themes.getThemesList().then(themes => {
             setOwnedThemes(themes.map(v => v.name.replace(/\.css$/, "")));
         });
@@ -203,93 +211,91 @@ export function ThemesLibTab() {
         setCurrentPage(1);
     };
     return (
-        <>
-            <SettingsTab>
-                <Flex>
-                    <Text>Total Themes: ({totalThemes})</Text>
-                    <SearchBar
-                        query={filters.search}
-                        onChange={query => setFilters(prev => ({ ...prev, search: query }))}
-                        onClear={() => setFilters(prev => ({ ...prev, search: "" }))}
-                        placeholder="Search themes..."
-                        size="sm"
-                    />
-                    <Popout
-                        position="bottom"
-                        align="center"
-                        animation={Popout.Animation.SCALE}
-                        shouldShow={tagPopoutOpen}
-                        onRequestOpen={() => setTagPopoutOpen(true)}
-                        onRequestClose={() => setTagPopoutOpen(false)}
-                        targetElementRef={tagButtonRef}
-                        renderPopout={({ setPopoutRef }) => (
-                            <Menu.Menu
-                                ref={setPopoutRef}
-                                navId="theme-tags"
-                                onClose={() => setTagPopoutOpen(false)}
-                            >
-                                {ThemesJSON.tags && ThemesJSON.tags.length > 0 ? (
-                                    ThemesJSON.tags.map(tag => (
-                                        <Menu.MenuCheckboxItem
-                                            id={tag}
-                                            key={tag}
-                                            label={tag}
-                                            checked={filters.tags.has(tag)}
-                                            action={() => handleTagSelect(tag)}
-                                        />
-                                    ))
-                                ) : <Menu.MenuItem id="no-tags" label="No tags available" disabled />}
-                            </Menu.Menu>
-                        )}
-                    >
-                        {(_, { isShown }) => (
-                            <Tooltip text={!isShown ? "Filter by tags" : null}>
-                                {tooltipProps => (
-                                    <Buttons.IconButton
-                                        {...tooltipProps}
-                                        buttonRef={tagButtonRef}
-                                        variant="secondary"
-                                        size="sm"
-                                        icon={Icons.TagIcon}
-                                        onClick={() => setTagPopoutOpen(!tagPopoutOpen)}
-                                    />
-                                )}
-                            </Tooltip>
-                        )}
-                    </Popout>
-                </Flex>
-                <Forms.FormDivider gap={8} />
-                <Flex flexWrap="wrap" justifyContent="flex-start" gap="20px">
-                    {paginatedThemes.length > 0
-                        ? paginatedThemes.map(theme => (
-                            <ThemeCard
-                                key={theme.name}
-                                theme={theme}
-                                selectedTags={filters.tags}
-                                onTagSelect={handleTagSelect}
-                                ownedThemes={ownedThemes}
-                                onOwnershipChange={handleOwnershipChange}
-                            />
-                        ))
-                        : !themesLoaded
-                            ? <LoadingIndicator type="spinningCircle" />
-                            : <>
-                                <div className={cl("no-themes")} />
-                                <Flex justifyContent="center" style={{ width: "100%" }}>
-                                    <Text variant="display-sm" color="text-muted">No themes found</Text>
-                                </Flex>
-                            </>
-                    }
-                </Flex>
-
-                <Paginator
-                    currentPage={currentPage}
-                    maxVisiblePages={5}
-                    pageSize={itemsPerPage}
-                    totalCount={totalThemes}
-                    onPageChange={setCurrentPage}
+        <SettingsTab>
+            <Flex>
+                <Text>Total Themes: ({totalThemes})</Text>
+                <SearchBar
+                    query={filters.search}
+                    onChange={query => setFilters(prev => ({ ...prev, search: query }))}
+                    onClear={() => setFilters(prev => ({ ...prev, search: "" }))}
+                    placeholder="Search themes..."
+                    size="sm"
                 />
-            </SettingsTab>
-        </>
+                <Popout
+                    position="bottom"
+                    align="center"
+                    animation={Popout.Animation.SCALE}
+                    shouldShow={tagPopoutOpen}
+                    onRequestOpen={() => setTagPopoutOpen(true)}
+                    onRequestClose={() => setTagPopoutOpen(false)}
+                    targetElementRef={tagButtonRef}
+                    renderPopout={({ setPopoutRef }) => (
+                        <Menu.Menu
+                            ref={setPopoutRef}
+                            navId="theme-tags"
+                            onClose={() => setTagPopoutOpen(false)}
+                        >
+                            {ThemesJSON.tags && ThemesJSON.tags.length > 0 ? (
+                                ThemesJSON.tags.map(tag => (
+                                    <Menu.MenuCheckboxItem
+                                        id={tag}
+                                        key={tag}
+                                        label={tag}
+                                        checked={filters.tags.has(tag)}
+                                        action={() => handleTagSelect(tag)}
+                                    />
+                                ))
+                            ) : <Menu.MenuItem id="no-tags" label="No tags available" disabled />}
+                        </Menu.Menu>
+                    )}
+                >
+                    {(_, { isShown }) => (
+                        <Tooltip text={!isShown ? "Filter by tags" : null}>
+                            {tooltipProps => (
+                                <Buttons.IconButton
+                                    {...tooltipProps}
+                                    buttonRef={tagButtonRef}
+                                    variant="secondary"
+                                    size="sm"
+                                    icon={Icons.TagIcon}
+                                    onClick={() => setTagPopoutOpen(!tagPopoutOpen)}
+                                />
+                            )}
+                        </Tooltip>
+                    )}
+                </Popout>
+            </Flex>
+            <Forms.FormDivider gap={8} />
+            <Flex flexWrap="wrap" justifyContent="flex-start" gap="20px">
+                {paginatedThemes.length > 0
+                    ? paginatedThemes.map(theme => (
+                        <ThemeCard
+                            key={theme.name}
+                            theme={theme}
+                            selectedTags={filters.tags}
+                            onTagSelect={handleTagSelect}
+                            ownedThemes={ownedThemes}
+                            onOwnershipChange={handleOwnershipChange}
+                        />
+                    ))
+                    : !themesLoaded && !loadFailed
+                        ? <LoadingIndicator type="spinningCircle" />
+                        : <>
+                            <div className={cl("no-themes")} />
+                            <Flex justifyContent="center" alignItems="center" flexDirection={"column"} style={{ width: "100%", margin: "auto" }}>
+                                <Text variant="display-sm" color={loadFailed ? "text-feedback-critical" : "text-muted"}>{loadFailed ? "Failed to load themes" : "No themes found"}</Text>
+                                {loadFailed && <Buttons.Button text="Retry" variant="primary" size="sm" onClick={retryLoad} />}
+                            </Flex>
+                        </>
+                }
+            </Flex>
+            <Paginator
+                currentPage={currentPage}
+                maxVisiblePages={totalThemes}
+                pageSize={itemsPerPage}
+                totalCount={totalThemes}
+                onPageChange={setCurrentPage}
+            />
+        </SettingsTab>
     );
 }
