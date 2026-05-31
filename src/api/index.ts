@@ -30,6 +30,7 @@ import * as $MessageUpdater from "./MessageUpdater";
 import * as $Notices from "./Notices";
 import * as $Notifications from "./Notifications";
 export * as PluginManager from "./PluginManager";
+import * as $Csp from "./Csp";
 import * as $HeaderBar from "./HeaderBar";
 import * as $ServerList from "./ServerList";
 import * as $Settings from "./Settings";
@@ -80,6 +81,10 @@ export const MessagePopover = $MessagePopover;
  * An API allowing you to add badges to user profiles
  */
 export const Badges = $Badges;
+/**
+ * An API for the native CSP that connects renderer to main process
+ */
+export const Csp = $Csp;
 /**
  * An API allowing you to add buttons to the header bar or channel toolbar.
  */

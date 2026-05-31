@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { requestCspOverride } from "@api/Csp";
 import * as DataStore from "@api/DataStore";
 import { showNotification } from "@api/Notifications";
 import { Settings } from "@api/Settings";
@@ -39,7 +40,7 @@ export async function checkCloudUrlCsp() {
         return true;
     }
 
-    const res = await VelocityNative.csp.requestAddOverride(Settings.cloud.url, ["connect-src"], "Cloud Sync");
+    const res = await requestCspOverride(Settings.cloud.url, ["connect-src"], "Cloud Sync");
     if (res === "ok") {
         Alerts.show({
             title: "Cloud Integration enabled",
