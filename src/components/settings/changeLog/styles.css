@@ -1,19 +1,13 @@
-.vc-changelog-modal-root {
-    border-width: 2px;
-}
-
-.vc-changelog-modal-header {
-    position: sticky;
-    top: 54px;
-    z-index: 1;
-    background: var(--modal-background);
-}
-
 .vc-changelog-modal-content ul {
     margin: 17px 0 8px 18px;
     gap: 8px;
     display: flex;
     flex-direction: column;
+}
+
+.vc-changelog-modal-content main,
+div[class*="bodySpacerTop"] {
+    display: none !important;
 }
 
 
@@ -67,6 +61,7 @@
 }
 
 .vc-changelog-modal-footer {
+    margin-top: 12px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;

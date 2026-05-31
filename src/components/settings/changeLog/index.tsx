@@ -24,10 +24,9 @@ import { gitRemote } from "@shared/userAgent";
 import { VELOCITY_GUILD_INVITE } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage, openInviteModal } from "@utils/discord";
-import { ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalRoot, ModalSize } from "@utils/modal";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByPropsLazy } from "@webpack";
-import { FlexClasses, Icons, openModal, Parser, Text, Tooltip } from "@webpack/common";
+import { Icons, Modal, openModal, Parser, Text, Tooltip } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 import changelogData from "./Log";
@@ -105,23 +104,16 @@ function ChangelogModalContent({ subtitle, banner, summary, changes, ...modalPro
     }
 
     return (
-        <ModalRoot transitionState={modalProps.transitionState} size={ModalSize.SMALL} hideShadow={false} className={cl("root")}>
-            <ModalHeader className={cl("header", FlexClasses.Gutter.LARGE)} justify={FlexClasses.Justify.BETWEEN}>
-                <div className={FlexClasses.Direction.VERTICAL} >
-                    <Text variant="heading-lg/bold">{getIntlMessage("WHATS_NEW")}</Text>
-                    <Paragraph color="text-muted">{subtitle}</Paragraph>
-                </div>
-                <ModalCloseButton onClick={modalProps.onClose} />
-            </ModalHeader>
-            <ModalContent className={cl("content")}>
+        <Modal title={getIntlMessage("WHATS_NEW")} subtitle={subtitle} {...modalProps}>
+            <div className={cl("content")}>
                 {items}
-            </ModalContent>
-            <ModalFooter className={cl("footer")}>
-                <FooterButton tooltip="Join our Discord" onClick={() => openInviteModal(VELOCITY_GUILD_INVITE)} icon={() => <Icons.ClydeIcon size="xs" color="currentColor" />} />
-                <FooterButton tooltip="View Source Code" onClick={() => VelocityNative.native.openExternal(`https://github.com/${gitRemote}`)} icon={GithubIcon} />
-                <Text variant="text-xs/normal">{getIntlMessage("FOLLOW_US_FOR_MORE_UPDATES")}</Text>
-            </ModalFooter>
-        </ModalRoot>
+                <div className={cl("footer")}>
+                    <FooterButton tooltip="Join our Discord" onClick={() => openInviteModal(VELOCITY_GUILD_INVITE)} icon={() => <Icons.ClydeIcon size="xs" color="currentColor" />} />
+                    <FooterButton tooltip="View Source Code" onClick={() => VelocityNative.native.openExternal(`https://github.com/${gitRemote}`)} icon={GithubIcon} />
+                    <Text variant="text-xs/normal">{getIntlMessage("FOLLOW_US_FOR_MORE_UPDATES")}</Text>
+                </div>
+            </div>
+        </Modal>
     );
 }
 
