@@ -17,7 +17,6 @@
 */
 
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { migratePluginSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
@@ -25,14 +24,14 @@ import { getGuildAcronym } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import type { Guild, GuildSticker } from "@velocity-types";
-import { StickerFormatType } from "@velocity-types/enums";
+import { PremiumType, StickerFormatType } from "@velocity-types/enums";
 import { findByCodeLazy } from "@webpack";
 import { Constants, EmojiStore, FluxDispatcher, GuildStore, IconUtils, Menu, Modal, openModalLazy, PermissionsBits, PermissionStore, RestAPI, StickersStore, TextInput, Toasts, Tooltip, useMemo, useReducer, UserStore, useState } from "@webpack/common";
 import type { Promisable } from "type-fest";
 
 const uploadEmoji = findByCodeLazy(".GUILD_EMOJIS(", "EMOJI_UPLOAD_START");
 
-const getGuildMaxEmojiSlots = findByCodeLazy(".additionalEmojiSlots") as (guild: Guild) => number;
+const getGuildMaxEmojiSlots = findByCodeLazy(".additionalEmojiSlots??") as (guild: Guild) => number;
 
 interface Sticker extends GuildSticker {
     t: "Sticker";
@@ -65,7 +64,7 @@ const MAX_EMOJI_SIZE_BYTES = 256 * 1024;
 const MAX_STICKER_SIZE_BYTES = 512 * 1024;
 
 function getGuildMaxStickerSlots(guild: Guild) {
-    if (guild.features.has("MORE_STICKERS") && guild.premiumTier === 3)
+    if (guild.features.has("MORE_STICKERS") && guild.premiumTier === PremiumType.TIER_0)
         return 120;
 
     return PremiumTierStickerLimitMap[guild.premiumTier] ?? PremiumTierStickerLimitMap[0];
@@ -147,14 +146,12 @@ function getGuildCandidates(data: Data) {
             return !stickers || stickers.length < stickerSlots;
         }
 
-        const { isAnimated } = data as Emoji;
-
         const emojiSlots = getGuildMaxEmojiSlots(g);
         const emojis = EmojiStore.getGuildEmoji(g.id);
 
         let count = 0;
         for (const emoji of emojis) {
-            if (emoji.animated === isAnimated && !emoji.managed) {
+            if (emoji.animated === data.isAnimated && !emoji.managed) {
                 count++;
             }
         }
@@ -182,7 +179,7 @@ async function fetchBlob(data: Data) {
     throw new Error(`Failed to fetch ${data.t} within size limit of ${MAX_SIZE / 1000}kB`);
 }
 
-async function doClone(guildId: string, data: Sticker | Emoji) {
+async function doClone(guildId: string, data: Data) {
     try {
         if (data.t === "Sticker")
             await cloneSticker(guildId, data);
@@ -217,7 +214,7 @@ const getFontSize = (s: string) => {
 
 const nameValidator = /^\w+$/i;
 
-function CloneModal({ data }: { data: Sticker | Emoji; }) {
+function CloneModal({ data }: { data: Data; }) {
     const [isCloning, setIsCloning] = useState(false);
     const [name, setName] = useState(data.name);
     const [error, setError] = useState<string>();
@@ -326,7 +323,7 @@ function buildMenuItem(type: "Emoji" | "Sticker", fetchData: () => Promisable<Om
             action={() =>
                 openModalLazy(async () => {
                     const res = await fetchData();
-                    const data = { t: type, ...res } as Sticker | Emoji;
+                    const data = { t: type, ...res } as Data;
                     const url = getUrl(data, 128);
 
                     return modalProps => (
@@ -380,7 +377,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
                 }));
             case "sticker":
                 const sticker = props.message.stickerItems.find(s => s.id === favoriteableId);
-                if (sticker?.format_type === 3 /* LOTTIE */) return;
+                if (sticker?.format_type === StickerFormatType.LOTTIE) return;
 
                 return buildMenuItem("Sticker", () => fetchSticker(favoriteableId));
         }
@@ -407,14 +404,15 @@ const expressionPickerPatch: NavContextMenuPatchCallback = (children, props: { t
     }
 };
 
-migratePluginSettings("ExpressionCloner", "EmoteCloner");
 export default definePlugin({
     name: "ExpressionCloner",
     description: "Allows you to clone Emotes & Stickers to your own server (right click them)",
     tags: ["Emotes", "Servers"],
-    searchTerms: ["StickerCloner", "EmoteCloner", "EmojiCloner"], authors: [Devs.Ven, Devs.Nuckyz],
+    searchTerms: ["StickerCloner", "EmoteCloner", "EmojiCloner"],
+    authors: [Devs.Ven, Devs.Nuckyz],
+
     contextMenus: {
-        "message": messageContextMenuPatch,
+        "message": { render: messageContextMenuPatch, required: true },
         "expression-picker": expressionPickerPatch
     }
 });
