@@ -22,7 +22,6 @@ import { isPluginEnabled } from "@api/PluginManager";
 import { ThemeDef, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
 import { FormSwitch } from "@components/FormSwitch";
-import { Heading } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
@@ -34,6 +33,7 @@ import { classes } from "@utils/misc";
 import { getStylusWebStoreUrl } from "@utils/web";
 import { Buttons, Dialog, Field, Forms, Icons, Popout, PopoutClasses, SearchBar, Select, Text, TextInput, useCallback, useEffect, useRef, useState } from "@webpack/common";
 
+import { CspErrorCard } from "./CspErrorCard";
 import { VelocityThemesTab } from "./VelocityThemesTab";
 
 const cl = classNameFactory("vc-settings-themes-");
@@ -219,10 +219,14 @@ function ThemesTab() {
 
     return (
         <SettingsTab>
-            <div className={Margins.bottom20}>
-                <Heading>Themes</Heading>
-                <Text>Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Click on the cog wheel icon to customize a theme's settings.</Text>
-            </div>
+            <CspErrorCard />
+            <SectionHeader
+                tag="h5"
+                title="Themes"
+                description="Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Click on the cog wheel icon to customize a theme's settings."
+                descriptionColor="text-default"
+                margin="bottom20"
+            />
             <Field label="Quick Actions">
                 <QuickActionCard>
                     <>

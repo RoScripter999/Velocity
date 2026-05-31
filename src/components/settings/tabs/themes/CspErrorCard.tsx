@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { requestCspOverride } from "@api/Csp";
 import { Settings } from "@api/Settings";
 import { ErrorCard } from "@components/ErrorBoundary";
 import { Link } from "@components/Link";
@@ -42,7 +43,7 @@ export function CspErrorCard() {
     const allowUrl = async (url: string) => {
         const { origin: baseUrl, host } = new URL(url);
 
-        const result = await VelocityNative.csp.requestAddOverride(baseUrl, ["connect-src", "img-src", "style-src", "font-src"], "Velocity Themes");
+        const result = await requestCspOverride(baseUrl, ["connect-src", "img-src", "style-src", "font-src"], "Velocity Themes");
         if (result !== "ok") return;
 
         CspBlockedUrls.forEach(url => {
