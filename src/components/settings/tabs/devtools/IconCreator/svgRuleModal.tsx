@@ -18,9 +18,8 @@
 
 import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
-import { ManaModalFooter, ManaModalHeader, ManaModalRoot } from "@utils/manaModal";
-import { ModalContent } from "@utils/modal";
-import { Forms, Select, TextInput, useState } from "@webpack/common";
+import { ModalPropsRender } from "@velocity-types/src";
+import { Forms, Modal, Select, TextInput, useState } from "@webpack/common";
 
 import type { SvgElement, SvgRule } from "./types";
 import { normalizeSvgByType } from "./utils";
@@ -37,14 +36,12 @@ const RULE_OPTIONS = [
     { label: "Non-Zero", value: "nonzero" }
 ] as const;
 
-interface Props {
+interface Props extends ModalPropsRender {
     svg: SvgElement;
     onSave: (path: SvgElement) => void;
-    onClose: () => void;
-    transitionState: any;
 }
 
-export function SvgRuleModal({ svg, onSave, onClose, transitionState }: Props) {
+export function SvgRuleModal({ svg, onSave, ...modalProps }: Props) {
     const [type, setType] = useState<SvgElement["type"]>(svg.type);
     const [fill, setFill] = useState(svg.fill || "currentColor");
     const [rule, setRule] = useState<"none" | SvgRule>(svg.fillRule || svg.clipRule || "none");
@@ -58,13 +55,24 @@ export function SvgRuleModal({ svg, onSave, onClose, transitionState }: Props) {
         };
 
         onSave(updated);
-        onClose();
+        modalProps.onClose();
     };
 
     return (
-        <ManaModalRoot transitionState={transitionState} onClose={onClose}>
-            <ManaModalHeader title="Element Settings" subtitle="Configure SVG element properties" />
-            <ModalContent>
+        <Modal title="Element Settings" subtitle="Configure SVG element properties" actions={[
+            {
+                text: "Cancel",
+                variant: "secondary",
+                onClick: modalProps.onClose
+            },
+            {
+                text: "Save",
+                variant: "primary",
+                onClick: handleSave
+            }
+        ]}
+            {...modalProps}>
+            <div>
                 <Flex flexDirection="column" gap={16} className={Margins.bottom20}>
                     <div>
                         <Forms.FormTitle>Element Type</Forms.FormTitle>
@@ -95,21 +103,7 @@ export function SvgRuleModal({ svg, onSave, onClose, transitionState }: Props) {
                         />
                     </div>
                 </Flex>
-            </ModalContent>
-            <ManaModalFooter
-                actions={[
-                    {
-                        text: "Cancel",
-                        variant: "secondary",
-                        onClick: onClose
-                    },
-                    {
-                        text: "Save",
-                        variant: "primary",
-                        onClick: handleSave
-                    }
-                ]}
-            />
-        </ManaModalRoot>
+            </div>
+        </Modal>
     );
 }
