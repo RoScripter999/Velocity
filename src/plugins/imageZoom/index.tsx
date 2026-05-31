@@ -94,17 +94,13 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
                 id="vc-square"
                 label="Square Lens"
                 checked={square}
-                action={() => {
-                    settings.store.square = !square;
-                }}
+                action={() => settings.store.square = !square}
             />
             <Menu.MenuCheckboxItem
                 id="vc-nearest-neighbour"
                 label="Nearest Neighbour"
                 checked={nearestNeighbour}
-                action={() => {
-                    settings.store.nearestNeighbour = !nearestNeighbour;
-                }}
+                action={() => settings.store.nearestNeighbour = !nearestNeighbour}
             />
             <Menu.MenuControlItem
                 id="vc-zoom"

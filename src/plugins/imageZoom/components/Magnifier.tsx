@@ -21,7 +21,7 @@ import { settings } from "@plugins/imageZoom";
 import { ELEMENT_ID } from "@plugins/imageZoom/constants";
 import { waitFor } from "@plugins/imageZoom/utils/waitFor";
 import { classNameFactory } from "@utils/css";
-import { FluxDispatcher, useLayoutEffect, useMemo, useRef, useState } from "@webpack/common";
+import { ContextMenuApi, useLayoutEffect, useMemo, useRef, useState } from "@webpack/common";
 
 interface Vec2 {
     x: number,
@@ -94,7 +94,7 @@ export const Magnifier = ErrorBoundary.wrap<MagnifierProps>(({ instance, size: i
 
                 // close context menu if open
                 if (document.getElementById("image-context")) {
-                    FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" });
+                    ContextMenuApi.closeContextMenu();
                 }
 
                 updateMousePosition(e);
