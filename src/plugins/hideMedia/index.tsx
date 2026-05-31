@@ -27,7 +27,7 @@ import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Message } from "@velocity-types";
-import { ChannelStore, Menu, PopoverClasses } from "@webpack/common";
+import { ChannelStore, Menu } from "@webpack/common";
 
 const KEY = "HideMedia_HiddenIds";
 
@@ -36,7 +36,7 @@ let hiddenMessages = new Set<string>();
 const saveHiddenMessages = (ids: Set<string>) => set(KEY, ids);
 
 const hasMedia = (msg: Message) => msg.attachments.length > 0 || msg.embeds.length > 0 || msg.stickerItems.length > 0;
-const mediaIcon = (state: boolean) => state ? () => <ImageVisible colorClass={PopoverClasses.icon} /> : () => <ImageInvisible colorClass={PopoverClasses.icon} />;
+const mediaIcon = (state: boolean) => state ? ImageVisible : ImageInvisible;
 
 const settings = definePluginSettings({
     contextMenu: {
@@ -46,12 +46,8 @@ const settings = definePluginSettings({
     }
 });
 
-const messageContextMenuPatch: NavContextMenuPatchCallback = (
-    children,
-    { channel, message }: { channel: Channel; message: Message; }
-) => {
-    if (!settings.store.contextMenu) return;
-    if (!hasMedia(message) && !message.messageSnapshots.some(s => hasMedia(s.message))) return;
+const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { channel, message }: { channel: Channel; message: Message; }) => {
+    if (!settings.store.contextMenu && !hasMedia(message) && !message.messageSnapshots.some(s => hasMedia(s.message))) return;
 
     if (message.deleted) return;
 
@@ -66,6 +62,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (
             label={isHidden ? "Show Media" : "Hide Media"}
             color={isHidden ? undefined : "danger"}
             icon={mediaIcon(isHidden)}
+            leadingAccessory={{ type: "icon", icon: mediaIcon(isHidden) }}
             action={async () => {
                 const ids = await getHiddenMessages();
                 if (!ids.delete(message.id)) ids.add(message.id);
@@ -118,7 +115,7 @@ export default definePlugin({
     ],
 
     contextMenus: {
-        "message": messageContextMenuPatch
+        "message": { render: messageContextMenuPatch, required: true }
     },
 
     messagePopoverButton: {
