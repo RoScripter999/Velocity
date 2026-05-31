@@ -19,8 +19,8 @@
 import { makeLazy } from "./lazy";
 
 /*
-    Add dynamically loaded dependencies for plugins here.
- */
+  Add dynamically loaded dependencies for plugins here.
+*/
 
 // needed to parse APNGs in the nitroBypass plugin
 export const importApngJs = makeLazy(() => {
@@ -43,11 +43,6 @@ export const enum ApngDisposeOp {
     PREVIOUS
 }
 
-// TODO: Might need to somehow implement this
-export const enum ApngBlendOp {
-    SOURCE,
-    OVER
-}
 export interface ApngFrame {
     left: number;
     top: number;
@@ -55,7 +50,6 @@ export interface ApngFrame {
     height: number;
     img: HTMLImageElement;
     delay: number;
-    blendOp: ApngBlendOp;
     disposeOp: ApngDisposeOp;
 }
 
