@@ -32,22 +32,21 @@ export type TextProps<T extends string = string> = PropsWithChildren<Omit<HtmlHT
 
 export type Text = ComponentType<TextProps>;
 
-export type Icons = {
-    [K in IconNames]: FC<{
-        /**
-        * @default "md"
-        * @remarks Values — xxs: 12, xs: 16, sm: 18, md: 24, lg: 32, refresh_sm: 20
-        */
-        size?: "xxs" | "xs" | "sm" | "md" | "lg" | "refresh_sm" | "custom";
-        width?: number;
-        height?: number;
-        /** @default "interactive-icon-default" */
-        color?: "currentColor" | RawCSSColor | { css: string; };
-        /** @ignore Unused by discord */
-        colorClass?: string;
-    } & Omit<SVGProps<SVGSVGElement>, "color">>;
+export type IconProps = SVGProps<SVGSVGElement> & {
+    /**
+     * @default "md"
+     * @remarks Values — xxs: 12, xs: 16, sm: 18, md: 24, lg: 32, refresh_sm: 20
+     */
+    size?: "xxs" | "xs" | "sm" | "md" | "lg" | "refresh_sm" | "custom";
+    width?: number;
+    height?: number;
+    /** @default "interactive-icon-default" */
+    color?: "currentColor" | RawCSSColor | { css: string; };
+    /** @ignore Unused by discord */
+    colorClass?: string;
 };
 
+export type Icons = Record<IconNames, ComponentType<IconProps>>;
 
 export interface Forms {
     FormTitle: ComponentType<HTMLProps<HTMLTitleElement> & PropsWithChildren<{

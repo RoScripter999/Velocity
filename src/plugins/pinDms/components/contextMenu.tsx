@@ -17,7 +17,7 @@
 */
 
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { CMIconClasses, Icons, Menu } from "@webpack/common";
+import { Icons, Menu } from "@webpack/common";
 
 import { addChannelToCategory, canMoveChannelInDirection, currentUserCategories, isPinned, moveChannel, moveChannelToCategory, removeChannelFromCategory } from "../data";
 import { PinOrder, settings } from "../index";
@@ -37,7 +37,7 @@ function createPinMenuItem(channelId: string) {
                     <Menu.MenuItem
                         id="vc-add-category"
                         label="Add Category"
-                        icon={() => <Icons.PlusLargeIcon color="currentColor" className={CMIconClasses.icon} />}
+                        icon={() => <Icons.PlusLargeIcon color="currentColor" />}
                         color="brand"
                         action={() => openCategoryModal(null, channelId)}
                     />
@@ -86,7 +86,7 @@ function createPinMenuItem(channelId: string) {
                     <Menu.MenuItem
                         id="unpin-dm"
                         label="Unpin DM"
-                        icon={() => <Icons.TrashIcon color="currentColor" className={CMIconClasses.icon} />}
+                        icon={() => <Icons.TrashIcon color="currentColor" />}
                         color="danger"
                         action={() => removeChannelFromCategory(channelId)}
                     />

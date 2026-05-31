@@ -25,11 +25,9 @@ import { waitForComponent } from "./internal";
 export const Text = waitForComponent<t.Text>("Text", filters.componentByCode('="div",selectable:'));
 
 /** TODO: Migrate all icons to use {@link Icons} */
-export let Icons: t.Icons;
+export let Icons: t.Icons = {} as t.Icons;
 export function setIcons(component: t.Icons) {
-    if (component) {
-        Icons = component;
-    }
+    Icons = component;
 }
 
 export const Forms: t.Forms = {
@@ -69,11 +67,9 @@ export const Paginator = waitForComponent<t.Paginator>("Paginator", filters.comp
 export const Clickable = waitForComponent<t.Clickable>("Clickable", filters.componentByCode("this.context?this.renderNonInteractive():"));
 export const Avatar = waitForComponent<t.Avatar>("Avatar", filters.componentByCode(".size-1.375*"));
 
-export let FilePicker: t.FilePicker;
+export let FilePicker: t.FilePicker = () => null;
 export function setFilePicker(component: t.FilePicker) {
-    if (component) {
-        FilePicker = component;
-    }
+    FilePicker = component;
 }
 
 export let ColorPicker: t.ColorPicker = () => null;

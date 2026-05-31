@@ -21,7 +21,7 @@ import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import type { Channel, User } from "@velocity-types";
-import { CMIconClasses, Icons, Menu } from "@webpack/common";
+import { Icons, Menu } from "@webpack/common";
 
 interface UserContextProps {
     channel: Channel;
@@ -37,7 +37,7 @@ const UserContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: U
             id="vc-copy-user-url"
             label="Copy User URL"
             action={() => copyToClipboard(`<https://discord.com/users/${user.id}>`)}
-            icon={() => <Icons.LinkIcon className={CMIconClasses.icon} />}
+            icon={Icons.LinkIcon}
         />
     );
 };

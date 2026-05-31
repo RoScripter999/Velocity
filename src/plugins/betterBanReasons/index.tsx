@@ -138,7 +138,7 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
                 {
                     variant: "critical-primary",
                     text: getIntlMessage("REVOKE_BAN"),
-                    icon: () => Icons.HammerIcon({ color: "currentColor", size: "refresh_sm" }),
+                    icon: () => <Icons.HammerIcon color="currentColor" size="refresh_sm" />,
                     onClick: handleUnban,
                     loading: loading
                 }

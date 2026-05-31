@@ -18,7 +18,6 @@
 
 import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 
-export const CMIconClasses = findCssClassesLazy("item", "icon", "iconContainer", "menu", "subtext", "submenuPaddingContainer", "labelContainer", "label", "colorDefault");
 export const PopoverClasses = findCssClassesLazy("popover", "hoverBarButton", "icon", "buttonContent", "separator");
 export const PopoutClasses = findCssClassesLazy("container", "popoutRoleDot");
 export const FlexClasses = findByPropsLazy("Gutter");

@@ -25,7 +25,7 @@ import { copyWithToast, getCurrentGuild, getIntlMessage } from "@utils/discord";
 import { isTruthy } from "@utils/guards";
 import definePlugin from "@utils/types";
 import type { Message, User } from "@velocity-types";
-import { ChannelStore, CMIconClasses, Forms, GuildRoleStore, Icons, Menu, Modal, openModal, PopoverClasses } from "@webpack/common";
+import { ChannelStore, Forms, GuildRoleStore, Icons, Menu, Modal, openModal, PopoverClasses } from "@webpack/common";
 
 function sortObject<T extends object>(obj: T): T {
     return Object.fromEntries(Object.entries(obj).sort(([k1], [k2]) => k1.localeCompare(k2))) as T;
@@ -36,7 +36,7 @@ function cleanMessage(msg: Message) {
     for (const key of ["email", "phone", "mfaEnabled", "personalConnectionId"])
         delete clone.author[key];
 
-    const cloneAny = clone as any;
+    const cloneAny = clone;
     delete cloneAny.editHistory;
     delete cloneAny.deleted;
     delete cloneAny.firstEditTimestamp;
@@ -96,7 +96,8 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
             id="vc-view-message-raw"
             label="View Raw"
             action={() => openViewRawModal(JSON.stringify(props.message, null, 4), "Message", props.message.content)}
-            icon={() => <Icons.TopicsIcon className={CMIconClasses.icon} />}
+            icon={Icons.TopicsIcon}
+            leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
         />
     );
 };
@@ -118,6 +119,8 @@ function MakeContextCallback(name: "Guild" | "Role" | "User" | "Channel"): NavCo
             <Menu.MenuItem
                 id={`vc-view-${name.toLowerCase()}-raw`}
                 label="View Raw"
+                icon={Icons.TopicsIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
                 action={() => {
                     if (name === "User") {
                         openViewRawModal(JSON.stringify(cleanUser(value), null, 4), "User");
@@ -125,7 +128,6 @@ function MakeContextCallback(name: "Guild" | "Role" | "User" | "Channel"): NavCo
                         openViewRawModal(JSON.stringify(value, null, 4), name);
                     }
                 }}
-                icon={() => <Icons.TopicsIcon className={CMIconClasses.icon} />}
             />
         );
     };
@@ -143,7 +145,8 @@ const devContextCallback: NavContextMenuPatchCallback = (children, { id }: { id:
             id="vc-view-role-raw"
             label="View Raw"
             action={() => openViewRawModal(JSON.stringify(role, null, 4), "Role")}
-            icon={() => <Icons.TopicsIcon className={CMIconClasses.icon} />}
+            icon={Icons.TopicsIcon}
+            leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
         />
     );
 };

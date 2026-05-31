@@ -295,15 +295,14 @@ export function SoundSettings() {
                                             <Buttons.Button
                                                 onClick={() => handleEdit(entry)}
                                                 size="sm"
-                                                icon={() => Icons.PencilIcon({ size: "refresh_sm", color: "currentColor" })}
+                                                icon={Icons.PencilIcon}
                                                 text={getIntlMessage("EDIT")}
-
                                             />
                                             <Buttons.Button
                                                 onClick={() => handleDelete(entry.id)}
                                                 variant="critical-primary"
                                                 size="sm"
-                                                icon={() => Icons.TrashIcon({ size: "refresh_sm", color: "currentColor" })}
+                                                icon={Icons.TrashIcon}
                                                 text={getIntlMessage("DELETE")}
                                             />
                                         </Buttons.ButtonGroup>

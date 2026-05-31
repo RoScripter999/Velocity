@@ -26,12 +26,13 @@ import { isTruthy } from "@utils/guards";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Guild, PopoutProps, Role } from "@velocity-types";
-import { findByCodeLazy, findByPropsLazy } from "@webpack";
-import { CMIconClasses, GuildRoleStore, Icons, Menu, PermissionStore, Popout, useRef } from "@webpack/common";
+import { findByCodeLazy, findByPropsLazy, findCssClassesLazy } from "@webpack";
+import { GuildRoleStore, Icons, Menu, PermissionStore, Popout, useRef } from "@webpack/common";
 import type { ComponentType, RefObject } from "react";
 
-const GuildSettingsActions = findByPropsLazy("open", "selectRole", "updateGuild");
+const GuildSettingsActionCreators = findByPropsLazy("open", "selectRole", "updateGuild");
 
+const Classes = findCssClassesLazy("item", "iconContainer", "labelContainer", "label", "colorDefault");
 const loadRoleMembers = findByCodeLazy(".GUILD_ROLE_MEMBER_IDS(", "requestMembersById");
 
 const DeveloperMode = getUserSettingLazy("appearance", "developerMode")!;
@@ -78,8 +79,8 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                 id="vc-edit-role"
                 label="Edit Role"
                 action={async () => {
-                    await GuildSettingsActions.open(guild.id, "ROLES");
-                    GuildSettingsActions.selectRole(role.id);
+                    await GuildSettingsActionCreators.open(guild.id, "ROLES");
+                    GuildSettingsActionCreators.selectRole(role.id);
                 }}
                 icon={Icons.PencilIcon}
             />
@@ -132,13 +133,13 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                     >
                         {popoutProps => (
                             <div
-                                className={classes(CMIconClasses.item, CMIconClasses.labelContainer, CMIconClasses.colorDefault)}
+                                className={classes(Classes.item, Classes.labelContainer, Classes.colorDefault)}
                                 ref={popoutRef}
                                 role="menuitem"
                                 {...popoutProps}
                             >
-                                <div className={CMIconClasses.label}>View Role Members</div>
-                                <Icons.UserIcon className={CMIconClasses.iconContainer} />
+                                <div className={Classes.label}>View Role Members</div>
+                                <Icons.UserIcon className={Classes.iconContainer} />
                             </div>
                         )}
                     </Popout>

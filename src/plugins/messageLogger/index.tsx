@@ -32,7 +32,7 @@ import { classes } from "@utils/misc";
 import definePlugin, { type IconComponent, OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { ChannelStore, CMIconClasses, FluxDispatcher, Icons, Menu, MessageStore, Parser, PopoverClasses, SelectedChannelStore, Timestamp, UserStore, useStateFromStores } from "@webpack/common";
+import { ChannelStore, FluxDispatcher, Icons, Menu, MessageStore, Parser, PopoverClasses, SelectedChannelStore, Timestamp, UserStore, useStateFromStores } from "@webpack/common";
 
 import overlayStyle from "./deleteStyleOverlay.css?managed";
 import textStyle from "./deleteStyleText.css?managed";
@@ -220,7 +220,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
             <Menu.MenuItem
                 id="vc-ml-clear-channel"
                 label="Clear Message Log"
-                icon={() => <Icons.TrashIcon fill="currentColor" className={CMIconClasses.icon} />}
+                icon={() => <Icons.TrashIcon fill="currentColor" />}
                 color="danger"
                 action={() => {
                     messages.forEach(msg => {

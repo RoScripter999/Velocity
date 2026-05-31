@@ -25,7 +25,7 @@ import { classes } from "@utils/misc";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
 import type { Channel } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { Clickable, CMIconClasses, ContextMenuApi, FluxDispatcher, Icons, Menu, PrivateChannelSortStore, type React } from "@webpack/common";
+import { Clickable, ContextMenuApi, FluxDispatcher, Icons, Menu, PrivateChannelSortStore, type React } from "@webpack/common";
 
 import { contextMenus } from "./components/contextMenu";
 import { openCategoryModal } from "./components/CreateCategoryModal";
@@ -282,7 +282,7 @@ export default definePlugin({
                             <Menu.MenuItem
                                 id="vc-pindms-edit-category"
                                 label="Edit Category"
-                                icon={() => <Icons.PencilIcon className={CMIconClasses.icon} />}
+                                icon={Icons.PencilIcon}
                                 action={() => openCategoryModal(category.id, null)}
                             />
 
@@ -315,7 +315,7 @@ export default definePlugin({
                                 id="vc-pindms-delete-category"
                                 color="danger"
                                 label="Delete Category"
-                                icon={() => <Icons.TrashIcon color="currentColor" className={CMIconClasses.icon} />}
+                                icon={() => <Icons.TrashIcon color="currentColor" />}
                                 action={() => removeCategory(category.id)}
                             />
 

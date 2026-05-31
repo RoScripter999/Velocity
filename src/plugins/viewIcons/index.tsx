@@ -23,7 +23,7 @@ import { Devs } from "@utils/constants";
 import { openImageModal } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Guild, User } from "@velocity-types";
-import { CMIconClasses, GuildMemberStore, IconUtils, Menu } from "@webpack/common";
+import { GuildMemberStore, IconUtils, Menu } from "@webpack/common";
 
 
 interface UserContextProps {
@@ -104,7 +104,7 @@ const UserContext: NavContextMenuPatchCallback = (children, { user, guildId }: U
                 id="view-avatar"
                 label="View Avatar"
                 action={() => openAvatar(IconUtils.getUserAvatarURL(user, true))}
-                icon={() => <ImageIcon colorClass={CMIconClasses.icon} />}
+                icon={ImageIcon}
             />
             {memberAvatar && (
                 <Menu.MenuItem
@@ -116,7 +116,7 @@ const UserContext: NavContextMenuPatchCallback = (children, { user, guildId }: U
                         guildId: guildId!,
                         canAnimate: true
                     }))}
-                    icon={() => <ImageIcon colorClass={CMIconClasses.icon} />}
+                    icon={ImageIcon}
                 />
             )}
         </Menu.MenuGroup>
@@ -142,7 +142,7 @@ const GuildContext: NavContextMenuPatchCallback = (children, { guild }: GuildCon
                             canAnimate: true
                         })!)
                     }
-                    icon={() => <ImageIcon colorClass={CMIconClasses.icon} />}
+                    icon={ImageIcon}
                 />
             ) : null}
             {banner ? (
@@ -152,7 +152,7 @@ const GuildContext: NavContextMenuPatchCallback = (children, { guild }: GuildCon
                     action={() =>
                         openBanner(IconUtils.getGuildBannerURL(guild, true)!)
                     }
-                    icon={() => <ImageIcon colorClass={CMIconClasses.icon} />}
+                    icon={ImageIcon}
                 />
             ) : null}
         </Menu.MenuGroup>
@@ -170,7 +170,7 @@ const GroupDMContext: NavContextMenuPatchCallback = (children, { channel }: Grou
                 action={() =>
                     openAvatar(IconUtils.getChannelIconURL(channel)!)
                 }
-                icon={() => <ImageIcon colorClass={CMIconClasses.icon} />}
+                icon={ImageIcon}
             />
         </Menu.MenuGroup>
     ));
