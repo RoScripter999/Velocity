@@ -25,7 +25,7 @@ import { classes } from "@utils/misc";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
 import type { Channel } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { Clickable, ContextMenuApi, FluxDispatcher, Icons, Menu, PrivateChannelSortStore, type React } from "@webpack/common";
+import { Clickable, ContextMenuApi, Icons, Menu, PrivateChannelSortStore, type React } from "@webpack/common";
 
 import { contextMenus } from "./components/contextMenu";
 import { openCategoryModal } from "./components/CreateCategoryModal";
@@ -275,7 +275,7 @@ export default definePlugin({
                     ContextMenuApi.openContextMenu(e, () => (
                         <Menu.Menu
                             navId="vc-pindms-header-menu"
-                            onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
+                            onClose={ContextMenuApi.closeContextMenu}
                             color="danger"
                             aria-label="Pin DMs Category Menu"
                         >
@@ -283,6 +283,7 @@ export default definePlugin({
                                 id="vc-pindms-edit-category"
                                 label="Edit Category"
                                 icon={Icons.PencilIcon}
+                                leadingAccessory={{ type: "icon", icon: Icons.PencilIcon }}
                                 action={() => openCategoryModal(category.id, null)}
                             />
 
@@ -294,6 +295,7 @@ export default definePlugin({
                                                 id="vc-pindms-move-category-up"
                                                 label="Move Up"
                                                 icon={() => <Icons.ChevronLargeUpIcon color="currentColor" />}
+                                                leadingAccessory={{ type: "icon", icon: Icons.ChevronLargeUpIcon }}
                                                 action={() => moveCategory(category.id, -1)}
                                             />
                                         }
@@ -302,6 +304,7 @@ export default definePlugin({
                                                 id="vc-pindms-move-category-down"
                                                 label="Move Down"
                                                 icon={() => <Icons.ChevronLargeDownIcon color="currentColor" />}
+                                                leadingAccessory={{ type: "icon", icon: Icons.ChevronLargeDownIcon }}
                                                 action={() => moveCategory(category.id, 1)}
                                             />
                                         }
@@ -316,10 +319,9 @@ export default definePlugin({
                                 color="danger"
                                 label="Delete Category"
                                 icon={() => <Icons.TrashIcon color="currentColor" />}
+                                leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                                 action={() => removeCategory(category.id)}
                             />
-
-
                         </Menu.Menu>
                     ));
                 }}

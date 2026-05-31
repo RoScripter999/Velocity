@@ -38,6 +38,7 @@ function createPinMenuItem(channelId: string) {
                         id="vc-add-category"
                         label="Add Category"
                         icon={() => <Icons.PlusLargeIcon color="currentColor" />}
+                        leadingAccessory={{ type: "icon", icon: Icons.PlusLargeIcon }}
                         color="brand"
                         action={() => openCategoryModal(null, channelId)}
                     />
@@ -87,6 +88,7 @@ function createPinMenuItem(channelId: string) {
                         id="unpin-dm"
                         label="Unpin DM"
                         icon={() => <Icons.TrashIcon color="currentColor" />}
+                        leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                         color="danger"
                         action={() => removeChannelFromCategory(channelId)}
                     />

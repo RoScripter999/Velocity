@@ -96,8 +96,8 @@ export function NewCategoryModal({ categoryId, modalProps, initialChannelId }: P
         >
             <div className={cl("content")}>
                 <section>
-                    <Forms.FormTitle>Name</Forms.FormTitle>
                     <TextInput
+                        label="Name"
                         value={name}
                         onChange={e => setName(e)}
                     />
