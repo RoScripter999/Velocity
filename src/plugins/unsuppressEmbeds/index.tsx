@@ -17,12 +17,12 @@
 */
 
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { ImageInvisible, ImageVisible } from "@components/Icons";
+import { ImageInvisible } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import type { Channel, Message } from "@velocity-types";
 import { MessageFlags } from "@velocity-types/enums";
-import { Constants, Menu, PermissionsBits, PermissionStore, RestAPI, UserStore } from "@webpack/common";
+import { Constants, Icons, Menu, PermissionsBits, PermissionStore, RestAPI, UserStore } from "@webpack/common";
 
 const messageContextMenuPatch: NavContextMenuPatchCallback = (
     children,
@@ -47,8 +47,8 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (
             key="unsuppress-embeds"
             label={isEmbedSuppressed ? "Unsuppress Embeds" : "Suppress Embeds"}
             color={isEmbedSuppressed ? undefined : "danger"}
-            icon={isEmbedSuppressed ? ImageVisible : ImageInvisible}
-            leadingAccessory={{ type: "icon", icon: isEmbedSuppressed ? ImageVisible : ImageInvisible }}
+            icon={isEmbedSuppressed ? Icons.EmbedIcon : ImageInvisible}
+            leadingAccessory={{ type: "icon", icon: isEmbedSuppressed ? Icons.EmbedIcon : ImageInvisible }}
             action={() =>
                 RestAPI.patch({
                     url: Constants.Endpoints.MESSAGE(channel.id, messageId),

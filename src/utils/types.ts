@@ -398,7 +398,7 @@ export interface PluginSettingComponentProps {
 type SelectValueType<O extends PluginSettingSelectDef> =
     O["options"] extends readonly PluginSettingSelectOption[] ? O["options"][number]["value"] : string;
 
-type PluginSettingType<O extends PluginSettingDef> = O extends PluginSettingStringDef ? string :
+export type PluginSettingType<O extends PluginSettingDef> = O extends PluginSettingStringDef ? string :
     O extends PluginSettingNumberDef ? number :
     O extends PluginSettingBigIntDef ? BigInt :
     O extends PluginSettingBooleanDef ? boolean :

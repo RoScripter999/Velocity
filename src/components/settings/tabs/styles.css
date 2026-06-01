@@ -90,10 +90,6 @@
     color: var(--text-default);
 }
 
-.vc-settings-section-header-description {
-    margin-left: 2px;
-}
-
 .vc-settings-section-header-tooltip {
     color: var(--text-muted);
     display: inline-flex;

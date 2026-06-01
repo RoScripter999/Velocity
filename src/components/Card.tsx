@@ -27,6 +27,11 @@ const cl = classNameFactory("vc-card-");
 export type CardProps = ComponentType<PropsWithChildren<HTMLProps<HTMLDivElement> & {
     /** Adds a 1px border around the card and border color depends on the {@link type}. @default true */
     outline?: boolean;
+    /**
+     * @default "sm"
+     * @remarks Values — xxs: 4, xs: 8, sm: 12, md: 16, lg: 20
+     */
+    padding?: "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
     /** @default Card.Types.PRIMARY */
     type?: "brand" | "danger" | "primary" | "success" | "warning";
@@ -34,9 +39,9 @@ export type CardProps = ComponentType<PropsWithChildren<HTMLProps<HTMLDivElement
     Types: Record<"BRAND" | "DANGER" | "PRIMARY" | "SUCCESS" | "WARNING", string>;
 };
 
-export const Card = function ({ type = "primary", outline = true, children, className, ...restProps }: ComponentProps<CardProps>) {
+export const Card = function ({ type = "primary", outline = true, padding = "sm", children, className, ...restProps }: ComponentProps<CardProps>) {
     return (
-        <div className={classes(cl("primary", type, outline && "outline"), className)} {...restProps}>
+        <div className={classes(cl("primary", type, outline && "outline"), className)} style={{ padding: `var(--size-${padding})` }} {...restProps}>
             {children}
         </div>
     );

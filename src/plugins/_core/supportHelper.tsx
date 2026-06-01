@@ -29,7 +29,7 @@ import { openPluginModal, openSettingsTabModal, UpdaterTab } from "@components/s
 import { Span } from "@components/Span";
 import SettingsPlugin from "@plugins/_core/settings";
 import { gitRemote } from "@shared/userAgent";
-import { CONTRIB_ROLE_ID, Devs, DONOR_ROLE_ID, KNOWN_ISSUES_CHANNEL_ID, REGULAR_ROLE_ID, SUPPORT_CATEGORY_ID, SUPPORT_CHANNEL_ID, VEBOT_USER_ID, VELOCITY_GUILD_ID } from "@utils/constants";
+import { CONTRIB_ROLE_ID, Devs, DONOR_ROLE_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CATEGORY_ID, SUPPORT_CHANNEL_ID, TRUSTED_CONTRIB_ROLE_ID, VEBOT_USER_ID, VELOCITY_GUILD_ID } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import { classes, isPluginDev, tryOrElse } from "@utils/misc";
@@ -50,7 +50,7 @@ const logger = new Logger("SupportHelper");
 
 const TrustedRolesIds = [
     CONTRIB_ROLE_ID,
-    REGULAR_ROLE_ID,
+    TRUSTED_CONTRIB_ROLE_ID,
     DONOR_ROLE_ID
 ];
 

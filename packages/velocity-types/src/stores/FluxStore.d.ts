@@ -2,7 +2,7 @@ import { FluxDispatcher, FluxEvents } from "..";
 
 type Callback = () => void;
 
-/*
+/**
   For some reason, this causes type errors when you try to destructure it:
   ```ts
   interface FluxEvent {
