@@ -47,7 +47,8 @@ const settings = definePluginSettings({
 });
 
 const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { channel, message }: { channel: Channel; message: Message; }) => {
-    if (!settings.store.contextMenu && !hasMedia(message) && !message.messageSnapshots.some(s => hasMedia(s.message))) return;
+    if (!settings.store.contextMenu) return;
+    if (!hasMedia(message) && !message.messageSnapshots.some(s => hasMedia(s.message))) return;
 
     if (message.deleted) return;
 
@@ -115,11 +116,12 @@ export default definePlugin({
     ],
 
     contextMenus: {
-        "message": { render: messageContextMenuPatch, required: true }
+        "message": messageContextMenuPatch
     },
 
     messagePopoverButton: {
         icon: ImageInvisible,
+        required: true,
         render(msg) {
             if (!hasMedia(msg) && !msg.messageSnapshots.some(s => hasMedia(s.message))) return null;
 

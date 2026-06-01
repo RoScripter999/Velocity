@@ -83,6 +83,8 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                     GuildSettingsActionCreators.selectRole(role.id);
                 }}
                 icon={Icons.PencilIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.PencilIcon }}
+
             />
         ),
         role.colorString && (
@@ -92,6 +94,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                 label="Copy Role Color"
                 action={() => copyToClipboard(role.colorString!)}
                 icon={Icons.PaintPaletteIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.PaintPaletteIcon }}
             />
         )
     ].filter(isTruthy);
@@ -109,6 +112,8 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                     });
                 }}
                 icon={ImageIcon}
+                leadingAccessory={{ type: "icon", icon: ImageIcon }}
+
             />
         ),
         popoutRef && (

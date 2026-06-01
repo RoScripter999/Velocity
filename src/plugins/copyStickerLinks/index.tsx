@@ -90,7 +90,7 @@ export default definePlugin({
     tags: ["Emotes", "Utility"],
     authors: [Devs.Ven, Devs.Byeoon],
     contextMenus: {
-        "message": messageContextMenuPatch,
+        "message": { render: messageContextMenuPatch, required: true },
         "expression-picker": expressionPickerPatch
     }
 });

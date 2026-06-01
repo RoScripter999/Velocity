@@ -69,6 +69,7 @@ export const addViewStreamContext: NavContextMenuPatchCallback = (children, { us
             label="View Stream Preview"
             id="view-stream-preview"
             icon={Icons.ScreenStreamIcon}
+            leadingAccessory={{ type: "icon", icon: Icons.ScreenStreamIcon }}
             action={() => stream && handleViewPreview(stream)}
         />
     );
