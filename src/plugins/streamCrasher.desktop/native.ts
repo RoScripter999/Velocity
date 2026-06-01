@@ -28,6 +28,13 @@ import { platform } from "os";
 let crashedWindow: BrowserWindow | null = null;
 let cachedSourceId: string | null = null;
 let activeMode: string | null = null;
+let creating = false;
+
+function resetState() {
+    crashedWindow = null;
+    cachedSourceId = null;
+    activeMode = null;
+}
 
 const AssetsURL = "https://raw.githubusercontent.com/Discord-Velocity/PluginAssets/main/StreamCrasher";
 
@@ -59,8 +66,14 @@ function isWindowAlive(): boolean {
 
 async function buildImageHtml(url: string): Promise<string | null> {
     try {
-        const buf = Buffer.from(await (await net.fetch(url)).arrayBuffer());
-        const mime = /\.png(\?|$)/i.test(url) ? "image/png" : /\.gif(\?|$)/i.test(url) ? "image/gif" : "image/jpeg";
+        const response = await net.fetch(url);
+        const buf = Buffer.from(await response.arrayBuffer());
+        const contentType = response.headers.get("content-type") ?? "";
+        const mime = contentType.startsWith("image/")
+            ? contentType.split(";")[0].trim()
+            : /\.png(\?|$)/i.test(url) ? "image/png"
+                : /\.gif(\?|$)/i.test(url) ? "image/gif"
+                    : "image/jpeg";
         const src = `data:${mime};base64,${buf.toString("base64")}`;
         return `data:text/html,${encodeURIComponent(imageHtml.replace("__IMAGE_SRC__", src))}`;
     } catch {
@@ -96,6 +109,9 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
         return cachedSourceId;
     }
 
+    if (creating) return cachedSourceId;
+    creating = true;
+
     activeMode = modeKey;
     crashedWindow = new BrowserWindow({
         width: 1920,
@@ -113,6 +129,9 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
         roundedCorners: false
     });
 
+    crashedWindow.webContents.on("render-process-gone", () => resetState());
+    crashedWindow.once("closed", () => resetState());
+
     await new Promise<void>(resolve => {
         crashedWindow?.once("ready-to-show", resolve);
         crashedWindow?.loadURL(html);
@@ -120,6 +139,7 @@ export async function createCrashSource(_e: IpcMainInvokeEvent): Promise<string 
 
     crashedWindow.showInactive();
     cachedSourceId = await findSourceId();
+    creating = false;
     return cachedSourceId;
 }
 
@@ -127,8 +147,8 @@ export async function updateCrashMode(_e: IpcMainInvokeEvent) {
     if (!isWindowAlive()) return;
     const mode = getMode();
     const url = getModeUrl(mode);
-    const imageHtml = url ? await buildImageHtml(url) : null;
-    const html = imageHtml ?? Modes[mode] ?? Modes.white;
+    const builtHtml = url ? await buildImageHtml(url) : null;
+    const html = builtHtml ?? Modes[mode] ?? Modes.white;
     activeMode = url ? `${mode}:${url}` : mode;
     crashedWindow?.loadURL(html);
 }
