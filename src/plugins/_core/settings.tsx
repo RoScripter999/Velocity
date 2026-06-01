@@ -27,6 +27,7 @@ import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
 import type { LayoutNode, SidebarItemNode } from "@velocity-types";
+import { NestedPanelLeadingDecorationType } from "@velocity-types/enums";
 import { Buttons, Icons, Tooltip } from "@webpack/common";
 import type { ComponentType, JSX, PropsWithChildren } from "react";
 
@@ -173,7 +174,7 @@ export default definePlugin({
                             key="themes_nested_panel"
                             title="Theme Library"
                             subtitle="Download online themes directly from Discord"
-                            useLeadingDecoration={() => ({ type: 0, icon: Icons.PaintPaletteIcon })}
+                            useLeadingDecoration={() => ({ type: NestedPanelLeadingDecorationType.ICON, icon: Icons.PaintPaletteIcon })}
                         >
                             <Panel key="themes_inner_panel" title="Theme Library">
                                 <Category key="theme_lib_category" title="Theme Libary">
