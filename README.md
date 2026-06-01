@@ -9,7 +9,7 @@ The best Discord client mod
 ## Features
 
 - Easy to install
-- 185+ built in plugins
+- 186+ built in plugins
 - Fairly lightweight despite the many inbuilt plugins
 - Excellent Browser Support: Run Velocity in your Browser via extension or UserScript
 - Works on any Discord branch: Stable, Canary or PTB all work
