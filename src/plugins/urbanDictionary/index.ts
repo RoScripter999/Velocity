@@ -16,8 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandOptionType, sendBotMessage } from "@api/Commands";
-import { ApplicationCommandInputType } from "@api/Commands/types";
+import { ApplicationCommandInputType, ApplicationCommandOptionType } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { PluginNative } from "@utils/types";
@@ -45,12 +44,12 @@ export default definePlugin({
                     required: true
                 }
             ],
-            execute: async (args, ctx) => {
+            execute: async interaction => {
                 try {
-                    const { status, data } = await Native.makeDictionaryReq(args[0].value);
+                    const { status, data } = await Native.makeDictionaryReq(interaction.options.getString("word", true));
 
                     if (status !== 200 || !data.list?.[0])
-                        return void sendBotMessage(ctx.channel.id, { content: "No results found ):" });
+                        return void interaction.reply({ content: "No results found ):" });
 
                     const definition = data.list.reduce((longest, current) =>
                         current.definition.length > longest.definition.length ? current : longest
@@ -71,7 +70,7 @@ export default definePlugin({
                             }
                         ]
                     };
-                    return void sendBotMessage(ctx.channel.id, { components: [msg] });
+                    return void interaction.reply({ components: [msg] });
                 } catch (error) {
                     new Logger("UrbanDictionary").error(`Failed to get this word.. ${error}`);
                 }

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandInputType, sendBotMessage } from "@api/Commands";
+import { ApplicationCommandInputType } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { InviteActions } from "@webpack/common";
@@ -32,10 +32,10 @@ export default definePlugin({
             description: "Generates a friend invite link.",
             inputType: ApplicationCommandInputType.BUILT_IN,
 
-            execute: async (_, ctx) => {
+            execute: async interaction => {
                 const invite = await InviteActions.createFriendInvite();
 
-                sendBotMessage(ctx.channel.id, {
+                return void interaction.reply({
                     content: `
                         discord.gg/${invite.code} ·
                         Expires: <t:${new Date(invite.expires_at).getTime() / 1000}:R> ·
@@ -48,7 +48,7 @@ export default definePlugin({
             name: "view friend invites",
             description: "View a list of all generated friend invites.",
             inputType: ApplicationCommandInputType.BUILT_IN,
-            execute: async (_, ctx) => {
+            execute: async interaction => {
                 const invites = await InviteActions.getAllFriendInvites();
                 const friendInviteList = invites.map(i =>
                     `
@@ -58,7 +58,7 @@ export default definePlugin({
                     `.trim().replace(/\s+/g, " ")
                 );
 
-                sendBotMessage(ctx.channel.id, {
+                return void interaction.reply({
                     content: friendInviteList.join("\n") || "You have no active friend invites!"
                 });
             }
@@ -67,10 +67,10 @@ export default definePlugin({
             name: "revoke friend invites",
             description: "Revokes all generated friend invites.",
             inputType: ApplicationCommandInputType.BUILT_IN,
-            execute: async (_, ctx) => {
+            execute: async interaction => {
                 await InviteActions.revokeFriendInvites();
 
-                sendBotMessage(ctx.channel.id, {
+                return void interaction.reply({
                     content: "All friend invites have been revoked."
                 });
             }

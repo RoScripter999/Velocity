@@ -17,7 +17,7 @@
 */
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
-import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType } from "@api/Commands";
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Icon } from "@components/Icons";
@@ -137,9 +137,9 @@ export default definePlugin({
                 type: ApplicationCommandOptionType.BOOLEAN
             }
         ],
-        execute: async (args, ctx) => {
-            settings.store.isEnabled = !!findOption(args, "value", !settings.store.isEnabled);
-            sendBotMessage(ctx.channel.id, {
+        execute: async interaction => {
+            settings.store.isEnabled = !!interaction.options.getBoolean("value", true);
+            interaction.reply({
                 content: settings.store.isEnabled ? "Silent typing enabled!" : "Silent typing disabled!"
             });
         }

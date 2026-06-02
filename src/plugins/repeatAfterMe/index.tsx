@@ -17,7 +17,7 @@
 */
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
-import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType } from "@api/Commands";
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Icon } from "@components/Icons";
@@ -136,17 +136,15 @@ export default definePlugin({
         name: "repeatafterme",
         description: "Toggle RepeatAfterMe",
         inputType: ApplicationCommandInputType.BUILT_IN,
-        options: [
-            {
-                name: "value",
-                description: "whether to enable or disable the RepeatAfterMe state",
-                required: false,
-                type: ApplicationCommandOptionType.BOOLEAN
-            }
-        ],
-        execute: async (args, ctx) => {
-            settings.store.isEnabled = !!findOption(args, "value", !settings.store.isEnabled);
-            sendBotMessage(ctx.channel.id, {
+        options: [{
+            name: "value",
+            description: "whether to enable or disable the RepeatAfterMe state",
+            required: true,
+            type: ApplicationCommandOptionType.BOOLEAN
+        }],
+        execute: async interaction => {
+            settings.store.isEnabled = !!interaction.options.getBoolean("value", true);
+            void interaction.reply({
                 content: settings.store.isEnabled ? "RepeatAfterMe enabled!" : "RepeatAfterMe disabled!"
             });
         }

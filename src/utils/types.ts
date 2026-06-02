@@ -18,6 +18,7 @@
 
 import type { ProfileBadge } from "@api/Badges";
 import type { ChatBarButtonData } from "@api/ChatButtons";
+import type { VelocityCommand } from "@api/Commands";
 import type { ContextMenuDef } from "@api/ContextMenu";
 import type { HeaderBarButtonData } from "@api/HeaderBar";
 import type { MemberListDecoratorFactory } from "@api/MemberListDecorators";
@@ -26,7 +27,7 @@ import type { MessageDecorationFactory } from "@api/MessageDecorations";
 import type { MessageClickListener, MessageEditListener, MessageSendListener } from "@api/MessageEvents";
 import type { MessagePopoverButtonData } from "@api/MessagePopover";
 import type { IconProps } from "@components/Icons";
-import type { Command, FluxEvents } from "@velocity-types";
+import type { FluxEvents } from "@velocity-types";
 import type { ComponentType, FC, ReactNode } from "react";
 import type { LiteralUnion } from "type-fest";
 
@@ -140,7 +141,7 @@ export interface PluginDef {
     /**
      * List of commands that your plugin wants to register
      */
-    commands?: Command[];
+    commands?: VelocityCommand[];
     /**
      * A list of other plugins that your plugin depends on.
      * These will automatically be enabled and loaded before your plugin

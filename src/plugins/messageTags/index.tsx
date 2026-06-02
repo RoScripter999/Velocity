@@ -19,7 +19,7 @@
 import "./styles.css";
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
-import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, registerCommand, sendBotMessage, unregisterCommand } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, registerCommand, unregisterCommand } from "@api/Commands";
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { get, set } from "@api/DataStore";
 import { Flex } from "@components/Flex";
@@ -67,11 +67,11 @@ const createTagCommand = (msg: Tag) => {
         name: msg.command,
         description: `Send tag: ${msg.command}`,
         inputType: ApplicationCommandInputType.BUILT_IN_TEXT,
-        execute: async (_, ctx) => {
+        execute: async interaction => {
             const message = await getTag(msg.command);
 
             if (!message) {
-                sendBotMessage(ctx.channel.id, {
+                interaction.reply({
                     content: `Tag **${msg.command}** doesn't exist`
                 });
                 return { content: `/${msg.command}` };
@@ -459,18 +459,17 @@ export default definePlugin({
                 }
             ],
 
-            async execute(args, ctx) {
-                const subcommand = args[0]?.name;
-                const name: string = findOption(args[0]?.options, "tag-name", "");
+            async execute(interaction) {
+                const subcommand = interaction.getSubcommand();
+                const name = interaction.options.getString("tag-name", true);
                 const tags = await getTags();
 
                 if (subcommand === "list") {
                     if (!tags.length) {
-                        sendBotMessage(ctx.channel.id, { content: "No tags" });
-                        return;
+                        return void interaction.reply({ content: "No tags" });
                     }
 
-                    sendBotMessage(ctx.channel.id, {
+                    interaction.reply({
                         embeds: [{
                             title: `Tags (${tags.length})`,
                             description: tags.map(t => `\`${t.command}\`: ${t.content.slice(0, 60)}${t.content.length > 60 ? "..." : ""}`).join("\n"),
@@ -481,20 +480,18 @@ export default definePlugin({
                 } else if (subcommand === "delete") {
                     const tag = await getTag(name);
                     if (!tag) {
-                        sendBotMessage(ctx.channel.id, { content: `Tag **${name}** not found` });
-                        return;
+                        return void interaction.reply({ content: `Tag **${name}** not found` });
                     }
 
                     await deleteTag(tag.id);
-                    sendBotMessage(ctx.channel.id, { content: `Deleted **${name}**` });
+                    interaction.reply({ content: `Deleted **${name}**` });
                 } else if (subcommand === "preview") {
                     const tag = await getTag(name);
                     if (!tag) {
-                        sendBotMessage(ctx.channel.id, { content: `Tag **${name}** not found` });
-                        return;
+                        return void interaction.reply({ content: `Tag **${name}** not found` });
                     }
 
-                    sendBotMessage(ctx.channel.id, { content: tag.content });
+                    interaction.reply({ content: tag.content });
                 }
             }
         }

@@ -18,10 +18,10 @@
 
 import { Logger } from "@utils/Logger";
 import { makeCodeblock } from "@utils/text";
-import type { CommandArgument, CommandContext, CommandOption } from "@velocity-types";
+import type { Command, CommandArgument, CommandContext, CommandOption } from "@velocity-types";
 
 import { sendBotMessage } from "./commandHelpers";
-import { ApplicationCommandInputType, ApplicationCommandOptionType, ApplicationCommandType, type VelocityCommand } from "./types";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, ApplicationCommandType, type CommandInteraction, type VelocityCommand } from "./types";
 
 export * from "./commandHelpers";
 export * from "./types";
@@ -64,7 +64,7 @@ export const _init = function (cmds: VelocityCommand[]) {
 
 export const _handleCommand = function (cmd: VelocityCommand, args: CommandArgument[], ctx: CommandContext) {
     if (!cmd.isVelocityCommand)
-        return cmd.execute(args, ctx);
+        return (cmd as unknown as Command).execute(args, ctx);
 
     const handleError = (err: any) => {
         // TODO: cancel send if cmd.inputType === BUILT_IN_TEXT
@@ -80,8 +80,84 @@ export const _handleCommand = function (cmd: VelocityCommand, args: CommandArgum
         });
     };
 
+    // For subcommands, options are nested inside args[0].options so yea...
+    const effectiveArgs = args[0]?.options ?? args;
+
+    const getString = ((name, required) => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) {
+            if (required) throw new Error(`Required option "${name}" not provided`);
+            return null;
+        }
+        return String(arg.value) as any;
+    });
+
+    const getNumber = ((name, required) => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) {
+            if (required) throw new Error(`Required option "${name}" not provided`);
+            return null;
+        }
+        return Number(arg.value) as any;
+    });
+
+    const getBoolean = ((name, required) => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) {
+            if (required) throw new Error(`Required option "${name}" not provided`);
+            return null;
+        }
+        return arg.value as any;
+    });
+
+    const getInteger = ((name, required) => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) {
+            if (required) throw new Error(`Required option "${name}" not provided`);
+            return null;
+        }
+        return parseInt(String(arg.value), 10) as any;
+    });
+
+    const getMember = (name => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) return null;
+        return arg.value as any;
+    });
+
+    const getAttachment = ((name, required) => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) {
+            if (required) throw new Error(`Required option "${name}" not provided`);
+            return null;
+        }
+        return arg.value as any;
+    });
+
+    const getRole = ((name, required) => {
+        const arg = effectiveArgs.find(a => a.name === name);
+        if (arg == null) {
+            if (required) throw new Error(`Required option "${name}" not provided`);
+            return null;
+        }
+        return arg.value as any;
+    });
+
+    const getSubcommand = (() => {
+        const arg = args[0]?.name;
+        return arg as any;
+    });
+
+    const interaction: CommandInteraction = {
+        options: { getString, getNumber, getBoolean, getInteger, getMember, getRole, getAttachment },
+        getSubcommand,
+        reply(data) {
+            sendBotMessage(ctx.channel.id, data);
+        }
+    };
+
     try {
-        const res = cmd.execute(args, ctx);
+        const res = cmd.execute(interaction, ctx);
         return res instanceof Promise ? res.catch(handleError) : res;
     } catch (err) {
         return handleError(err);
@@ -129,7 +205,7 @@ function registerSubCommands(cmd: VelocityCommand, plugin: string) {
             }],
             rootCommand: cmd
         };
-        registerCommand(subCmd as any, plugin);
+        registerCommand(subCmd, plugin);
     });
 }
 

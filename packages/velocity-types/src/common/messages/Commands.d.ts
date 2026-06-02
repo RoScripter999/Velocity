@@ -23,7 +23,7 @@ export interface CommandOption {
 
 export interface ChoicesOption {
     label?: string;
-    value: string;
+    value: PropertyKey;
     name: string;
     displayName?: string;
 }
