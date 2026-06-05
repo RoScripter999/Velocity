@@ -141,6 +141,22 @@ export interface RelatedNode extends LayoutNode {
     layout: ContentNode[];
 }
 
+export interface CardNode extends LayoutNode {
+    type: LayoutType.CARD;
+    /**
+     * Key of the node inside {@link layout} to render as the card header.
+     * The remaining nodes are rendered as the card body beneath it.
+     * and no, you cannot put multiple keys by putting the same keys in each node.
+     */
+    headerSettingKey?: string;
+    /**
+     * The nodes to render inside the card.
+     *
+     * Nodes are rendered in the {@link layout} and **MUST** use "layout", NOT buildLayout.
+     */
+    layout: ContentNode[];
+}
+
 export interface FieldSetNode extends LayoutNode {
     type: LayoutType.FIELD_SET;
     useTitle(): string;
@@ -169,6 +185,12 @@ export interface TabItemNode extends LayoutNode {
 export interface NestedPanelNode extends LayoutNode {
     type: LayoutType.NESTED_PANEL;
     buildLayout: () => PanelNode[];
+    /**
+     * @ignore Only use when rendering inside a {@link CardNode}.
+     * Using a {@link buildLayout} inside of a {@link CardNode} will result in a "Cannot read properties of undefined" crash.
+     * Using {@link layout} outside of a {@link CardNode} will cause a "Cannot read properties of undefined (reading 'every')" error.
+     */
+    layout?: ContentNode[];
     useTitle: () => string;
     useSubtitle?: () => string;
     useLeadingDecoration?: () => {
@@ -341,6 +363,7 @@ export type ContentNode =
     | ListNode
     | NestedPanelNode
     | RelatedNode
+    | CardNode
     | FieldSetNode
     | TabItemNode
     | SplitNode;

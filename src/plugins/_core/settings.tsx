@@ -187,7 +187,7 @@ export default definePlugin({
                                 buildLayout: () => [
                                     {
                                         key: "themes_nested_panel",
-                                        type: LayoutType.NESTED_PANEL,
+                                        type: LayoutType.NESTED_PANEL_NAVIGATOR,
                                         useTitle: () => "Theme Library",
                                         useSubtitle: () => "Download online themes directly from Discord",
                                         useLeadingDecoration: () => ({
