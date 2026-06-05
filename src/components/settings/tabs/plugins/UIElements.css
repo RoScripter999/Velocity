@@ -8,14 +8,11 @@
     margin-top: 1em;
     cursor: pointer;
     margin-bottom: 8px;
+    transition: background-color 0.2s ease;
 
     &:hover {
         background-color: var(--background-mod-subtle, var(--background-modifier-hover));
     }
-}
-
-:not([data-reduced-motion="true"]) .vc-plugin-ui-elements-button {
-    transition: background-color 0.2s ease;
 }
 
 .vc-plugin-ui-elements-button-icon {
@@ -57,9 +54,6 @@
     gap: 12px;
     padding: 8px 12px;
     border-radius: 6px;
-}
-
-:not([data-reduced-motion="true"]) .vc-plugin-ui-elements-switches-row-wrapper {
     transition: background-color 120ms ease, opacity 120ms ease;
 }
 

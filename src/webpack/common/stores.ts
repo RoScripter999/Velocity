@@ -301,7 +301,10 @@ export let WowMomentConfirmationStore: t.WowMomentConfirmationStore;
  */
 export const useStateFromStores: t.useStateFromStores = findByCodeLazy("useStateFromStores");
 
-waitForStore("AccessibilityStore", s => AccessibilityStore = s);
+waitForStore("AccessibilityStore", s => {
+    AccessibilityStore = s;
+    Velocity.Api.Styles.initReducedMotionStyle(s);
+});
 waitForStore("ActiveChannelsStore", s => ActiveChannelsStore = s);
 waitForStore("ActiveJoinedThreadsStore", s => ActiveJoinedThreadsStore = s);
 waitForStore("ActiveThreadsStore", s => ActiveThreadsStore = s);

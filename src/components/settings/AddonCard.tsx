@@ -22,7 +22,6 @@ import { Card } from "@components/Card";
 import { AddonBadge } from "@components/settings/AddonBadge";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled } from "@utils/discord";
 import { Text, Tooltip, useRef } from "@webpack/common";
 import type { MouseEventHandler, ReactNode } from "react";
 
@@ -54,7 +53,6 @@ export function AddonCard({ disabled, isNew, badge, name, infoButton, infoButton
     return (
         <Card
             className={cl("card", { "card-disabled": disabled })}
-            data-reduced-motion={isReducedMotionEnabled()}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >

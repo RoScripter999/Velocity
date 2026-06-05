@@ -29,7 +29,7 @@ import { Span } from "@components/Span";
 import { debounce } from "@shared/debounce";
 import { gitRemote } from "@shared/userAgent";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled, openUserProfile } from "@utils/discord";
+import { openUserProfile } from "@utils/discord";
 import { proxyLazy } from "@utils/lazy";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
@@ -286,7 +286,6 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                                             {({ onMouseEnter, onMouseLeave }) => (
                                                 <Clickable
                                                     className={cl("author-pill")}
-                                                    data-reduced-motion={isReducedMotionEnabled()}
                                                     onClick={() => openContributorModal(user as User)}
                                                     onContextMenu={() => user.id && openUserProfile(user.id)}
                                                     onMouseEnter={onMouseEnter}

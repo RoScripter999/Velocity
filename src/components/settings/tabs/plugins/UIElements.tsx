@@ -28,7 +28,6 @@ import { Paragraph } from "@components/Paragraph";
 import { openPluginModal, SectionHeader } from "@components/settings";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled } from "@utils/discord";
 import { IconComponent } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
@@ -90,7 +89,6 @@ export function DraggableRow({ id, index, moveRow, onContextMenu, children }: Ro
             ref={ref}
             data-drag-id={id}
             className={cl("switches-row-wrapper")}
-            data-reduced-motion={isReducedMotionEnabled()}
             data-dragging={isDragging}
             onContextMenu={onContextMenu}
             style={{

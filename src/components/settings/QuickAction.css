@@ -41,12 +41,3 @@
     width: 24px;
     height: 24px;
 }
-
-[data-reduced-motion="true"] .vc-settings-quickActions-pill {
-    transition: none;
-}
-
-[data-reduced-motion="true"] .vc-settings-quickActions-pill:hover {
-    transform: none;
-    box-shadow: none;
-}

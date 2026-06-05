@@ -12,7 +12,7 @@
     opacity: 0.6;
 }
 
-[data-reduced-motion="false"] .vc-addon-card:hover {
+.vc-addon-card:hover {
     transform: translateY(-1px);
     box-shadow: var(--elevation-high);
 }

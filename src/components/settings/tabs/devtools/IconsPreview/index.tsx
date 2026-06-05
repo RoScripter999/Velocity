@@ -23,7 +23,6 @@ import * as Icons from "@components/Icons";
 import { Margins } from "@components/margins";
 import { SectionHeader, SettingsTab } from "@components/settings";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled } from "@utils/discord";
 import { pluralise } from "@utils/misc";
 import { IconComponent } from "@utils/types";
 import { Forms, Icons as WebpackIcons, SearchBar, Text, useState } from "@webpack/common";
@@ -81,7 +80,6 @@ function IconsTab() {
                         <Card
                             key={name}
                             className={cl("card")}
-                            data-reduced-motion={isReducedMotionEnabled()}
                             onClick={() => openIconInfoModal(name, IconComponent)}
                         >
                             <IconComponent size="md" />

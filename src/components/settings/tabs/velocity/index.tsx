@@ -35,7 +35,7 @@ import { gitRemote } from "@shared/userAgent";
 import { ChangeList } from "@utils/ChangeList";
 import { DONOR_ROLE_ID, IS_MAC, IS_WINDOWS, VELOCITY_GUILD_ID, VELOCITY_GUILD_INVITE } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled, openInviteModal } from "@utils/discord";
+import { openInviteModal } from "@utils/discord";
 import { classes, identity, shouldShowContributorBadge } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { useCleanupEffect } from "@utils/react";
@@ -227,7 +227,6 @@ function SettingsList() {
                             <div
                                 key={key}
                                 className={classes(cl("row"))}
-                                data-reduced-motion={isReducedMotionEnabled()}
                                 onClick={setting.options ? undefined : () => handleToggle(key, !settings[key])}
                             >
                                 <SectionHeader

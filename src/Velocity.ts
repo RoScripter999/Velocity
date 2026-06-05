@@ -225,8 +225,6 @@ init();
 document.addEventListener("DOMContentLoaded", () => {
     startAllPlugins(StartAt.DOMContentLoaded);
 
-    createAndAppendStyle("velocity-reduced-motions-style", coreStyleRootNode).textContent = '[data-reduced-motion="true"] *, [data-reduced-motion="true"]{transition: none !important; animation: none !important;}';
-
     // FIXME
     if (IS_DISCORD_DESKTOP && Settings.winNativeTitleBar && IS_WINDOWS) {
         createAndAppendStyle("velocity-native-titlebar-style", coreStyleRootNode).textContent = "[class*=titleBar]{display: none!important}";

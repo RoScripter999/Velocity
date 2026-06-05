@@ -18,6 +18,7 @@
 
 import { generateMarginCss } from "@components/margins";
 import { classNameToSelector, createAndAppendStyle } from "@utils/css";
+import type { AccessibilityStore as AccessibilityStoreType } from "@velocity-types";
 
 export interface Style {
     name: string;
@@ -44,6 +45,14 @@ export const userStyleRootNode = document.createElement("velocity-user-styles");
 
 velocityRootNode.style.display = "none";
 velocityRootNode.append(coreStyleRootNode, managedStyleRootNode, userStyleRootNode);
+
+export function initReducedMotionStyle(store: AccessibilityStoreType) {
+    const node = createAndAppendStyle("velocity-reduced-motion", coreStyleRootNode);
+
+    const apply = () => { node.textContent = store.useReducedMotion ? "*{transition:none!important;animation:none!important;}" : ""; };
+    apply();
+    store.addChangeListener(apply);
+}
 
 export function initStyles() {
     const osValuesNode = createAndAppendStyle("velocity-os-theme-values", coreStyleRootNode);

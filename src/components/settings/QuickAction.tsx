@@ -20,7 +20,6 @@ import "./QuickAction.css";
 
 import { Card } from "@components/Card";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled } from "@utils/discord";
 import type { ComponentType, PropsWithChildren, ReactNode } from "react";
 
 const cl = classNameFactory("vc-settings-quickActions-");
@@ -36,7 +35,7 @@ export function QuickAction(props: QuickActionProps) {
     const { Icon, action, text, disabled } = props;
 
     return (
-        <button data-reduced-motion={isReducedMotionEnabled()} className={cl("pill")} onClick={action} disabled={disabled}>
+        <button className={cl("pill")} onClick={action} disabled={disabled}>
             <Icon className={cl("img")} />
             {text}
         </button>

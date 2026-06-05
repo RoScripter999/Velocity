@@ -19,7 +19,6 @@
 import { Heading } from "@components/Heading";
 import { Margins } from "@components/margins";
 import { classNameFactory } from "@utils/css";
-import { isReducedMotionEnabled } from "@utils/discord";
 import { classes } from "@utils/misc";
 import type { HeadingTag, TextProps, TextVariant } from "@velocity-types";
 import { Icons, RichTooltip, Text, Tooltip } from "@webpack/common";
@@ -127,7 +126,6 @@ export function SectionHeader({
                             onMouseEnter={onMouseEnter}
                             onMouseLeave={onMouseLeave}
                             className={cl("tooltip")}
-                            data-reduced-motion={isReducedMotionEnabled()}
                         >
                             <TooltipIcon size="xs" color="currentColor" />
                         </span>

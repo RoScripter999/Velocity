@@ -23,7 +23,7 @@ import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import type { Theme } from "@components/settings/tabs/themeLibary";
 import { classNameFactory } from "@utils/css";
-import { getIntlMessage, isReducedMotionEnabled, openInviteModal, openUserProfile } from "@utils/discord";
+import { getIntlMessage, openInviteModal, openUserProfile } from "@utils/discord";
 import { classes } from "@utils/misc";
 import { ModalContent, ModalFooter, ModalRoot, ModalSize } from "@utils/modal";
 import { humanFriendlyJoin } from "@utils/text";
@@ -65,7 +65,6 @@ function Row({ icon: Icon, content, action, tooltip }: RowProps) {
         <Flex
             onClick={action}
             className={classes(cl("row"), action && cl("clickable"))}
-            data-reduced-motion={isReducedMotionEnabled()}
             alignItems="center"
         >
             {icon()}
