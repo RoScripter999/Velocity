@@ -165,7 +165,7 @@ export const enum LayoutType {
     LIST = 7,
     /** Creates a RELATED_SETTINGS heading with nodes rendered inside. (Mostly used with a {@link NAVIGATOR} node) */
     RELATED = 8,
-    /** Creates a RELATED_SETTINGS heading with nodes rendered inside. (Mostly used with a {@link NAVIGATOR} node) */
+    /** Creates a Card similar to the Velocity card. */
     CARD = 9,
     /** Creates a field-set similar to {@link LIST} without dividers, with a title and subtext.*/
     FIELD_SET = 10,
