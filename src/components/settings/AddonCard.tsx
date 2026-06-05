@@ -107,7 +107,7 @@ export function AddonCard({ disabled, isNew, badge, name, infoButton, infoButton
                 </Tooltip>
             </div>
 
-            <Tooltip text={description as string} shouldShow={(description as string)?.length > 80}>
+            <Tooltip text={description} shouldShow={String(description)?.length > 80}>
                 {props => (
                     <Text {...props} className={cl("note")} variant="text-sm/normal">
                         {description}

@@ -27,7 +27,7 @@ import { HeadingTertiary } from "@components/Heading";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
-import { SettingsTab } from "@components/settings/tabs/SectionSettings";
+import { SectionHeader, SettingsTab } from "@components/settings";
 import { ChangeList } from "@utils/ChangeList";
 import { classNameFactory } from "@utils/css";
 import { isTruthy } from "@utils/guards";
@@ -430,9 +430,13 @@ export default function PluginSettings() {
                         </div>
                     </ErrorBoundary>
 
-                    <Forms.FormTitle tag="h2" className={Margins.top20}>Velocity Plugins ({plugins.length})</Forms.FormTitle>
-                    <Text className={Margins.bottom8} tag="h3" color="text-muted">Enhance Discord with powerful plugins!</Text>
-
+                    <SectionHeader
+                        tag="h2"
+                        className={Margins.top20}
+                        title={`Velocity Plugins (${plugins.length})`}
+                        description="Enhance Discord with powerful plugins!"
+                        margin="bottom8"
+                    />
                     {plugins.length
                         ? (
                             <>
@@ -450,10 +454,13 @@ export default function PluginSettings() {
             )}
 
             <Forms.FormDivider className={Margins.top20} />
-
-            <Forms.FormTitle tag="h2" className={Margins.top20}>Required Plugins</Forms.FormTitle>
-            <Text className={Margins.bottom8} tag="h3" color="text-muted">These are required plugins for Velocity to function.</Text>
-
+            <SectionHeader
+                tag="h2"
+                className={Margins.top20}
+                title="Required Plugins"
+                description="These are required plugins for Velocity to function."
+                margin="bottom8"
+            />
             <div className={cl("grid")}>
                 {requiredPlugins.length
                     ? requiredPlugins
