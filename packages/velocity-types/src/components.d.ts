@@ -122,7 +122,7 @@ export type LoadingIndicator = ComponentType<PropsWithChildren<{
 };
 
 export type Field = ComponentType<PropsWithChildren<{
-    label?: string;
+    label?: ReactNode;
     hideLabel?: boolean;
     /** Puts a asterisk in text-feedback-critical color on the right side of the {@link label} */
     required?: boolean;
