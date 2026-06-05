@@ -86,6 +86,19 @@
     color: var(--interactive-text-active);
 }
 
+.vc-themes-lib-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vc-themes-lib-filters {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
 .vc-themes-lib-no-themes {
     width: 200%;
     height: 400px;

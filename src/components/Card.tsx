@@ -29,9 +29,9 @@ export type CardProps = ComponentType<PropsWithChildren<HTMLProps<HTMLDivElement
     outline?: boolean;
     /**
      * @default "sm"
-     * @remarks Values — xxs: 4, xs: 8, sm: 12, md: 16, lg: 20
+     * @remarks Values — xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, none: undefined
      */
-    padding?: "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
+    padding?: "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "none";
 
     /** @default Card.Types.PRIMARY */
     type?: "brand" | "danger" | "primary" | "success" | "warning";
@@ -41,7 +41,7 @@ export type CardProps = ComponentType<PropsWithChildren<HTMLProps<HTMLDivElement
 
 export const Card = function ({ type = "primary", outline = true, padding = "sm", children, className, ...restProps }: ComponentProps<CardProps>) {
     return (
-        <div className={classes(cl("primary", type, outline && "outline"), className)} style={{ padding: `var(--size-${padding})` }} {...restProps}>
+        <div className={classes(cl("primary", type, outline && "outline"), className)} style={padding !== "none" ? { padding: `var(--size-${padding})` } : undefined} {...restProps}>
             {children}
         </div>
     );

@@ -28,7 +28,7 @@ import { classNameFactory } from "@utils/css";
 import { openImageModal } from "@utils/discord";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { Buttons, Forms, Icons, LoadingIndicator, Menu, Paginator, Popout, SearchBar, Text, Tooltip, useEffect, useRef, useState } from "@webpack/common";
+import { Buttons, LoadingIndicator, Paginator, SearchableSelect, SearchBar, Text, Tooltip, useEffect, useState } from "@webpack/common";
 
 import { openThemeModal } from "./download";
 
@@ -52,7 +52,7 @@ interface ThemeResult {
 
 interface ThemeCardProps {
     theme: Theme;
-    selectedTags: Set<string>;
+    selectedTags: string[];
     onTagSelect: (tag: string) => void;
     ownedThemes: string[];
     onOwnershipChange: (themeName: string, owned: boolean) => void;
@@ -98,7 +98,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
     };
 
     return (
-        <Card className={cl("card")}>
+        <Card padding="none" className={cl("card")}>
             <Flex flexDirection="column" className={cl("header")}>
                 <img className={cl("banner")} src={theme.banner} onClick={() => openImageModal({
                     url: theme.banner,
@@ -118,7 +118,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
                 {theme?.tags && theme.tags.length > 0 && (
                     <Flex gap="8px" flexWrap="wrap">
                         {theme.tags.map(tag => (
-                            <div key={tag} className={classes(cl("tag"), selectedTags.has(tag) && cl("tag-active"))}>
+                            <div key={tag} className={classes(cl("tag"), selectedTags.includes(tag) && cl("tag-active"))}>
                                 <button
                                     onClick={() => onTagSelect(tag)}
                                     style={{ background: "none", color: "currentColor" }}
@@ -151,11 +151,9 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
 export function ThemesLibTab() {
     const forceUpdate = useForceUpdater();
     const [currentPage, setCurrentPage] = useState(1);
-    const [tagPopoutOpen, setTagPopoutOpen] = useState(false);
-    const tagButtonRef = useRef<HTMLButtonElement>(null);
     const [ownedThemes, setOwnedThemes] = useState<string[]>([]);
     const [filters, setFilters] = useState({
-        tags: new Set<string>(),
+        tags: [] as string[],
         search: ""
     });
 
@@ -185,11 +183,11 @@ export function ThemesLibTab() {
     const itemsPerPage = 10;
     const themesList = ThemesJSON.themes ? Object.values(ThemesJSON.themes) : [];
 
-    const filteredThemes = filters.tags.size > 0 || filters.search
+    const filteredThemes = filters.tags.length > 0 || filters.search
         ? themesList.filter(theme => {
             const matchesSearch = theme.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                 theme.description.toLowerCase().includes(filters.search.toLowerCase());
-            const matchesTags = filters.tags.size === 0 || (theme.tags && theme.tags.some(tag => filters.tags.has(tag)));
+            const matchesTags = filters.tags.length === 0 || (theme.tags && theme.tags.some(tag => filters.tags.includes(tag)));
             return matchesSearch && matchesTags;
         })
         : themesList;
@@ -200,72 +198,47 @@ export function ThemesLibTab() {
 
     const handleTagSelect = (tag: string) => {
         setFilters(prev => {
-            const newSet = new Set(prev.tags);
-            if (newSet.has(tag)) {
-                newSet.delete(tag);
-            } else {
-                newSet.add(tag);
-            }
-            return { ...prev, tags: newSet };
+            const updated = prev.tags.includes(tag)
+                ? prev.tags.filter(t => t !== tag)
+                : [...prev.tags, tag];
+
+            return { ...prev, tags: updated };
         });
         setCurrentPage(1);
     };
+
     return (
         <SettingsTab>
-            <Flex>
-                <Text>Total Themes: ({totalThemes})</Text>
-                <SearchBar
-                    query={filters.search}
-                    onChange={query => setFilters(prev => ({ ...prev, search: query }))}
-                    onClear={() => setFilters(prev => ({ ...prev, search: "" }))}
-                    placeholder="Search themes..."
-                    size="sm"
-                />
-                <Popout
-                    position="bottom"
-                    align="center"
-                    animation={Popout.Animation.SCALE}
-                    shouldShow={tagPopoutOpen}
-                    onRequestOpen={() => setTagPopoutOpen(true)}
-                    onRequestClose={() => setTagPopoutOpen(false)}
-                    targetElementRef={tagButtonRef}
-                    renderPopout={({ setPopoutRef }) => (
-                        <Menu.Menu
-                            ref={setPopoutRef}
-                            navId="theme-tags"
-                            onClose={() => setTagPopoutOpen(false)}
-                        >
-                            {ThemesJSON.tags && ThemesJSON.tags.length > 0 ? (
-                                ThemesJSON.tags.map(tag => (
-                                    <Menu.MenuCheckboxItem
-                                        id={tag}
-                                        key={tag}
-                                        label={tag}
-                                        checked={filters.tags.has(tag)}
-                                        action={() => handleTagSelect(tag)}
-                                    />
-                                ))
-                            ) : <Menu.MenuItem id="no-tags" label="No tags available" disabled />}
-                        </Menu.Menu>
-                    )}
-                >
-                    {(_, { isShown }) => (
-                        <Tooltip text={!isShown ? "Filter by tags" : null}>
-                            {tooltipProps => (
-                                <Buttons.IconButton
-                                    {...tooltipProps}
-                                    buttonRef={tagButtonRef}
-                                    variant="secondary"
-                                    size="sm"
-                                    icon={Icons.TagIcon}
-                                    onClick={() => setTagPopoutOpen(!tagPopoutOpen)}
-                                />
-                            )}
-                        </Tooltip>
-                    )}
-                </Popout>
-            </Flex>
-            <Forms.FormDivider gap={8} />
+            <div className={cl("heading")}>
+                <Text variant="heading-md/bold" tag="h2">Search Filters</Text>
+                <div className={cl("filters")}>
+                    <SearchBar
+                        query={filters.search}
+                        onChange={query => setFilters(prev => ({ ...prev, search: query }))}
+                        onClear={() => setFilters(prev => ({ ...prev, search: "" }))}
+                        placeholder="Search themes..."
+                    />
+                    <div style={{ flex: 2 }}>
+                        <SearchableSelect
+                            options={ThemesJSON.tags?.map(tag => ({ label: tag, value: tag })) ?? []}
+                            value={filters.tags}
+                            onChange={(tags: string[]) => {
+                                setFilters(prev => ({ ...prev, tags: tags ?? [] }));
+                                setCurrentPage(1);
+                            }}
+                            closeOnSelect={false}
+                            placeholder="Filter by Tags"
+                            multi
+                        />
+                    </div>
+                </div>
+            </div>
+            <SectionHeader
+                tag="h2"
+                title={`Total Themes: ${totalThemes}`}
+                description="Customize your discord with amazing themes"
+                margin="bottom16"
+            />
             <Flex flexWrap="wrap" justifyContent="flex-start" gap="20px">
                 {paginatedThemes.length > 0
                     ? paginatedThemes.map(theme => (
@@ -282,7 +255,7 @@ export function ThemesLibTab() {
                         ? <LoadingIndicator type="spinningCircle" />
                         : <>
                             <div className={cl("no-themes")} />
-                            <Flex justifyContent="center" alignItems="center" flexDirection={"column"} style={{ width: "100%", margin: "auto" }}>
+                            <Flex justifyContent="center" alignItems="center" flexDirection="column" style={{ width: "100%", margin: "auto" }}>
                                 <Text variant="display-sm" color={loadFailed ? "text-feedback-critical" : "text-muted"}>{loadFailed ? "Failed to load themes" : "No themes found"}</Text>
                                 {loadFailed && <Buttons.Button text="Retry" variant="primary" size="sm" onClick={retryLoad} />}
                             </Flex>
