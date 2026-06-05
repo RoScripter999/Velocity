@@ -29,7 +29,7 @@ function createPinMenuItem(channelId: string) {
 
     return (
         <Menu.MenuItem
-            id="pin-dm"
+            id="vc-pin-dm"
             label="Pin DMs"
         >
             {!pinned && (
@@ -85,7 +85,7 @@ function createPinMenuItem(channelId: string) {
                     <Menu.MenuSeparator />
 
                     <Menu.MenuItem
-                        id="unpin-dm"
+                        id="vc-unpin-dm"
                         label="Unpin DM"
                         icon={() => <Icons.TrashIcon color="currentColor" />}
                         leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
