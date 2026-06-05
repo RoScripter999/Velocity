@@ -16,18 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import "./styles.css";
+
 import { definePluginSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
+import { HeadingSecondary } from "@components/Heading";
+import { Paragraph } from "@components/Paragraph";
+import { SectionHeader } from "@components/settings";
+import { Span } from "@components/Span";
 import { Devs } from "@utils/constants";
+import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { Buttons, Forms, Icons, React, TextInput, useState } from "@webpack/common";
+import { Buttons, RichTooltip, TextInput, useState } from "@webpack/common";
+
+import { AccordionCard } from "./components/AccordionCard";
+
+const cl = classNameFactory("vc-textReplace-");
 
 type Rule = Record<"find" | "replace" | "onlyIfIncludes", string>;
 
 interface TextReplaceProps {
     title: string;
+    description: string;
     rulesArray: Rule[];
+    isRegex?: boolean;
 }
 
 const makeEmptyRule: () => Rule = () => ({
@@ -46,17 +59,19 @@ const settings = definePluginSettings({
 
             return (
                 <>
+                    <TextReplaceTesting />
                     <TextReplace
-                        title="Using String"
+                        title="Simple Replacements"
+                        description="Simple find and replace rules. For example, find 'brb' and replace it with 'be right back'"
                         rulesArray={stringRules}
                     />
                     <TextReplace
-                        title="Using Regex"
+                        title="Regex Replacements"
+                        description="More powerful replacements using Regular Expressions. This section is for advanced users. If you don't understand it, just ignore it"
                         rulesArray={regexRules}
+                        isRegex
                     />
-                    <TextReplaceTesting />
                 </>
-
             );
         }
     },
@@ -90,7 +105,7 @@ function renderFindError(find: string) {
         return null;
     } catch (e) {
         return (
-            <span style={{ color: "var(--text-feedback-critical, var(--text-danger))" }}>
+            <span style={{ color: "var(--text-feedback-critical)" }}>
                 {String(e)}
             </span>
         );
@@ -114,24 +129,32 @@ function Input({ initialValue, onChange, placeholder }: {
     );
 }
 
-function TextReplace({ title, rulesArray }: TextReplaceProps) {
-    const isRegexRules = title === "Using Regex";
+function TextRow({ label, description, value, onChange }: { label: string; description: string; value: string; onChange(value: string): void; }) {
+    return (
+        <>
+            <RichTooltip body={description}>
+                <Span weight="medium" size="md">{label}</Span>
+            </RichTooltip>
+            <Input
+                placeholder={description}
+                initialValue={value}
+                onChange={onChange}
+            />
+        </>
+    );
+}
 
-    const displayRules = (rulesArray && rulesArray.length > 0) ? rulesArray : [makeEmptyRule()];
+const isEmptyRule = (rule: Rule) => !rule.find;
 
-    async function onClickRemove(index: number) {
-        if (index === rulesArray.length - 1) return;
+function TextReplace({ title, description, rulesArray, isRegex = false }: TextReplaceProps) {
+    function onClickRemove(index: number) {
         rulesArray.splice(index, 1);
     }
 
-    async function onChange(e: string, index: number, key: string) {
-        if (!rulesArray[index]) rulesArray[index] = makeEmptyRule();
-
+    function onChange(e: string, index: number, key: string) {
         rulesArray[index][key] = e;
-        if (index === rulesArray.length - 1) {
-            rulesArray.push(makeEmptyRule());
-        }
 
+        // If a rule is empty after editing and is not the last rule, remove it
         if (rulesArray[index].find === "" && rulesArray[index].replace === "" && rulesArray[index].onlyIfIncludes === "" && index !== rulesArray.length - 1) {
             rulesArray.splice(index, 1);
         }
@@ -139,39 +162,48 @@ function TextReplace({ title, rulesArray }: TextReplaceProps) {
 
     return (
         <>
-            <Forms.FormTitle tag="h4">{title}</Forms.FormTitle>
-            <Flex gap="0.5em" flexDirection="column">
-                {
-                    displayRules.map((rule, index) =>
-                        <React.Fragment key={`${rule.find}-${index}`}>
-                            <Flex gap="0.5em" flexDirection="row" style={{ flexGrow: 1 }}>
-                                <Input
-                                    placeholder="Find"
-                                    initialValue={rule.find}
-                                    onChange={e => onChange(e, index, "find")}
-                                />
-                                <Input
-                                    placeholder="Replace"
-                                    initialValue={rule.replace}
-                                    onChange={e => onChange(e, index, "replace")}
-                                />
-                                <Input
-                                    placeholder="Only if includes"
-                                    initialValue={rule.onlyIfIncludes}
-                                    onChange={e => onChange(e, index, "onlyIfIncludes")}
-                                />
-                                {index === rulesArray.length - 1 || rulesArray.length === 0 ? null :
-                                    <Buttons.Button
-                                        onClick={() => onClickRemove(index)}
-                                        variant="secondary"
-                                        icon={() => <Icons.TrashIcon color="var(--status-danger)" />}
+            <SectionHeader title={title} description={description} />
+            <Flex flexDirection="column" gap="0.5em">
+                {rulesArray.map((rule, index) =>
+                    <AccordionCard
+                        key={`${rule.find}-${index}`}
+                        onDelete={() => onClickRemove(index)}
+                        render={() => (
+                            <>
+                                <fieldset className={cl("input-grid")}>
+                                    <TextRow
+                                        label="Find"
+                                        description={isRegex ? "The regex pattern" : "The text to replace"}
+                                        value={rule.find}
+                                        onChange={e => onChange(e, index, "find")}
                                     />
-                                }
-                            </Flex>
-                            {isRegexRules && renderFindError(rule.find)}
-                        </React.Fragment>
-                    )
-                }
+                                    <TextRow
+                                        label="Replace"
+                                        description="The text to replace the found text with"
+                                        value={rule.replace}
+                                        onChange={e => onChange(e, index, "replace")}
+                                    />
+                                    <TextRow
+                                        label="Only if includes"
+                                        description="This rule will only be applied if the message includes this text. This is optional"
+                                        value={rule.onlyIfIncludes}
+                                        onChange={e => onChange(e, index, "onlyIfIncludes")}
+                                    />
+                                </fieldset>
+                                {isRegex && renderFindError(rule.find)}
+                            </>
+                        )}
+                    >
+                        <Paragraph variant="text-md/medium">
+                            {isEmptyRule(rule) ? `Empty Rule ${index + 1}` : `Rule ${index + 1} - ${rule.find}`}
+                        </Paragraph>
+                    </AccordionCard>
+                )}
+                <Buttons.Button
+                    text="Add Rule"
+                    onClick={() => rulesArray.push(makeEmptyRule())}
+                    disabled={rulesArray.length > 0 && isEmptyRule(rulesArray[rulesArray.length - 1])}
+                />
             </Flex>
         </>
     );
@@ -179,12 +211,15 @@ function TextReplace({ title, rulesArray }: TextReplaceProps) {
 
 function TextReplaceTesting() {
     const [value, setValue] = useState("");
+
     return (
-        <>
-            <Forms.FormTitle tag="h4">Test Rules</Forms.FormTitle>
-            <TextInput placeholder="Type a message" onChange={setValue} />
-            <TextInput placeholder="Message with rules applied" editable={false} value={applyRules(value)} />
-        </>
+        <div>
+            <HeadingSecondary>Rule Tester</HeadingSecondary>
+            <Flex flexDirection="column" gap={6}>
+                <TextInput placeholder="Type a message to test rules on" onChange={setValue} />
+                <TextInput placeholder="Message with rules applied" editable={false} value={applyRules(value)} style={{ opacity: 0.7 }} />
+            </Flex>
+        </div>
     );
 }
 
