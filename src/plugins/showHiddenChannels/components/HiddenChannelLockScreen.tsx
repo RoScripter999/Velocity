@@ -147,18 +147,7 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                     {channel.isNSFW() &&
                         <Tooltip text="NSFW">
                             {({ onMouseLeave, onMouseEnter }) => (
-                                <svg
-                                    onMouseLeave={onMouseLeave}
-                                    onMouseEnter={onMouseEnter}
-                                    className={cl("heading-nsfw-icon")}
-                                    width="32"
-                                    height="32"
-                                    viewBox="0 0 48 48"
-                                    aria-hidden={true}
-                                    role="img"
-                                >
-                                    <path fill="currentColor" d="M.7 43.05 24 2.85l23.3 40.2Zm23.55-6.25q.75 0 1.275-.525.525-.525.525-1.275 0-.75-.525-1.3t-1.275-.55q-.8 0-1.325.55-.525.55-.525 1.3t.55 1.275q.55.525 1.3.525Zm-1.85-6.1h3.65V19.4H22.4Z" />
-                                </svg>
+                                <Icons.WarningIcon onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} />
                             )}
                         </Tooltip>
                     }
@@ -266,14 +255,7 @@ function HiddenChannelLockScreen({ channel }: { channel: Channel; }) {
                                     className={cl("allowed-users-and-roles-container-toggle-btn")}
                                     onClick={() => settings.store.defaultAllowedUsersAndRolesDropdownState = !defaultAllowedUsersAndRolesDropdownState}
                                 >
-                                    <svg
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        transform={defaultAllowedUsersAndRolesDropdownState ? "scale(1 -1)" : "scale(1 1)"}
-                                    >
-                                        <path fill="currentColor" d="M16.59 8.59003L12 13.17L7.41 8.59003L6 10L12 16L18 10L16.59 8.59003Z" />
-                                    </svg>
+                                    {defaultAllowedUsersAndRolesDropdownState ? <Icons.ChevronSmallDownIcon /> : <Icons.ChevronSmallUpIcon />}
                                 </button>
                             )}
                         </Tooltip>
