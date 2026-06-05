@@ -165,32 +165,34 @@ export const enum LayoutType {
     LIST = 7,
     /** Creates a RELATED_SETTINGS heading with nodes rendered inside. (Mostly used with a {@link NAVIGATOR} node) */
     RELATED = 8,
+    /** Creates a RELATED_SETTINGS heading with nodes rendered inside. (Mostly used with a {@link NAVIGATOR} node) */
+    CARD = 9,
     /** Creates a field-set similar to {@link LIST} without dividers, with a title and subtext.*/
-    FIELD_SET = 9,
+    FIELD_SET = 10,
     /**
      Creates a tab bar item used inside a {@link PANEL}.
      When the {@link PANEL} contains multiple TAB_ITEMs, Discord renders a tab bar at the top.
      Nodes are rendered when the tab is active.
     */
-    TAB_ITEM = 10,
+    TAB_ITEM = 11,
     /** Creates a second panel in the main {@link PANEL} node and adds a breadcrumb in the title of it. */
-    NESTED_PANEL = 11,
+    NESTED_PANEL_NAVIGATOR = 12,
     /* Creates a text with subtext */
-    STATIC = 12,
+    STATIC = 13,
     /* Creates a button. With a title and a subtitle */
-    BUTTON = 13,
+    BUTTON = 14,
     /* Creates a toggle similar to FormSwitch */
-    TOGGLE = 14,
+    TOGGLE = 15,
     /** Creates a slider, similar to {@link BUTTON} layout */
-    SLIDER = 15,
+    SLIDER = 16,
     /** Creates a select menu, similar to {@link BUTTON} layout */
-    SELECT = 16,
+    SELECT = 17,
     /** Creates a mana radio group with options */
-    RADIO = 17,
+    RADIO = 18,
     /** Creates a button similar to {@link ACCORDION} That switches to a different {@link PANEL} key. */
-    NAVIGATOR = 18,
+    NAVIGATOR = 19,
     /** Creates a custom node that allows any component */
-    CUSTOM = 19,
+    CUSTOM = 20,
 }
 
 export const enum InlineNoticeType {
