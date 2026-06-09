@@ -18,8 +18,56 @@
 
 import "./styles.css";
 
+import type { SidebarItemNode } from "@velocity-types";
+import { LayoutType } from "@velocity-types/enums";
+import { Icons } from "@webpack/common";
+
 import TestTab from "./gay";
 import IconCreator from "./IconCreator";
 import IconsTab from "./IconsPreview";
 
-export { IconCreator, IconsTab, TestTab };
+const DevTools = () => ({
+    key: "velocity_developer_tools",
+    type: LayoutType.SIDEBAR_ITEM,
+    parent: {},
+    icon: Icons.ScienceIcon,
+    useTitle: () => "Developer Tools",
+    buildLayout: () => [
+        {
+            key: "velocity_developer_tools_panel",
+            type: LayoutType.PANEL,
+            useTitle: () => "Developer Tools",
+            buildLayout: () => [
+                {
+                    key: "icons_preview",
+                    type: LayoutType.TAB_ITEM,
+                    getTitle: () => "Icons Preview",
+                    layout: [{
+                        type: LayoutType.CUSTOM,
+                        Component: IconsTab
+                    }]
+                },
+                {
+                    key: "icon_creator",
+                    type: LayoutType.TAB_ITEM,
+                    getTitle: () => "Icon Creator",
+                    layout: [{
+                        type: LayoutType.CUSTOM,
+                        Component: IconCreator
+                    }]
+                },
+                {
+                    key: "gay",
+                    type: LayoutType.TAB_ITEM,
+                    getTitle: () => "GAY",
+                    layout: [{
+                        type: LayoutType.CUSTOM,
+                        Component: TestTab
+                    }]
+                }
+            ]
+        }
+    ]
+}) as SidebarItemNode;
+
+export default IS_DEV ? DevTools : null;

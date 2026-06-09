@@ -19,7 +19,7 @@
 import ErrorBoundary from "@components/ErrorBoundary";
 import { onlyOnce } from "@utils/onlyOnce";
 import { maybePromptToUpdate } from "@utils/updater";
-import type { ModalProps, ModalPropsRender } from "@velocity-types";
+import type { ModalProps } from "@velocity-types";
 import { Modal, openModal } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
@@ -44,7 +44,7 @@ export function SettingsTab({ children }: PropsWithChildren) {
 
 export function openSettingsTabModal(Tab: ComponentType<any>, Size: ModalProps["size"] = "lg") {
     try {
-        openModal((modalProps: ModalPropsRender) => (
+        openModal(modalProps => (
             <Modal
                 {...modalProps}
                 size={Size}

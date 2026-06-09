@@ -76,7 +76,7 @@ function ThemeCardActions({ fileName, onDelete }: { fileName: string; onDelete()
     );
 }
 
-function ConfigureDialog({ fileName, onDelete, ref }: { fileName: string; onDelete(): void; ref: any; }) {
+function ConfigureDialog({ fileName, onDelete, ref }: { fileName: string; onDelete(): void; ref: React.Ref<null>; }) {
     const settings = useSettings(["themes.*"]);
 
     const isOnline = (settings.themes.onlineThemes ?? []).some(t => t.name === fileName);

@@ -16,54 +16,45 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Flex } from "@components/Flex";
-import { Margins } from "@components/margins";
-import { SectionHeader, SettingsTab } from "@components/settings";
-import { Icons, TabBar, useState } from "@webpack/common";
+import type { SidebarItemNode } from "@velocity-types";
+import { LayoutType } from "@velocity-types/enums";
+import { Icons } from "@webpack/common";
 
 import PatchHelper from "./PatchHelper";
 import SearchHelper from "./SearchHelper";
 
-const enum Tabs {
-    PATCH_HELPER,
-    SEARCH_HELPER
-}
+const Helpers = () => ({
+    key: "velocity_helper",
+    type: LayoutType.SIDEBAR_ITEM,
+    icon: Icons.WrenchIcon,
+    useTitle: () => "Helpers",
+    buildLayout: () => [
+        {
+            key: "velocity_helper_panel",
+            type: LayoutType.PANEL,
+            useTitle: () => "Helpers",
+            buildLayout: () => [
+                {
+                    key: "search_helper",
+                    type: LayoutType.TAB_ITEM,
+                    getTitle: () => "Search Helper",
+                    layout: [{
+                        type: LayoutType.CUSTOM,
+                        Component: SearchHelper
+                    }]
+                },
+                {
+                    key: "patch_helper",
+                    type: LayoutType.TAB_ITEM,
+                    getTitle: () => "Patch Helper",
+                    layout: [{
+                        type: LayoutType.CUSTOM,
+                        Component: PatchHelper
+                    }]
+                }
+            ]
+        }
+    ]
+}) as SidebarItemNode;
 
-export default IS_DEV ? function Helpers() {
-    const [currentTab, setCurrentTab] = useState(Tabs.PATCH_HELPER);
-
-    return (
-        <SettingsTab>
-            <SectionHeader
-                title="Development utilities"
-                description="Tools to help you develop and create new stuff to Velocity"
-                tag="h2"
-                margin="bottom16"
-            />
-
-            <TabBar
-                type="side"
-                look="grey"
-                className={Margins.bottom20}
-                selectedItem={currentTab}
-                onItemSelect={setCurrentTab}
-            >
-                <TabBar.Item id={Tabs.PATCH_HELPER}>
-                    <Flex gap="8px" alignItems="center">
-                        <Icons.HammerIcon size="sm" color="currentColor" />
-                        Patch Helper
-                    </Flex>
-                </TabBar.Item>
-                <TabBar.Item id={Tabs.SEARCH_HELPER}>
-                    <Flex gap="8px" alignItems="center">
-                        <Icons.MagnifyingGlassIcon size="sm" color="currentColor" />
-                        Search Helper
-                    </Flex>
-                </TabBar.Item>
-            </TabBar>
-
-            {currentTab === Tabs.PATCH_HELPER && IS_DEV && <PatchHelper />}
-            {currentTab === Tabs.SEARCH_HELPER && IS_DEV && <SearchHelper />}
-        </SettingsTab>
-    );
-} : null;
+export default IS_DEV ? Helpers : null;
