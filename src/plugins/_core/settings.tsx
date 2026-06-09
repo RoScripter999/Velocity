@@ -19,14 +19,13 @@
 import { definePluginSettings } from "@api/Settings";
 import { PluginsIcon, VelocityIcon } from "@components/Icons";
 import { openChangelogModal } from "@components/settings";
-import { BackupAndRestoreTab, CloudTab, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
-import { IconCreator, IconsTab, TestTab } from "@components/settings/tabs/devtools";
+import { BackupAndRestoreTab, CloudTab, DevTools, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
 import { ThemesLibTab } from "@components/settings/tabs/themeLibary";
 import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
 import type { LayoutNode, PanelNode, SectionNode, SidebarItemNode } from "@velocity-types";
-import { LayoutType } from "@velocity-types/enums";
+import { LayoutType, NestedPanelLeadingDecorationType } from "@velocity-types/enums";
 import { Buttons, Icons, Tooltip } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
@@ -103,7 +102,7 @@ export default definePlugin({
                         <Buttons.IconButton
                             onMouseEnter={tooltipProps.onMouseEnter}
                             onMouseLeave={tooltipProps.onMouseLeave}
-                            onClick={() => openChangelogModal()}
+                            onClick={openChangelogModal}
                             icon={Icons.RetryIcon}
                             role="button"
                             variant="icon-only"
@@ -191,7 +190,7 @@ export default definePlugin({
                                         useTitle: () => "Theme Library",
                                         useSubtitle: () => "Download online themes directly from Discord",
                                         useLeadingDecoration: () => ({
-                                            type: 0,
+                                            type: NestedPanelLeadingDecorationType.ICON,
                                             icon: Icons.PaintPaletteIcon
                                         }),
 
@@ -245,55 +244,8 @@ export default definePlugin({
                 Component: BackupAndRestoreTab,
                 Icon: Icons.RefreshIcon
             }),
-            IS_DEV && {
-                key: "velocity_developer_tools",
-                type: LayoutType.SIDEBAR_ITEM,
-                parent: {},
-                icon: Icons.ScienceIcon,
-                useTitle: () => "Developer Tools",
-                buildLayout: () => [
-                    {
-                        key: "velocity_developer_tools_panel",
-                        type: LayoutType.PANEL,
-                        useTitle: () => "Developer Tools",
-                        buildLayout: () => [
-                            {
-                                key: "icons_preview",
-                                type: LayoutType.TAB_ITEM,
-                                getTitle: () => "Icons Preview",
-                                layout: [{
-                                    type: LayoutType.CUSTOM,
-                                    Component: IconsTab
-                                }]
-                            },
-                            {
-                                key: "icon_creator",
-                                type: LayoutType.TAB_ITEM,
-                                getTitle: () => "Icon Creator",
-                                layout: [{
-                                    type: LayoutType.CUSTOM,
-                                    Component: IconCreator
-                                }]
-                            },
-                            {
-                                key: "gay",
-                                type: LayoutType.TAB_ITEM,
-                                getTitle: () => "GAY",
-                                layout: [{
-                                    type: LayoutType.CUSTOM,
-                                    Component: TestTab
-                                }]
-                            }
-                        ]
-                    }
-                ]
-            } as SidebarItemNode,
-            IS_DEV && HelpersTab && this.buildEntry({
-                key: "velocity_helper",
-                title: "Helpers",
-                Component: HelpersTab,
-                Icon: Icons.WrenchIcon
-            }),
+            IS_DEV && DevTools?.(),
+            IS_DEV && HelpersTab?.(),
             ...this.customEntries
         ].filter(isTruthy);
 
