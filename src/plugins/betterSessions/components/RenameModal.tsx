@@ -20,7 +20,7 @@ import type { SessionInfo } from "@plugins/betterSessions/types";
 import { getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
 import { getIntlMessage } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
-import { Buttons, Modal, TextInput, useState } from "@webpack/common";
+import { Icons, Modal, TextInput, useState } from "@webpack/common";
 import type { KeyboardEvent } from "react";
 
 export function RenameModal({ props, session, state }: { props: ModalPropsRender, session: SessionInfo["session"], state: [string, React.Dispatch<React.SetStateAction<string>>]; }) {
@@ -47,7 +47,7 @@ export function RenameModal({ props, session, state }: { props: ModalPropsRender
                 {
                     text: getIntlMessage("CANCEL"),
                     variant: "secondary",
-                    onClick: () => props.onClose()
+                    onClick: props.onClose
                 },
                 {
                     text: getIntlMessage("SAVE"),
@@ -58,29 +58,23 @@ export function RenameModal({ props, session, state }: { props: ModalPropsRender
         >
             <div>
                 <TextInput
-                    style={{ marginBottom: "10px" }}
                     label="New device name"
                     placeholder={getDefaultName(session.client_info)}
                     value={value}
                     onChange={setValue}
+                    trailing={{
+                        type: "icon",
+                        onClick: () => setValue(""),
+                        icon: Icons.PaintbrushThickIcon,
+                        disabled: value === "",
+                        tooltip: "Reset Name"
+                    }}
                     onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                         if (e.key === "Enter") {
                             onSaveClick();
                         }
                     }}
                 />
-                <div style={{
-                    padding: "20px",
-                    paddingLeft: "1px",
-                    paddingRight: "1px"
-                }} >
-                    <Buttons.Button
-                        size="sm"
-                        text="Reset Name"
-                        disabled={value === ""}
-                        onClick={() => setValue("")}
-                    />
-                </div>
             </div>
         </Modal >
     );
