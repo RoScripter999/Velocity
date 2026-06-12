@@ -44,7 +44,6 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
         <Menu.MenuItem
             id="vc-trans"
             label="Translate"
-            icon={TranslateIcon}
             leadingAccessory={{ type: "icon", icon: TranslateIcon }}
             action={async () => {
                 const trans = await translate("received", content);
