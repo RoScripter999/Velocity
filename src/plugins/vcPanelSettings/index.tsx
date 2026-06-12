@@ -119,10 +119,10 @@ export default definePlugin({
 
     patches: [
         {
-            find: ".renderChannelButtons()",
+            find: "}getAccessibilityLabel(){",
             replacement: {
-                match: /(?<=this\.renderChannelButtons\(\))/,
-                replace: ",$self.VoiceSettings()"
+                match: /this.renderVoiceStates\(\),\i/,
+                replace: "$&,$self.VoiceSettings()"
             }
         }
     ]
