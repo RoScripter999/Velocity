@@ -70,13 +70,15 @@ export const settings = definePluginSettings({
     }
 });
 
-function MenuItem(guildId: string, id?: string, type?: MenuItemParentType) {
+function MenuItem(guildId: string, id?: string, type?: MenuItemParentType, showIcon = false) {
     if (type === MenuItemParentType.User && !GuildMemberStore.isMember(guildId, id!)) return null;
 
     return (
         <Menu.MenuItem
             id="perm-viewer-permissions"
             label="Permissions"
+            leadingAccessory={showIcon ? { type: "icon", icon: SafetyIcon } : undefined}
+            icon={showIcon ? SafetyIcon : undefined}
             action={() => {
                 const guild = GuildStore.getGuild(guildId);
 
@@ -139,7 +141,7 @@ function MenuItem(guildId: string, id?: string, type?: MenuItemParentType) {
     );
 }
 
-function makeContextMenuPatch(childId: string | string[], type?: MenuItemParentType): NavContextMenuPatchCallback {
+function makeContextMenuPatch(childId: string | string[], type?: MenuItemParentType, showIcon = false): NavContextMenuPatchCallback {
     return (children, props) => {
         if (
             !props ||
@@ -153,9 +155,9 @@ function makeContextMenuPatch(childId: string | string[], type?: MenuItemParentT
         const group = findGroupChildrenByChildId(childId, children);
 
         const item = match(type)
-            .with(MenuItemParentType.User, () => MenuItem(props.guildId, props.user.id, type))
-            .with(MenuItemParentType.Channel, () => MenuItem(props.guild.id, props.channel.id, type))
-            .with(MenuItemParentType.Guild, () => MenuItem(props.guild.id))
+            .with(MenuItemParentType.User, () => MenuItem(props.guildId, props.user.id, type, showIcon))
+            .with(MenuItemParentType.Channel, () => MenuItem(props.guild.id, props.channel.id, type, showIcon))
+            .with(MenuItemParentType.Guild, () => MenuItem(props.guild.id, undefined, undefined, showIcon))
             .otherwise(() => null);
 
 
@@ -230,6 +232,6 @@ export default definePlugin({
         "user-context": makeContextMenuPatch("roles", MenuItemParentType.User),
         "channel-context": makeContextMenuPatch(["mute-channel", "unmute-channel"], MenuItemParentType.Channel),
         "guild-context": makeContextMenuPatch("privacy", MenuItemParentType.Guild),
-        "guild-header-popout": makeContextMenuPatch("privacy", MenuItemParentType.Guild)
+        "guild-header-popout": makeContextMenuPatch("privacy", MenuItemParentType.Guild, true)
     }
 });

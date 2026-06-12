@@ -19,18 +19,20 @@
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { Guild } from "@velocity-types";
-import { Menu } from "@webpack/common";
+import type { Guild } from "@velocity-types";
+import { Icons, Menu } from "@webpack/common";
 
 import { openGuildInfoModal } from "./GuildInfoModal";
 
-const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild; }) => {
+const makePatch = (showIcon: boolean): NavContextMenuPatchCallback => (children, { guild }: { guild: Guild; }) => {
     const group = findGroupChildrenByChildId("privacy", children);
 
     group?.push(
         <Menu.MenuItem
             id="vc-server-info"
             label="Server Info"
+            leadingAccessory={showIcon ? { type: "icon", icon: Icons.CircleInformationIcon } : undefined}
+            icon={showIcon ? Icons.CircleInformationIcon : undefined}
             action={() => openGuildInfoModal(guild)}
         />
     );
@@ -46,11 +48,11 @@ export default definePlugin({
 
     contextMenus: {
         "guild-context": {
-            render: Patch,
+            render: makePatch(false),
             required: true
         },
         "guild-header-popout": {
-            render: Patch,
+            render: makePatch(true),
             required: false
         }
     }

@@ -26,6 +26,7 @@ export interface Menu {
         action?(e: MouseEvent): void;
         icon?: ComponentType<any>;
         iconLeft?: ComponentType<any>;
+        /* Only renders when mana contextmenus experiement is enabled. */
         leadingAccessory?:
         | { type: "icon"; icon: ComponentType<any>; color?: string; className?: string; }
         | { type: "image"; src: string; }
