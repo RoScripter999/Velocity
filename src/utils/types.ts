@@ -248,7 +248,6 @@ export const enum OptionType {
     BIGINT,
     BOOLEAN,
     SELECT,
-    RADIO,
     SLIDER,
     COMPONENT,
     CUSTOM,
@@ -267,7 +266,6 @@ export type PluginSettingDef =
     | PluginSettingNumberDef
     | PluginSettingBooleanDef
     | PluginSettingSelectDef
-    | PluginSettingRadioDef
     | PluginSettingSliderDef
     | PluginSettingBigIntDef;
 
@@ -334,24 +332,6 @@ export interface PluginSettingSelectOption {
     label: string;
     value: string | number | boolean;
     default?: boolean;
-}
-
-export interface PluginSettingRadioDef extends PluginSettingDefCommon {
-    type: OptionType.RADIO;
-    options: readonly PluginSettingRadioOption[];
-}
-
-export interface PluginSettingRadioOption {
-    label: string;
-    value: string | number | boolean;
-    default?: boolean;
-    desc?: string;
-    description?: string;
-    color?: string;
-    disabled?: boolean;
-    icon?: ComponentType;
-    radioItemIconClassName?: string;
-    radioBarClassName?: string;
 }
 
 export interface PluginSettingCustomDef {

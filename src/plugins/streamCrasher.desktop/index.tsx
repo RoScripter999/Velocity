@@ -72,7 +72,7 @@ export const settings = definePluginSettings({
         hidden() { return this.store.crashMode !== "image"; }
     },
     buttonLocation: {
-        type: OptionType.RADIO,
+        type: OptionType.SELECT,
         description: "Where to place the crasher button",
         options: [
             { label: "Account Section", value: "account" },
