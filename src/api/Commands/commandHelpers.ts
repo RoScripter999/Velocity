@@ -33,6 +33,8 @@ export function generateId() {
  * @param {string} channelId ID of channel to send message to
  * @param {Message} message Message to send
  * @returns {Message}
+ *
+ * @deprecated Don't use this in plugins for command replies, use `interaction.reply` instead
  */
 export function sendBotMessage(channelId: string, message: PartialDeep<Omit<Message, "embeds"> & { embeds?: EmbedJSON[]; }>): Message {
     const botMessage = createBotMessage({ channelId, content: "", embeds: [] });
