@@ -26,12 +26,9 @@ import { Paragraph } from "@components/Paragraph";
 import { SectionHeader } from "@components/settings";
 import { Span } from "@components/Span";
 import { Devs } from "@utils/constants";
-import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Buttons, Icons, RichTooltip, TextInput, useState } from "@webpack/common";
-
-const cl = classNameFactory("vc-textReplace-");
 
 type Rule = Record<"find" | "replace" | "onlyIfIncludes", string>;
 
@@ -172,7 +169,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                         }]}
                         render={() => (
                             <>
-                                <fieldset className={cl("input-grid")}>
+                                <fieldset className="vc-textReplace-input-grid">
                                     <TextRow
                                         label="Find"
                                         description={isRegex ? "The regex pattern" : "The text to replace"}

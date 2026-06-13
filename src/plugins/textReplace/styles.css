@@ -1,32 +1,3 @@
-.vc-expandable-card-header {
-    display: flex;
-    cursor: pointer;
-    padding: .75em 1em;
-    margin: 4px;
-    border-radius: var(--radius-xs);
-    transition: background-color 0.1s linear;
-
-    &:hover {
-        background-color: var(--background-mod-muted);
-    }
-
-    .vc-expandable-card[data-expanded="true"] & {
-        background-color: var(--card-secondary-bg);
-    }
-}
-
-.vc-expandable-card-icons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: auto;
-    gap: 12px;
-}
-
-.vc-expandable-card-content {
-    padding: 0.5em 1em;
-}
-
 .vc-textReplace-input-grid {
     display: grid;
     grid-template-columns: max-content 1fr;
