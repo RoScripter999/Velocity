@@ -20,49 +20,16 @@ import { ApplicationCommandInputType, OptionalMessageOption, VelocityCommand } f
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { findByPropsLazy } from "@webpack";
-import { FluxDispatcher, MessageActions, PendingReplyStore } from "@webpack/common";
+import { FluxDispatcher, MessageActions, PendingReplyStore, SpotifyStore } from "@webpack/common";
 
-interface Album {
-    id: string;
-    image: {
-        height: number;
-        width: number;
-        url: string;
-    };
-    name: string;
-}
-
-interface Artist {
-    external_urls: {
-        spotify: string;
-    };
-    href: string;
-    id: string;
-    name: string;
-    type: "artist" | string;
-    uri: string;
-}
-
-interface Track {
-    id: string | null;
-    album: Album;
-    artists: Artist[];
-    duration: number;
-    isLocal: boolean;
-    name: string;
-}
-
-const Spotify = findByPropsLazy("getPlayerState");
-
-function makeCommand(name: string, formatUrl: (track: Track) => string): VelocityCommand {
+function makeCommand(name: string, formatUrl: (track: ReturnType<typeof SpotifyStore.getTrack>) => string | undefined): VelocityCommand {
     return {
         name,
         description: `Share your current Spotify ${name} in chat`,
         inputType: ApplicationCommandInputType.BUILT_IN,
         options: [OptionalMessageOption],
         execute(interaction, ctx) {
-            const track: Track | null = Spotify.getTrack();
+            const track = SpotifyStore.getTrack();
             if (!track) {
                 return interaction.reply({
                     content: "You're not listening to any music."
@@ -100,8 +67,8 @@ export default definePlugin({
     tags: ["Media", "Commands"],
     authors: [Devs.katlyn],
     commands: [
-        makeCommand("track", track => `https://open.spotify.com/track/${track.id}`),
-        makeCommand("album", track => `https://open.spotify.com/album/${track.album.id}`),
-        makeCommand("artist", track => track.artists[0].external_urls.spotify)
+        makeCommand("track", track => `https://open.spotify.com/track/${track?.id}`),
+        makeCommand("album", track => `https://open.spotify.com/album/${track?.album.id}`),
+        makeCommand("artist", track => track?.artists[0].external_urls.spotify)
     ]
 });
