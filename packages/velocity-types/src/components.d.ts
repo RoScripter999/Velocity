@@ -854,37 +854,6 @@ export type CopyInput = ComponentType<{
     Modes: Record<"DEFAULT" | "SUCCESS" | "ERROR", string>;
 };
 
-export type RadioGroup = ComponentType<{
-    onChange?(value: any): void;
-    options: Array<{
-        value: any;
-        name: string | ReactNode;
-        desc?: string;
-        disabled?: boolean;
-        color?: string;
-        icon?: ComponentType<any>;
-        leadingIcon?: ComponentType<any>;
-        radioItemIconClassName?: string;
-        radioBarClassName?: string;
-    }>;
-    value?: any;
-    disabled?: boolean;
-    label?: ReactNode;
-    description?: ReactNode;
-    required?: boolean;
-    errorMessage?: ReactNode;
-    className?: string;
-    itemInfoClassName?: string;
-    itemTitleClassName?: string;
-    radioItemClassName?: string;
-    collapsibleClassName?: string;
-    size?: string;
-    radioPosition?: "left" | "right";
-    orientation?: "vertical" | "horizontal";
-    withTransparentBackground?: boolean;
-    "aria-labelledby"?: string;
-}>;
-
 export type FilePicker = ComponentType<{
     filename: string | undefined;
     className?: string;
