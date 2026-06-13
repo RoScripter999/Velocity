@@ -18,52 +18,27 @@
 
 import { isPluginEnabled } from "@api/PluginManager";
 import OpenInAppPlugin from "@plugins/openInApp";
-import { findByProps, findByPropsLazy, proxyLazyWebpack } from "@webpack";
+import { SpotifyStore as SpotifyStoreNamespace } from "@velocity-types";
+import { findByPropsLazy, proxyLazyWebpack } from "@webpack";
 import { Flux, FluxDispatcher } from "@webpack/common";
 
 import { settings } from ".";
 
-export interface Track {
-    id: string;
-    name: string;
-    duration: number;
-    isLocal: boolean;
-    album: {
-        id: string;
-        name: string;
-        image: {
-            height: number;
-            width: number;
-            url: string;
-        };
-    };
-    artists: {
-        id: string;
-        href: string;
-        name: string;
-        type: string;
-        uri: string;
-    }[];
-}
+export type Track = SpotifyStoreNamespace.Track;
 
 interface PlayerState {
     accountId: string;
-    track: Track | null;
+    track: SpotifyStoreNamespace.Track | null;
     volumePercent: number,
     isPlaying: boolean,
     repeat: boolean,
     position: number,
     context?: any;
-    device?: Device;
+    device?: SpotifyStoreNamespace.Device;
 
     // added by patch
     actual_repeat: Repeat;
     shuffle: boolean;
-}
-
-interface Device {
-    id: string;
-    is_active: boolean;
 }
 
 type Repeat = "off" | "track" | "context";
@@ -73,7 +48,6 @@ export const SpotifyStore = proxyLazyWebpack(() => {
     // For some reason ts hates extends Flux.Store
     const { Store } = Flux;
 
-    const SpotifySocket = findByProps("getActiveSocketAndDevice");
     const SpotifyAPI = findByPropsLazy("vcSpotifyMarker");
 
     const API_BASE = "https://api.spotify.com/v1/me/player";
@@ -83,7 +57,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
         public _start = 0;
 
         public track: Track | null = null;
-        public device: Device | null = null;
+        public device: SpotifyStoreNamespace.Device | null = null;
         public isPlaying = false;
         public repeat: Repeat = "off";
         public shuffle = false;
@@ -171,7 +145,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
             if (this.device?.is_active)
                 (data.query ??= {}).device_id = this.device.id;
 
-            const { socket } = SpotifySocket.getActiveSocketAndDevice();
+            const { socket } = Velocity.Webpack.Common.SpotifyStore.getActiveSocketAndDevice()!;
             return SpotifyAPI[method](socket.accountId, socket.accessToken, {
                 url: API_BASE + route,
                 ...data
@@ -191,7 +165,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
             store.isSettingPosition = false;
             store.emitChange();
         },
-        SPOTIFY_SET_DEVICES({ devices }: { devices: Device[]; }) {
+        SPOTIFY_SET_DEVICES({ devices }: { devices: SpotifyStoreNamespace.Device[]; }) {
             store.device = devices.find(d => d.is_active) ?? devices[0] ?? null;
             store.emitChange();
         }
