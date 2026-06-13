@@ -26,11 +26,11 @@ import { debounce } from "@shared/debounce";
 import { classNameFactory } from "@utils/css";
 import { copyWithToast, openImageModal } from "@utils/discord";
 import { classes } from "@utils/misc";
-import { ContextMenuApi, FluxDispatcher, Icons, Menu, React, useEffect, useState, useStateFromStores } from "@webpack/common";
+import { ContextMenuApi, Icons, Menu, React, useEffect, useState, useStateFromStores } from "@webpack/common";
 
 import { settings } from ".";
 import { SeekBar } from "./SeekBar";
-import { SpotifyStore, Track } from "./SpotifyStore";
+import { SpotifyStore, type Track } from "./SpotifyStore";
 
 const cl = classNameFactory("vc-spotify-");
 
@@ -124,7 +124,7 @@ function Controls() {
 
     // the 1 is using position absolute so it does not make the button jump around
     return (
-        <Flex className={cl("button-row")} style={{ gap: 0 }}>
+        <Flex className={cl("button-row")} gap={0}>
             <Button
                 className={classes(cl("button"), cl("shuffle"), cl(shuffle ? "shuffle-on" : "shuffle-off"))}
                 onClick={() => SpotifyStore.setShuffle(!shuffle)}
@@ -222,7 +222,7 @@ function AlbumContextMenu({ track }: { track: Track; }) {
     return (
         <Menu.Menu
             navId="spotify-album-menu"
-            onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
+            onClose={ContextMenuApi.closeContextMenu}
             aria-label="Spotify Album Menu"
         >
             <Menu.MenuItem
@@ -251,7 +251,7 @@ function AlbumContextMenu({ track }: { track: Track; }) {
                         value={volume}
                         minValue={0}
                         maxValue={100}
-                        onChange={debounce((v: number) => SpotifyStore.setVolume(v))}
+                        onChange={debounce(v => SpotifyStore.setVolume(v))}
                     />
                 )}
             />
@@ -265,8 +265,7 @@ function makeLinkProps(type: "Song" | "Artist" | "Album", condition: unknown, na
     return {
         role: "link",
         onClick: () => SpotifyStore.openExternal(path),
-        onContextMenu: e =>
-            ContextMenuApi.openContextMenu(e, () => <CopyContextMenu type={type} name={name} path={path} />)
+        onContextMenu: e => ContextMenuApi.openContextMenu(e, () => <CopyContextMenu type={type} name={name} path={path} />)
     } satisfies React.HTMLAttributes<HTMLElement>;
 }
 
@@ -283,9 +282,7 @@ function Info({ track }: { track: Track; }) {
                     src={img.url}
                     alt="Album Image"
                     onClick={() => setCoverExpanded(!coverExpanded)}
-                    onContextMenu={e => {
-                        ContextMenuApi.openContextMenu(e, () => <AlbumContextMenu track={track} />);
-                    }}
+                    onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <AlbumContextMenu track={track} />)}
                 />
             )}
         </>
