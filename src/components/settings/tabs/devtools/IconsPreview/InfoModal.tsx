@@ -146,7 +146,7 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
         setTimeout(() => setCopied(null), 2000);
     }
 
-    const Icon = <Component size="custom" width={size} height={size} color="currentColor" />;
+    const Icon = () => <Component size="custom" width={size} height={size} color="currentColor" />;
 
     return (
         <Modal size="lg" title={
