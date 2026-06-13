@@ -26,7 +26,7 @@ import { formatDuration } from "@utils/text";
 import type { Channel } from "@velocity-types";
 import { ChannelFlags, ChannelType } from "@velocity-types/enums";
 import { findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { EmojiStore, EmojiUtils, FluxDispatcher, GuildMemberStore, GuildStore, Icons, Parser, PermissionsBits, PermissionStore, SnowflakeUtils, Text, Timestamp, Tooltip, useEffect, useState } from "@webpack/common";
+import { EmojiStore, FluxDispatcher, GuildMemberStore, GuildStore, Icons, Parser, PermissionsBits, PermissionStore, SnowflakeUtils, Text, Timestamp, Tooltip, useEffect, useState } from "@webpack/common";
 import type { ComponentType } from "react";
 
 import { cl, settings } from "..";
@@ -55,6 +55,7 @@ export const setChannelBeginHeader = v => ChannelBeginHeader = v;
 
 
 const EmojiParser = findByPropsLazy("convertSurrogateToName");
+const EmojiUtils = findByPropsLazy("getEmojiColors", "getURL");
 
 const ChannelTypesToChannelNames = {
     [ChannelType.GUILD_TEXT]: "text",

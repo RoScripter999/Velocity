@@ -16,34 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Card } from "@components/Card";
-import { Flex } from "@components/Flex";
-import { Margins } from "@components/margins";
-import { Paragraph } from "@components/Paragraph";
+import { classNameFactory } from "@utils/css";
+import type { PluginSettingComponentProps } from "@utils/types";
 import { Buttons, Icons, Text } from "@webpack/common";
 
 import { openCreateTagModal } from "./CreateTagModal";
-import { removeTag, settings } from "./settings";
+import { removeTag, settings, type Tag } from "./settings";
 
-export function SettingsTagList() {
+const cl = classNameFactory("vc-customCommands-");
+
+export function ManageTagsList({ isModal = false }: Partial<PluginSettingComponentProps> & { isModal?: boolean; }) {
     const { tagsList } = settings.use(["tagsList"]);
+    const tags = Object.values(tagsList);
 
     return (
-        <section className={Margins.top8}>
-            <Text variant="text-md/semibold">Registered Tags</Text>
-            <Flex flexDirection="column" gap="0.5em" className={Margins.top8}>
-                {Object.values(tagsList).map(tag => (
-                    <Card key={tag.name} className="vc-customCommands-card">
-                        <Paragraph variant="text-md/medium">{tag.name}</Paragraph>
+        <div className={cl("container")}>
+            {tags.length > 0 ? tags.map((tag: Tag) => (
+                <div key={tag.name} className={cl("row")}>
+                    <div className={cl("rowContent")}>
+                        <Text variant="text-md/semibold">{tag.name}</Text>
+                        <Text variant="text-sm/normal" color="text-muted">{tag.message}</Text>
+                    </div>
 
-                        <div>
-                            <Buttons.IconButton variant="secondary" icon={Icons.PencilIcon} onClick={() => openCreateTagModal(tag)} />
-                            <Buttons.IconButton variant="critical-secondary" icon={Icons.TrashIcon} onClick={() => removeTag(tag.name)} />
-                        </div>
-                    </Card>
-                ))}
-                <Buttons.Button text="Create Tag" onClick={() => openCreateTagModal()} />
-            </Flex>
-        </section>
+                    <div className={cl("rowActions")}>
+                        <Buttons.IconButton size="sm" variant="secondary" icon={Icons.PencilIcon} onClick={() => openCreateTagModal(tag)} />
+                        <Buttons.IconButton size="sm" variant="critical-secondary" icon={Icons.TrashIcon} onClick={() => removeTag(tag.name)} />
+                    </div>
+                </div>
+            )) : <Text color="text-muted" className={cl("empty")}>No custom commands yet. Create one to get started!</Text>}
+            {!isModal && <Buttons.Button size="sm" text="Create Tag" onClick={() => openCreateTagModal()} />}
+        </div>
     );
 }

@@ -25,25 +25,89 @@ import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
 import { FluxDispatcher, MessageActions, PendingReplyStore } from "@webpack/common";
 
-import { openCreateTagModal } from "./CreateTagModal";
-import { getTag, getTags, removeTag, settings, Tag } from "./settings";
+import { openManageTagModal } from "./CreateTagModal";
+import { getTag, getTags, removeTag, settings, type Tag } from "./settings";
 
 const CustomCommandsMarker = Symbol("CustomCommands");
 const ArgumentRegex = /{{(.+?)}}/g;
 
 export function parseTagArguments(message: string) {
-    const args = [] as { name: string, defaultValue: string | null; }[];
+    const args = [] as { name: string, defaultValue: string | null; type: ApplicationCommandOptionType | "unknown"; }[];
 
     for (const [, value] of message.matchAll(ArgumentRegex)) {
-        const [name, defaultValue] = value.split("=").map(s => s.trim());
+        const parts = value.split(",").map(s => s.trim());
+        const [name, defaultValue] = parts[0].split("=").map(s => s.trim());
 
         if (!name) continue;
         if (args.some(arg => arg.name === name)) continue;
 
-        args.push({ name: name.toLowerCase(), defaultValue: defaultValue ?? null });
+        let type: ApplicationCommandOptionType | "unknown" = ApplicationCommandOptionType.STRING;
+        for (const part of parts.slice(1)) {
+            if (part.startsWith("type")) {
+                const typeValue = part.split("=").map(s => s.trim())[1]?.toLowerCase();
+                const resolvedType = getOptionTypeFromString(typeValue);
+                type = resolvedType ?? "unknown";
+                break;
+            }
+        }
+
+        args.push({ name: name.toLowerCase(), defaultValue: defaultValue ?? null, type });
     }
 
     return args;
+}
+
+export function validateTagArguments(message: string): string[] {
+    const errors: string[] = [];
+    const seenNames = new Set<string>();
+    const validTypes = new Set(["string", "integer", "number", "boolean", "user", "role"]);
+
+    for (const [, value] of message.matchAll(ArgumentRegex)) {
+        const parts = value.split(",").map(s => s.trim());
+        const [name] = parts[0].split("=").map(s => s.trim());
+
+        if (!name) {
+            errors.push("Argument has no name.");
+            continue;
+        }
+
+        const nameLower = name.toLowerCase();
+        if (nameLower === "ephemeral") {
+            errors.push('Argument name "ephemeral" is reserved.');
+            continue;
+        }
+
+        if (seenNames.has(nameLower)) {
+            errors.push(`Duplicate argument name: "${name}".`);
+            continue;
+        }
+        seenNames.add(nameLower);
+
+        for (const part of parts.slice(1)) {
+            if (part.startsWith("type")) {
+                const typeValue = part.split("=").map(s => s.trim())[1]?.toLowerCase();
+                if (!typeValue) {
+                    errors.push(`Type value missing for argument "${name}".`);
+                } else if (!validTypes.has(typeValue)) {
+                    errors.push(`Invalid type "${typeValue}" for argument "${name}".`);
+                }
+            }
+        }
+    }
+
+    return errors;
+}
+
+function getOptionTypeFromString(typeStr?: string): ApplicationCommandOptionType | null {
+    const typeMap: Record<string, ApplicationCommandOptionType> = {
+        "string": ApplicationCommandOptionType.STRING,
+        "integer": ApplicationCommandOptionType.INTEGER,
+        "boolean": ApplicationCommandOptionType.BOOLEAN,
+        "user": ApplicationCommandOptionType.USER,
+        "role": ApplicationCommandOptionType.ROLE,
+        "number": ApplicationCommandOptionType.NUMBER
+    };
+    return typeMap[typeStr ?? ""] ?? null;
 }
 
 export function registerTagCommand(tag: Tag) {
@@ -54,10 +118,10 @@ export function registerTagCommand(tag: Tag) {
         description: tag.name,
         inputType: ApplicationCommandInputType.BUILT_IN,
         options: [
-            ...tagArguments.map(arg => ({
+            ...tagArguments.filter(arg => arg.type !== "unknown").map(arg => ({
                 name: arg.name,
                 description: arg.name,
-                type: ApplicationCommandOptionType.STRING,
+                type: arg.type as ApplicationCommandOptionType,
                 required: arg.defaultValue === null
             })),
             {
@@ -73,8 +137,35 @@ export function registerTagCommand(tag: Tag) {
 
             const response = tag.message
                 .replace(ArgumentRegex, (fullMatch, value: string) => {
-                    const [argName, defaultValue] = value.split("=").map(s => s.trim());
-                    return interaction.options.getString(argName) ?? defaultValue ?? fullMatch;
+                    const parts = value.split(",").map(s => s.trim());
+                    const [argName] = parts[0].split("=").map(s => s.trim());
+
+                    const argDef = tagArguments.find(arg => arg.name === argName.toLowerCase());
+                    if (!argDef) return fullMatch;
+
+                    let result: string | null = null;
+                    if (argDef.type === "unknown") {
+                        result = null;
+                    } else if (argDef.type === ApplicationCommandOptionType.STRING) {
+                        result = interaction.options.getString(argName.toLowerCase());
+                    } else if (argDef.type === ApplicationCommandOptionType.INTEGER) {
+                        result = interaction.options.getInteger(argName.toLowerCase())?.toString() ?? null;
+                    } else if (argDef.type === ApplicationCommandOptionType.NUMBER) {
+                        result = interaction.options.getNumber(argName.toLowerCase())?.toString() ?? null;
+                    } else if (argDef.type === ApplicationCommandOptionType.BOOLEAN) {
+                        result = interaction.options.getBoolean(argName.toLowerCase())?.toString() ?? null;
+                    } else if (argDef.type === ApplicationCommandOptionType.USER) {
+                        const member = interaction.options.getMember(argName.toLowerCase());
+                        result = member ? `<@${member}>` : null;
+                    } else if (argDef.type === ApplicationCommandOptionType.ROLE) {
+                        const role = interaction.options.getRole(argName.toLowerCase());
+                        result = role ? `<@&${role}>` : null;
+                    } else {
+                        result = interaction.options.getString(argName.toLowerCase());
+                    }
+
+                    const [, defaultValue] = parts[0].split("=").map(s => s.trim());
+                    return result ?? defaultValue ?? fullMatch;
                 })
                 .replaceAll("\\n", "\n");
 
@@ -110,15 +201,9 @@ export default definePlugin({
             inputType: ApplicationCommandInputType.BUILT_IN,
             options: [
                 {
-                    name: "create",
-                    description: "Create a new tag",
+                    name: "manage",
+                    description: "Manage your tags",
                     type: ApplicationCommandOptionType.SUB_COMMAND
-                },
-                {
-                    name: "list",
-                    description: "List all your tags",
-                    type: ApplicationCommandOptionType.SUB_COMMAND,
-                    options: []
                 },
                 {
                     name: "delete",
@@ -137,8 +222,8 @@ export default definePlugin({
 
             async execute(interaction) {
                 switch (interaction.getSubcommand()) {
-                    case "create": {
-                        openCreateTagModal();
+                    case "manage": {
+                        openManageTagModal();
                         break;
                     }
 
@@ -154,18 +239,6 @@ export default definePlugin({
 
                         interaction.reply({
                             content: `Successfully deleted the tag **${name}**!`
-                        });
-
-                        break;
-                    }
-
-                    case "list": {
-                        const content = Object.values(getTags())
-                            .map(tag => `\`${tag.name}\`: ${tag.message.slice(0, 72).replaceAll("\\n", " ")}${tag.message.length > 72 ? "..." : ""}`)
-                            .join("\n");
-
-                        interaction.reply({
-                            content: content || "Woops! There are no tags yet, use `/tags create` to create one!"
                         });
 
                         break;

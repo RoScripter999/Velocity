@@ -16,24 +16,53 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ExpandableCard } from "@components/ExpandableCard";
+import { ApplicationCommandOptionType } from "@api/Commands";
 import { InlineCode } from "@components/CodeBlock";
+import { ExpandableCard } from "@components/ExpandableCard";
 import { Flex } from "@components/Flex";
-import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import type { ModalPropsRender } from "@velocity-types";
-import { Icons, Modal, openModal, TextArea, TextInput, useState } from "@webpack/common";
+import { Field, Icons, Modal, openModal, TextArea, TextInput, useState } from "@webpack/common";
 
-import { parseTagArguments } from ".";
-import { addTag, getTag, removeTag, Tag } from "./settings";
+import { parseTagArguments, validateTagArguments } from ".";
+import { ManageTagsList } from "./ManageTagsList";
+import { addTag, removeTag, type Tag } from "./settings";
 
-export function openCreateTagModal(initialValue: Tag = { name: "", message: "" }) {
+function getTypeString(type: ApplicationCommandOptionType | "unknown"): string {
+    const typeMap: Record<string, string> = {
+        [ApplicationCommandOptionType.STRING]: "string",
+        [ApplicationCommandOptionType.INTEGER]: "integer",
+        [ApplicationCommandOptionType.BOOLEAN]: "boolean",
+        [ApplicationCommandOptionType.USER]: "user",
+        [ApplicationCommandOptionType.ROLE]: "role",
+        [ApplicationCommandOptionType.NUMBER]: "number"
+    };
+    return typeMap[type] ?? "unknown";
+}
+
+export function openCreateTagModal(initialValue?: Tag) {
     openModal(modalProps => (
-        <CreateTagDialog initialValue={initialValue} modalProps={modalProps} />
+        <CreateTagDialog initialValue={initialValue ?? { name: "", message: "" }} modalProps={modalProps} />
     ));
 }
 
-const EXAMPLE_RESPONSE = "Hello {{user}}! I am feeling {{mood = great}}.";
+export function openManageTagModal() {
+    openModal(modalProps => (
+        <Modal
+            {...modalProps}
+            title="Manage Custom Commands"
+            subtitle="Create custom commands. Write / then your tag name (e.g: /hello) in the chat input and execute the command to send!"
+            actions={[
+                { text: "Close", variant: "secondary", onClick: modalProps.onClose },
+                { text: "Create", onClick: () => openCreateTagModal() }
+            ]}
+        >
+            <ManageTagsList isModal />
+        </Modal >
+    ));
+}
+
+const EXAMPLE_RESPONSE = "Hello {{user, type = user}}! I am feeling {{mood = great}}.";
 
 function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; modalProps: ModalPropsRender; }) {
     const [name, setName] = useState(initialValue.name);
@@ -43,13 +72,7 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
 
     const detectedArguments = parseTagArguments(message);
     const hasReservedEphemeral = detectedArguments.some(arg => arg.name === "ephemeral");
-    const nameAlreadyExists = name !== initialValue.name && getTag(name);
-
-    const notice = hasReservedEphemeral
-        ? 'The argument name "ephemeral" is reserved and cannot be used.'
-        : nameAlreadyExists
-            ? `A tag with the name "${name}" already exists and will be overwritten.`
-            : undefined;
+    const argumentErrors = validateTagArguments(message);
 
     return (
         <Modal
@@ -74,10 +97,10 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
                         addTag(tag);
                         modalProps.onClose();
                     },
-                    disabled: !name || !message || hasReservedEphemeral
+                    disabled: !name || !message || hasReservedEphemeral || argumentErrors.length > 0
                 }
             ]}
-            notice={notice ? { message: notice, type: "critical" } : undefined}
+            notice={argumentErrors.length > 0 ? { message: argumentErrors[0], type: "critical" } : undefined}
         >
             <Flex flexDirection="column" gap={12}>
                 <section>
@@ -89,18 +112,13 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
                 </section>
 
                 {detectedArguments.length > 0 && (
-                    <section>
-                        <HeadingSecondary>Detected Arguments</HeadingSecondary>
-                        <Paragraph>
-                            <ul>
-                                {detectedArguments.map(arg => (
-                                    <li key={arg.name}>
-                                        &mdash; <b>{arg.name}</b>{arg.defaultValue ? ` (default: ${arg.defaultValue})` : ""}
-                                    </li>
-                                ))}
-                            </ul>
-                        </Paragraph>
-                    </section>
+                    <Field label="Detected Arguments">
+                        {detectedArguments.map(arg => (
+                            <li key={arg.name}>
+                                <b>{arg.name}</b> (type: {getTypeString(arg.type)}){arg.defaultValue ? ` (default: ${arg.defaultValue})` : ""}
+                            </li>
+                        ))}
+                    </Field>
                 )}
 
                 <ExpandableCard
@@ -111,6 +129,9 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
                             </Paragraph>
                             <Paragraph>
                                 You can specify arguments with default values by using an equals sign, for example <InlineCode>{"Hello {{user = pal}}"}</InlineCode>.
+                            </Paragraph>
+                            <Paragraph>
+                                You can also specify the argument type using a comma, for example <InlineCode>{"{{user, type = user}}"}</InlineCode>. Available types: string, integer, number, boolean, user, role.
                             </Paragraph>
 
                             <section>

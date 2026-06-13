@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { copyToClipboard } from "@utils/clipboard";
+import { copyToClipboard } from "@utils/misc";
 import { ConfirmModal, ContextMenuApi, Icons, Menu, openModal, UserStore } from "@webpack/common";
 
 import type { Decoration } from "../../lib/api";

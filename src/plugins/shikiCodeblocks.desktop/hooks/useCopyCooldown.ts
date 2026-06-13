@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { copyToClipboard } from "@utils/clipboard";
+import { copyToClipboard } from "@utils/misc";
 import { useState } from "@webpack/common";
 
 export function useCopyCooldown(cooldown: number) {

@@ -21,17 +21,16 @@ import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 
 import { registerTagCommand } from ".";
-import { SettingsTagList } from "./SettingsTagList";
+import { ManageTagsList } from "./ManageTagsList";
 
 export const settings = definePluginSettings({
     tagsList: {
         type: OptionType.CUSTOM,
-        description: "",
         default: {} as Record<string, Tag>
     },
     tagComponent: {
         type: OptionType.COMPONENT,
-        component: SettingsTagList
+        component: ManageTagsList
     }
 });
 

@@ -1,8 +1,35 @@
-.vc-customCommands-card {
-    padding: 0.5em;
-    padding-left: 1em;
-    display: grid;
-    grid-template-columns: 1fr min-content min-content;
+/* Copied from discord from some transform text ai feature */
+.vc-customCommands-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.vc-customCommands-row {
     align-items: center;
-    gap: 0.25em;
+    background: var(--background-mod-subtle);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-md);
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+}
+
+.vc-customCommands-rowContent {
+    flex: 1;
+    margin-inline-end: 12px;
+    min-width: 0;
+}
+
+.vc-customCommands-rowActions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.vc-customCommands-empty {
+    padding: 24px;
+    text-align: center;
 }

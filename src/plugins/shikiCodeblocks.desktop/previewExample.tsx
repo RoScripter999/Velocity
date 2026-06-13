@@ -2,7 +2,7 @@
 import type { FC } from "react";
 
 const handleClick = async () =>
-    console.log((await import("@utils/clipboard")).copyToClipboard("\u200b"));
+    console.log((await import("@utils/misc")).copyToClipboard("\u200b"));
 
 export const Example: FC<{
     real: boolean,

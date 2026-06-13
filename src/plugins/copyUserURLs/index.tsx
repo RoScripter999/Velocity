@@ -17,8 +17,8 @@
 */
 
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
+import { copyToClipboard } from "@utils/misc";
 import definePlugin from "@utils/types";
 import type { Channel, User } from "@velocity-types";
 import { Icons, Menu } from "@webpack/common";

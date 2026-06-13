@@ -19,11 +19,10 @@
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { ImageIcon } from "@components/Icons";
-import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
 import { getCurrentChannel, getCurrentGuild, openImageModal } from "@utils/discord";
 import { isTruthy } from "@utils/guards";
-import { classes } from "@utils/misc";
+import { classes, copyToClipboard } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Guild, PopoutProps, Role } from "@velocity-types";
 import { findByCodeLazy, findByPropsLazy, findCssClassesLazy } from "@webpack";

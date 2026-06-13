@@ -23,9 +23,8 @@ import { Flex } from "@components/Flex";
 import { Icon, Sizes } from "@components/Icons";
 import { Margins } from "@components/margins";
 import { SectionHeader } from "@components/settings";
-import { copyToClipboard } from "@utils/clipboard";
 import { classNameFactory } from "@utils/css";
-import { classes } from "@utils/misc";
+import { classes, copyToClipboard } from "@utils/misc";
 import type { ModalPropsRender } from "@velocity-types";
 import { Buttons, Forms, Menu, Modal, openModalLazy, Slider, Text, useMemo, useState } from "@webpack/common";
 

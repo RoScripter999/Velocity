@@ -22,9 +22,9 @@ import { Theme } from "@velocity-types/enums";
 import { ChannelActionCreators, ChannelStore, ComponentDispatch, Constants, FluxDispatcher, GuildStore, i18n, IconUtils, InviteActions, MessageActions, openMediaModal, RestAPI, SelectedChannelStore, SelectedGuildStore, SettingsActionCreators, Toasts, UserProfileActions, UserProfileStore, UserUtils } from "@webpack/common";
 import type { Except } from "type-fest";
 
-import { copyToClipboard } from "./clipboard";
 import { runtimeHashMessageKey } from "./intlHash";
 import { Logger } from "./Logger";
+import { copyToClipboard } from "./misc";
 
 const IntlManagerLogger = new Logger("IntlManager");
 

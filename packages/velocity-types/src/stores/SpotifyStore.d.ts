@@ -4,16 +4,23 @@ export namespace SpotifyStore {
     export interface Album {
         id: string;
         name: string;
-        image?: {
+        image: {
+            height: number;
+            width: number;
             url: string;
-            [key: string]: any;
         };
         type: string;
     }
 
     export interface Artist {
+        external_urls: {
+            spotify: string;
+        };
+        href: string;
         id: string;
         name: string;
+        type: "artist" | string;
+        uri: string;
     }
 
     export interface Track {

@@ -18,11 +18,10 @@
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
 import { generateId, sendBotMessage } from "@api/Commands";
-import { Icon } from "@components/Icons";
 import { Devs } from "@utils/constants";
-import definePlugin, { type IconComponent, StartAt } from "@utils/types";
+import definePlugin, { StartAt } from "@utils/types";
 import type { MessageAttachment } from "@velocity-types";
-import { DraftStore, DraftType, UploadStore, UserStore, useStateFromStores } from "@webpack/common";
+import { DraftStore, DraftType, Icons, UploadStore, UserStore, useStateFromStores } from "@webpack/common";
 
 const getDraft = (channelId: string) =>
     DraftStore.getDraft(channelId, DraftType.ChannelMessage);
@@ -67,23 +66,6 @@ const getAttachments = async (channelId: string) =>
         })
     ).then(list => list.filter(Boolean) as MessageAttachment[]);
 
-
-const PreviewIcon: IconComponent = ({ height = 20, width = 20, className }) => {
-    return (
-        <Icon
-            fill="currentColor"
-            fillRule="evenodd"
-            width={width}
-            height={height}
-            className={className}
-            viewBox="0 0 24 24"
-            style={{ scale: "1.096", translate: "0 -1px" }}
-        >
-            <path d="M22.89 11.7c.07.2.07.4 0 .6C22.27 13.9 19.1 21 12 21c-7.11 0-10.27-7.11-10.89-8.7a.83.83 0 0 1 0-.6C1.73 10.1 4.9 3 12 3c7.11 0 10.27 7.11 10.89 8.7Zm-4.5-3.62A15.11 15.11 0 0 1 20.85 12c-.38.88-1.18 2.47-2.46 3.92C16.87 17.62 14.8 19 12 19c-2.8 0-4.87-1.38-6.39-3.08A15.11 15.11 0 0 1 3.15 12c.38-.88 1.18-2.47 2.46-3.92C7.13 6.38 9.2 5 12 5c2.8 0 4.87 1.38 6.39 3.08ZM15.56 11.77c.2-.1.44.02.44.23a4 4 0 1 1-4-4c.21 0 .33.25.23.44a2.5 2.5 0 0 0 3.32 3.32Z" />
-        </Icon>
-    );
-};
-
 const PreviewButton: ChatBarButtonFactory = ({ isMainChat, isEmpty, type: { attachments }, channel }) => {
     const channelId = channel.id;
     const draft = useStateFromStores([DraftStore], () => getDraft(channelId));
@@ -111,7 +93,7 @@ const PreviewButton: ChatBarButtonFactory = ({ isMainChat, isEmpty, type: { atta
                 }
             }}
         >
-            <PreviewIcon />
+            <Icons.EyeIcon size="refresh_sm" color="currentColor" />
         </ChatBarButton>
     );
 };
@@ -124,7 +106,7 @@ export default definePlugin({
     startAt: StartAt.Init,
 
     chatBarButton: {
-        icon: PreviewIcon,
+        icon: () => <Icons.EyeIcon size="refresh_sm" color="currentColor" />,
         required: true,
         render: PreviewButton
     }

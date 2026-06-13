@@ -17,8 +17,8 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
-import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
+import { copyToClipboard } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
 import { filters, mapMangledModuleLazy } from "@webpack";
