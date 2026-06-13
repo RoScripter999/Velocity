@@ -146,6 +146,8 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
         setTimeout(() => setCopied(null), 2000);
     }
 
+    const Icon = <Component size="custom" width={size} height={size} color="currentColor" />;
+
     return (
         <Modal size="lg" title={
             <SectionHeader
@@ -206,8 +208,8 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
 
                     <SectionHeader tag="h2" title="ContextMenu Preview" margin="bottom8" />
                     <Menu.Menu navId="vc-icons-preview" hideScroller>
-                        <Menu.MenuItem id="menu-item" label="Test Item" leadingAccessory={{ type: "icon", icon: () => <Component size="custom" width={size} height={size} color="currentColor" /> }} />
-                        <Menu.MenuItem id="menu-item-disabled" label="Test Item That is disabled" disabled leadingAccessory={{ type: "icon", icon: () => <Component size="custom" width={size} height={size} color="currentColor" /> }} />
+                        <Menu.MenuItem id="menu-item" label="Test Item" leadingAccessory={{ type: "icon", icon: Icon }} icon={Icon} />
+                        <Menu.MenuItem id="menu-item-disabled" label="Test Item That is disabled" disabled leadingAccessory={{ type: "icon", icon: Icon }} icon={Icon} />
                     </Menu.Menu>
                 </Card>
 

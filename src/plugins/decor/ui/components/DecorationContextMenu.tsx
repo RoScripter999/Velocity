@@ -35,6 +35,7 @@ export default function DecorationContextMenu({ decoration }: { decoration: Deco
             id={cl("decoration-context-menu-copy-hash")}
             label="Copy Decoration Hash"
             icon={Icons.CopyIcon}
+            leadingAccessory={{ type: "icon", icon: Icons.CopyIcon }}
             action={() => copyToClipboard(decoration.hash)}
         />
         {decoration.authorId === UserStore.getCurrentUser().id &&
@@ -43,6 +44,7 @@ export default function DecorationContextMenu({ decoration }: { decoration: Deco
                 label="Delete Decoration"
                 color="danger"
                 icon={Icons.TrashIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                 action={() => openModal(props => (
                     <ConfirmModal
                         {...props}

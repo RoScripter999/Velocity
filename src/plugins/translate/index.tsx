@@ -28,7 +28,7 @@ import { ChannelStore, i18n, Menu } from "@webpack/common";
 import { settings } from "./settings";
 import { setShouldShowTranslateEnabledTooltip, TranslateChatBarIcon, TranslateIcon } from "./TranslateIcon";
 import { handleTranslate, TranslationAccessory } from "./TranslationAccessory";
-import { translate } from "./utils";
+import { cl, translate } from "./utils";
 
 // please someone get better find than this.
 const iconGetter = findLazy(m => typeof m === "function" && typeof m.resolve === "function" && typeof m.keys === "function" && m.keys()?.includes("./en-US.png"));
@@ -59,7 +59,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
                         key={locale.value}
                         id={`vc-trans-${locale.value}`}
                         label={locale.name}
-                        icon={() => <img alt="" src={flagSrc} style={{ width: 20, height: 20 }} />}
+                        icon={() => <img alt="" className={cl("flag-icon")} src={flagSrc} />}
                         leadingAccessory={{ type: "image", src: flagSrc }}
                         action={async () => {
                             const trans = await translate("received", content, locale.value);

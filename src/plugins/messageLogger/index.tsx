@@ -24,15 +24,14 @@ import { updateMessage } from "@api/MessageUpdater";
 import { definePluginSettings } from "@api/Settings";
 import { disableStyle, enableStyle } from "@api/Styles";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Icon } from "@components/Icons";
 import { Devs, SUPPORT_CATEGORY_ID, VEBOT_USER_ID } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
-import definePlugin, { type IconComponent, OptionType } from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { ChannelStore, FluxDispatcher, Icons, Menu, MessageStore, Parser, PopoverClasses, SelectedChannelStore, Timestamp, UserStore, useStateFromStores } from "@webpack/common";
+import { ChannelStore, FluxDispatcher, Icons, Menu, MessageStore, Parser, SelectedChannelStore, Timestamp, UserStore, useStateFromStores } from "@webpack/common";
 
 import overlayStyle from "./deleteStyleOverlay.css?managed";
 import textStyle from "./deleteStyleText.css?managed";
@@ -117,48 +116,6 @@ function addDeleteStyle() {
     }
 }
 
-const HightlightIcon: IconComponent = ({ height = 20, width = 20, className, enabled }) => {
-    const icon = (
-        <>
-            <path mask="url(#message-logger-highlight-mask)" d="M15.56 11.77c.2-.1.44.02.44.23a4 4 0 1 1-4-4c.21 0 .33.25.23.44a2.5 2.5 0 0 0 3.32 3.32Z" />
-            <path mask="url(#message-logger-highlight-mask)" fillRule="evenodd" clipRule="evenodd" d="M22.89 11.7c.07.2.07.4 0 .6C22.27 13.9 19.1 21 12 21c-7.11 0-10.27-7.11-10.89-8.7a.83.83 0 0 1 0-.6C1.73 10.1 4.9 3 12 3c7.11 0 10.27 7.11 10.89 8.7Zm-4.5-3.62A15.11 15.11 0 0 1 20.85 12c-.38.88-1.18 2.47-2.46 3.92C16.87 17.62 14.8 19 12 19c-2.8 0-4.87-1.38-6.39-3.08A15.11 15.11 0 0 1 3.15 12c.38-.88 1.18-2.47 2.46-3.92C7.13 6.38 9.2 5 12 5c2.8 0 4.87 1.38 6.39 3.08Z" />
-        </>
-    );
-
-    if (enabled) {
-        return (
-            <Icon
-                width={width}
-                height={height}
-                viewBox="0 0 24 24"
-                className={className}
-                style={{ scale: "1.2" }}
-            >
-                <defs>
-                    <mask id="message-logger-highlight-mask">
-                        <rect width="24" height="24" fill="white" />
-                        <path stroke="black" strokeWidth="5.99068" d="M0 24 24 0" />
-                    </mask>
-                </defs>
-                {icon}
-                <path d="m21.178 1.70703 1.414 1.414L4.12103 21.593l-1.414-1.415L21.178 1.70703Z" />
-            </Icon>
-        );
-    }
-
-    return (
-        <Icon
-            width={width}
-            height={height}
-            viewBox="0 0 24 24"
-            className={className}
-            style={{ scale: "1.2" }}
-        >
-            {icon}
-        </Icon>
-    );
-};
-
 const REMOVE_HISTORY_ID = "ml-remove-history";
 const TOGGLE_DELETE_STYLE_ID = "ml-toggle-style";
 
@@ -181,7 +138,8 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (children, props) =
                         id={TOGGLE_DELETE_STYLE_ID}
                         key={TOGGLE_DELETE_STYLE_ID}
                         label="Toggle Deleted Highlight"
-                        icon={() => <HightlightIcon enabled={isHidden} />}
+                        icon={isHidden ? Icons.EyeSlashIcon : Icons.EyeIcon}
+                        leadingAccessory={{ type: "icon", icon: isHidden ? Icons.EyeSlashIcon : Icons.EyeIcon }}
                         action={() => domElement.classList.toggle("messagelogger-deleted")}
                     />
                 ) : null;
@@ -191,7 +149,8 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (children, props) =
                 key={REMOVE_HISTORY_ID}
                 label="Remove Message History"
                 color="danger"
-                icon={() => <Icons.TrashIcon fill="currentColor" size="refresh_sm" className={PopoverClasses.icon} />}
+                icon={Icons.TrashIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                 action={() => {
                     if (deleted) {
                         FluxDispatcher.dispatch({
@@ -220,7 +179,8 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
             <Menu.MenuItem
                 id="vc-ml-clear-channel"
                 label="Clear Message Log"
-                icon={() => <Icons.TrashIcon fill="currentColor" />}
+                icon={Icons.TrashIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                 color="danger"
                 action={() => {
                     messages.forEach(msg => {

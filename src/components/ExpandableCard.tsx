@@ -16,17 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Card } from "@components/Card";
-import { Clickable, Icons, useState } from "@webpack/common";
-import type { PropsWithChildren, ReactNode } from "react";
+import "./ExpandableCard.css";
 
-type AccordionCardProps = PropsWithChildren<{
+import { IconProps } from "@velocity-types/src";
+import { Clickable, Icons, useState } from "@webpack/common";
+import type { ComponentType, PropsWithChildren, ReactNode } from "react";
+
+import { Card } from "./Card";
+
+type ButtonProps = {
+    onClick: () => void;
+    icon: ComponentType<IconProps>;
+    size?: IconProps["size"];
+};
+
+type ExpandableCard = PropsWithChildren<{
     render: () => ReactNode;
-    onDelete: () => void;
+    buttons?: ButtonProps[];
     initialExpanded?: boolean;
 }>;
 
-export function AccordionCard({ children, render: Content, onDelete, initialExpanded = false }: AccordionCardProps) {
+export function ExpandableCard({ children, render: Content, buttons = [], initialExpanded = false }: ExpandableCard) {
     const [expanded, setExpanded] = useState(initialExpanded);
 
     const Icon = expanded ? Icons.ChevronSmallDownIcon : Icons.ChevronSmallRightIcon;
@@ -36,8 +46,12 @@ export function AccordionCard({ children, render: Content, onDelete, initialExpa
             <Clickable className="vc-expandable-card-header" onClick={e => { e.preventDefault(); setExpanded(c => !c); }}>
                 {children}
                 <div className="vc-expandable-card-icons">
-                    <Icons.TrashIcon size="refresh_sm" onClick={onDelete} />
                     <Icon />
+                    {buttons && buttons.map(({ icon: IconComponent, onClick, size }, idx) => (
+                        <Clickable key={idx} onClick={onClick}>
+                            <IconComponent size={size ?? "sm"} />
+                        </Clickable>
+                    ))}
                 </div>
             </Clickable>
 

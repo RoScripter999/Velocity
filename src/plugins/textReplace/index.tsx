@@ -19,6 +19,7 @@
 import "./styles.css";
 
 import { definePluginSettings } from "@api/Settings";
+import { ExpandableCard } from "@components/ExpandableCard";
 import { Flex } from "@components/Flex";
 import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
@@ -28,9 +29,7 @@ import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { Buttons, RichTooltip, TextInput, useState } from "@webpack/common";
-
-import { AccordionCard } from "./components/AccordionCard";
+import { Buttons, Icons, RichTooltip, TextInput, useState } from "@webpack/common";
 
 const cl = classNameFactory("vc-textReplace-");
 
@@ -165,9 +164,12 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
             <SectionHeader title={title} description={description} />
             <Flex flexDirection="column" gap="0.5em">
                 {rulesArray.map((rule, index) =>
-                    <AccordionCard
+                    <ExpandableCard
                         key={`${rule.find}-${index}`}
-                        onDelete={() => onClickRemove(index)}
+                        buttons={[{
+                            onClick: () => onClickRemove(index),
+                            icon: Icons.TrashIcon
+                        }]}
                         render={() => (
                             <>
                                 <fieldset className={cl("input-grid")}>
@@ -197,7 +199,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                         <Paragraph variant="text-md/medium">
                             {isEmptyRule(rule) ? `Empty Rule ${index + 1}` : `Rule ${index + 1} - ${rule.find}`}
                         </Paragraph>
-                    </AccordionCard>
+                    </ExpandableCard>
                 )}
                 <Buttons.Button
                     text="Add Rule"

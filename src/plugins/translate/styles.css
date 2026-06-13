@@ -28,3 +28,9 @@
 .vc-trans-chat-button {
     scale: 1.085;
 }
+
+.vc-trans-flag-icon {
+    /* Copied from discord. */
+    height: 12px;
+    width: 16px;
+}

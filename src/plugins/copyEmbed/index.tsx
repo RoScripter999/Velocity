@@ -92,18 +92,21 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
                     label="Copy Embed Data"
                     action={() => copyEmbedContent(props.message, "embed")}
                     icon={Icons.AngleBracketsIcon}
+                    leadingAccessory={{ type: "icon", icon: Icons.AngleBracketsIcon }}
                 />
                 <Menu.MenuItem
                     id="full"
                     label="Copy Full JSON"
                     action={() => copyEmbedContent(props.message, "full")}
                     icon={Icons.TopicsIcon}
+                    leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
                 />
                 <Menu.MenuSeparator />
                 {props.message.embeds.filter((e: Embed) => e.rawDescription).length > 1 ? (
                     <Menu.MenuItem
                         id="vc-copy-embed-description"
                         label="Copy Embed Description"
+                        leadingAccessory={{ type: "icon", icon: Icons.ClipboardListIcon }}
                     >
                         {props.message.embeds.map((embed: Embed, i: number) =>
                             embed.rawDescription ? (
@@ -113,6 +116,7 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
                                     label={`Copy Embed ${i + 1} Description`}
                                     action={() => copyEmbedContent(props.message, "description", i)}
                                     icon={Icons.ClipboardListIcon}
+                                    leadingAccessory={{ type: "icon", icon: Icons.ClipboardListIcon }}
                                 />
                             ) : null
                         )}
@@ -123,6 +127,7 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
                         label="Copy Embed Description"
                         action={() => copyEmbedContent(props.message, "description", 0)}
                         icon={Icons.ClipboardListIcon}
+                        leadingAccessory={{ type: "icon", icon: Icons.ClipboardListIcon }}
                     />
                 ) : null}
                 <Menu.MenuItem
@@ -130,6 +135,7 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
                     label="Copy EmbedBuilder"
                     action={() => copyEmbedContent(props.message, "builder")}
                     icon={Icons.CopyIcon}
+                    leadingAccessory={{ type: "icon", icon: Icons.CopyIcon }}
                 />
                 <Menu.MenuSeparator />
                 <Menu.MenuItem
@@ -137,6 +143,7 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
                     label="View Raw Embed"
                     action={() => openEmbedRawModal(props.message)}
                     icon={Icons.TopicsIcon}
+                    leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
                 />
             </Menu.MenuItem>
         );
