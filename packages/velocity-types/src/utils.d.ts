@@ -415,30 +415,6 @@ export interface URLUtils {
     formatSearch(query: Record<string, string>): string;
 }
 
-export interface Humanize {
-    filesize(bytes: number, base?: number, decimals?: number, decimalSep?: string, thousandsSep?: string, suffix?: string): string;
-    intword(number: number, units?: string[], base?: number, decimals?: number, decimalSep?: string, thousandsSep?: string): string;
-    relativeTime(timestamp?: number): string;
-    naturalDay(timestamp?: number, format?: string): string;
-    ordinal(value: number): string;
-    numberFormat(number: number, decimals?: number, decimalSep?: string, thousandsSep?: string): string;
-    truncatechars(str: string, maxLength: number): string;
-    truncatewords(str: string, maxWords: number): string;
-    pad(str: string, length: number, padChar?: string, direction?: "left" | "right"): string;
-    date(format: string, timestamp?: Date | number): string;
-    time(): number;
-    linebreaks(str: string): string;
-    nl2br(str: string): string;
-}
-
-export interface EmojiUtils {
-    getEmojiColors(emoji: any): number[] | null;
-    getURL(emoji: any): string;
-    filterUnsupportedEmojis(emojis: any[]): any[];
-    triggerFullscreenAnimation(emoji: any, node: HTMLElement): void;
-    applyPlatformToThemedEmojiColorPalette(colors: any): any;
-}
-
 export interface MessageActionCreators {
     receiveMessage(channelId: string, message: Message, optimistic?: boolean, sendMessageOptions?: MessageOptions): void;
     sendBotMessage(channelId: string, content: string, loggingName?: string, messageId?: string): void;
