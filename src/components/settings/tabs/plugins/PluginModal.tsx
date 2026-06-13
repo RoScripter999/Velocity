@@ -160,6 +160,10 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 {...props}
                 title="Reset Plugin Settings"
                 confirmText="Reset"
+                notice={{
+                    message: "This action cannot be undone.",
+                    type: "critical"
+                }}
                 cancelText="Cancel"
                 onConfirm={() => {
                     for (const [key, option] of Object.entries(plugin.settings!.def)) {
@@ -179,10 +183,6 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 }}
             >
                 Are you sure you want to reset all settings for <strong>{plugin.name}</strong>?
-                <div className={Margins.top8} style={{ display: "flex", gap: 4 }}>
-                    <Icons.WarningIcon color="var(--text-feedback-critical)" size="sm" />
-                    <Text color="text-feedback-critical">This action cannot be undone.</Text>
-                </div>
             </ConfirmModal>
         ));
     }
