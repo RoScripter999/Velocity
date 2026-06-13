@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import { canonicalizeMatch } from "@utils/patches";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
 import { findComponentLazy } from "@webpack";
-import { ChannelStore, GuildMemberStore, Text, Tooltip } from "@webpack/common";
+import { ChannelStore, GuildMemberStore, RichTooltip, Text } from "@webpack/common";
 import type { ReactNode } from "react";
 
 const countDownFilter = canonicalizeMatch(/#{intl::MAX_AGE_NEVER}/);
@@ -96,13 +96,13 @@ export default definePlugin({
         }
     ],
 
-    TooltipWrapper: ErrorBoundary.wrap(({ message, children, text }: { message: Message; children: (props: any) => ReactNode; text: ReactNode; }) => {
+    TooltipWrapper: ErrorBoundary.wrap(({ message, children, text }: { message: Message; children: ReactNode; text: ReactNode; }) => {
         if (settings.store.displayStyle === DisplayStyle.Tooltip)
-            return <Tooltip text={renderTimeout(message, false)}>{children}</Tooltip>;
+            return <RichTooltip body={renderTimeout(message, false)}>{children}</RichTooltip>;
 
         return (
             <div className="vc-std-wrapper">
-                <Tooltip text={text}>{children}</Tooltip>
+                <RichTooltip body={text}>{children}</RichTooltip>
                 <Text variant="text-md/normal" color="status-danger">
                     {renderTimeout(message, true)} timeout remaining
                 </Text>
