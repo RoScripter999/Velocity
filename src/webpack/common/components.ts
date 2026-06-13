@@ -78,8 +78,6 @@ export function setColorPicker(component: t.ColorPicker) {
 }
 
 export const UserSummaryItem = waitForComponent("UserSummaryItem", filters.componentByCode("defaultRenderUser", "showDefaultAvatarsForNullUsers"));
-
-export const RadioGroup = waitForComponent<t.RadioGroup>("RadioGroup", filters.componentByCode("mana-toggle-inputs", "leadingIcon", "errorMessage"));
 export const TagGroup = waitForComponent<t.TagGroup>("TagGroup", filters.componentByCode('"none",layout'));
 
 export let createScroller: ((scrollbarClassName: string, fadeClassName: string, customThemeClassName: string) => t.ScrollerThin) | undefined;

@@ -16,8 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { findByPropsLazy, findCssClassesLazy } from "@webpack";
+import { findCssClassesLazy } from "@webpack";
 
 export const PopoverClasses = findCssClassesLazy("popover", "hoverBarButton", "icon", "buttonContent", "separator");
 export const PopoutClasses = findCssClassesLazy("container", "popoutRoleDot");
-export const FlexClasses = findByPropsLazy("Gutter");
