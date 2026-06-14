@@ -212,6 +212,15 @@ export default definePlugin({
 
     patches: [
         {
+            // Game overlay button yay
+            find: "ClickZoneDebugWidget crashed, too many clicks",
+            replacement: {
+                match: /(\(0,\i\.jsx\)\(\i,\{voiceChannel:\i,locked:\i\}\)\]\}\),\(0,\i\.jsx\)\("div",\{className:\i\(\)\()/,
+                replace: "$self.AutoJoinToggleButton(),$1"
+            },
+            predicate: () => settings.store.showVoiceButton
+        },
+        {
             find: '"CenterControlTray: currentUser cannot be undefined"',
             replacement: {
                 match: /(exitFullScreen:\w+,canGoLive:\w+,hasPermission:\w+\}\))(?=,!\w+&&)/,
