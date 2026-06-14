@@ -56,6 +56,7 @@ window.VelocityNative = {
     native: {
         getVersions: () => ({}),
         supportsWindowsMaterial: () => false,
+        openDevTools: () => Promise.resolve(),
         openExternal: async (url) => void open(url, "_blank"),
         getRendererCss: async () => {
             if (IS_USERSCRIPT)
