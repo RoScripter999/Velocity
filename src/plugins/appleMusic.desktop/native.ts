@@ -31,6 +31,7 @@ async function applescript(cmds: string[]) {
 
 interface RemoteData {
     appleMusicLink?: string,
+    appleMusicArtistLink?: string;
     songLink?: string,
     albumArtwork?: string,
     artistArtwork?: string;
@@ -70,6 +71,7 @@ async function fetchRemoteData({ id, name, artist, album }: { id: string, name: 
             id,
             data: {
                 appleMusicLink: songData.trackViewUrl,
+                appleMusicArtistLink: songData.artistViewUrl,
                 songLink: `https://song.link/i/${new URL(songData.trackViewUrl).searchParams.get("i")}`,
                 albumArtwork: (songData.artworkUrl100).replace("100x100", "512x512"),
                 artistArtwork: artistArtworkURL
