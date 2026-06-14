@@ -17,8 +17,10 @@
 */
 
 import { Card } from "@components/Card";
+import { Margins } from "@components/margins";
+import { sleep } from "@utils/misc";
 import type { ModalPropsRender } from "@velocity-types";
-import { Buttons, Field, FieldSet, MultiStepModal, openModal, RichTooltip, Text, TextInput, useRef, useState } from "@webpack/common";
+import { Buttons, Field, FieldSet, Icons, MultiStepModal, openModal, RichTooltip, Text, TextInput, useState } from "@webpack/common";
 
 const accounts = [
     {
@@ -112,9 +114,38 @@ function openMultiStepModal() {
 
 // "gay" is a quick word for development testing i use, please also use it. it's just quicker (and no im not actually gay lol)
 function TestTab() {
-    const ref = useRef<HTMLButtonElement>(null);
+    const [pressed, setPressed] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [text, setText] = useState("Debug");
+
+    const icon = pressed ? Icons.CheckmarkLargeIcon : Icons.BugIcon;
+
+    async function handle() {
+        setLoading(true);
+        setText("Debug");
+        await sleep(500);
+        setPressed(true);
+        await sleep(1500);
+        setText("Done");
+        setLoading(false);
+        setPressed(false);
+
+    }
+
+    Velocity.Webpack.Common.FluxDispatcher.dispatch({
+        type: "APEX_EXPERIMENT_OVERRIDE_CREATE",
+        experimentName: "2026-02-private-channel-hiding",
+        variantId: -1
+    }).then(() => {
+        setTimeout(() => (DiscordNative.app.relaunch() ?? location.reload()), 1000);
+    });
+
     return (
         <div>
+            <div className={Margins.bottom20}>
+                <Buttons.Button fullWidth loading={loading} text={text} icon={icon} disabled={loading} onClick={handle} />
+            </div>
+
             <Buttons.ButtonGroup>
                 <Buttons.Button text="Open Multistep Modal" onClick={openMultiStepModal} />
 
