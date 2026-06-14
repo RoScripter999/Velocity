@@ -268,10 +268,9 @@ export default definePlugin({
     {
         find: "#{intl::FORUM_FOLLOW_TOOLTIP}",
         replacement: {
-            match: /("Forum Toolbar"\)\s*\}\s*\}\s*\)\s*\}\s*\))/,
-            replace: "$1,$self.renderOpenDevtoolsButton()"
-        },
-        predicate: () => !IS_DISCORD_DESKTOP
+            match: /Thread\((\w+),"Forum Toolbar"\)(\s*\}\s*\}\s*\)\s*\}\s*\))/,
+            replace: "Thread($1,\"Forum Toolbar\")$2,$self.renderOpenDevtoolsButton({channel:$1})"
+        }
     }],
 
     commands: [
@@ -529,8 +528,9 @@ export default definePlugin({
         );
     },
 
-    renderOpenDevtoolsButton() {
+    renderOpenDevtoolsButton({ channel }: { channel: Channel; }) {
         if (!IS_DISCORD_DESKTOP) return null;
+        if (channel.guild_id !== VELOCITY_GUILD_ID || channel.parent_id !== KNOWN_ISSUES_CHANNEL_ID) return null;
 
         return (
             <Buttons.Button
