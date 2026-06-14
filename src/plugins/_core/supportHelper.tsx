@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { isPluginEnabled, pluginRequiresRestart, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
+import { isPluginEnabled, pluginRequiresRestart, plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { definePluginSettings, Settings, SettingsStore } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { Card } from "@components/Card";
@@ -35,26 +35,34 @@ import { Logger } from "@utils/Logger";
 import { classes, isPluginDev, tryOrElse } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { onlyOnce } from "@utils/onlyOnce";
+import { useForceUpdater } from "@utils/react";
 import { makeCodeblock } from "@utils/text";
-import definePlugin, { type Plugin } from "@utils/types";
+import definePlugin from "@utils/types";
 import { checkForUpdates, isOutdated, update } from "@utils/updater";
-import type { Channel, ModalPropsRender } from "@velocity-types";
+import type { Channel, Message, ModalPropsRender } from "@velocity-types";
 import { CloudUploadPlatform, MessageFlags } from "@velocity-types/enums";
-import { Alerts, Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Toasts, useEffect, UserStore, useState } from "@webpack/common";
+import { Alerts, Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, MessageStore, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Toasts, useEffect, UserStore } from "@webpack/common";
 import type { JSX } from "react";
 
 import gitHash from "~git-hash";
-import plugins, { PluginMeta } from "~plugins";
+import { PluginMeta } from "~plugins";
 
 const logger = new Logger("SupportHelper");
 
-const TrustedRolesIds = [
+const TrustedRoleIds = new Set([
     CONTRIB_ROLE_ID,
     TRUSTED_CONTRIB_ROLE_ID,
     DONOR_ROLE_ID
-];
+]);
 
-const pluginLinkRegex = /velocity:\/\/plugins\/([a-zA-Z0-9_-]+)/;
+const AsyncFunction = async function () { }.constructor;
+
+const PluginLinkRe = /velocity:\/\/plugins\/([a-zA-Z0-9_-]+)/;
+const CodeBlockRe = /```(?:js|ts)\n(.+?)```/s;
+
+// Strips sections wrapped in U+2060 (Word Joiner) from Vebot messages,
+// Only applies if Velocity is installed, regular users will see the wrapped section.
+const StripSectionRe = / ?\u2060[\s\S]*?\u2060/g;
 
 const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
 
@@ -202,6 +210,15 @@ async function sendPluginList(channelId: string) {
     }
 }
 
+function stripHiddenContent(msg: Message | Message[]) {
+    if (Array.isArray(msg)) { msg.forEach(stripHiddenContent); return; }
+    const stored = MessageStore.getMessage(msg.channel_id, msg.id) ?? msg;
+    if (!stored?.content || !StripSectionRe.test(stored.content)) return;
+
+    StripSectionRe.lastIndex = 0;
+    stored.content = stored.content.replace(StripSectionRe, "").trim();
+}
+
 const checkForUpdatesOnce = onlyOnce(checkForUpdates);
 
 const settings = definePluginSettings({}).withPrivateSettings<{
@@ -217,6 +234,7 @@ function DevBuildConfirmModal(props: ModalPropsRender) {
             title="Hold on!"
             confirmText="Understood"
             variant="primary"
+            actionsFullWidth
             checkboxProps={{
                 checked: s.dismissedDevBuildWarning === true,
                 onChange: checked => s.dismissedDevBuildWarning = checked
@@ -246,6 +264,14 @@ export default definePlugin({
             match: /#{intl::BEGINNING_DM},{.+?}\),(?=.{0,300}(\i)\.isMultiUserDM)/,
             replace: "$& $self.renderContributorDmWarningCard({ channel: $1 }),"
         }
+    },
+    {
+        find: "#{intl::FORUM_FOLLOW_TOOLTIP}",
+        replacement: {
+            match: /("Forum Toolbar"\)\s*\}\s*\}\s*\)\s*\}\s*\))/,
+            replace: "$1,$self.renderOpenDevtoolsButton()"
+        },
+        predicate: () => !IS_DISCORD_DESKTOP
     }],
 
     commands: [
@@ -275,6 +301,18 @@ export default definePlugin({
     ],
 
     flux: {
+        MESSAGE_CREATE({ message }: { message: Message; }) {
+            stripHiddenContent(message);
+        },
+
+        MESSAGE_UPDATE({ message }: { message: Message; }) {
+            stripHiddenContent(message);
+        },
+
+        LOAD_MESSAGES_SUCCESS({ messages }: { messages: Message[]; }) {
+            stripHiddenContent(messages);
+        },
+
         async CHANNEL_SELECT({ channelId }) {
             const isSupportChannel = channelId === SUPPORT_CHANNEL_ID || ChannelStore.getChannel(channelId)?.parent_id === SUPPORT_CATEGORY_ID;
             if (!isSupportChannel) return;
@@ -307,7 +345,7 @@ export default definePlugin({
             }
 
             const roles = GuildMemberStore.getSelfMember(VELOCITY_GUILD_ID)?.roles;
-            if (!roles || TrustedRolesIds.some(id => roles.includes(id))) return;
+            if (!roles || roles.some(id => TrustedRoleIds.has(id))) return;
 
             if (!IS_WEB && IS_UPDATER_DISABLED) {
                 openModal(props => (
@@ -329,7 +367,7 @@ export default definePlugin({
     },
 
     renderMessageAccessory(props) {
-        const match = props.message.content.match(pluginLinkRegex);
+        const match = props.message.content.match(PluginLinkRe);
         const hasDebugCommand = props.message.content.includes("/velocity-debug") || props.message.content.includes("/velocity-plugins");
         const shouldAddUpdateButton =
             !IS_UPDATER_DISABLED &&
@@ -337,15 +375,16 @@ export default definePlugin({
             props.message.content?.includes("update") &&
             props.message.flags !== MessageFlags.EPHEMERAL;
 
-        const plugin = match ? Object.values(plugins).find(p => p.name.toLowerCase() === match[1].toLowerCase()) as Plugin : null;
-        const [enabled, setEnabled] = useState(!!plugin && isPluginEnabled(plugin.name));
+        const plugin = match ? Object.values(plugins).find(p => p.name.toLowerCase() === match[1].toLowerCase()) ?? null : null;
 
+        const update = useForceUpdater();
         useEffect(() => {
             if (!plugin) return;
-            const handler = () => setEnabled(isPluginEnabled(plugin.name));
-            SettingsStore.addChangeListener(`plugins.${plugin.name}.enabled`, handler);
-            return () => SettingsStore.removeChangeListener(`plugins.${plugin.name}.enabled`, handler);
+            SettingsStore.addPrefixChangeListener(`plugins.${plugin.name}`, update);
+            return () => SettingsStore.removePrefixChangeListener(`plugins.${plugin.name}`, update);
         }, [plugin?.name]);
+
+        const enabled = !!plugin && isPluginEnabled(plugin.name);
 
         function handleToggle() {
             if (!plugin) return;
@@ -390,8 +429,10 @@ export default definePlugin({
         if (shouldAddUpdateButton) {
             buttons.push(
                 <Buttons.Button
-                    variant="active"
                     text="Update Now"
+                    variant="active"
+                    icon={Icons.DownloadIcon}
+                    size="sm"
                     onClick={async () => {
                         try {
                             if (await forceUpdate())
@@ -407,15 +448,39 @@ export default definePlugin({
             );
         }
 
+        if (props.channel.parent_id === KNOWN_ISSUES_CHANNEL_ID || (props.channel.parent_id === SUPPORT_CATEGORY_ID && props.message.author.id === VEBOT_USER_ID)) {
+            const match = CodeBlockRe.exec(props.message.content || props.message.embeds[0]?.rawDescription || "");
+            if (match) {
+                buttons.push(
+                    <Buttons.Button
+                        text="Run Snippet"
+                        icon={Icons.BugIcon}
+                        size="sm"
+                        onClick={async () => {
+                            try {
+                                await AsyncFunction(match[1])();
+                                showToast("Success!", Toasts.Type.SUCCESS);
+                            } catch (e) {
+                                new Logger(this.name).error("Error while running snippet:", e);
+                                showToast("Failed to run snippet :(", Toasts.Type.FAILURE);
+                            }
+                        }}
+                    />
+                );
+            }
+        }
+
         if (hasDebugCommand && props.channel.parent_id === SUPPORT_CATEGORY_ID && PermissionStore.can(PermissionsBits.SEND_MESSAGES, props.channel)) {
             buttons.push(
                 <Buttons.Button
                     onClick={async () => sendMessage(props.channel.id, { content: await generateDebugInfoMessage() })}
+                    icon={Icons.SlashBoxIcon}
                     text="Run /velocity-debug"
                     size="sm"
                 />,
                 <Buttons.Button
                     onClick={() => sendPluginList(props.channel.id)}
+                    icon={Icons.SlashBoxIcon}
                     text="Run /velocity-plugins"
                     size="sm"
                 />
@@ -438,7 +503,7 @@ export default definePlugin({
                             </div>
                             <Flex flexDirection="column" gap="4px">
                                 <Text variant="text-md/semibold">
-                                    {plugin.name}{plugin.required && <Span color="text-feedback-critical" style={{ display: "inline", userSelect: "none" }}> *</Span>}
+                                    {plugin.name}{plugin.required && <Span color="text-feedback-critical" selectable={false}> *</Span>}
                                 </Text>
                                 <Text lineClamp={2} variant="text-sm/normal" color="text-muted">
                                     {plugin.description}
@@ -464,6 +529,20 @@ export default definePlugin({
         );
     },
 
+    renderOpenDevtoolsButton() {
+        if (!IS_DISCORD_DESKTOP) return null;
+
+        return (
+            <Buttons.Button
+                text="DevTools"
+                icon={Icons.BugIcon}
+                size="sm"
+                variant="secondary"
+                onClick={() => VelocityNative.native.openDevTools()}
+            />
+        );
+    },
+
     renderContributorDmWarningCard: ErrorBoundary.wrap(({ channel }) => {
         const userId = channel.getRecipientId();
         if (!isPluginDev(userId)) return null;
@@ -473,7 +552,7 @@ export default definePlugin({
             <Card className={`vc-warning-card ${Margins.top8}`}>
                 Please do not private message Velocity plugin developers for support!
                 <br />
-                Instead, use the Velocity support channel: {Parser.parse("https://discord.com/channels/1384314700908462212/1428704586352431124")}
+                Instead, use the Velocity support channel: {Parser.parse(`https://discord.com/channels/${VELOCITY_GUILD_ID}/${SUPPORT_CHANNEL_ID}`)}
                 {!ChannelStore.getChannel(SUPPORT_CHANNEL_ID) && " (Click the link to join)"}
             </Card>
         );

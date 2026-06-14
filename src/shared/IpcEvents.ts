@@ -59,6 +59,7 @@ export const enum IpcEvents {
     PRELOAD_GET_RENDERER_JS = "VelocityPreloadGetRendererJs",
 
     SUPPORTS_WINDOWS_MATERIAL = "VelocitySupportsWindowsMaterial",
+    OPEN_DEVTOOLS = "VelocityOpenDevTools",
 
     SET_TRAY_UPDATE_STATE = "VelocitySetTrayUpdateState",
     TRAY_REPAIR = "VelocityTrayRepair",
