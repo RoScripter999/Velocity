@@ -27,7 +27,7 @@ import type { Patch, PatchReplacement } from "@utils/types";
 import type { WebpackRequire } from "@velocity-types/webpack";
 
 import type { AnyModuleFactory, AnyWebpackRequire, MaybePatchedModuleFactory, PatchedModuleFactory } from "./types";
-import { _blacklistBadModules, _initWebpack, ChunkIdsRegex, DefaultExtractAndLoadChunksRegex, factoryListeners, findModuleFactory, moduleListeners, waitForSubscriptions, wreq } from "./webpack";
+import { _blacklistBadModules, _initWebpack, DefaultExtractAndLoadChunksRegex, factoryListeners, findModuleFactory, moduleListeners, waitForSubscriptions, wreq } from "./webpack";
 
 // Global version of DefaultExtractAndLoadChunksRegex with \i expanded, for iterating all lazy loaders in a factory
 const LazyChunkLoaderRegex = canonicalizeMatch(new RegExp(DefaultExtractAndLoadChunksRegex.source, "g"));
@@ -319,80 +319,9 @@ const moduleFactoryHandler: ProxyHandler<MaybePatchedModuleFactory> = {
     }
 };
 
-const pendingLazyLoads = new Set<PropertyKey>();
-let lazyFlushScheduled = false;
-
-function scheduleLazyFlush() {
-    if (lazyFlushScheduled || pendingLazyLoads.size === 0) return;
-    lazyFlushScheduled = true;
-    setTimeout(flushLazyLoads, 0);
-}
-
-function flushLazyLoads() {
-    lazyFlushScheduled = false;
-    if (wreq == null) return;
-    for (const moduleId of [...pendingLazyLoads]) {
-        if (wreq.c?.[moduleId] != null) {
-            pendingLazyLoads.delete(moduleId);
-            continue;
-        }
-        loadLazyModule(moduleId);
-    }
-}
-
-function findLoaderForModule(moduleIdStr: string): { chunkIds: string[]; } | null {
-    for (const id in wreq.m) {
-        const factoryStr = String(wreq.m[id]);
-        if (!factoryStr.includes(moduleIdStr)) continue;
-
-        LazyChunkLoaderRegex.lastIndex = 0;
-        let match: RegExpExecArray | null;
-        while ((match = LazyChunkLoaderRegex.exec(factoryStr)) != null) {
-            if (match[2] !== moduleIdStr) continue;
-            const chunkIds = [...(match[1] ?? "").matchAll(ChunkIdsRegex)]
-                .map(m => Number.isNaN(Number(m[1])) ? m[1] : String(Number(m[1])));
-            return { chunkIds };
-        }
-    }
-    return null;
-}
-
-async function loadLazyModule(moduleId: PropertyKey) {
-    if (wreq == null || wreq.c?.[moduleId] != null) {
-        pendingLazyLoads.delete(moduleId);
-        return;
-    }
-
-    const moduleIdStr = String(moduleId);
-    const loader = findLoaderForModule(moduleIdStr);
-
-    // Loader factory not in wreq.m yet — leave in pendingLazyLoads, retry on next chunk push
-    if (loader == null) return;
-
-    try {
-        if (loader.chunkIds.length > 0) {
-            await Promise.all(loader.chunkIds.map(chunkId => wreq.e(chunkId)));
-        }
-        if (wreq.c?.[moduleId] == null && wreq.m[moduleId] != null) {
-            wreq(moduleId);
-        }
-        pendingLazyLoads.delete(moduleId);
-    } catch (err) {
-        logger.error(`Failed to force-load lazy module ${moduleIdStr}:`, err);
-    }
-}
-
 function proxyFactoryAndUpdateExisting(moduleFactories: AnyWebpackRequire["m"], moduleId: PropertyKey, newFactory: AnyModuleFactory, receiver: any, ignoreExistingInTarget = false) {
     notifyFactoryListeners(moduleId, newFactory);
     const proxiedFactory = new Proxy(Settings.eagerPatches ? patchFactory(moduleId, newFactory) : newFactory, moduleFactoryHandler);
-
-    // Only eagerly execute lazy-patched modules from dynamic chunk pushes (not the pre-populated factory scan)
-    if (!ignoreExistingInTarget && patches.some(p => p.lazy && matchesModule(p, newFactory))) {
-        pendingLazyLoads.add(moduleId);
-    }
-
-    // Every new factory arrival is a potential dep becoming available; flush if pending loads exist
-    scheduleLazyFlush();
 
     if (updateExistingFactory(moduleFactories, moduleId, newFactory, proxiedFactory, ignoreExistingInTarget)) {
         return true;
