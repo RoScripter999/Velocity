@@ -26,7 +26,7 @@ import { Repo } from "@components/settings/tabs/updater/Components";
 import { classNameFactory } from "@utils/css";
 import { useAwaiter } from "@utils/react";
 import { getRepo, UpdateLogger } from "@utils/updater";
-import { Buttons, Forms, Icons, Text, useState } from "@webpack/common";
+import { Buttons, Forms, Icons, Text, useEffect, useState } from "@webpack/common";
 
 import gitHash from "~git-hash";
 
@@ -36,6 +36,7 @@ import {
     getNewPlugins,
     getNewSettings,
     getUpdatedPluginsInRange,
+    initializeChangelog,
     saveUpdateSession
 } from "./changelogManager";
 import { NewChangesSection } from "./NewChangesSection";
@@ -49,6 +50,21 @@ export default function ChangelogTab() {
     const [updatedPlugins, setUpdatedPlugins] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!repo || repoPending) return;
+        setIsLoading(true);
+        initializeChangelog(repo)
+            .then(result => {
+                if (result) {
+                    setChangelog(result.commits);
+                    setNewPlugins(result.newPlugins);
+                    setUpdatedPlugins(result.updatedPlugins);
+                }
+            })
+            .catch(e => UpdateLogger.error("Failed to initialize changelog", e))
+            .finally(() => setIsLoading(false));
+    }, [repo, repoPending]);
 
     async function fetchFromRepo() {
         const updates = await VelocityNative.updater.getUpdates();
@@ -98,8 +114,8 @@ export default function ChangelogTab() {
         <SettingsTab>
             <SectionHeader
                 tag="h3"
-                title="Fetch Changes"
-                description="Check the repository for new commits, plugin updates, and code changes."
+                title="What's New"
+                description="Commits and plugin changes since your last update. Use the button below to check for upcoming updates."
                 descriptionColor="text-default"
                 margin="bottom8"
             />
@@ -150,7 +166,7 @@ export default function ChangelogTab() {
             ) : <div className={cl("no-changes")}>
                 <div className={cl("no-changes-inner")}>
                     <div className={cl("no-changes-background")} />
-                    <Text variant="heading-lg/semibold" color="text-muted">No changes detected, check back later</Text>
+                    <Text variant="heading-lg/semibold" color="text-muted">You're up to date — no new changes since last update</Text>
                 </div>
             </div>}
         </SettingsTab>

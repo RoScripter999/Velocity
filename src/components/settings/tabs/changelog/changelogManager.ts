@@ -249,3 +249,63 @@ export async function getNewPlugins(): Promise<string[]> {
     return Object.keys(plugins).filter(p => !knownPlugins.has(p) && !plugins[p].hidden && !plugins[p].required);
 }
 
+export async function initializeChangelog(repoUrl: string): Promise<{
+    commits: ChangelogEntry[];
+    newPlugins: string[];
+    updatedPlugins: string[];
+} | null> {
+    const lastSeenHash = await getLastSeenHash();
+    const currentHash = gitHash;
+
+    // First run — bootstrap known state and show nothing
+    if (!lastSeenHash) {
+        await setLastSeenHash(currentHash);
+        await updateKnownPlugins();
+        await updateKnownSettings();
+        return null;
+    }
+
+    // Already seen what's new for this build
+    if (lastSeenHash === currentHash) return null;
+
+    // Mark as seen immediately so re-opening doesn't re-fetch
+    await setLastSeenHash(currentHash);
+
+    const repoSlug = normalizeRepoUrl(repoUrl);
+    const [newPlgs, newSettings, comparison] = await Promise.all([
+        getNewPlugins(),
+        getNewSettings(),
+        repoSlug
+            ? fetchRepoComparison(repoSlug, lastSeenHash, currentHash)
+            : Promise.resolve({ commits: [], updatedPlugins: [] })
+    ]);
+
+    const filteredUpdated = comparison.updatedPlugins.filter(p => !newPlgs.includes(p));
+
+    if (comparison.commits.length > 0 || newPlgs.length > 0 || filteredUpdated.length > 0 || newSettings.size > 0) {
+        const history = (((await DataStore.get(CHANGELOG_HISTORY_KEY)) as UpdateSession[]) || []);
+        history.unshift({
+            id: crypto.randomUUID(),
+            timestamp: Date.now(),
+            fromHash: lastSeenHash,
+            toHash: currentHash,
+            commits: comparison.commits,
+            newPlugins: newPlgs,
+            updatedPlugins: filteredUpdated,
+            newSettings: newSettings.size > 0 ? Object.fromEntries(newSettings) : undefined,
+            type: "update"
+        });
+        if (history.length > 50) history.splice(50);
+        await DataStore.set(CHANGELOG_HISTORY_KEY, history);
+    }
+
+    await updateKnownPlugins();
+    await updateKnownSettings();
+
+    return {
+        commits: comparison.commits,
+        newPlugins: newPlgs,
+        updatedPlugins: filteredUpdated
+    };
+}
+
