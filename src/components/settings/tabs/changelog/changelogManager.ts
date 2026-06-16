@@ -249,6 +249,10 @@ export async function getNewPlugins(): Promise<string[]> {
     return Object.keys(plugins).filter(p => !knownPlugins.has(p) && !plugins[p].hidden && !plugins[p].required);
 }
 
+export async function saveCurrentHashBeforeUpdate(): Promise<void> {
+    await setLastSeenHash(gitHash);
+}
+
 export async function initializeChangelog(repoUrl: string): Promise<{
     commits: ChangelogEntry[];
     newPlugins: string[];
