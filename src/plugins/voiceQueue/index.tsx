@@ -85,24 +85,10 @@ export default definePlugin({
 
     patches: [
         {
-            find: ".handleClickChat",
+            find: "},selectPrivateChannel(",
             replacement: {
-                match: /handleClick=\(\)=>\{(?=.{0,100}?locked:)/,
-                replace: "handleClick=()=>{if($self.handleVoiceChannelClick(this.props?.channel))return;"
-            }
-        },
-        {
-            find: "VoiceChannel, transitionTo: Channel does not have a guildId",
-            replacement: {
-                match: /(?=\|\|\i\.\i\.selectVoiceChannel\((\i)\.id\))/,
-                replace: (_, channel) => `||$self.handleVoiceChannelClick(${channel})`
-            }
-        },
-        {
-            find: 'getConfig({location:"channel_mention"})',
-            replacement: {
-                match: /(?<=getChannel\(\i\);if\(null!=(\i)).{0,200}?return void (?=\i\.default\.selectVoiceChannel)/,
-                replace: (m, channel) => `${m}$self.handleVoiceChannelClick(${channel})||`
+                match: /,(\i)\s*=\s*(\i)\?\.getGuildId\(\)/,
+                replace: (m, _, channel) => `${m};if($self.handleVoiceChannelClick(${channel}))return`
             }
         }
     ],
@@ -110,6 +96,7 @@ export default definePlugin({
     handleVoiceChannelClick(channel: Channel | null | undefined) {
         if (!channel?.isGuildVocal() || !channel.userLimit) return false;
         if (!PermissionStore.can(PermissionsBits.CONNECT, channel)) return false;
+        if (PermissionStore.can(PermissionsBits.ADMINISTRATOR, channel)) return false;
         if (VoiceStateStore.isInChannel(channel.id)) return false;
 
         const states = VoiceStateStore.getVoiceStatesForChannel(channel.id);
