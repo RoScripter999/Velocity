@@ -28,7 +28,7 @@ export interface ChangelogEntry {
     timestamp?: number;
 }
 
-export interface UpdateSession {
+interface UpdateSession {
     id: string;
     timestamp: number;
     fromHash: string;
@@ -36,11 +36,9 @@ export interface UpdateSession {
     commits: ChangelogEntry[];
     newPlugins: string[];
     updatedPlugins: string[];
-    newSettings?: Map<string, string[]> | Record<string, string[]>;
+    newSettings?: Record<string, string[]>;
     type: "update" | "repository_fetch";
 }
-
-export type ChangelogHistory = UpdateSession[];
 
 const CHANGELOG_HISTORY_KEY = "Changelog_History";
 const LAST_SEEN_HASH_KEY = "Changelog_LastSeenHash";
@@ -53,8 +51,7 @@ type KnownPluginSettingsMap = Map<string, Set<string>>;
 function normalizeRepoUrl(repoUrl: string | null | undefined): string | null {
     if (!repoUrl) return null;
     try {
-        const normalized = repoUrl.replace(/^git\+/, "");
-        const url = new URL(normalized);
+        const url = new URL(repoUrl.replace(/^git\+/, ""));
         if (!url.hostname.endsWith("github.com")) return null;
         const segments = url.pathname.replace(/\.git$/, "").split("/").filter(Boolean);
         if (segments.length < 2) return null;
@@ -69,24 +66,14 @@ interface RepoComparison {
     updatedPlugins: string[];
 }
 
-async function fetchRepoComparison(
-    repoSlug: string,
-    fromHash: string,
-    toHash: string
-): Promise<RepoComparison> {
+async function fetchRepoComparison(repoSlug: string, fromHash: string, toHash: string): Promise<RepoComparison> {
     const empty: RepoComparison = { commits: [], updatedPlugins: [] };
     if (!repoSlug || typeof fetch !== "function") return empty;
     try {
         const res = await fetch(
             `https://api.github.com/repos/${repoSlug}/compare/${fromHash}...${toHash}`,
-            {
-                headers: {
-                    Accept: "application/vnd.github+json",
-                    "Cache-Control": "no-cache"
-                }
-            }
+            { headers: { Accept: "application/vnd.github+json", "Cache-Control": "no-cache" } }
         );
-
         if (!res.ok) return empty;
         const data = await res.json();
         if (!data) return empty;
@@ -94,15 +81,13 @@ async function fetchRepoComparison(
         const commits: ChangelogEntry[] = Array.isArray(data.commits)
             ? data.commits.map((commit: any) => {
                 const message: string = commit?.commit?.message ?? "";
-                const timestamp = commit?.commit?.author?.date
-                    ? Date.parse(commit.commit.author.date)
-                    : undefined;
+                const timestamp = commit?.commit?.author?.date ? Date.parse(commit.commit.author.date) : undefined;
                 return {
                     hash: commit?.sha || "",
                     author: commit?.commit?.author?.name || commit?.author?.login || "Unknown",
                     message: message.split("\n")[0] || "No message",
                     timestamp: Number.isNaN(timestamp) ? undefined : timestamp
-                } as ChangelogEntry;
+                };
             })
             : [];
 
@@ -115,127 +100,58 @@ async function fetchRepoComparison(
         }
 
         return { commits, updatedPlugins: [...pluginNames] };
-    } catch (err) {
-        console.warn("Failed to fetch repo comparison", err);
+    } catch {
         return empty;
     }
 }
 
-function toStringSet(value: unknown): Set<string> {
-    const result = new Set<string>();
-
-    const addValue = (entry: unknown) => {
-        if (entry === undefined || entry === null) return;
-        result.add(typeof entry === "string" ? entry : String(entry));
-    };
-
-    if (value instanceof Set) {
-        value.forEach(addValue);
-    } else if (value instanceof Map) {
-        value.forEach(addValue);
-    } else if (Array.isArray(value)) {
-        value.forEach(addValue);
-    } else if (typeof value === "string") {
-        addValue(value);
-    } else if (value && typeof value === "object") {
-        Object.values(value as Record<string, unknown>).forEach(addValue);
-    }
-
-    return result;
+async function persistKnownSettings(map: KnownPluginSettingsMap) {
+    await DataStore.set(KNOWN_SETTINGS_KEY, Object.fromEntries(
+        Array.from(map.entries()).map(([plugin, settings]) => [plugin, Array.from(settings)])
+    ));
 }
 
-function normalizeKnownSettings(value: unknown): KnownPluginSettingsMap {
+function getCurrentSettings(pluginList: string[]): KnownPluginSettingsMap {
+    return new Map(pluginList.map(name => {
+        const def = plugins[name]?.settings?.def || {};
+        return [name, new Set(Object.keys(def).filter(s => s !== "enabled"))];
+    }));
+}
+
+async function getLastSeenHash(): Promise<string | null> {
+    return (await DataStore.get(LAST_SEEN_HASH_KEY))!;
+}
+
+async function setLastSeenHash(hash: string) {
+    await DataStore.set(LAST_SEEN_HASH_KEY, hash);
+}
+
+async function getKnownPlugins(): Promise<Set<string>> {
+    return new Set(((await DataStore.get(KNOWN_PLUGINS_KEY))) || []);
+}
+
+async function updateKnownPlugins(): Promise<void> {
+    await DataStore.set(KNOWN_PLUGINS_KEY, Object.keys(plugins));
+}
+
+async function getKnownSettings(): Promise<KnownPluginSettingsMap> {
+    const mapData = (await DataStore.get(KNOWN_SETTINGS_KEY));
+    if (mapData === undefined) {
+        const knownPlugins = await getKnownPlugins();
+        const initialMap = getCurrentSettings([...new Set([...Object.keys(plugins), ...Array.from(knownPlugins)])]);
+        await persistKnownSettings(initialMap);
+        return initialMap;
+    }
+
     const map: KnownPluginSettingsMap = new Map();
-
-    const assign = (plugin: unknown, settings: unknown) => {
-        if (plugin === undefined || plugin === null) return;
-        map.set(String(plugin), toStringSet(settings));
-    };
-
-    if (!value) {
-        return map;
+    if (mapData && typeof mapData === "object" && !Array.isArray(mapData)) {
+        for (const [plugin, settings] of Object.entries(mapData)) {
+            const set = new Set<string>();
+            if (Array.isArray(settings)) settings.forEach(s => set.add(String(s)));
+            map.set(plugin, set);
+        }
     }
-
-    if (value instanceof Map) {
-        value.forEach((settings, plugin) => assign(plugin, settings));
-        return map;
-    }
-
-    if (Array.isArray(value)) {
-        value.forEach(entry => {
-            if (Array.isArray(entry) && entry.length > 0) {
-                assign(entry[0], entry[1]);
-            }
-        });
-        return map;
-    }
-
-    if (typeof value === "object") {
-        Object.entries(value as Record<string, unknown>).forEach(
-            ([plugin, settings]) => assign(plugin, settings)
-        );
-    }
-
     return map;
-}
-
-function serializeKnownSettings(
-    map: KnownPluginSettingsMap
-): Record<string, string[]> {
-    return Object.fromEntries(
-        Array.from(map.entries()).map(([plugin, settings]) => [
-            plugin,
-            Array.from(settings)
-        ])
-    );
-}
-
-async function persistKnownSettings(
-    map: KnownPluginSettingsMap
-): Promise<void> {
-    await DataStore.set(KNOWN_SETTINGS_KEY, serializeKnownSettings(map));
-}
-
-function isMapLike(value: any): value is Map<string, string[]> {
-    return (
-        value &&
-        typeof value.get === "function" &&
-        typeof value.size === "number"
-    );
-}
-
-export function getNewSettingsSize(
-    newSettings: Map<string, string[]> | Record<string, string[]> | undefined
-): number {
-    if (!newSettings) return 0;
-    if (isMapLike(newSettings)) return newSettings.size;
-    return Object.keys(newSettings).length;
-}
-
-export function getNewSettingsEntries(
-    newSettings: Map<string, string[]> | Record<string, string[]> | undefined
-): [string, string[]][] {
-    if (!newSettings) return [];
-    if (isMapLike(newSettings)) return Array.from(newSettings.entries());
-    return Object.entries(newSettings);
-}
-
-export async function getChangelogHistory(): Promise<ChangelogHistory> {
-    const history = (await DataStore.get(
-        CHANGELOG_HISTORY_KEY
-    )) as ChangelogHistory;
-
-    if (history) {
-        history.forEach(session => {
-            if (session.newSettings && !(session.newSettings instanceof Map)) {
-                session.newSettings = new Map(
-                    Object.entries(session.newSettings)
-                );
-            }
-        });
-    }
-
-    return history || [];
 }
 
 export async function saveUpdateSession(
@@ -245,27 +161,22 @@ export async function saveUpdateSession(
     newSettings: Map<string, string[]>,
     forceLog: boolean = false
 ): Promise<void> {
-    const history = await getChangelogHistory();
+    const history = (((await DataStore.get(CHANGELOG_HISTORY_KEY)) as UpdateSession[]) || []);
     const lastSeenHash = await getLastSeenHash();
     const currentHash = gitHash;
     const latestRepoHash = commits.length > 0 ? commits[0].hash : currentHash;
+    const newSettingsObj = newSettings.size > 0 ? Object.fromEntries(newSettings) : undefined;
 
     if (forceLog) {
-        const lastRepoCheck = await getLastRepositoryCheckHash();
+        const lastRepoCheck = (await DataStore.get(LAST_REPO_CHECK_KEY)) as string | null;
         if (lastRepoCheck === latestRepoHash) return;
     }
 
-    if (
-        !forceLog &&
-        commits.length === 0 &&
-        newPlugins.length === 0 &&
-        updatedPlugins.length === 0 &&
-        getNewSettingsSize(newSettings) === 0
-    ) {
+    if (!forceLog && commits.length === 0 && newPlugins.length === 0 && updatedPlugins.length === 0 && !newSettingsObj) {
         return;
     }
 
-    const session: UpdateSession = {
+    history.unshift({
         id: crypto.randomUUID(),
         timestamp: Date.now(),
         fromHash: forceLog ? currentHash : (lastSeenHash || "unknown"),
@@ -273,11 +184,9 @@ export async function saveUpdateSession(
         commits,
         newPlugins,
         updatedPlugins,
-        newSettings: getNewSettingsSize(newSettings) > 0 ? Object.fromEntries(newSettings) : undefined,
+        newSettings: newSettingsObj,
         type: forceLog ? "repository_fetch" : "update"
-    };
-
-    history.unshift(session);
+    });
     if (history.length > 50) history.splice(50);
 
     await DataStore.set(CHANGELOG_HISTORY_KEY, history);
@@ -285,74 +194,11 @@ export async function saveUpdateSession(
     if (!forceLog) {
         await setLastSeenHash(currentHash);
     } else {
-        await setLastRepositoryCheckHash(latestRepoHash);
+        await DataStore.set(LAST_REPO_CHECK_KEY, latestRepoHash);
     }
 
     await updateKnownPlugins();
     await updateKnownSettings();
-}
-
-async function getLastSeenHash(): Promise<string | null> {
-    return (await DataStore.get(LAST_SEEN_HASH_KEY)) as string | null;
-}
-
-async function setLastSeenHash(hash: string): Promise<void> {
-    await DataStore.set(LAST_SEEN_HASH_KEY, hash);
-}
-
-async function getKnownPlugins(): Promise<Set<string>> {
-    const known = (await DataStore.get(KNOWN_PLUGINS_KEY)) as string[];
-    return new Set(known || []);
-}
-
-async function updateKnownPlugins(): Promise<void> {
-    const currentPlugins = Object.keys(plugins);
-    await DataStore.set(KNOWN_PLUGINS_KEY, currentPlugins);
-}
-
-function getSettingsSetForPlugin(plugin: string): Set<string> {
-    const settings = plugins[plugin]?.settings?.def || {};
-    return new Set(
-        Object.keys(settings).filter(setting => setting !== "enabled")
-    );
-}
-
-function getCurrentSettings(pluginList: string[]): KnownPluginSettingsMap {
-    return new Map(
-        pluginList.map(name => [name, getSettingsSetForPlugin(name)])
-    );
-}
-
-async function getKnownSettings(): Promise<KnownPluginSettingsMap> {
-    const mapData = (await DataStore.get(KNOWN_SETTINGS_KEY)) as any;
-    if (mapData === undefined) {
-        const knownPlugins = await getKnownPlugins();
-        const pluginNames = [
-            ...new Set([
-                ...Object.keys(plugins),
-                ...Array.from(knownPlugins)
-            ])
-        ];
-        const initialMap = getCurrentSettings(pluginNames);
-        await persistKnownSettings(initialMap);
-        return initialMap;
-    }
-
-    const normalized = normalizeKnownSettings(mapData);
-
-    if (
-        mapData instanceof Map ||
-        Array.isArray(mapData) ||
-        (mapData &&
-            typeof mapData === "object" &&
-            Object.values(mapData).some(value =>
-                value instanceof Set || value instanceof Map
-            ))
-    ) {
-        await persistKnownSettings(normalized);
-    }
-
-    return normalized;
 }
 
 export async function getNewSettings(): Promise<Map<string, string[]>> {
@@ -363,73 +209,30 @@ export async function getNewSettings(): Promise<Map<string, string[]>> {
     map.forEach((settings, plugin) => {
         const known = knownSettings.get(plugin);
         if (!known) return;
-
-        const filteredSettings = [...settings].filter(
-            setting => !known.has(setting)
-        );
-        if (filteredSettings.length > 0) {
-            newSettings.set(plugin, filteredSettings);
-        }
+        const filtered = [...settings].filter(s => !known.has(s));
+        if (filtered.length > 0) newSettings.set(plugin, filtered);
     });
 
     return newSettings;
 }
 
-export async function getCommitsSinceLastSeen(
-    repoUrl: string
-): Promise<RepoComparison> {
-    const lastSeenHash = await getLastSeenHash();
-    if (!lastSeenHash || lastSeenHash === "unknown" || lastSeenHash === gitHash)
-        return { commits: [], updatedPlugins: [] };
-
-    const repoSlug = normalizeRepoUrl(repoUrl);
-    if (!repoSlug) return { commits: [], updatedPlugins: [] };
-
-    return fetchRepoComparison(repoSlug, lastSeenHash, gitHash);
-}
-
-export async function getUpdatedPluginsInRange(
-    repoUrl: string,
-    fromHash: string,
-    toHash: string
-): Promise<string[]> {
+export async function getUpdatedPluginsInRange(repoUrl: string, fromHash: string, toHash: string): Promise<string[]> {
     if (!fromHash || !toHash || fromHash === toHash) return [];
     const repoSlug = normalizeRepoUrl(repoUrl);
     if (!repoSlug) return [];
-    const { updatedPlugins } = await fetchRepoComparison(repoSlug, fromHash, toHash);
-    return updatedPlugins;
+    return (await fetchRepoComparison(repoSlug, fromHash, toHash)).updatedPlugins;
 }
 
 async function updateKnownSettings(): Promise<void> {
     const currentSettings = getCurrentSettings(Object.keys(plugins));
     const knownSettings = await getKnownSettings();
-    const mergedSettings: KnownPluginSettingsMap = new Map();
+    const merged: KnownPluginSettingsMap = new Map();
 
-    new Set([...currentSettings.keys(), ...knownSettings.keys()]).forEach(
-        plugin => {
-            mergedSettings.set(
-                plugin,
-                new Set([
-                    ...(knownSettings.get(plugin) || []),
-                    ...(currentSettings.get(plugin) || [])
-                ])
-            );
-        }
-    );
+    new Set([...currentSettings.keys(), ...knownSettings.keys()]).forEach(plugin => {
+        merged.set(plugin, new Set([...(knownSettings.get(plugin) || []), ...(currentSettings.get(plugin) || [])]));
+    });
 
-    await persistKnownSettings(mergedSettings);
-}
-
-export async function getNewPlugins(): Promise<string[]> {
-    const currentPlugins = Object.keys(plugins);
-    const knownPlugins = await getKnownPlugins();
-
-    return currentPlugins.filter(
-        plugin =>
-            !knownPlugins.has(plugin) &&
-            !plugins[plugin].hidden &&
-            !plugins[plugin].required
-    );
+    await persistKnownSettings(merged);
 }
 
 export async function clearChangelogHistory(): Promise<void> {
@@ -437,49 +240,12 @@ export async function clearChangelogHistory(): Promise<void> {
         DataStore.del(CHANGELOG_HISTORY_KEY),
         DataStore.del(LAST_SEEN_HASH_KEY),
         DataStore.del(LAST_REPO_CHECK_KEY),
-        DataStore.del(KNOWN_SETTINGS_KEY),
+        DataStore.del(KNOWN_SETTINGS_KEY)
     ]);
 }
 
-export async function clearIndividualLog(logId: string): Promise<void> {
-    const history = await getChangelogHistory();
-    const filteredHistory = history.filter(log => log.id !== logId);
-    await DataStore.set(CHANGELOG_HISTORY_KEY, filteredHistory);
+export async function getNewPlugins(): Promise<string[]> {
+    const knownPlugins = await getKnownPlugins();
+    return Object.keys(plugins).filter(p => !knownPlugins.has(p) && !plugins[p].hidden && !plugins[p].required);
 }
 
-export async function initializeChangelog(): Promise<void> {
-    // Initialize with current state if first time
-    const lastSeenHash = await getLastSeenHash();
-    if (!lastSeenHash) {
-        await setLastSeenHash(gitHash);
-        await updateKnownPlugins();
-        await updateKnownSettings();
-    }
-}
-
-async function getLastRepositoryCheckHash(): Promise<string | null> {
-    return (await DataStore.get(LAST_REPO_CHECK_KEY)) as string | null;
-}
-
-async function setLastRepositoryCheckHash(hash: string): Promise<void> {
-    await DataStore.set(LAST_REPO_CHECK_KEY, hash);
-}
-
-export function formatTimestamp(timestamp: number): string {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMinutes < 60) {
-        return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
-    } else if (diffHours < 24) {
-        return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-    } else if (diffDays < 7) {
-        return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-    } else {
-        return date.toLocaleDateString();
-    }
-}
