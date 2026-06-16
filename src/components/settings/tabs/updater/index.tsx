@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import "./styles.css";
+
 import { useSettings } from "@api/Settings";
 import { FormSwitch } from "@components/FormSwitch";
-import { Heading } from "@components/Heading";
 import { SectionHeader, SettingsTab } from "@components/settings";
 import { useAwaiter } from "@utils/react";
 import { getRepo, isNewer, UpdateLogger } from "@utils/updater";
@@ -62,8 +63,6 @@ export default IS_UPDATER_DISABLED ? null : function Updater() {
             <Repo {...commonProps} error={err} />
 
             <Forms.FormDivider gap={8} />
-
-            <Heading>Updates</Heading>
 
             {isNewer ? <Newer {...commonProps} /> : <Updatable {...commonProps} />}
         </SettingsTab>

@@ -23,6 +23,8 @@ import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { gitHash } from "@shared/userAgent";
+import { classNameFactory } from "@utils/css";
+import { pluralise } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { changes, checkForUpdates, update, updateError } from "@utils/updater";
 import { Buttons, ConfirmModal, Forms, Icons, LoadingIndicator, openModal, Text, Toasts, useState } from "@webpack/common";
@@ -30,6 +32,8 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { SectionHeader } from "../SectionHeader";
 import { runWithDispatch } from "./runWithDispatch";
+
+const cl = classNameFactory("vc-settings-updater-");
 
 export interface CommonProps {
     repo: string;
@@ -114,6 +118,68 @@ export function Updatable(props: CommonProps) {
 
     const isOutdated = (updates?.length ?? 0) > 0;
 
+    const buttons = (
+        <Buttons.ButtonGroup direction="horizontal" className={Margins.top16}>
+            {isOutdated && (
+                <Buttons.Button
+                    variant="secondary"
+                    icon={Icons.DownloadIcon}
+                    loading={isUpdating}
+                    disabled={isChecking}
+                    text="Update Now"
+                    size="sm"
+                    onClick={runWithDispatch(setIsUpdating, async () => {
+                        if (await update()) {
+                            setUpdates([]);
+
+                            await new Promise<void>(r => {
+                                openModal(props => (
+                                    <ConfirmModal
+                                        {...props}
+                                        title="Update Successful"
+                                        subtitle="Velocity has been updated successfully. Restart Discord to apply the changes?"
+                                        confirmText="Restart Now"
+                                        cancelText="Later"
+                                        variant="primary"
+                                        onConfirm={() => {
+                                            relaunch();
+                                            r();
+                                        }}
+                                        onCancel={r}
+                                    />
+                                ));
+                            });
+                        }
+                    })}
+                />
+            )}
+            <Buttons.Button
+                disabled={isChecking}
+                loading={isChecking ?? isUpdating}
+                icon={Icons.MagnifyingGlassIcon}
+                text="Check for Updates"
+                size="sm"
+                onClick={runWithDispatch(setIsChecking, async () => {
+                    const outdated = await checkForUpdates();
+
+                    if (outdated) {
+                        setUpdates(changes);
+                    } else {
+                        setUpdates([]);
+                        Toasts.show({
+                            message: "No updates found!",
+                            id: Toasts.genId(),
+                            type: Toasts.Type.MESSAGE,
+                            options: {
+                                position: Toasts.Position.BOTTOM
+                            }
+                        });
+                    }
+                })}
+            />
+        </Buttons.ButtonGroup>
+    );
+
     return (
         <div>
             {!updates && updateError ? (
@@ -126,77 +192,27 @@ export function Updatable(props: CommonProps) {
                     <ErrorCard className={Margins.bottom8}>
                         {updateError?.stderr || updateError?.stdout || "An unknown error occurred"}
                     </ErrorCard>
+                    {buttons}
+                </>
+            ) : isOutdated ? (
+                <>
+                    <SectionHeader
+                        margin="bottom16"
+                        title="Updates Available"
+                        description={`${pluralise(updates.length, "new commit")} ${updates.length === 1 ? "is" : "are"} waiting to be applied. Update now to get the latest fixes, features, and improvements.`}
+                    />
+                    <Changes updates={updates} {...props} />
+                    {buttons}
                 </>
             ) : (
-                <SectionHeader
-                    className={Margins.bottom16}
-                    title={isOutdated ? "Updates Available" : "Up to Date"}
-                    description={isOutdated
-                        ? updates.length === 1
-                            ? "There is 1 update available."
-                            : `There are ${updates.length} updates available.`
-                        : "You're running the latest version of Velocity."}
-                />
+                <div className={cl("up-to-date")}>
+                    <div className={cl("up-to-date-inner")}>
+                        <div className={cl("up-to-date-background")} />
+                        <Text variant="heading-lg/semibold" color="text-muted">You're all caught up — no updates available</Text>
+                        <div className={cl("up-to-date-actions")}>{buttons}</div>
+                    </div>
+                </div>
             )}
-
-            {isOutdated && <Changes updates={updates} {...props} />}
-
-            <Buttons.ButtonGroup direction="horizontal" className={Margins.top16}>
-                {isOutdated && (
-                    <Buttons.Button
-                        variant="secondary"
-                        icon={Icons.DownloadIcon}
-                        loading={isUpdating}
-                        disabled={isChecking}
-                        text={isUpdating ? "Updating..." : "Update Now"}
-                        onClick={runWithDispatch(setIsUpdating, async () => {
-                            if (await update()) {
-                                setUpdates([]);
-
-                                await new Promise<void>(r => {
-                                    openModal(props => (
-                                        <ConfirmModal
-                                            {...props}
-                                            title="Update Successful"
-                                            subtitle="Velocity has been updated successfully. Restart Discord to apply the changes?"
-                                            confirmText="Restart Now"
-                                            cancelText="Later"
-                                            variant="primary"
-                                            onConfirm={() => {
-                                                relaunch();
-                                                r();
-                                            }}
-                                            onCancel={r}
-                                        />
-                                    ));
-                                });
-                            }
-                        })}
-                    />
-                )}
-                <Buttons.Button
-                    disabled={isChecking}
-                    loading={isUpdating}
-                    text={isChecking ? "Checking..." : "Check for Updates"}
-                    onClick={runWithDispatch(setIsChecking, async () => {
-                        const outdated = await checkForUpdates();
-
-                        if (outdated) {
-                            setUpdates(changes);
-                        } else {
-                            setUpdates([]);
-                            Toasts.show({
-                                message: "No updates found!",
-                                id: Toasts.genId(),
-                                type: Toasts.Type.MESSAGE,
-                                options: {
-                                    position: Toasts.Position.BOTTOM
-                                }
-                            });
-                        }
-                    })}
-                />
-            </Buttons.ButtonGroup>
         </div>
     );
 }

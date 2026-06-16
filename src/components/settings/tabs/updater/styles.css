@@ -1,0 +1,26 @@
+.vc-settings-updater-up-to-date {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+}
+
+.vc-settings-updater-up-to-date-inner {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.vc-settings-updater-up-to-date-background {
+    width: 200%;
+    height: 250px;
+    background: url("https://discord.com/assets/b36de980b174d7b798c89f35c116e5c6.svg") center no-repeat;
+}
+
+.vc-settings-updater-up-to-date-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+}
