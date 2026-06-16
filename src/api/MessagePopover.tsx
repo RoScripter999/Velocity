@@ -31,8 +31,8 @@ export interface MessagePopoverButtonItem {
     key?: string,
     label: string,
     icon: ComponentType<any>,
-    message: Message,
-    channel: Channel,
+    message?: Message,
+    channel?: Channel,
     onClick?: MouseEventHandler<HTMLButtonElement>,
     onContextMenu?: MouseEventHandler<HTMLButtonElement>;
 }

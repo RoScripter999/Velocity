@@ -214,6 +214,7 @@ export default definePlugin({
         {
             // Game overlay button yay
             find: "ClickZoneDebugWidget crashed, too many clicks",
+            lazy: true,
             replacement: {
                 match: /(\(0,\i\.jsx\)\(\i,\{voiceChannel:\i,locked:\i\}\)\]\}\),\(0,\i\.jsx\)\("div",\{className:\i\(\)\()/,
                 replace: "$self.AutoJoinToggleButton(),$1"

@@ -32,9 +32,9 @@
     border-bottom: 1px solid var(--border-subtle);
     margin: 20px 12px 0;
     display: flex;
-    gap: 40px;
     align-items: stretch;
     flex-direction: row;
+    overflow: hidden;
 }
 
 .vc-gp-tab {
@@ -64,6 +64,20 @@
 
 .vc-gp-server-info-pair [class*="timestamp"] {
     margin-left: 0;
+}
+
+.vc-gp-features-list {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: max-content;
+    gap: 6px;
+}
+
+.vc-gp-feature-badge {
+    background: var(--background-mod-subtle);
+    border-radius: 4px;
+    padding: 3px 8px;
 }
 
 .vc-gp-owner {

@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { type Rule, settings, stringToRegex } from "@plugins/autoResponder/pluginSettings";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { UserStore } from "@webpack/common";
+
+import { type Rule, settings, stringToRegex } from "./settings";
 
 const logger = new Logger("AutoResponder");
 const processedMessages = new Set<string>();
@@ -94,8 +95,8 @@ function checkRules(content: string, messageId: string): { response: string; del
     if (Date.now() - lastResponseTime < settings.store.cooldown * 1000) return null;
 
     return (
-        tryMatch(content, messageId, settings.store.stringRules, "string", matchStringRule) ??
-        tryMatch(content, messageId, settings.store.regexRules, "regex", matchRegexRule)
+        tryMatch(content, messageId, settings.store.stringRules ?? [], "string", matchStringRule) ??
+        tryMatch(content, messageId, settings.store.regexRules ?? [], "regex", matchRegexRule)
     );
 }
 

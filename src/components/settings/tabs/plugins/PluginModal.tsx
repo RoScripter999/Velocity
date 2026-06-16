@@ -117,18 +117,24 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
         if (!plugin.settings) return false;
 
         for (const [key, option] of Object.entries(plugin.settings.def)) {
-            if (option.type === OptionType.CUSTOM) continue;
-
             const current = pluginSettings[key];
+
+            if (option.type === OptionType.CUSTOM) {
+                const defaultValue = "default" in option ? option.default : undefined;
+                if (defaultValue === undefined) {
+                    if (current !== undefined) return true;
+                } else if (JSON.stringify(current) !== JSON.stringify(defaultValue)) {
+                    return true;
+                }
+                continue;
+            }
 
             let defaultValue: any;
 
-            // 1. Primary default (correct source of truth)
             if ("default" in option) {
                 defaultValue = option.default;
             }
 
-            // 2. SELECT fallback ONLY if no default is defined at top-level
             if (
                 defaultValue === undefined &&
                 option.type === OptionType.SELECT &&
@@ -142,7 +148,6 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 defaultValue = fallback?.value;
             }
 
-            // 3. No default defined → treat undefined consistently
             if (defaultValue === undefined) {
                 if (current !== undefined) return true;
                 continue;
@@ -167,7 +172,16 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 cancelText="Cancel"
                 onConfirm={() => {
                     for (const [key, option] of Object.entries(plugin.settings!.def)) {
-                        if (option.type === OptionType.CUSTOM) continue;
+                        if (option.type === OptionType.CUSTOM) {
+                            const defaultValue = "default" in option && option.default !== undefined ? option.default : undefined;
+                            if (defaultValue !== undefined) {
+                                pluginSettings[key] = structuredClone(defaultValue);
+                                option.onChange?.(pluginSettings[key]);
+                            } else {
+                                delete pluginSettings[key];
+                            }
+                            continue;
+                        }
 
                         const defaultValue = "default" in option && option.default !== undefined ? option.default : undefined;
 

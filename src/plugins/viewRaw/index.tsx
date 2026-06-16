@@ -16,16 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import "./style.css";
+
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { CodeBlock } from "@components/CodeBlock";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { HeadingSecondary } from "@components/Heading";
 import { Margins } from "@components/margins";
 import { Devs } from "@utils/constants";
 import { copyWithToast, getCurrentGuild, getIntlMessage } from "@utils/discord";
 import { isTruthy } from "@utils/guards";
 import definePlugin from "@utils/types";
 import type { Message, User } from "@velocity-types";
-import { ChannelStore, Forms, GuildRoleStore, Icons, Menu, Modal, openModal, PopoverClasses } from "@webpack/common";
+import { Forms, GuildRoleStore, Icons, Menu, Modal, openModal, UserProfileStore } from "@webpack/common";
 
 function sortObject<T extends object>(obj: T): T {
     return Object.fromEntries(Object.entries(obj).sort(([k1], [k2]) => k1.localeCompare(k2))) as T;
@@ -62,8 +65,8 @@ function openViewRawModal(json: string, type: string, msgContent?: string) {
                 size="xl"
                 actions={[
                     {
-                        text: `Copy ${type} JSON`,
-                        variant: "primary",
+                        text: `Copy ${type} Data`,
+                        variant: "secondary",
                         onClick: () => copyWithToast(json, `${type} data copied to clipboard!`)
                     },
                     msgContent && {
@@ -75,14 +78,12 @@ function openViewRawModal(json: string, type: string, msgContent?: string) {
             >
                 {!!msgContent && (
                     <>
-                        <Forms.FormTitle tag="h5">Content</Forms.FormTitle>
-                        <CodeBlock content={msgContent} />
-                        <Forms.FormDivider className={Margins.bottom20} />
+                        <Forms.FormTitle tag="h5">Message Content</Forms.FormTitle>
+                        <CodeBlock className="vc-viewRaw-codeBlock" content={msgContent} />
+                        <HeadingSecondary className={Margins.top16}>Message Data</HeadingSecondary>
                     </>
                 )}
-
-                <Forms.FormTitle tag="h5">{type} Data</Forms.FormTitle>
-                <CodeBlock content={json} lang="json" />
+                <CodeBlock className="vc-viewRaw-codeBlock" content={json} lang="json" />
             </Modal>
         </ErrorBoundary >
     ));
@@ -102,9 +103,9 @@ const messageContextCallback: NavContextMenuPatchCallback = (children, props) =>
     );
 };
 
-function MakeContextCallback(name: "Guild" | "Role" | "User" | "Channel"): NavContextMenuPatchCallback {
+function MakeContextCallback(name: "Guild" | "Role" | "User" | "Channel" | "Message" | "Profile", getData?: (props: any) => any): NavContextMenuPatchCallback {
     return (children, props) => {
-        const value = props[name.toLowerCase()];
+        const value = getData ? getData(props) : props[name.toLowerCase()];
         if (!value) return;
         if (props.label === getIntlMessage("CHANNEL_ACTIONS_MENU_LABEL")) return;
 
@@ -161,6 +162,7 @@ export default definePlugin({
         "channel-context": { render: MakeContextCallback("Channel"), required: true },
         "thread-context": { render: MakeContextCallback("Channel"), required: true },
         "message": { render: messageContextCallback, required: true },
+        "user-profile-overflow-menu": MakeContextCallback("Profile", props => UserProfileStore.getGuildMemberProfile(props.user?.id, props.guildId) ?? UserProfileStore.getUserProfile(props.user?.id)),
         "gdm-context": { render: MakeContextCallback("Channel"), required: true },
         "user-context": { render: MakeContextCallback("User"), required: true },
         "dev-context": { render: devContextCallback, required: true }
@@ -171,9 +173,7 @@ export default definePlugin({
         render(msg) {
             return {
                 label: "View Raw",
-                icon: () => <Icons.AngleBracketsIcon color="currentColor" className={PopoverClasses.icon} />,
-                message: msg,
-                channel: ChannelStore.getChannel(msg.channel_id),
+                icon: Icons.AngleBracketsIcon,
                 onClick: () => openViewRawModal(JSON.stringify(cleanMessage(msg), null, 4), "Message", msg.content),
                 onContextMenu: e => {
                     e.preventDefault();

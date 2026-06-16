@@ -18,6 +18,7 @@
 
 import "./styles.css";
 
+export { default as ChangeLogTab } from "./changelog";
 export { default as DevTools } from "./devtools";
 export { default as HelpersTab } from "./helpers";
 export { default as PluginsTab } from "./plugins";

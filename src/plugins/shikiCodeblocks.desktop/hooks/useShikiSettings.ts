@@ -19,7 +19,7 @@
 import { useState } from "@webpack/common";
 
 import { shiki } from "../api/shiki";
-import { settings as pluginSettings, ShikiSettings } from "../settings";
+import { settings as pluginSettings, type ShikiSettings } from "../settings";
 
 export function useShikiSettings<F extends keyof ShikiSettings>(settingKeys: F[]) {
     const settings = pluginSettings.use([...settingKeys, "customTheme", "theme"]);

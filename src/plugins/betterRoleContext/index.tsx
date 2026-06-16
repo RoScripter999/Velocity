@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,14 @@ import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { ImageIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
-import { getCurrentChannel, getCurrentGuild, openImageModal } from "@utils/discord";
+import { getCurrentChannel, getCurrentGuild, getIntlMessage, openImageModal } from "@utils/discord";
 import { isTruthy } from "@utils/guards";
 import { classes, copyToClipboard } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Guild, PopoutProps, Role } from "@velocity-types";
 import { findByCodeLazy, findByPropsLazy, findCssClassesLazy } from "@webpack";
-import { GuildRoleStore, Icons, Menu, PermissionStore, Popout, useRef } from "@webpack/common";
-import type { ComponentType, RefObject } from "react";
+import { ContextMenuApi, GuildRoleStore, Icons, Menu, PermissionStore, Popout, useRef } from "@webpack/common";
+import type { ComponentType } from "react";
 
 const GuildSettingsActionCreators = findByPropsLazy("open", "selectRole", "updateGuild");
 
@@ -68,7 +68,7 @@ type RoleMemberPopout = ComponentType<RoleMemberPopoutProps>;
 
 let RoleMemberPopout: RoleMemberPopout = () => null;
 
-export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutRef?: RefObject<any>) {
+export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutRef?: React.RefObject<any>) {
     if (!role) return { before: [], after: [] };
 
     const before = [
@@ -101,6 +101,7 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
     const after = [
         role.icon && (
             <Menu.MenuItem
+                key="vc-view-role-icon"
                 id="vc-view-role-icon"
                 label="View Role Icon"
                 action={() => {
@@ -112,7 +113,6 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                 }}
                 icon={ImageIcon}
                 leadingAccessory={{ type: "icon", icon: ImageIcon }}
-
             />
         ),
         popoutRef && (
@@ -155,23 +155,65 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
     return { before, after };
 }
 
+export function openRoleContextMenu(event: React.MouseEvent<HTMLElement>, { guildId, id: roleId }: { guildId: string; id: string; }) {
+    const guild = getCurrentGuild();
+    if (!guild || guild.id !== guildId) return;
+
+    const role = GuildRoleStore.getRole(guildId, roleId);
+    if (!role) return;
+
+    ContextMenuApi.openContextMenu(event, () => {
+        const popoutRef = useRef(null);
+        const { before, after } = buildExtraRoleContextMenuItems(role, guild, popoutRef);
+
+        return (
+            <Menu.Menu
+                navId="vc-better-role-context-member-list"
+                onClose={ContextMenuApi.closeContextMenu}
+                aria-label="Role Actions"
+            >
+                {before}
+                {after}
+                <Menu.MenuItem
+                    key="vc-better-role-context-copy-role-id"
+                    id="vc-better-role-context-copy-role-id"
+                    label={getIntlMessage("COPY_ID_ROLE")}
+                    icon={Icons.IdIcon}
+                    action={() => copyToClipboard(role.id)}
+                />
+            </Menu.Menu>
+        );
+    });
+}
 
 export default definePlugin({
     name: "BetterRoleContext",
-    description: "Adds options to copy role color / edit role / view role icon when right clicking roles in the user profile",
+    description: "Adds options to copy role color / edit role / view role icon when right clicking roles in the user profile or in the member list",
     tags: ["Roles", "Appearance"],
     authors: [Devs.Ven, Devs.goodbee],
     dependencies: ["UserSettingsAPI"],
 
     settings,
 
-    patches: [{
-        find: ".ROLE_MENTION)",
-        replacement: {
-            match: /function (\i)(?=.+?renderPopout:.{0,20}\1,\{guildId:\i,channelId:\i)/,
-            replace: "$self.RoleMembers=$1;$&"
+    openRoleContextMenu,
+    patches: [
+        {
+            find: ".ROLE_MENTION)",
+            replacement: {
+                match: /function (\i)(?=.+?renderPopout:.{0,20}\1,\{guildId:\i,channelId:\i)/,
+                replace: "$self.RoleMembers=$1;$&"
+            }
+        },
+        // Conflicts with RoleColorEverywhere which changes the code at the end of our match. (and also uses same find & similar match)
+        // However, BetterRoleContext applies first (alphabetic order), so it's not an issue
+        {
+            find: 'tutorialId:"whos-online',
+            replacement: {
+                match: /(?<=#{intl::CHANNEL_MEMBERS_A11Y_LABEL}.{0,200}?"aria-hidden":!0,)children:.{0,200}?(?:—|\\u2014) ",\i\]\}\)\]/,
+                replace: "onContextMenu:e=>$self.openRoleContextMenu(e,arguments[0]),$&"
+            }
         }
-    }],
+    ],
 
     start() {
         // DeveloperMode needs to be enabled for the context menu to be shown

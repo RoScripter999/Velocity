@@ -23,9 +23,9 @@ import { classNameFactory } from "@utils/css";
 import { getGuildAcronym, openImageModal, openUserProfile } from "@utils/discord";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
-import type { Guild, ModalPropsRender, User } from "@velocity-types";
+import type { Guild, GuildFeatures, ModalPropsRender, User } from "@velocity-types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { FluxDispatcher, Forms, GuildChannelStore, GuildMemberStore, GuildRoleStore, IconUtils, Modal, openModal, Parser, PresenceStore, RelationshipStore, ScrollerThin, SnowflakeUtils, TabBar, Timestamp, useEffect, UserStore, UserUtils, useState, useStateFromStores } from "@webpack/common";
+import { FluxDispatcher, Forms, GuildChannelStore, GuildMemberStore, GuildRoleStore, IconUtils, MaskedLink, Modal, openModal, Parser, PresenceStore, RelationshipStore, ScrollerThin, SnowflakeUtils, TabBar, Text, Timestamp, useEffect, UserStore, UserUtils, useState, useStateFromStores } from "@webpack/common";
 
 const IconClasses = findCssClassesLazy("icon", "acronym", "childWrapper");
 const FriendRow = findComponentByCodeLazy("discriminatorClass:", ".isMobileOnline", "avatarSrc:");
@@ -68,12 +68,6 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
     const [blockedCount, setBlockedCount] = useState<number>();
     const [ignoredCount, setIgnoredCount] = useState<number>();
 
-    useEffect(() => {
-        fetched.friends = false;
-        fetched.blocked = false;
-        fetched.ignored = false;
-    }, []);
-
     const [currentTab, setCurrentTab] = useState(Tabs.ServerInfo);
 
     const bannerUrl = guild.banner && IconUtils.getGuildBannerURL(guild, true)!.replace(/\?size=\d+$/, "?size=1024");
@@ -90,10 +84,10 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
             {...modalProps}
             size="lg"
             title={<SectionHeader
-                tag="h5"
+                tag="h2"
                 layout="horizontal"
                 title={guild?.name}
-                description={guild?.description || undefined}
+                description={guild.description ?? undefined}
                 icon={() => (
                     <div className={cl("header")}>
                         {iconUrl ? (
@@ -136,16 +130,10 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
                 selectedItem={currentTab}
                 onItemSelect={setCurrentTab}
             >
-                <TabBar.Item
-                    className={cl("tab", { selected: currentTab === Tabs.ServerInfo })}
-                    id={Tabs.ServerInfo}
-                >
+                <TabBar.Item className={cl("tab", { selected: currentTab === Tabs.ServerInfo })} id={Tabs.ServerInfo}>
                     Server Info
                 </TabBar.Item>
-                <TabBar.Item
-                    className={cl("tab", { selected: currentTab === Tabs.Friends })}
-                    id={Tabs.Friends}
-                >
+                <TabBar.Item className={cl("tab", { selected: currentTab === Tabs.Friends })} id={Tabs.Friends} >
                     Friends{friendCount !== undefined ? ` (${friendCount})` : ""}
                 </TabBar.Item>
                 <TabBar.Item
@@ -171,7 +159,6 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
         </Modal>
     );
 }
-
 
 function Owner(guildId: string, owner: User) {
     const guildAvatar = GuildMemberStore.getMember(guildId, owner.id)?.avatar;
@@ -208,24 +195,67 @@ function ServerInfoTab({ guild }: GuildProps) {
         fallbackValue: null
     });
 
-    const Fields = {
-        "Server Owner": owner ? Owner(guild.id, owner) : "Loading...",
+    const verificationLevel = ["None", "Low", "Medium", "High", "Highest"][guild.verificationLevel] ?? "?";
+    const explicitFilter = ["Disabled", "No role", "Everyone"][guild.explicitContentFilter] ?? "?";
+    const nsfwLevel = ["Default", "Explicit", "Safe", "Age Restricted"][guild.nsfwLevel] ?? "?";
+
+    const Fields: Record<string, React.ReactNode> = {
+        "Owner": owner ? Owner(guild.id, owner) : <Text variant="text-sm/normal">Loading...</Text>,
         "Created At": renderTimestamp(SnowflakeUtils.extractTimestamp(guild.id)),
-        "Joined At": guild.joinedAt ? renderTimestamp(guild.joinedAt.getTime()) : "-", // Not available in lurked guild
-        "Vanity Link": guild.vanityURLCode ? (<a>{`discord.gg/${guild.vanityURLCode}`}</a>) : "-", // Making the anchor href valid would cause Discord to reload
-        "Preferred Locale": guild.preferredLocale || "-",
-        "Verification Level": ["None", "Low", "Medium", "High", "Highest"][guild.verificationLevel] || "?",
-        "Server Boosts": `${guild.premiumSubscriberCount ?? 0} (Level ${guild.premiumTier ?? 0})`,
-        "Channels": GuildChannelStore.getChannels(guild.id)?.count - 1 || "?", // - null category
-        "Roles": GuildRoleStore.getSortedRoles(guild.id).length - 1 // - @everyone
+        "Joined At": guild.joinedAt ? renderTimestamp(guild.joinedAt.getTime()) : <Text variant="text-sm/normal">-</Text>,
+        "Max Members": <Text variant="text-sm/normal">{guild.maxMembers?.toLocaleString() ?? "?"}</Text>,
+        "Channels": <Text variant="text-sm/normal">{GuildChannelStore.getChannels(guild.id)?.count - 1 || "?"}</Text>,
+        "Roles": <Text variant="text-sm/normal">{GuildRoleStore.getSortedRoles(guild.id).length - 1}</Text>,
+        "Boosts": <Text variant="text-sm/normal">{guild.premiumSubscriberCount ?? 0} (Level {guild.premiumTier ?? 0})</Text>,
+        "Verification": <Text variant="text-sm/normal">{verificationLevel}</Text>,
+        "Explicit Filter": <Text variant="text-sm/normal">{explicitFilter}</Text>,
+        "NSFW Level": <Text variant="text-sm/normal">{nsfwLevel}</Text>,
+        "Locale": <Text variant="text-sm/normal">{guild.preferredLocale || "-"}</Text>,
+        "Vanity URL": guild.vanityURLCode
+            ? <MaskedLink href={`https://discord.gg/${guild.vanityURLCode}`}>discord.gg/{guild.vanityURLCode}</MaskedLink>
+            : <Text variant="text-sm/normal">-</Text>
     };
+
+    const Features: Partial<Record<GuildFeatures, string>> = {
+        VERIFIED: "Verified",
+        PARTNERED: "Partnered",
+        COMMUNITY: "Community",
+        DISCOVERABLE: "Discoverable",
+        FEATURABLE: "Featurable",
+        CREATOR_MONETIZABLE_DISABLED: "Monetization",
+        NEWS: "Announcement Channels",
+        ANIMATED_ICON: "Animated Icon",
+        ANIMATED_BANNER: "Animated Banner",
+        INVITE_SPLASH: "Invite Splash",
+        VIP_REGIONS: "VIP Voice Regions",
+        WELCOME_SCREEN_ENABLED: "Welcome Screen",
+        MEMBER_VERIFICATION_GATE_ENABLED: "Membership Gating",
+        THREADS_ENABLED: "Private Threads",
+        ROLE_ICONS: "Role Icons",
+        AUTO_MODERATION: "AutoMod"
+    };
+
+
+    const features = [...guild.features].filter(f => f in Features);
 
     return (
         <div className={cl("info")}>
             {Object.entries(Fields).map(([name, node]) =>
                 <div className={cl("server-info-pair")} key={name}>
-                    <Forms.FormTitle tag="h5">{name}</Forms.FormTitle>
-                    {typeof node === "string" ? <span>{node}</span> : node}
+                    <Forms.FormTitle tag="h6">{name}</Forms.FormTitle>
+                    {node}
+                </div>
+            )}
+            {features.length > 0 && (
+                <div className={cl("server-info-pair")}>
+                    <Forms.FormTitle tag="h5">Features</Forms.FormTitle>
+                    <div className={cl("features-list")}>
+                        {features.map(f => (
+                            <Text key={f} className={cl("feature-badge")} color="text-muted" variant="text-xs/normal">
+                                {Features[f]}
+                            </Text>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
@@ -237,15 +267,12 @@ function FriendsTab({ guild, setCount }: RelationshipProps) {
 }
 
 function BlockedUsersTab({ guild, setCount }: RelationshipProps) {
-    const blockedIds = RelationshipStore.getBlockedIDs();
-    return UserList("blocked", guild, blockedIds, setCount);
+    return UserList("blocked", guild, RelationshipStore.getBlockedIDs(), setCount);
 }
 
 function IgnoredUserTab({ guild, setCount }: RelationshipProps) {
-    const ignoredIds = RelationshipStore.getIgnoredIDs();
-    return UserList("ignored", guild, ignoredIds, setCount);
+    return UserList("ignored", guild, RelationshipStore.getIgnoredIDs(), setCount);
 }
-
 
 function UserList(type: "friends" | "blocked" | "ignored", guild: Guild, ids: string[], setCount: (count: number) => void) {
     const missing = [] as string[];
@@ -258,7 +285,6 @@ function UserList(type: "friends" | "blocked" | "ignored", guild: Guild, ids: st
             missing.push(id);
     }
 
-    // Used for side effects (rerender on member request success)
     useStateFromStores(
         [GuildMemberStore],
         () => GuildMemberStore.getMemberIds(guild.id),
@@ -287,7 +313,6 @@ function UserList(type: "friends" | "blocked" | "ignored", guild: Guild, ids: st
                     user={UserStore.getUser(id)}
                     status={PresenceStore.getStatus(id) || "offline"}
                     onSelect={() => openUserProfile(id)}
-                    onContextMenu={() => { }}
                 />
             )}
         </ScrollerThin>

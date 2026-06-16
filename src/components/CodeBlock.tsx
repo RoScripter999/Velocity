@@ -16,19 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { classes } from "@utils/misc";
 import type { CodeLanguage } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
 import { Parser } from "@webpack/common";
-import type { CSSProperties } from "react";
+import type { ReactNode } from "react";
 
 const CodeContainerClasses = findCssClassesLazy("markup", "codeContainer");
 
 /**
  * Renders code in a Discord codeblock
  */
-export function CodeBlock(props: { content?: string; lang?: CodeLanguage; style?: CSSProperties;[key: string]: any; }) {
+export function CodeBlock({ className, ...props }: { content?: string, lang?: CodeLanguage; className?: string; }) {
     return (
-        <div className={CodeContainerClasses.markup} style={props.style} {...props}>
+        <div className={classes(CodeContainerClasses.markup, className)}>
             {Parser.defaultRules.codeBlock.react(props, null, {})}
         </div>
     );
@@ -37,9 +38,9 @@ export function CodeBlock(props: { content?: string; lang?: CodeLanguage; style?
 /**
  * Renders inline code like `this`
  */
-export function InlineCode({ children }: { children: React.ReactNode; }) {
+export function InlineCode({ children, className }: { children: ReactNode; className?: string; }) {
     return (
-        <span className={CodeContainerClasses.markup}>
+        <span className={classes(CodeContainerClasses.markup, className)}>
             <code className="inline">{children}</code>
         </span>
     );

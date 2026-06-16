@@ -47,18 +47,19 @@ export function resolveError(isValidResult: boolean | string) {
 }
 
 interface SettingsSectionProps extends PropsWithChildren {
-    name: string;
+    name?: string;
+    id: string;
     description: string;
     error?: string | null;
     inlineSetting?: boolean;
 }
 
 
-export function SettingsSection({ name, description, error, inlineSetting, children }: SettingsSectionProps) {
+export function SettingsSection({ name, id, description, error, inlineSetting, children }: SettingsSectionProps) {
     return (
         <ErrorBoundary>
             <Field
-                label={name && wordsToTitle(wordsFromCamel(name))}
+                label={name ?? wordsToTitle(wordsFromCamel(id))}
                 description={description}
                 errorMessage={error || undefined}
                 layout={inlineSetting ? "horizontal" : "vertical"}

@@ -30,8 +30,6 @@ import { Avatar, Buttons, Clickable, DateUtils, Forms, GuildActions, HelpMessage
 
 const cl = classNameFactory("vc-bbr-");
 
-let optionReasons: any[] = [];
-
 interface BanModalProps extends ModalPropsRender {
     guild: Guild;
     user: User;
@@ -52,6 +50,38 @@ function ReasonsComponent() {
     const save = (list: BanReason[]) => {
         settings.store.reasons = list.map(toPlain);
     };
+
+    const optionReasons = [
+        {
+            id: "none",
+            value: 0,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_NONE")
+        }, {
+            id: "1hour",
+            value: 3600,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_1HR")
+        }, {
+            id: "6hours",
+            value: 21600,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_6HR")
+        }, {
+            id: "12hours",
+            value: 43200,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_12HR")
+        }, {
+            id: "1day",
+            value: 86400,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_24HR")
+        }, {
+            id: "3days",
+            value: 259200,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_3D")
+        }, {
+            id: "7days",
+            value: 604800,
+            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_7D")
+        }
+    ];
 
     return (
         <div>
@@ -235,10 +265,6 @@ export default definePlugin({
                 {
                     match: /(?:\w+\.)?useState\(""\)(?=.{0,200}isArchivedThread)/,
                     replace: "useState($self.getDefaultState())"
-                },
-                {
-                    match: /return\s*(\[\{id:"none".+?\}\])/,
-                    replace: "return $self.captureOptions($1)"
                 }
             ]
         },
@@ -269,10 +295,5 @@ export default definePlugin({
         return pairs.concat({ name: getIntlMessage("BAN_REASON_OPTION_OTHER"), value: "other" });
     },
 
-    getDefaultState: () => settings.store.isOtherDefault ? "other" : "",
-
-    captureOptions(opts: any[]) {
-        optionReasons = opts;
-        return opts;
-    }
+    getDefaultState: () => settings.store.isOtherDefault ? "other" : ""
 });

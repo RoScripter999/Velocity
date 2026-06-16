@@ -19,14 +19,16 @@
 import "./styles.css";
 
 import { definePluginSettings } from "@api/Settings";
+import { ExpandableCard } from "@components/ExpandableCard";
 import { Flex } from "@components/Flex";
-import { Margins } from "@components/margins";
+import { Paragraph } from "@components/Paragraph";
+import { SectionHeader } from "@components/settings";
 import { Span } from "@components/Span";
 import { RuleSettingsModal } from "@plugins/autoResponder/components/autoResponderModal";
 import { classNameFactory } from "@utils/css";
 import { useForceUpdater } from "@utils/react";
 import { OptionType } from "@utils/types";
-import { Buttons, Forms, Icons, openModal, React, TextInput, useState } from "@webpack/common";
+import { Buttons, Icons, openModal, RichTooltip, TextInput, useState } from "@webpack/common";
 
 const cl = classNameFactory("vc-autoresponder-");
 
@@ -39,7 +41,9 @@ export type Rule = Record<"trigger" | "response" | "onlyIfIncludes", string> & {
 
 interface AutoResponderProps {
     title: string;
+    description: string;
     rulesArray: Rule[];
+    isRegex?: boolean;
 }
 
 const makeEmptyRule: () => Rule = () => ({
@@ -85,49 +89,48 @@ function Input({ initialValue, onChange, placeholder }: {
 }) {
     const [value, setValue] = useState(initialValue);
 
-    const handleBlur = () => {
-        if (value !== initialValue) {
-            onChange(value);
-        }
-    };
-
     return (
         <TextInput
             placeholder={placeholder}
             value={value}
             onChange={setValue}
             spellCheck={false}
-            onBlur={handleBlur}
+            onBlur={() => value !== initialValue && onChange(value)}
         />
     );
 }
 
-function AutoResponder({ title, rulesArray }: AutoResponderProps) {
-    const isRegexRules = title === "Using Regex";
+function TextRow({ label, description, value, onChange }: { label: string; description: string; value: string; onChange(value: string): void; }) {
+    return (
+        <>
+            <RichTooltip body={description}>
+                <Span weight="medium" size="md">{label}</Span>
+            </RichTooltip>
+            <Input
+                placeholder={description}
+                initialValue={value}
+                onChange={onChange}
+            />
+        </>
+    );
+}
+
+const isEmptyRule = (rule: Rule) => !rule.trigger && !rule.response;
+
+function AutoResponder({ title, description, rulesArray, isRegex = false }: AutoResponderProps) {
     const forceUpdate = useForceUpdater();
 
     function onClickRemove(index: number) {
-        if (index === rulesArray.length - 1) return;
         rulesArray.splice(index, 1);
         forceUpdate();
     }
 
     function onChange(e: string, index: number, key: string) {
         rulesArray[index][key] = e;
-
-        if (index === rulesArray.length - 1 && rulesArray[index].trigger && rulesArray[index].response) {
-            rulesArray.push(makeEmptyRule());
-        }
-
-        if ((!rulesArray[index].trigger || !rulesArray[index].response) && index !== rulesArray.length - 1) {
-            rulesArray.splice(index, 1);
-        }
         forceUpdate();
     }
 
     function onClickSettings(rule: Rule, index: number) {
-        if (!rule.trigger || !rule.response) return;
-
         openModal(props => (
             <RuleSettingsModal
                 {...props}
@@ -141,52 +144,59 @@ function AutoResponder({ title, rulesArray }: AutoResponderProps) {
     }
 
     return (
-        <Forms.FormSection title={title} tag="h4">
-            {
-                rulesArray.map((rule, index) => {
-                    const isEmptyRule = index === rulesArray.length - 1;
+        <>
+            <SectionHeader title={title} description={description} />
+            <Flex flexDirection="column" gap="0.5em">
+                {rulesArray.map((rule, index) => {
+                    const empty = isEmptyRule(rule);
 
                     return (
-                        <React.Fragment key={`${rule.trigger}-${index}`}>
-                            <Flex className={Margins.top8} flexDirection="row" gap="0.5em" style={{ flexGrow: 1 }}>
-                                <Input
-                                    placeholder="Trigger"
-                                    initialValue={rule.trigger}
-                                    onChange={e => onChange(e, index, "trigger")}
-                                />
-                                <Input
-                                    placeholder="Response"
-                                    initialValue={rule.response}
-                                    onChange={e => onChange(e, index, "response")}
-                                />
-                                <Input
-                                    placeholder="Only if includes"
-                                    initialValue={rule.onlyIfIncludes}
-                                    onChange={e => onChange(e, index, "onlyIfIncludes")}
-                                />
-                                {!isEmptyRule && (
-                                    <>
-                                        <Buttons.IconButton
-                                            onClick={() => onClickSettings(rule, index)}
-                                            icon={() => <Icons.SettingsIcon color="currentColor" />}
-                                            variant="secondary"
+                        <ExpandableCard
+                            key={index}
+                            buttons={empty ? [] : [
+                                { onClick: () => onClickSettings(rule, index), icon: Icons.SettingsIcon },
+                                { onClick: () => onClickRemove(index), icon: Icons.TrashIcon }
+                            ]}
+                            render={() => (
+                                <>
+                                    <fieldset className={cl("input-grid")}>
+                                        <TextRow
+                                            label="Trigger"
+                                            description={isRegex ? "The regex pattern to match" : "The text to trigger the response"}
+                                            value={rule.trigger}
+                                            onChange={e => onChange(e, index, "trigger")}
                                         />
-                                        <Buttons.IconButton
-                                            variant="secondary"
-                                            icon={() => <Icons.TrashIcon color="var(--icon-feedback-critical)" />}
-                                            onClick={() => onClickRemove(index)}
+                                        <TextRow
+                                            label="Response"
+                                            description="The text to respond with"
+                                            value={rule.response}
+                                            onChange={e => onChange(e, index, "response")}
                                         />
-                                    </>
-                                )}
-                            </Flex>
-                            {isRegexRules && renderTriggerError(rule.trigger)}
-                        </React.Fragment>
+                                        <TextRow
+                                            label="Only if includes"
+                                            description="Only respond if the message includes this text. Optional"
+                                            value={rule.onlyIfIncludes}
+                                            onChange={e => onChange(e, index, "onlyIfIncludes")}
+                                        />
+                                    </fieldset>
+                                    {isRegex && renderTriggerError(rule.trigger)}
+                                </>
+                            )}
+                        >
+                            <Paragraph variant="text-md/medium">
+                                {empty ? `Empty ${isRegex ? "Regex" : ""} Rule ${index + 1}` : `Rule ${index + 1} - ${rule.trigger}`}
+                            </Paragraph>
+                        </ExpandableCard>
                     );
-
-                })
-            }
-        </Forms.FormSection>
-
+                })}
+                <Buttons.Button
+                    text="Add Rule"
+                    size="sm"
+                    onClick={() => { rulesArray.push(makeEmptyRule()); forceUpdate(); }}
+                    disabled={rulesArray.length > 0 && isEmptyRule(rulesArray[rulesArray.length - 1])}
+                />
+            </Flex>
+        </>
     );
 }
 
@@ -194,29 +204,25 @@ export const settings = definePluginSettings({
     responder: {
         type: OptionType.COMPONENT,
         component: () => {
-            const { stringRules, regexRules } = settings.use(["stringRules", "regexRules"]);
+            settings.store.stringRules ??= makeEmptyRuleArray();
+            settings.store.regexRules ??= makeEmptyRuleArray();
 
             return (
                 <>
                     <AutoResponder
                         title="Using String"
-                        rulesArray={stringRules}
+                        description="Respond to messages that contain a specific string"
+                        rulesArray={settings.store.stringRules}
                     />
                     <AutoResponder
                         title="Using Regex"
-                        rulesArray={regexRules}
+                        description="Respond to messages that match a regular expression pattern"
+                        rulesArray={settings.store.regexRules}
+                        isRegex
                     />
                 </>
             );
         }
-    },
-    stringRules: {
-        type: OptionType.CUSTOM,
-        default: makeEmptyRuleArray()
-    },
-    regexRules: {
-        type: OptionType.CUSTOM,
-        default: makeEmptyRuleArray()
     },
     ignoreBots: {
         type: OptionType.BOOLEAN,
@@ -240,4 +246,7 @@ export const settings = definePluginSettings({
         markers: [0, 1, 2, 3, 5, 10, 15, 30, 60],
         stickToMarkers: false
     }
-});
+}).withPrivateSettings<{
+    stringRules: Rule[];
+    regexRules: Rule[];
+}>();

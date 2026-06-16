@@ -18,15 +18,14 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { PluginsIcon, VelocityIcon } from "@components/Icons";
-import { openChangelogModal } from "@components/settings";
-import { BackupAndRestoreTab, CloudTab, DevTools, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
+import { BackupAndRestoreTab, ChangeLogTab, CloudTab, DevTools, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
 import { ThemesLibTab } from "@components/settings/tabs/themeLibary";
 import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
 import type { LayoutNode, PanelNode, SectionNode, SidebarItemNode } from "@velocity-types";
 import { LayoutType, NestedPanelLeadingDecorationType } from "@velocity-types/enums";
-import { Buttons, Icons, Tooltip } from "@webpack/common";
+import { Icons } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
 import gitHash from "~git-hash";
@@ -93,26 +92,6 @@ export default definePlugin({
             }
         }
     ],
-    wrapSectionTitle() {
-        return (
-            <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-                Velocity Settings
-                <Tooltip text="Changelog">
-                    {tooltipProps => (
-                        <Buttons.IconButton
-                            onMouseEnter={tooltipProps.onMouseEnter}
-                            onMouseLeave={tooltipProps.onMouseLeave}
-                            onClick={openChangelogModal}
-                            icon={Icons.RetryIcon}
-                            role="button"
-                            variant="icon-only"
-                            size="sm"
-                        />
-                    )}
-                </Tooltip>
-            </div>
-        );
-    },
 
     buildEntry(options: {
         key: string;
@@ -232,6 +211,13 @@ export default definePlugin({
                 Icon: Icons.DownloadIcon
             }),
             this.buildEntry({
+                key: "velocity_changelog",
+                title: "Changelog",
+                panelTitle: "Velocity Changelog",
+                Component: ChangeLogTab,
+                Icon: Icons.TopicsIcon
+            }),
+            this.buildEntry({
                 key: "velocity_cloud",
                 title: "Cloud",
                 panelTitle: "Velocity Cloud",
@@ -252,7 +238,7 @@ export default definePlugin({
         const velocitySection: SectionNode = {
             key: "velocity_section",
             type: LayoutType.SECTION,
-            useTitle: () => this.wrapSectionTitle(),
+            useTitle: () => "Velocity Settings",
             buildLayout: () => velocityEntries
         };
 

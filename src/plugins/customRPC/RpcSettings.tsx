@@ -130,7 +130,7 @@ function SingleSetting<T>({ settingsKey, label, disabled, isValid, transform }: 
             <Forms.FormTitle tag="h5">{label}</Forms.FormTitle>
             <TextInput
                 type="text"
-                placeholder={"Enter a value"}
+                placeholder="Enter a value"
                 value={state}
                 onChange={handleChange}
                 disabled={disabled}
@@ -145,7 +145,7 @@ function SelectSetting<T>({ settingsKey, label, options, disabled }: SelectOptio
         <div className={cl("single", { disabled })}>
             <Forms.FormTitle tag="h5">{label}</Forms.FormTitle>
             <Select
-                placeholder={"Select an option"}
+                placeholder="Select an option"
                 options={options}
                 maxVisibleItems={5}
                 closeOnSelect={true}

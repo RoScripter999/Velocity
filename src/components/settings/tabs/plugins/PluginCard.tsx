@@ -19,14 +19,13 @@
 import { showNotice } from "@api/Notices";
 import { hasAnyVisibleSettings, isPluginEnabled, pluginRequiresRestart, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
-import { AddonCard } from "@components/settings/AddonCard";
+import { AddonCard, openPluginModal } from "@components/settings";
 import { Span } from "@components/Span";
 import type { Plugin } from "@utils/types";
 import { Icons, showToast, Toasts } from "@webpack/common";
 import type { HTMLProps } from "react";
 
 import { cl, logger } from ".";
-import { openPluginModal } from "./PluginModal";
 
 interface PluginCardProps extends HTMLProps<HTMLDivElement> {
     plugin: Plugin;

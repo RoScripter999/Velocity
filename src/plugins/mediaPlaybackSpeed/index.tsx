@@ -94,7 +94,7 @@ export default definePlugin({
                             ContextMenuApi.openContextMenu(e, () =>
                                 <Menu.Menu
                                     navId="vc-playback-speed"
-                                    onClose={() => ContextMenuApi.closeContextMenu()}
+                                    onClose={ContextMenuApi.closeContextMenu}
                                     aria-label="Playback speed control"
                                     variant="flexible"
                                 >

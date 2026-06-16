@@ -19,6 +19,5 @@
 export * from "../Switch";
 export * from "./AddonBadge";
 export * from "./AddonCard";
-export * from "./changeLog";
 export * from "./QuickAction";
 export * from "./tabs";

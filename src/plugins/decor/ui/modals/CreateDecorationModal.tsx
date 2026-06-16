@@ -26,7 +26,7 @@ import { cl, DecorationModalClasses, requireAvatarDecorationModal, requireCreate
 import { AvatarDecorationModalPreview } from "@plugins/decor/ui/components";
 import { openInviteModal } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
-import { closeAllModals, FilePicker, FluxDispatcher, GuildStore, HelpMessage, Modal, NavigationRouter, openModal, Text, TextInput, useEffect, useMemo, UserStore, useState } from "@webpack/common";
+import { closeAllModals, FilePicker, FluxDispatcher, Forms, GuildStore, HelpMessage, Modal, NavigationRouter, openModal, TextInput, useEffect, useMemo, UserStore, useState } from "@webpack/common";
 
 function useObjectURL(object: Blob | MediaSource | null) {
     const [url, setUrl] = useState<string | null>(null);
@@ -95,9 +95,9 @@ function CreateDecorationModal(props: ModalPropsRender) {
                 </HelpMessage>
                 <div className={cl("create-decoration-modal-form-preview-container")}>
                     <div className={cl("create-decoration-modal-form")}>
-                        {error !== null && <Text color="text-feedback-critical" variant="text-xs/normal">{error.message}</Text>}
+                        {error !== null && <Paragraph color="text-feedback-critical" variant="text-xs/normal">{error.message}</Paragraph>}
                         <section>
-                            <Text tag="h5">File</Text>
+                            <Forms.FormTitle tag="h5">File</Forms.FormTitle>
                             <FilePicker
                                 filename={file?.name}
                                 placeholder="Choose a file"

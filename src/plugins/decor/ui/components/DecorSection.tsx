@@ -47,7 +47,7 @@ export default function DecorSection({ hideTitle = false, hideDivider = false, n
         hideDivider={hideDivider}
         className={noMargin && cl("section-remove-margin")}
     >
-        <Flex style={{ gap: "4px " }}>
+        <Flex flexWrap="wrap" gap={4}>
             <Buttons.Button
                 text="Change Decoration"
                 size="sm"

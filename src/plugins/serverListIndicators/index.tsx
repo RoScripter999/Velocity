@@ -31,7 +31,7 @@ const enum IndicatorType {
 
 const settings = definePluginSettings({
     mode: {
-        description: "mode",
+        description: "Mode",
         type: OptionType.SELECT,
         options: [
             { label: "Only online friend count", value: IndicatorType.FRIEND, default: true },

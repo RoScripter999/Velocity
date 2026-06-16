@@ -251,7 +251,7 @@ function ChangeDecorationModal(props: ModalPropsRender) {
                     avatarDecoration={avatarDecoration}
                     user={UserStore.getCurrentUser()}
                 />
-                {isActiveDecorationPreset && <Forms.FormTitle className="">Part of the {activeDecorationPreset.name} Preset</Forms.FormTitle>}
+                {isActiveDecorationPreset && <Forms.FormTitle>Part of the {activeDecorationPreset.name} Preset</Forms.FormTitle>}
                 {typeof activeSelectedDecoration === "object" &&
                     <Text
                         variant="text-sm/semibold"
@@ -266,7 +266,7 @@ function ChangeDecorationModal(props: ModalPropsRender) {
                     </Text>
                 )}
                 {isActiveDecorationPreset && (
-                    <Buttons.Button text="Copy Preset ID" onClick={() => copyWithToast(activeDecorationPreset.id)} />
+                    <Buttons.Button size="sm" text="Copy Preset ID" onClick={() => copyWithToast(activeDecorationPreset.id)} />
                 )}
             </div>
 

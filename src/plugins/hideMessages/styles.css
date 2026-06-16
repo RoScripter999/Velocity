@@ -1,11 +1,27 @@
-.vc-rm-card {
+.vc-hide-messages-card {
     padding: 0.5em;
     margin-top: 10px;
 }
 
-.vc-rm-tags-container {
+.vc-hide-messages-tags-container {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
     align-items: center;
+}
+
+.vc-hide-messages-button {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.vc-hide-messages-icon {
+    color: var(--icon-muted);
+    height: 14px;
+    width: 14px;
 }

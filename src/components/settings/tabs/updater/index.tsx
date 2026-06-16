@@ -17,30 +17,22 @@
 */
 
 import { useSettings } from "@api/Settings";
-import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
-import { Link } from "@components/Link";
-import { Paragraph } from "@components/Paragraph";
 import { SettingsTab } from "@components/settings/tabs/SectionSettings";
-import { useAwaiter } from "@utils/react";
-import { getRepo, isNewer, UpdateLogger } from "@utils/updater";
-import { Forms, LoadingIndicator, useState } from "@webpack/common";
+import { isNewer } from "@utils/updater";
+import { Forms, useState } from "@webpack/common";
 
 import gitHash from "~git-hash";
 
 import { SectionHeader } from "../SectionHeader";
-import { CommonProps, HashLink, Newer, Updatable } from "./Components";
+import { CommonProps, Newer, Repo, Updatable } from "./Components";
 
 export default IS_UPDATER_DISABLED ? null : function Updater() {
     const settings = useSettings(["autoUpdate", "autoUpdateNotification"]);
-    const [repo, err, repoPending] = useAwaiter(getRepo, {
-        fallbackValue: "Loading...",
-        onError: e => UpdateLogger.error("Failed to retrieve repo", e)
-    });
     const [checkingUpdate, setCheckingUpdate] = useState(false);
 
-    const commonProps: CommonProps = { repo, repoPending, checkingUpdate, setCheckingUpdate };
+    const commonProps: CommonProps = { checkingUpdate, setCheckingUpdate };
 
     return (
         <SettingsTab>
@@ -67,21 +59,7 @@ export default IS_UPDATER_DISABLED ? null : function Updater() {
 
             <Heading tag="h5">Repository</Heading>
 
-            <Paragraph>
-                {repoPending ? (
-                    <Flex alignItems="center" gap={6}>
-                        <LoadingIndicator type="wanderingCubes" />
-                        <span>Loading repository...</span>
-                    </Flex>
-                ) : err ? (
-                    "Failed to retrieve - check console"
-                ) : (
-                    <>
-                        <Link href={repo}>{repo.split("/").slice(-2).join("/")}</Link>{" "}
-                        (<HashLink hash={gitHash} repo={repo} disabled={repoPending} />)
-                    </>
-                )}
-            </Paragraph>
+            <Repo gitHash={gitHash} />
 
             <Forms.FormDivider gap={8} />
 

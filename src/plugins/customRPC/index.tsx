@@ -246,8 +246,10 @@ export default definePlugin({
                         <SectionHeader tag="h5" title="Notice" description="Activity Sharing isn't enabled, people won't be able to see your custom rich presence!" />
                         <div className={Margins.top8}>
                             <Buttons.Button
-                                text="Enable"
+                                text="Enable Activity Sharing"
+                                variant="secondary"
                                 onClick={() => ShowCurrentGame.updateSetting(true)}
+                                fullWidth
                             />
                         </div>
                     </ErrorCard>

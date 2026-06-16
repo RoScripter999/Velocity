@@ -50,7 +50,7 @@ export function NumberSetting({ setting, pluginSettings, definedSettings, id, on
     }
 
     return (
-        <SettingsSection name={id} description={setting.description} error={error}>
+        <SettingsSection name={setting.displayName} id={id} description={setting.description} error={error}>
             <TextInput
                 type="number"
                 placeholder={setting.placeholder ?? "Enter a number"}

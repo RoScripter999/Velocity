@@ -37,7 +37,7 @@ const addAttachments = async (channelId: string, messageId: string, files: FileL
     }));
 
     const attachmentsReq = (await RestAPI.post({
-        url: `/channels/${channelId}/attachments`,
+        url: Constants.Endpoints.MESSAGE_CREATE_ATTACHMENT_UPLOAD(channelId),
         body: { files: fileArray }
     })).body.attachments as { id: string, upload_url: string, upload_filename: string; }[];
 
@@ -55,7 +55,7 @@ const addAttachments = async (channelId: string, messageId: string, files: FileL
     const newAttachments = await Promise.all(uploadPromises);
 
     await RestAPI.patch({
-        url: `/channels/${channelId}/messages/${messageId}`,
+        url: Constants.Endpoints.MESSAGE(channelId, messageId),
         body: {
             attachments: [
                 ...attachments,
@@ -73,8 +73,8 @@ export default definePlugin({
     authors: [Devs.RoScripter999],
 
     messagePopoverButton: {
-        icon: () => <Icons.CirclePlusIcon size="refresh_sm" />,
         required: true,
+        icon: () => <Icons.CirclePlusIcon size="refresh_sm" />,
         render(msg: Message) {
             if (UserStore.getCurrentUser().id !== msg.author.id || msg.deleted || msg.attachments.length === 10) return null;
 

@@ -17,10 +17,11 @@
 */
 
 import { FormSwitch } from "@components/FormSwitch";
-import type { Rule } from "@plugins/autoResponder/pluginSettings";
 import { getIntlMessage } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
-import { Field, Modal, TextInput, useState } from "@webpack/common";
+import { Modal, TextInput, useState } from "@webpack/common";
+
+import type { Rule } from "../settings";
 
 export function RuleSettingsModal({ rule, onSave, ...props }: { rule: Rule; onSave: (rule: Rule) => void; } & ModalPropsRender) {
     const [caseSensitive, setCaseSensitive] = useState(rule.caseSensitive ?? false);
@@ -32,7 +33,7 @@ export function RuleSettingsModal({ rule, onSave, ...props }: { rule: Rule; onSa
         <Modal
             {...props}
             title="Rule Settings"
-            size="md"
+            size="lg"
             actions={[
                 {
                     text: getIntlMessage("CANCEL"),
@@ -67,30 +68,28 @@ export function RuleSettingsModal({ rule, onSave, ...props }: { rule: Rule; onSa
                     description="Only match if trigger a whole word"
                     value={matchWholeWord}
                     onChange={setMatchWholeWord}
-                    hideBorder
                 />
-                <Field
-                    label="Trigger Cooldown"
-                    description="Wait this many seconds before this rule can trigger again"
-                >
+
+                <div className="vc-autoresponder-cooldown">
                     <TextInput
                         type="number"
+                        label="Trigger Cooldown"
+                        description="How many seconds before this rule can trigger again"
+                        fullWidth
                         value={ruleCooldown}
                         onChange={v => setRuleCooldown(Math.max(0, Number(v)))}
                         placeholder="0"
                     />
-                </Field>
-                <Field
-                    label="Response Cooldown"
-                    description="Wait this many seconds before any other rule can respond"
-                >
                     <TextInput
                         type="number"
+                        label="Response Cooldown"
+                        description="How many seconds before any other rule can respond"
+                        fullWidth
                         value={responseCooldown}
                         onChange={v => setResponseCooldown(Math.max(0, Number(v)))}
                         placeholder="0"
                     />
-                </Field>
+                </div>
             </div>
         </Modal>
     );

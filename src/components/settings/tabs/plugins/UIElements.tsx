@@ -19,7 +19,7 @@
 import "./UIElements.css";
 
 import { ChatBarButtonMap } from "@api/ChatButtons";
-import { ContextMenuButtonData, ContextMenuButtonMap } from "@api/ContextMenu";
+import { type ContextMenuButtonData, ContextMenuButtonMap } from "@api/ContextMenu";
 import { MessagePopoverButtonMap } from "@api/MessagePopover";
 import { type SettingsPluginUiElements, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
@@ -28,7 +28,7 @@ import { Paragraph } from "@components/Paragraph";
 import { openPluginModal, SectionHeader } from "@components/settings";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
-import { IconComponent } from "@utils/types";
+import type { IconComponent } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
 import { Icons, Modal, openModal, RichTooltip, Text, useCallback, useEffect, useRef, useState } from "@webpack/common";

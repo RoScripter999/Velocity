@@ -64,8 +64,8 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
     };
 
     return (
-        <SettingsSection name={id} description={setting.description} error={error}>
-            {setting.isSearchable ? (
+        <SettingsSection name={setting.displayName} id={id} description={setting.description} error={error}>
+            {setting.searchable ? (
                 <SearchableSelect
                     placeholder={setting.placeholder ?? "Select an option"}
                     options={options}

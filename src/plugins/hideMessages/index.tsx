@@ -19,27 +19,37 @@
 import "./styles.css";
 
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
+import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
 import { Card } from "@components/Card";
+import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
+import pinDms from "@plugins/pinDms";
+import { isPinned } from "@plugins/pinDms/data";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
-import { Forms, Menu, TagGroup, TextInput, Toasts, UserStore, useState } from "@webpack/common";
+import { FluxDispatcher, Forms, Icons, Menu, TagGroup, TextInput, Toasts, Tooltip, UserStore, useState } from "@webpack/common";
 import type { KeyboardEvent } from "react";
 
 type Rule = Record<"word", string>;
 
-const cl = classNameFactory("vc-rm-");
+const cl = classNameFactory("vc-hide-messages-");
 
 interface RulesProps {
     rulesArray: Rule[];
 }
 
-const makeEmptyRule: () => Rule = () => ({
-    word: ""
-});
+interface PrivateChannelsListInstance {
+    forceUpdate(callback?: () => void): void;
+}
+
+const hiddenDmIds = new Set<string>();
+let privateChannelsListInstance: PrivateChannelsListInstance | null = null;
+let showHiddenDms = false;
+
+const makeEmptyRule: () => Rule = () => ({ word: "" });
 
 const settings = definePluginSettings({
     wordRules: {
@@ -86,9 +96,7 @@ function RulesSettings({ rulesArray }: RulesProps) {
         } else if (action === "remove" && value instanceof Set) {
             value.forEach(key => {
                 const index = rulesArray.findIndex(r => r.word === key);
-                if (index !== -1) {
-                    rulesArray.splice(index, 1);
-                }
+                if (index !== -1) rulesArray.splice(index, 1);
             });
         }
     };
@@ -115,20 +123,18 @@ function RulesSettings({ rulesArray }: RulesProps) {
             </Flex>
 
             {hasWords && (
-                <>
-                    <Forms.FormSection tag="h4" title="Words to Remove">
-                        <Card className={cl("card")}>
-                            <div className={cl("tags-container")}>
-                                <TagGroup
-                                    label="Word Filters"
-                                    layout="inline"
-                                    items={rulesArray.filter(r => r.word).map(r => ({ id: r.word, label: r.word }))}
-                                    onRemove={keys => handleTag("remove", keys)}
-                                />
-                            </div>
-                        </Card>
-                    </Forms.FormSection>
-                </>
+                <Forms.FormSection tag="h4" title="Words to Remove">
+                    <Card className={cl("card")}>
+                        <div className={cl("tags-container")}>
+                            <TagGroup
+                                label="Word Filters"
+                                layout="inline"
+                                items={rulesArray.filter(r => r.word).map(r => ({ id: r.word, label: r.word }))}
+                                onRemove={keys => handleTag("remove", keys)}
+                            />
+                        </div>
+                    </Card>
+                </Forms.FormSection>
             )}
         </>
     );
@@ -147,28 +153,40 @@ const toggleWord = (word: string) => {
     }
 };
 
-const messageContextMenuPatch: NavContextMenuPatchCallback = (children, _props) => {
+const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
+    const pinGroup = findGroupChildrenByChildId("pin", children);
+    if (pinGroup) {
+        pinGroup.splice(pinGroup.findIndex(c => c?.props?.id === "pin") + 1, 0, (
+            <Menu.MenuItem
+                id="vc-hidemessages"
+                label="Hide Message"
+                icon={hideIcon(true)}
+                leadingAccessory={{ type: "icon", icon: hideIcon(true) }}
+                action={() => hideMessage(message.id, message.channel_id)}
+            />
+        ));
+    }
+
     const selection = document.getSelection()?.toString();
-    if (!selection) return;
-
-    const group = findGroupChildrenByChildId("search-google", children);
-    if (!group) return;
-
-    const idx = group.findIndex(c => c?.props?.id === "search-google");
-    if (idx === -1) return;
-
-    const exists = settings.store.wordRules.some(r => r.word.toLowerCase() === selection.toLowerCase());
-    const displayText = selection.length > 15 ? selection.slice(0, 15) + "..." : selection;
-
-    group.splice(idx + 1, 0,
-        <Menu.MenuItem
-            key="vc-remove-messages"
-            id="add-message-filter"
-            label={exists ? "Remove MessageFilter" : "Add MessageFilter"}
-            shortcut={displayText}
-            action={() => toggleWord(selection)}
-        />
-    );
+    if (selection) {
+        const searchGroup = findGroupChildrenByChildId("search-google", children);
+        if (searchGroup) {
+            const idx = searchGroup.findIndex(c => c?.props?.id === "search-google");
+            if (idx !== -1) {
+                const exists = settings.store.wordRules.some(r => r.word.toLowerCase() === selection.toLowerCase());
+                const displayText = selection.length > 15 ? selection.slice(0, 15) + "..." : selection;
+                searchGroup.splice(idx + 1, 0,
+                    <Menu.MenuItem
+                        key="vc-remove-messages"
+                        id="add-message-filter"
+                        label={exists ? "Remove MessageFilter" : "Add MessageFilter"}
+                        shortcut={displayText}
+                        action={() => toggleWord(selection)}
+                    />
+                );
+            }
+        }
+    }
 };
 
 const filterMessage = (message: Message) => {
@@ -185,11 +203,7 @@ const filterMessage = (message: Message) => {
     if (!messageContent || typeof messageContent !== "string") return false;
 
     if (removeMode === "entire") {
-        const shouldRemove = wordsToRemove.some(rule => {
-            const match = messageContent.toUpperCase().includes(rule.word.toUpperCase());
-            return match;
-        });
-        return shouldRemove;
+        return wordsToRemove.some(rule => messageContent.toUpperCase().includes(rule.word.toUpperCase()));
     } else {
         let filteredContent = messageContent;
         wordsToRemove.forEach(rule => {
@@ -214,9 +228,49 @@ const filterMessage = (message: Message) => {
     return false;
 };
 
+const hideIcon = (hidden: boolean) => hidden ? Icons.EyeSlashIcon : Icons.EyeIcon;
+
+const hideMessage = (messageId: string, channelId: string) => {
+    FluxDispatcher.dispatch({
+        type: "MESSAGE_DELETE",
+        id: messageId,
+        channelId,
+        mlDeleted: true
+    });
+};
+
+function toggleDm(channelId: string) {
+    if (hiddenDmIds.has(channelId)) {
+        hiddenDmIds.delete(channelId);
+        if (!hiddenDmIds.size) showHiddenDms = false;
+    } else {
+        hiddenDmIds.add(channelId);
+    }
+    privateChannelsListInstance?.forceUpdate();
+}
+
+const userMenuPatch: NavContextMenuPatchCallback = (children, { channel }) => {
+    if (!channel?.isDM()) return;
+    if (isPluginEnabled(pinDms.name) && isPinned(channel.id)) return;
+
+    const group = findGroupChildrenByChildId("pin-dm", children);
+    if (!group) return;
+
+    const hidden = hiddenDmIds.has(channel.id);
+    group.splice(group.findIndex(c => c?.props?.id === "pin-dm") + 1, 0, (
+        <Menu.MenuItem
+            id="vc-hidemessages-dm"
+            label={hidden ? "Unhide DM" : "Hide DM"}
+            icon={hideIcon(hidden)}
+            leadingAccessory={{ type: "icon", icon: hideIcon(hidden) }}
+            action={() => toggleDm(channel.id)}
+        />
+    ));
+};
+
 export default definePlugin({
     name: "HideMessages",
-    description: "Removes messages containing specified words",
+    description: "Filter messages by word/phrase and temporarily hide individual messages or DMs.",
     searchTerms: ["FilterMessages", "RemoveMessages"],
     tags: ["Chat", "Utility", "Privacy"],
     authors: [Devs.RoScripter999],
@@ -224,7 +278,8 @@ export default definePlugin({
     settings,
 
     contextMenus: {
-        "message": messageContextMenuPatch
+        "message": { render: messageContextMenuPatch, required: true },
+        "user-context": { render: userMenuPatch, required: true }
     },
 
     patches: [
@@ -249,8 +304,81 @@ export default definePlugin({
                     replace: "$&;$2=$2.filter(m=>!$self.filterMessage(m))"
                 }
             ]
+        },
+        {
+            find: '"dm-quick-launcher"===',
+            replacement: [
+                {
+                    match: /render\(\)\{/,
+                    replace: "$&this.props.privateChannelIds=$self.filterPrivateChannelIds(this.props.privateChannelIds,this);"
+                },
+                {
+                    match: /renderRow=\i=>\{/,
+                    replace: "$&this.props.privateChannelIds=$self.filterPrivateChannelIds(this.props.privateChannelIds,this);"
+                },
+                {
+                    match: /renderDM=\(\i,\i\)=>\{/,
+                    replace: "$&this.props.privateChannelIds=$self.filterPrivateChannelIds(this.props.privateChannelIds,this);"
+                },
+                {
+                    match: /#{intl::DIRECT_MESSAGES}\)\}\),/,
+                    replace: "$&$self.renderHiddenMessagesToggle(),"
+                }
+            ]
         }
     ],
+
+    messagePopoverButton: {
+        icon: () => <Icons.EyeIcon color="currentColor" size="refresh_sm" />,
+        render(msg) {
+            return {
+                label: "Hide",
+                icon: Icons.EyeIcon,
+                onClick: () => hideMessage(msg.id, msg.channel_id)
+            };
+        }
+    },
+
+    stop() {
+        hiddenDmIds.clear();
+        showHiddenDms = false;
+        privateChannelsListInstance?.forceUpdate();
+        privateChannelsListInstance = null;
+    },
+
+    filterPrivateChannelIds(privateChannelIds: string[], instance?: PrivateChannelsListInstance) {
+        privateChannelsListInstance = instance ?? privateChannelsListInstance;
+        return showHiddenDms ? privateChannelIds : privateChannelIds.filter(id => !hiddenDmIds.has(id));
+    },
+
+    renderHiddenMessagesToggle: ErrorBoundary.wrap(() => {
+        const hasHiddenDms = hiddenDmIds.size > 0;
+        const label = !hasHiddenDms ? "No Hidden DMs" : showHiddenDms ? "Hide Hidden DMs" : "Show Hidden DMs";
+
+        return (
+            <Tooltip text={label}>
+                {tooltipProps => (
+                    <div
+                        {...tooltipProps}
+                        className={cl("button")}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={label}
+                        aria-disabled={!hasHiddenDms}
+                        onClick={event => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            if (!hasHiddenDms) return;
+                            showHiddenDms = !showHiddenDms;
+                            privateChannelsListInstance?.forceUpdate();
+                        }}
+                    >
+                        <Icons.EyeIcon className={cl("icon")} color="currentColor" />
+                    </div>
+                )}
+            </Tooltip>
+        );
+    }, { noop: true }),
 
     filterMessage
 });

@@ -64,6 +64,7 @@ export const settings = definePluginSettings({
     },
     deeplApiKey: {
         type: OptionType.STRING,
+        displayName: "DeepL API Key",
         description: "Get your API key from https://deepl.com/your-account",
         default: ""
     },
