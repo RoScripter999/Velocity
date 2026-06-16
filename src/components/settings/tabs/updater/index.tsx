@@ -19,20 +19,22 @@
 import { useSettings } from "@api/Settings";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
-import { SettingsTab } from "@components/settings/tabs/SectionSettings";
-import { isNewer } from "@utils/updater";
+import { SectionHeader, SettingsTab } from "@components/settings";
+import { useAwaiter } from "@utils/react";
+import { getRepo, isNewer, UpdateLogger } from "@utils/updater";
 import { Forms, useState } from "@webpack/common";
 
-import gitHash from "~git-hash";
-
-import { SectionHeader } from "../SectionHeader";
-import { CommonProps, Newer, Repo, Updatable } from "./Components";
+import { type CommonProps, Newer, Repo, Updatable } from "./Components";
 
 export default IS_UPDATER_DISABLED ? null : function Updater() {
     const settings = useSettings(["autoUpdate", "autoUpdateNotification"]);
+    const [repo, err, repoPending] = useAwaiter(getRepo, {
+        fallbackValue: "Loading...",
+        onError: e => UpdateLogger.error("Failed to retrieve repo", e)
+    });
     const [checkingUpdate, setCheckingUpdate] = useState(false);
 
-    const commonProps: CommonProps = { checkingUpdate, setCheckingUpdate };
+    const commonProps: CommonProps = { repo, repoPending, checkingUpdate, setCheckingUpdate };
 
     return (
         <SettingsTab>
@@ -57,13 +59,11 @@ export default IS_UPDATER_DISABLED ? null : function Updater() {
                 disabled={!settings.autoUpdate}
             />
 
-            <Heading tag="h5">Repository</Heading>
-
-            <Repo gitHash={gitHash} />
+            <Repo {...commonProps} error={err} />
 
             <Forms.FormDivider gap={8} />
 
-            <Heading tag="h5">Updates</Heading>
+            <Heading>Updates</Heading>
 
             {isNewer ? <Newer {...commonProps} /> : <Updatable {...commonProps} />}
         </SettingsTab>

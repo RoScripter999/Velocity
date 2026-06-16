@@ -22,9 +22,9 @@ import { Flex } from "@components/Flex";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
+import { gitHash } from "@shared/userAgent";
 import { relaunch } from "@utils/native";
-import { useAwaiter } from "@utils/react";
-import { changes, checkForUpdates, getRepo, update, updateError } from "@utils/updater";
+import { changes, checkForUpdates, update, updateError } from "@utils/updater";
 import { Buttons, ConfirmModal, Forms, Icons, LoadingIndicator, openModal, Text, Toasts, useState } from "@webpack/common";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -32,6 +32,8 @@ import { SectionHeader } from "../SectionHeader";
 import { runWithDispatch } from "./runWithDispatch";
 
 export interface CommonProps {
+    repo: string;
+    repoPending: boolean;
     checkingUpdate?: boolean;
     setCheckingUpdate?: Dispatch<SetStateAction<boolean>>;
 }
@@ -45,25 +47,27 @@ export function HashLink({ repo, hash, disabled = false }: { repo: string; hash:
 }
 
 
-export function Repo({ gitHash }: { gitHash: string; }) {
-    const [repo, err, repoPending] = useAwaiter(getRepo, { fallbackValue: "Loading..." });
-
+export function Repo(props: CommonProps & { error: any; }) {
+    const { error } = props;
     return (
-        <Paragraph>
-            {repoPending ? (
-                <Flex alignItems="center" gap={6}>
-                    <LoadingIndicator type="wanderingCubes" />
-                    <span>Loading repository...</span>
-                </Flex>
-            ) : err ? (
-                "Failed to retrieve - check console"
-            ) : (
-                <>
-                    <Link href={repo}>{repo.split("/").slice(-2).join("/")}</Link>{" "}
-                    (<HashLink hash={gitHash} repo={repo} disabled={repoPending} />)
-                </>
-            )}
-        </Paragraph>
+        <>
+            <Forms.FormTitle tag="h5">Repository</Forms.FormTitle>
+            <Paragraph>
+                {props.repoPending ? (
+                    <Flex alignItems="center" gap={6}>
+                        <LoadingIndicator type="wanderingCubes" />
+                        <span>Loading repository...</span>
+                    </Flex>
+                ) : error || !props.repo ? (
+                    "Failed to retrieve - check console"
+                ) : (
+                    <>
+                        <Link href={props.repo}>{props.repo.split("/").slice(-2).join("/")}</Link>{" "}
+                        (<HashLink hash={gitHash} repo={props.repo} disabled={props.repoPending} />)
+                    </>
+                )}
+            </Paragraph>
+        </>
     );
 }
 
@@ -91,8 +95,6 @@ export function Changes({ updates, repo, repoPending }: { updates: typeof change
 }
 
 export function Newer(props: CommonProps) {
-    const [repo, , repoPending] = useAwaiter(getRepo, { fallbackValue: "" });
-
     return (
         <div>
             <SectionHeader
@@ -100,13 +102,12 @@ export function Newer(props: CommonProps) {
                 description="Your local copy has more recent commits. Please stash or reset them."
                 margin="bottom16"
             />
-            <Changes updates={changes} repo={repo} repoPending={repoPending} />
+            <Changes {...props} updates={changes} />
         </div>
     );
 }
 
 export function Updatable(props: CommonProps) {
-    const [repo, , repoPending] = useAwaiter(getRepo, { fallbackValue: "" });
     const [updates, setUpdates] = useState(changes);
     const [isChecking, setIsChecking] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -138,7 +139,7 @@ export function Updatable(props: CommonProps) {
                 />
             )}
 
-            {isOutdated && <Changes updates={updates} repo={repo} repoPending={repoPending} />}
+            {isOutdated && <Changes updates={updates} {...props} />}
 
             <Buttons.ButtonGroup direction="horizontal" className={Margins.top16}>
                 {isOutdated && (
