@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { shiki } from "@plugins/shikiCodeblocks.desktop/api/shiki";
+import { settings as pluginSettings, type ShikiSettings } from "@plugins/shikiCodeblocks.desktop/settings";
 import { useState } from "@webpack/common";
-
-import { shiki } from "../api/shiki";
-import { settings as pluginSettings, type ShikiSettings } from "../settings";
 
 export function useShikiSettings<F extends keyof ShikiSettings>(settingKeys: F[]) {
     const settings = pluginSettings.use([...settingKeys, "customTheme", "theme"]);

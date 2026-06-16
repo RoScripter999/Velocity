@@ -6,8 +6,8 @@ const handleClick = async () =>
 
 export const Example: FC<{
     real: boolean,
-    shigged?: number,
-}> = ({ real, shigged }) => <>
-    <p>{`Shigg${real ? `ies${shigged === 0x1B ? "t" : ""}` : "y"}`}</p>
+    zapped?: number,
+}> = ({ real, zapped }) => <>
+    <p>{`Zap${real ? `pe${zapped ? "d" : ""}` : "y"}`}</p>
     <button onClick={handleClick}>Click Me</button>
 </>;
