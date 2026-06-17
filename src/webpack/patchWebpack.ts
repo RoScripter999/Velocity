@@ -22,15 +22,11 @@ import { traceFunctionWithResults } from "@debug/Tracer";
 import { makeLazy } from "@utils/lazy";
 import { Logger } from "@utils/Logger";
 import { interpolateIfDefined } from "@utils/misc";
-import { canonicalizeMatch } from "@utils/patches";
 import type { Patch, PatchReplacement } from "@utils/types";
 import type { WebpackRequire } from "@velocity-types/webpack";
 
 import type { AnyModuleFactory, AnyWebpackRequire, MaybePatchedModuleFactory, PatchedModuleFactory } from "./types";
-import { _blacklistBadModules, _initWebpack, DefaultExtractAndLoadChunksRegex, factoryListeners, findModuleFactory, moduleListeners, waitForSubscriptions, wreq } from "./webpack";
-
-// Global version of DefaultExtractAndLoadChunksRegex with \i expanded, for iterating all lazy loaders in a factory
-const LazyChunkLoaderRegex = canonicalizeMatch(new RegExp(DefaultExtractAndLoadChunksRegex.source, "g"));
+import { _blacklistBadModules, _initWebpack, factoryListeners, findModuleFactory, moduleListeners, waitForSubscriptions, wreq } from "./webpack";
 
 export const patches = [] as Patch[];
 
