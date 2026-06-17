@@ -132,14 +132,6 @@ function TestTab() {
 
     }
 
-    Velocity.Webpack.Common.FluxDispatcher.dispatch({
-        type: "APEX_EXPERIMENT_OVERRIDE_CREATE",
-        experimentName: "2026-02-private-channel-hiding",
-        variantId: -1
-    }).then(() => {
-        setTimeout(() => (DiscordNative.app.relaunch() ?? location.reload()), 1000);
-    });
-
     return (
         <div>
             <div className={Margins.bottom20}>
