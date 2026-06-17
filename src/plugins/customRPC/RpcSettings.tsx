@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Velocity, a modification for Discord's desktop app
  * Copyright (c) 2025 RoScripter999 and contributors
  *
@@ -18,33 +18,15 @@
 
 import "./settings.css";
 
-import { isPluginEnabled } from "@api/PluginManager";
+import { ExpandableCard } from "@components/ExpandableCard";
 import { resolveError } from "@components/settings/tabs/plugins/components/Common";
-import { debounce } from "@shared/debounce";
 import { classNameFactory } from "@utils/css";
 import { ActivityType } from "@velocity-types/enums";
-import { Forms, Select, Text, TextInput, useState } from "@webpack/common";
+import { Buttons, Forms, Icons, Select, SnowflakeUtils, Text, TextInput, useState } from "@webpack/common";
 
-import CustomRPCPlugin, { setRpc, settings, TimestampMode } from ".";
+import { type RPCPreset, setRpc, settings, TimestampMode } from ".";
 
 const cl = classNameFactory("vc-customRPC-settings-");
-
-type SettingsKey = keyof typeof settings.store;
-
-interface TextOption<T> {
-    settingsKey: SettingsKey;
-    label: string;
-    disabled?: boolean;
-    transform?: (value: string) => T;
-    isValid?: (value: T) => true | string;
-}
-
-interface SelectOption<T> {
-    settingsKey: SettingsKey;
-    label: string;
-    disabled?: boolean;
-    options: { label: string; value: T; default?: boolean; }[];
-}
 
 const makeValidator = (maxLength: number, isRequired = false) => (value: string) => {
     if (isRequired && !value) return "This field is required.";
@@ -52,30 +34,11 @@ const makeValidator = (maxLength: number, isRequired = false) => (value: string)
     return true;
 };
 
-const maxLength128 = makeValidator(128);
-
-function isAppIdValid(value: string) {
-    if (!/^\d{16,21}$/.test(value)) return "Must be a valid Discord ID.";
+function isStreamLinkValid(value: string, type: ActivityType | undefined) {
+    if (type === ActivityType.STREAMING && value && !/https?:\/\/(www\.)?(twitch\.tv|youtube\.com)\/\w+/.test(value))
+        return "Must be a valid Twitch or YouTube URL.";
+    if (value && value.length > 512) return "Must be not longer than 512 characters.";
     return true;
-}
-
-const updateRPC = debounce(() => {
-    setRpc(true);
-    if (isPluginEnabled(CustomRPCPlugin.name)) setRpc();
-});
-
-function isStreamLinkDisabled() {
-    return settings.store.type !== ActivityType.STREAMING;
-}
-
-function isStreamLinkValid(value: string) {
-    if (!isStreamLinkDisabled() && !/https?:\/\/(www\.)?(twitch\.tv|youtube\.com)\/\w+/.test(value)) return "Streaming link must be a valid URL.";
-    if (value && value.length > 512) return "Streaming link must be not longer than 512 characters.";
-    return true;
-}
-
-function parseNumber(value: string) {
-    return value ? parseInt(value, 10) : 0;
 }
 
 function isNumberValid(value: number) {
@@ -91,212 +54,263 @@ function isUrlValid(value: string) {
 
 function isImageKeyValid(value: string) {
     if (/https?:\/\/(cdn|media)\.discordapp\.(com|net)\//.test(value)) return "Don't use a Discord link. Use an Imgur image link instead.";
-    if (/https?:\/\/(?!i\.)?imgur\.com\//.test(value)) return "Imgur link must be a direct link to the image (e.g. https://i.imgur.com/...). Right click the image and click 'Copy image address'";
-    if (/https?:\/\/(?!media\.)?tenor\.com\//.test(value)) return "Tenor link must be a direct link to the image (e.g. https://media.tenor.com/...). Right click the GIF and click 'Copy image address'";
+    if (/https?:\/\/(?!i\.)?imgur\.com\//.test(value)) return "Imgur link must be a direct link (e.g. https://i.imgur.com/...).";
+    if (/https?:\/\/(?!media\.)?tenor\.com\//.test(value)) return "Tenor link must be a direct link (e.g. https://media.tenor.com/...).";
     return true;
 }
 
-function PairSetting<T>(props: { data: [TextOption<T>, TextOption<T>]; }) {
-    const [left, right] = props.data;
+type FieldProps = { label: string; disabled?: boolean; } & ({
+    type?: "text";
+    initialValue?: string;
+    onChange: (value: string) => void;
+    isValid?: (value: string) => true | string;
+    placeholder?: string;
+} | {
+    type: "number";
+    initialValue?: number;
+    onChange: (value: number) => void;
+});
 
-    return (
-        <div className={cl("pair")}>
-            <SingleSetting {...left} />
-            <SingleSetting {...right} />
-        </div>
-    );
-}
+function Field(props: FieldProps) {
+    const isNumber = props.type === "number";
 
-function SingleSetting<T>({ settingsKey, label, disabled, isValid, transform }: TextOption<T>) {
-    const [state, setState] = useState(settings.store[settingsKey] ?? "");
+    const [state, setState] = useState(isNumber ? (props.initialValue != null ? String(props.initialValue) : "") : (props.initialValue ?? ""));
     const [error, setError] = useState<string | null>(null);
 
-    function handleChange(newValue: any) {
-        if (transform) newValue = transform(newValue);
+    function handleChange(newValue: string) {
+        if (isNumber) {
+            const valid = newValue ? isNumberValid(parseInt(newValue, 10)) : true;
+            setState(newValue);
+            setError(resolveError(valid));
+        } else {
+            const valid = props.isValid?.(newValue) ?? true;
+            setState(newValue);
+            setError(resolveError(valid));
+        }
+    }
 
-        const valid = isValid?.(newValue) ?? true;
-
-        setState(newValue);
-        setError(resolveError(valid));
-
-        if (valid === true) {
-            settings.store[settingsKey] = newValue;
-            updateRPC();
+    function handleBlur() {
+        if (error) return;
+        if (isNumber) {
+            const parsed = state ? parseInt(state, 10) : 0;
+            if (!isNaN(parsed) && parsed >= 0)
+                props.onChange(parsed);
+        } else {
+            if ((props.isValid?.(state) ?? true) === true) props.onChange(state);
         }
     }
 
     return (
-        <div className={cl("single", { disabled })}>
-            <Forms.FormTitle tag="h5">{label}</Forms.FormTitle>
-            <TextInput
-                type="text"
-                placeholder="Enter a value"
-                value={state}
-                onChange={handleChange}
-                disabled={disabled}
-            />
-            {error && <Text className={cl("error")} variant="text-sm/normal">{error}</Text>}
-        </div>
+        <TextInput
+            type="text"
+            label={props.label}
+            placeholder={isNumber ? "0" : props.placeholder ?? "Enter a value"}
+            value={state}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            disabled={props.disabled}
+            error={error ?? undefined}
+        />
     );
 }
 
-function SelectSetting<T>({ settingsKey, label, options, disabled }: SelectOption<T>) {
+function PresetCard({ preset, isActive, onDelete }: { preset: RPCPreset; isActive: boolean; onDelete: () => void; }) {
+    const isStreaming = preset.type === ActivityType.STREAMING;
+    const isPlaying = preset.type == null || preset.type === ActivityType.PLAYING;
+    const isCustomTs = preset.timestampMode === TimestampMode.CUSTOM;
+
+    function update<K extends keyof RPCPreset>(key: K, value: RPCPreset[K]) {
+        const p = settings.store.presets?.find(p => p.name === preset.name);
+        if (p) p[key] = value;
+        if (isActive) setRpc();
+    }
+
+    function saveNameOnBlur(newName: string) {
+        const trimmed = newName.trim();
+        if (!trimmed || trimmed === preset.name) return;
+        const raw = settings.plain.presets ?? [];
+        if (raw.some(p => p.name === trimmed && p.name !== preset.name)) return;
+        if (isActive) settings.store.activePreset = trimmed;
+        settings.store.presets = raw.map(p =>
+            p.name === preset.name ? { ...p, name: trimmed } : p
+        );
+    }
+
     return (
-        <div className={cl("single", { disabled })}>
-            <Forms.FormTitle tag="h5">{label}</Forms.FormTitle>
-            <Select
-                placeholder="Select an option"
-                options={options}
-                maxVisibleItems={5}
-                closeOnSelect={true}
-                select={v => settings.store[settingsKey] = v}
-                isSelected={v => v === settings.store[settingsKey]}
-                serialize={v => String(v)}
-                isDisabled={disabled}
-            />
-        </div>
+        <ExpandableCard
+            buttons={[{ icon: Icons.TrashIcon, onClick: onDelete }]}
+            render={() => (
+                <div className={cl("body")}>
+                    <TextInput defaultValue={preset.name} onBlur={e => saveNameOnBlur(e.currentTarget.value)} label="Preset Name" placeholder="Example: Infinite Minecraft Time Played" spellCheck={false} />
+
+                    <Forms.FormDivider gap={8} />
+
+                    <Select
+                        label="Activity Type"
+                        placeholder="Select an option"
+                        options={[
+                            { label: "Playing", value: ActivityType.PLAYING, default: true },
+                            { label: "Streaming", value: ActivityType.STREAMING },
+                            { label: "Listening", value: ActivityType.LISTENING },
+                            { label: "Watching", value: ActivityType.WATCHING },
+                            { label: "Competing", value: ActivityType.COMPETING }
+                        ]}
+                        select={v => update("type", v)}
+                        isSelected={v => v === (preset.type ?? ActivityType.PLAYING)}
+                        serialize={v => String(v)}
+                    />
+
+                    <div className={cl("pair")}>
+                        <Field label="Application ID" initialValue={preset.appID} onChange={v => update("appID", v)} isValid={value => {
+                            if (value && value !== "1" && !SnowflakeUtils.isProbablyAValidSnowflake(value)) return "Must be a valid Discord ID."; return true;
+                        }} />
+                        <Field label="Application Name" initialValue={preset.appName} onChange={v => update("appName", v)} isValid={makeValidator(128, true)} />
+                    </div>
+
+                    <div className={cl("pair")}>
+                        <Field label="Detail (line 1)" initialValue={preset.details} onChange={v => update("details", v)} isValid={makeValidator(128)} />
+                        <Field label="Detail URL" initialValue={preset.detailsURL} onChange={v => update("detailsURL", v)} isValid={isUrlValid} />
+                    </div>
+
+                    <div className={cl("pair")}>
+                        <Field label="State (line 2)" initialValue={preset.state} onChange={v => update("state", v)} isValid={makeValidator(128)} />
+                        <Field label="State URL" initialValue={preset.stateURL} onChange={v => update("stateURL", v)} isValid={isUrlValid} />
+                    </div>
+
+                    <Field
+                        label="Stream Link (Twitch or YouTube)"
+                        initialValue={preset.streamLink}
+                        onChange={v => update("streamLink", v)}
+                        isValid={v => isStreamLinkValid(v, preset.type)}
+                        disabled={!isStreaming}
+                    />
+
+                    <div className={cl("pair")}>
+                        <Field type="number" label="Party Size" initialValue={preset.partySize} onChange={v => update("partySize", v)} disabled={!isPlaying} />
+                        <Field type="number" label="Maximum Party Size" initialValue={preset.partyMaxSize} onChange={v => update("partyMaxSize", v)} disabled={!isPlaying} />
+                    </div>
+
+                    <Forms.FormDivider />
+
+                    <div className={cl("pair")}>
+                        <Field label="Large Image URL/Key" initialValue={preset.imageBig} onChange={v => update("imageBig", v)} isValid={isImageKeyValid} />
+                        <Field label="Large Image Text" initialValue={preset.imageBigTooltip} onChange={v => update("imageBigTooltip", v)} isValid={makeValidator(128)} />
+                    </div>
+                    <Field label="Large Image clickable URL" initialValue={preset.imageBigURL} onChange={v => update("imageBigURL", v)} isValid={isUrlValid} />
+
+                    <div className={cl("pair")}>
+                        <Field label="Small Image URL/Key" initialValue={preset.imageSmall} onChange={v => update("imageSmall", v)} isValid={isImageKeyValid} />
+                        <Field label="Small Image Text" initialValue={preset.imageSmallTooltip} onChange={v => update("imageSmallTooltip", v)} isValid={makeValidator(128)} />
+                    </div>
+                    <Field label="Small Image clickable URL" initialValue={preset.imageSmallURL} onChange={v => update("imageSmallURL", v)} isValid={isUrlValid} />
+
+                    <Forms.FormDivider />
+
+                    <div className={cl("pair")}>
+                        <Field label="Button 1 Text" initialValue={preset.buttonOneText} onChange={v => update("buttonOneText", v)} isValid={makeValidator(31)} />
+                        <Field label="Button 1 URL" initialValue={preset.buttonOneURL} onChange={v => update("buttonOneURL", v)} isValid={isUrlValid} />
+                    </div>
+                    <div className={cl("pair")}>
+                        <Field label="Button 2 Text" initialValue={preset.buttonTwoText} onChange={v => update("buttonTwoText", v)} isValid={makeValidator(31)} />
+                        <Field label="Button 2 URL" initialValue={preset.buttonTwoURL} onChange={v => update("buttonTwoURL", v)} isValid={isUrlValid} />
+                    </div>
+
+                    <Forms.FormDivider />
+
+                    <Select
+                        label="Timestamp Mode"
+                        placeholder="Select an option"
+                        options={[
+                            { label: "None", value: TimestampMode.NONE, default: true },
+                            { label: "Since discord open", value: TimestampMode.NOW },
+                            { label: "Same as your current time", value: TimestampMode.TIME },
+                            { label: "Custom", value: TimestampMode.CUSTOM }
+                        ]}
+                        maxVisibleItems={5}
+                        closeOnSelect={true}
+                        select={v => update("timestampMode", v)}
+                        isSelected={v => v === (preset.timestampMode ?? TimestampMode.NONE)}
+                        serialize={v => String(v)}
+                    />
+                    <div className={cl("pair")}>
+                        <Field type="number" label="Start Timestamp (ms)" initialValue={preset.startTime} onChange={v => update("startTime", v)} disabled={!isCustomTs} />
+                        <Field type="number" label="End Timestamp (ms)" initialValue={preset.endTime} onChange={v => update("endTime", v)} disabled={!isCustomTs} />
+                    </div>
+                </div>
+            )}
+        >
+            <div>
+                <Text variant="text-md/semibold">{preset.name}</Text>
+                {preset.appName && <Text variant="text-sm/normal" color="text-muted">{preset.appName}</Text>}
+            </div>
+        </ExpandableCard>
     );
 }
 
 export function RPCSettings() {
     const s = settings.use();
+    const [newName, setNewName] = useState("");
+
+    const presets = s.presets || [];
+
+    function savePreset() {
+        const raw = settings.plain.presets ?? [];
+        let name = newName.trim();
+        if (!name) {
+            let i = raw.length + 1;
+            while (raw.some(p => p.name === `Preset ${i}`)) i++;
+            name = `Preset ${i}`;
+        }
+        if (raw.some(p => p.name === name)) return;
+        settings.store.presets = [...raw, { name }];
+        setNewName("");
+    }
+
+    function deletePreset(name: string) {
+        const raw = settings.plain.presets ?? [];
+        settings.store.presets = raw.filter(p => p.name !== name);
+        if (settings.plain.activePreset === name) {
+            settings.store.activePreset = undefined;
+            setRpc(true);
+        }
+    }
 
     return (
-        <div className={cl("root")}>
-            <SelectSetting
-                settingsKey="type"
-                label="Activity Type"
-                options={[
-                    {
-                        label: "Playing",
-                        value: ActivityType.PLAYING,
-                        default: true
-                    },
-                    {
-                        label: "Streaming",
-                        value: ActivityType.STREAMING
-                    },
-                    {
-                        label: "Listening",
-                        value: ActivityType.LISTENING
-                    },
-                    {
-                        label: "Watching",
-                        value: ActivityType.WATCHING
-                    },
-                    {
-                        label: "Competing",
-                        value: ActivityType.COMPETING
-                    }
-                ]}
-            />
+        <section className={cl("section")}>
+            {presets.length > 0 && <>
+                <Forms.FormTitle tag="h4">Controls</Forms.FormTitle>
 
-            <PairSetting data={[
-                { settingsKey: "appID", label: "Application ID", isValid: isAppIdValid },
-                { settingsKey: "appName", label: "Application Name", isValid: makeValidator(128, true) }
-            ]} />
+                <Select
+                    placeholder="Select active preset RPC..."
+                    options={presets.map(p => ({ value: p.name, label: p.name }))}
+                    select={v => { settings.store.activePreset = v; setRpc(); }}
+                    isSelected={v => v === s.activePreset}
+                    serialize={String}
+                />
+            </>}
+            <Forms.FormTitle tag="h4">Presets</Forms.FormTitle>
 
-            <PairSetting data={[
-                { settingsKey: "details", label: "Detail (line 1)", isValid: maxLength128 },
-                { settingsKey: "detailsURL", label: "Detail URL", isValid: isUrlValid }
-            ]} />
+            <div className={cl("save-row")}>
+                <TextInput size="sm" value={newName} onChange={setNewName} placeholder="Preset name (optional)" />
+                <Buttons.Button size="sm" text="Create" variant="secondary" onClick={savePreset} />
+            </div>
 
-            <PairSetting data={[
-                { settingsKey: "state", label: "State (line 2)", isValid: maxLength128 },
-                { settingsKey: "stateURL", label: "State URL", isValid: isUrlValid }
-            ]} />
-
-            <SingleSetting
-                settingsKey="streamLink"
-                label="Stream Link (Twitch or YouTube, only if activity type is Streaming)"
-                disabled={s.type !== ActivityType.STREAMING}
-                isValid={isStreamLinkValid}
-            />
-
-            <PairSetting data={[
-                {
-                    settingsKey: "partySize",
-                    label: "Party Size",
-                    transform: parseNumber,
-                    isValid: isNumberValid,
-                    disabled: s.type !== ActivityType.PLAYING
-                },
-                {
-                    settingsKey: "partyMaxSize",
-                    label: "Maximum Party Size",
-                    transform: parseNumber,
-                    isValid: isNumberValid,
-                    disabled: s.type !== ActivityType.PLAYING
-                }
-            ]} />
-
-            <Forms.FormDivider />
-
-            <PairSetting data={[
-                { settingsKey: "imageBig", label: "Large Image URL/Key", isValid: isImageKeyValid },
-                { settingsKey: "imageBigTooltip", label: "Large Image Text", isValid: maxLength128 }
-            ]} />
-            <SingleSetting settingsKey="imageBigURL" label="Large Image clickable URL" isValid={isUrlValid} />
-
-            <PairSetting data={[
-                { settingsKey: "imageSmall", label: "Small Image URL/Key", isValid: isImageKeyValid },
-                { settingsKey: "imageSmallTooltip", label: "Small Image Text", isValid: maxLength128 }
-            ]} />
-            <SingleSetting settingsKey="imageSmallURL" label="Small Image clickable URL" isValid={isUrlValid} />
-
-            <Forms.FormDivider />
-
-            <PairSetting data={[
-                { settingsKey: "buttonOneText", label: "Button1 Text", isValid: makeValidator(31) },
-                { settingsKey: "buttonOneURL", label: "Button1 URL", isValid: isUrlValid }
-            ]} />
-            <PairSetting data={[
-                { settingsKey: "buttonTwoText", label: "Button2 Text", isValid: makeValidator(31) },
-                { settingsKey: "buttonTwoURL", label: "Button2 URL", isValid: isUrlValid }
-            ]} />
-
-            <Forms.FormDivider />
-
-            <SelectSetting
-                settingsKey="timestampMode"
-                label="Timestamp Mode"
-                options={[
-                    {
-                        label: "None",
-                        value: TimestampMode.NONE,
-                        default: true
-                    },
-                    {
-                        label: "Since discord open",
-                        value: TimestampMode.NOW
-                    },
-                    {
-                        label: "Same as your current time (not reset after 24h)",
-                        value: TimestampMode.TIME
-                    },
-                    {
-                        label: "Custom",
-                        value: TimestampMode.CUSTOM
-                    }
-                ]}
-            />
-
-            <PairSetting data={[
-                {
-                    settingsKey: "startTime",
-                    label: "Start Timestamp (in milliseconds)",
-                    transform: parseNumber,
-                    isValid: isNumberValid,
-                    disabled: s.timestampMode !== TimestampMode.CUSTOM
-                },
-                {
-                    settingsKey: "endTime",
-                    label: "End Timestamp (in milliseconds)",
-                    transform: parseNumber,
-                    isValid: isNumberValid,
-                    disabled: s.timestampMode !== TimestampMode.CUSTOM
-                }
-            ]} />
-        </div>
+            {presets.length === 0 ? (
+                <Text variant="text-sm/normal" className={cl("empty")}>
+                    No presets yet. Create one above to get started.
+                </Text>
+            ) : (
+                <div className={cl("list")}>
+                    {presets.map((preset, i) => (
+                        <PresetCard
+                            key={i}
+                            preset={preset}
+                            isActive={preset.name === s.activePreset}
+                            onDelete={() => deletePreset(preset.name)}
+                        />
+                    ))}
+                </div>
+            )}
+        </section>
     );
 }

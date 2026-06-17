@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { ErrorCard } from "@components/ErrorBoundary";
@@ -40,8 +41,13 @@ const ActivityView = findComponentByCodeLazy(".party?(0", "USER_PROFILE_ACTIVITY
 
 const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
 
+function getActivePreset() {
+    const { presets, activePreset } = settings.store;
+    return presets?.find(p => p.name === activePreset);
+}
+
 async function getApplicationAsset(key: string): Promise<string> {
-    return (await ApplicationAssetUtils.fetchAssetIds(settings.store.appID!, [key]))[0];
+    return await ApplicationAssetUtils.fetchAssetIds(getActivePreset()?.appID, [key])[0];
 }
 
 export const enum TimestampMode {
@@ -51,12 +57,8 @@ export const enum TimestampMode {
     CUSTOM,
 }
 
-export const settings = definePluginSettings({
-    config: {
-        type: OptionType.COMPONENT,
-        component: RPCSettings
-    }
-}).withPrivateSettings<{
+export type RPCPreset = {
+    name: string;
     appID?: string;
     appName?: string;
     details?: string;
@@ -80,9 +82,22 @@ export const settings = definePluginSettings({
     buttonTwoURL?: string;
     partySize?: number;
     partyMaxSize?: number;
+};
+
+export const settings = definePluginSettings({
+    config: {
+        type: OptionType.COMPONENT,
+        component: RPCSettings
+    }
+}).withPrivateSettings<{
+    presets?: RPCPreset[];
+    activePreset?: string;
 }>();
 
 async function createActivity(): Promise<Activity | undefined> {
+    const preset = getActivePreset();
+    if (!preset?.appName) return;
+
     const {
         appID,
         appName,
@@ -107,7 +122,7 @@ async function createActivity(): Promise<Activity | undefined> {
         partyMaxSize,
         partySize,
         timestampMode
-    } = settings.store;
+    } = preset;
 
     if (!appName) return;
 
@@ -201,7 +216,8 @@ async function createActivity(): Promise<Activity | undefined> {
 }
 
 export async function setRpc(disable?: boolean) {
-    const activity: Activity | undefined = await createActivity();
+    if (!isPluginEnabled(settings.pluginName)) return;
+    const activity = await createActivity();
 
     FluxDispatcher.dispatch({
         type: "LOCAL_ACTIVITY_UPDATE",
@@ -232,7 +248,7 @@ export default definePlugin({
     ],
 
     settingsAboutComponent: () => {
-        const [activity] = useAwaiter(createActivity, { fallbackValue: undefined, deps: Object.values(settings.store) });
+        const [activity] = useAwaiter(createActivity, { fallbackValue: undefined, deps: Object.values(settings.plain) });
         const gameActivityEnabled = ShowCurrentGame.useSetting();
         const { profileThemeStyle } = useProfileThemeStyle({});
 
@@ -241,17 +257,14 @@ export default definePlugin({
                 {!gameActivityEnabled && (
                     <ErrorCard
                         className={classes(Margins.top16, Margins.bottom16)}
-                        style={{ padding: "1em" }}
                     >
-                        <SectionHeader tag="h5" title="Notice" description="Activity Sharing isn't enabled, people won't be able to see your custom rich presence!" />
-                        <div className={Margins.top8}>
-                            <Buttons.Button
-                                text="Enable Activity Sharing"
-                                variant="secondary"
-                                onClick={() => ShowCurrentGame.updateSetting(true)}
-                                fullWidth
-                            />
-                        </div>
+                        <SectionHeader tag="h2" title="Warning" description="Activity Sharing isn't enabled, people won't be able to see your custom rich presence!" margin="bottom8" />
+                        <Buttons.Button
+                            text="Enable Activity Sharing"
+                            variant="secondary"
+                            onClick={() => ShowCurrentGame.updateSetting(true)}
+                            fullWidth
+                        />
                     </ErrorCard>
                 )}
 
@@ -272,16 +285,19 @@ export default definePlugin({
                     <Paragraph>
                         Some weird unicode text ("fonts" 𝖑𝖎𝖐𝖊 𝖙𝖍𝖎𝖘) may cause the rich presence to not show up, try using normal letters instead.
                     </Paragraph>
+                    <Paragraph>
+                        Note that your custom RPC may take some time to update due to multiple repeated changes
+                    </Paragraph>
                 </Flex>
 
                 <Forms.FormDivider className={Margins.top8} />
 
-
-                <div style={{ width: "284px", ...profileThemeStyle, marginTop: 8, borderRadius: 8, background: "var(--background-mod-muted, var(--background-mod-faint))" }}>                    {activity && <ActivityView
-                    activity={activity}
-                    user={UserStore.getCurrentUser()}
-                    currentUser={UserStore.getCurrentUser()}
-                />}
+                <div style={{ width: "284px", ...profileThemeStyle, marginTop: 8, borderRadius: 8, background: "var(--background-mod-muted, var(--background-mod-faint))" }}>
+                    {activity && isPluginEnabled(settings.pluginName) && <ActivityView
+                        activity={activity}
+                        user={UserStore.getCurrentUser()}
+                        currentUser={UserStore.getCurrentUser()}
+                    />}
                 </div>
             </>
         );

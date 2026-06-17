@@ -1,7 +1,39 @@
-.vc-customRPC-settings-root {
+.vc-customRPC-settings-section {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
+}
+
+.vc-customRPC-settings-save-row {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+
+    & > *:first-child {
+        flex: 1;
+    }
+}
+
+.vc-customRPC-settings-empty {
+    color: var(--text-muted);
+    padding: 4px 0;
+}
+
+.vc-customRPC-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+}
+
+.vc-customRPC-settings-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vc-customRPC-settings-field {
+    display: grid;
+    gap: 4px;
 
     & h5 {
         margin: 0;
@@ -14,18 +46,4 @@
     align-items: start;
     gap: 0.5em;
     width: 100%;
-}
-
-.vc-customRPC-settings-single {
-    display: grid;
-    gap: 0.5em;
-}
-
-.vc-customRPC-settings-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.vc-customRPC-settings-error {
-    color: var(--text-feedback-critical, var(--text-danger));
 }
