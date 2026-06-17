@@ -20,13 +20,12 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { Icons, RelationshipStore, Text } from "@webpack/common";
+import { findByCodeLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
+import { i18n, Icons, RelationshipStore, Text } from "@webpack/common";
 
 const WrapperClasses = findCssClassesLazy("memberSinceWrapper");
 const ContainerClasses = findCssClassesLazy("memberSince");
 const getCreatedAtDate = findByCodeLazy('month:"short",day:"numeric"');
-const locale = findByPropsLazy("getLocale");
 const Section = findComponentByCodeLazy("headingVariant:", '"section"', "headingIcon:");
 
 export default definePlugin({
@@ -76,7 +75,7 @@ export default definePlugin({
                 {
                     isSidebar ? (
                         <Text variant="text-sm/normal">
-                            {getCreatedAtDate(friendsSince, locale.getLocale())}
+                            {getCreatedAtDate(friendsSince, i18n.t.getLocale())}
                         </Text>
                     ) : (
                         <div className={WrapperClasses.memberSinceWrapper}>
@@ -85,7 +84,7 @@ export default definePlugin({
                                     <Icons.FriendsIcon size="xs" />
                                 )}
                                 <Text variant="text-sm/normal">
-                                    {getCreatedAtDate(friendsSince, locale.getLocale())}
+                                    {getCreatedAtDate(friendsSince, i18n.t.getLocale())}
                                 </Text>
                             </div>
                         </div>
