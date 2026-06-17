@@ -214,3 +214,17 @@ export const enum NestedPanelLeadingDecorationType {
     /** Renders a Icon component decoration with background */
     ICON = 0,
 }
+
+export const enum BadgeType {
+    NEW = 0,
+    BETA = 1,
+    /** @ignore Undocumented enum */
+    COUNT = 2,
+    /** @ignore Undocumented enum */
+    WARNING = 3,
+    /**
+     * @ignore Undocumented enum
+     * Renders any custom component.
+     */
+    STRONGLY_DISCOURAGED_CUSTOM = 4
+}
