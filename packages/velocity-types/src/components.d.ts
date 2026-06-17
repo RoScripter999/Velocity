@@ -130,6 +130,10 @@ export type Field = ComponentType<PropsWithChildren<{
     description?: string;
     /** Displayed below the control or label depending on {@link auxiliaryContentPosition} */
     helperText?: string;
+    /**
+    * Used to connect interactive components, such as {@link TextInput} and other Form based components.
+    * When the IDs match, it links the label and other associated elements to the child control.
+    */
     id?: string;
     /** Renders a critical/red error message, takes priority over {@link helperText} and {@link successMessage} */
     errorMessage?: string;
@@ -154,8 +158,8 @@ export type Field = ComponentType<PropsWithChildren<{
     auxiliaryContentPosition?: "under-control" | "under-label";
     /** Extra content rendered after the helper/error/success message row */
     trailingAuxiliaryContent?: ReactNode;
-    /** Use `"group"` for generic groups, `"radiogroup"` for radio button groups — causes the root element to render as a `<fieldset>` instead of a `<div>` */
-    role?: "group" | "radiogroup" | string;
+    /** `group` renders the Field as a div, while a `radiogroup` renders the Field as a fieldset. */
+    role?: "group" | "radiogroup";
     ref?: Ref<HTMLDivElement | HTMLFieldSetElement>;
     "aria-describedby"?: string;
     children?: ReactNode | ((context: {
@@ -299,7 +303,7 @@ export type Timestamp = ComponentType<PropsWithChildren<{
     isVisibleOnlyOnHover?: boolean;
 }>>;
 
-export type TextInput = ComponentType<PropsWithChildren<{
+export type TextInput = ComponentType<PropsWithChildren<(Field extends ComponentType<infer P> ? Omit<P, "errorMessage"> : {}) & {
     name?: string;
     value?: string | number;
     defaultValue?: string;
@@ -311,19 +315,6 @@ export type TextInput = ComponentType<PropsWithChildren<{
     disabled?: boolean;
     spellCheck?: boolean;
     readOnly?: boolean;
-
-    label?: string;
-    hideLabel?: boolean;
-    badge?: string;
-    icon?: ComponentType<any>;
-    required?: boolean;
-    description?: string;
-    helperText?: string;
-    successMessage?: string;
-    layout?: "vertical" | "horizontal";
-    layoutConfig?: {
-        horizontalControlColumnWidth?: string;
-    };
 
     maxLength?: number | null;
     minLength?: number;
