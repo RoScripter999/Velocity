@@ -22,6 +22,7 @@ import { VelocityIcon } from "@components/Icons";
 import { buildPluginMenuEntries, buildThemeMenuEntries } from "@plugins/velocityToolbox/menu";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { getIntlMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findCssClassesLazy } from "@webpack";
@@ -56,6 +57,7 @@ const settings = definePluginSettings({
 
 const SECTION_ICONS = (): Record<string, ComponentType<any>> => ({
     user_section: Icons.SettingsIcon,
+    velocity_section: VelocityIcon,
     billing_section: Icons.CreditCardIcon,
     app_section: Icons.AppsIcon,
     activity_section: Icons.GameControllerIcon,
@@ -178,8 +180,8 @@ export default definePlugin({
             predicate: () => settings.store.organizeMenu,
             lazy: true,
             replacement: {
-                match: /children:\[(\i),(?<=\1=(?:function|.{0,30}\.openUserSettings).+?)/, // TODO .{0,30}\.openUserSettings is stable compat
-                replace: "children:[$self.transformSettingsEntries($1),"
+                match: /children:\[(\i),null!=(\i).{0,30}\}\),(\i)\](?<=\1=(?:function|.{0,30}\.openUserSettings).+?)/, // TODO .{0,30}\.openUserSettings is stable compat
+                replace: "children:$self.transformSettingsEntries([$1,$2,$3])"
             }
 
         },
@@ -210,10 +212,15 @@ export default definePlugin({
 
     transformSettingsEntries(list) {
         const items: ReactNode[] = [];
+        const SECTION_NAMES: Record<string, string> = {
+            user_section: getIntlMessage("USER_SETTINGS")
+        };
 
-        for (const item of list) {
+        const flat = list.flat(Infinity);
+
+        for (const item of flat) {
             const { key, props } = item;
-            if (!props) continue;
+            if (!item?.props) continue;
 
             if (key === "velocity_plugins" || key === "velocity_themes") {
                 const children = key === "velocity_plugins"
@@ -225,34 +232,15 @@ export default definePlugin({
                         {children}
                     </Menu.MenuItem>
                 );
-            } else if (key?.endsWith("_section") && props.label) {
-                // Skip Velocity's own section entirely — it handles its own menu entries
-                if (key === "velocity_section") {
-                    // Flatten velocity entries directly instead of nesting under broken title
-                    const children = props.children ?? [];
-                    items.push(
-                        <Menu.MenuItem key={key} id={key} label="Velocity Settings" leadingAccessory={{
-                            type: "icon",
-                            icon: VelocityIcon
-                        }}>
-                            {this.transformSettingsEntries(
-                                Array.isArray(children) ? children : [children]
-                            )}
-                        </Menu.MenuItem>
-                    );
-                    continue;
-                }
-
+            } else if ((key?.endsWith("_section")) && (props.label ?? SECTION_NAMES[key])) {
                 const iconLeft = SECTION_ICONS()[key];
+
                 items.push(
                     <Menu.MenuItem
                         key={key}
-                        label={props.label}
-                        id={props.label}
-                        leadingAccessory={{
-                            type: "icon",
-                            icon: iconLeft
-                        }}
+                        label={props.label ?? SECTION_NAMES[key]}
+                        id={props.label ?? SECTION_NAMES[key]}
+                        {...(iconLeft && { iconLeft })}
                     >
                         {this.transformSettingsEntries(props.children)}
                     </Menu.MenuItem>
