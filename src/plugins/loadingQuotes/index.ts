@@ -71,7 +71,7 @@ export default definePlugin({
                     replace: "$&$self.mutateQuotes($1),"
                 },
                 {
-                    match: /_eventLoadingText.+?(?=(\i)\[.{0,10}\.random)/,
+                    match: /_eventLoadingText.{0,500}?(?=(\i)\[.{0,10}\.random)/,
                     replace: "$&$self.mutateQuotes($1),",
                     predicate: () => settings.store.replaceEvents
                 }
