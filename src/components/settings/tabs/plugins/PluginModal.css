@@ -1,7 +1,3 @@
-div:has(.vc-settings-modal-content) [class*="bodySpacerTop"] {
-    padding-top: unset;
-}
-
 /* #region Info section */
 .vc-plugin-modal-info {
     display: flex;
