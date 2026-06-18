@@ -32,7 +32,7 @@ export function setIcons(component: t.Icons) {
 
 export const Forms: t.Forms = {
     FormTitle: waitForComponent("FormTitle", filters.componentByCode('="legend"===', '="h5"')),
-    FormDivider: waitForComponent("FormDivider", filters.componentByCode("{className:", /marginTop:\i/)),
+    FormDivider: waitForComponent("FormDivider", filters.componentByCode("{className:", ",marginTop:")),
     FormSection: waitForComponent("FormSection", filters.componentByCode("data-migration-pending", "titleId:", "errorId:", "isFocused:"))
 };
 
