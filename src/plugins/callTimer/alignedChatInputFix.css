@@ -1,4 +1,4 @@
-[class*="panels"] [class*="inner"],
-[class*="rtcConnectionStatus"] {
+[class*="panels_"] [class*="inner_"],
+[class*="rtcConnectionStatusWrapper_"] {
     height: fit-content !important;
 }
