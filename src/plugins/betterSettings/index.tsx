@@ -219,8 +219,8 @@ export default definePlugin({
         const flat = list.flat(Infinity);
 
         for (const item of flat) {
-            const { key, props } = item;
             if (!item?.props) continue;
+            const { key, props } = item;
 
             if (key === "velocity_plugins" || key === "velocity_themes") {
                 const children = key === "velocity_plugins"
