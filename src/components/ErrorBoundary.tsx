@@ -19,7 +19,7 @@
 import "./ErrorBoundary.css";
 
 import { Margins } from "@components/margins";
-import { LazyComponent, LazyComponentWrapper } from "@utils/lazyReact";
+import { LazyComponent, type LazyComponentWrapper } from "@utils/lazyReact";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import type { React } from "@webpack/common";
