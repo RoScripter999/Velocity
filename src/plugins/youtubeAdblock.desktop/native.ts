@@ -27,8 +27,6 @@ app.on("browser-window-created", (_, win) => {
 
             if (frame.url.includes("youtube.com/embed/")) {
                 frame.executeJavaScript(adguard);
-            } else if (frame.parent?.url.includes("youtube.com/embed/")) {
-                frame.parent.executeJavaScript(adguard);
             }
         });
     });
