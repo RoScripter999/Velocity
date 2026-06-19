@@ -41,7 +41,7 @@ import definePlugin from "@utils/types";
 import { checkForUpdates, isOutdated, update } from "@utils/updater";
 import type { Channel, Message, ModalPropsRender } from "@velocity-types";
 import { CloudUploadPlatform, MessageFlags } from "@velocity-types/enums";
-import { Alerts, Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, MessageStore, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Toasts, useEffect, UserStore } from "@webpack/common";
+import { Alerts, Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, MessageStore, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Toasts, Tooltip, useEffect, UserStore } from "@webpack/common";
 import type { JSX } from "react";
 
 import gitHash from "~git-hash";
@@ -533,13 +533,16 @@ export default definePlugin({
         if (channel.guild_id !== VELOCITY_GUILD_ID || channel.parent_id !== KNOWN_ISSUES_CHANNEL_ID) return null;
 
         return (
-            <Buttons.Button
-                text="DevTools"
-                icon={Icons.BugIcon}
-                size="sm"
-                variant="secondary"
-                onClick={() => VelocityNative.native.openDevTools()}
-            />
+            <Tooltip text="Open DevTools">
+                {props => <Buttons.Button
+                    {...props}
+                    text="DevTools"
+                    icon={Icons.BugIcon}
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => VelocityNative.native.openDevTools()}
+                />}
+            </Tooltip>
         );
     },
 
