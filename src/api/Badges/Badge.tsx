@@ -18,18 +18,32 @@
 
 import "./style.css";
 
-export default function Badge({ icon: Icon, onClick }: { icon: React.ComponentType; onClick?: () => void; }) {
-    return (
+import { Text, Tooltip } from "@webpack/common";
+
+export default function Badge({ icon: Icon, name, tooltip, onClick }: { icon: React.ComponentType; name: string; tooltip?: string; onClick?: () => void; }) {
+    const slot = (tooltipProps?: any) => (
         <div
-            className={"vc-badge-slot"}
+            {...tooltipProps}
+            className="vc-badge-slot"
             role="tab"
             tabIndex={-1}
             aria-selected="false"
             onClick={onClick}
         >
-            <div className={"vc-badge-icon"}>
-                <Icon />
+            <div className="vc-badge-content">
+                <div className="vc-badge-icon">
+                    <Icon />
+                </div>
+                <Text color="text-strong">{name}</Text>
             </div>
         </div>
+    );
+
+    if (!tooltip) return slot();
+
+    return (
+        <Tooltip position="right" text={tooltip}>
+            {props => slot(props)}
+        </Tooltip>
     );
 }

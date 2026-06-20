@@ -2,14 +2,22 @@
 .vc-badge-slot {
     align-items: center;
     background: var(--background-mod-subtle);
-    border: 1px solid var(--border-muted);
+    border: 2px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     flex-shrink: 0;
-    height: 50px;
+    height: 40px;
     justify-content: center;
-    width: 50px;
+    max-width: 200px;
+}
+
+.vc-badge-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: unset;
+    flex-shrink: 0;
 }
 
 .vc-badge-slot:hover {
@@ -24,4 +32,5 @@
     object-fit: contain;
     height: 24px;
     width: 24px;
+    flex-shrink: 1;
 }
