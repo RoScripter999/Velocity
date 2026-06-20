@@ -85,7 +85,7 @@ export interface PanelNode extends LayoutBuilderNode {
     type: LayoutType.PANEL;
     notice?: InlineNoticeNode;
     decoration?: DecorationNode;
-    useTitle(): ReactNode | string;
+    useTitle(): ReactNode;
     buildLayout(): (CategoryNode | TabItemNode)[];
     useInlineNotice?: () => InlineNoticeNode[];
     useObscuredNotice?: () => ComponentType<any>;
@@ -98,11 +98,11 @@ export interface SplitNode {
 
 export interface CategoryNode extends LayoutBuilderNode {
     type: LayoutType.CATEGORY;
-    useTitle?(): ReactNode | string;
+    useTitle?(): ReactNode;
     buildLayout?(): ContentNode[];
-    useSubtitle?(): ReactNode | string;
+    useSubtitle?(): ReactNode;
     /** Changes the label Subnav category button from the default value of {@link useTitle} */
-    useSubnavLabel?(): ReactNode | string;
+    useSubnavLabel?(): ReactNode;
     /**
      * Creates a notice under the {@link useSubtitle} or {@link useTitle}
      * @see {@link InlineNoticeType}.
@@ -218,8 +218,8 @@ export interface NestedPanelNode extends LayoutNode {
 
 export interface StaticNode extends LayoutNode {
     type: LayoutType.STATIC;
-    useTitle(): ReactNode | string;
-    useSubtitle?(): ReactNode | string;
+    useTitle(): ReactNode;
+    useSubtitle?(): ReactNode;
 }
 
 export interface ButtonNode extends LayoutNode {
@@ -344,8 +344,8 @@ type InlineNoticeNode =
         /** If no type provided nothing renders. */
         type?: InlineNoticeType.TEXT;
         noticeType: "critical" | "warning" | "info" | "success";
-        useText(): ReactNode | string;
-        useTitle?(): ReactNode | string;
+        useText(): ReactNode;
+        useTitle?(): ReactNode;
         /* Runs whenever the notice renders */
         trackView?(): void;
         /* onClick returns a promise. so it has "loading" set to true by default. */
