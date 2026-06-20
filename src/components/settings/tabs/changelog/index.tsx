@@ -33,6 +33,7 @@ import gitHash from "~git-hash";
 import {
     type ChangelogEntry,
     clearChangelogHistory,
+    getLatestChangelogDisplay,
     getNewPlugins,
     getNewSettings,
     getUpdatedPluginsInRange,
@@ -55,11 +56,18 @@ export default function ChangelogTab() {
         if (!repo || repoPending) return;
         setIsLoading(true);
         initializeChangelog(repo)
-            .then(result => {
+            .then(async result => {
                 if (result) {
                     setChangelog(result.commits);
                     setNewPlugins(result.newPlugins);
                     setUpdatedPlugins(result.updatedPlugins);
+                } else {
+                    const persisted = await getLatestChangelogDisplay();
+                    if (persisted) {
+                        setChangelog(persisted.commits);
+                        setNewPlugins(persisted.newPlugins);
+                        setUpdatedPlugins(persisted.updatedPlugins);
+                    }
                 }
             })
             .catch(e => UpdateLogger.error("Failed to initialize changelog", e))

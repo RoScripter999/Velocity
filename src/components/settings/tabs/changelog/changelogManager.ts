@@ -235,6 +235,17 @@ async function updateKnownSettings(): Promise<void> {
     await persistKnownSettings(merged);
 }
 
+export async function getLatestChangelogDisplay(): Promise<{ commits: ChangelogEntry[]; newPlugins: string[]; updatedPlugins: string[]; } | null> {
+    const history = (((await DataStore.get(CHANGELOG_HISTORY_KEY)) as UpdateSession[]) || []);
+    const latest = history.find(entry => entry.type === "update");
+    if (!latest) return null;
+    return {
+        commits: latest.commits,
+        newPlugins: latest.newPlugins,
+        updatedPlugins: latest.updatedPlugins
+    };
+}
+
 export async function clearChangelogHistory(): Promise<void> {
     await Promise.all([
         DataStore.del(CHANGELOG_HISTORY_KEY),
