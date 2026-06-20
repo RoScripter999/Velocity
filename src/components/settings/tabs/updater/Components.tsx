@@ -22,7 +22,7 @@ import { Flex } from "@components/Flex";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
-import { saveCurrentHashBeforeUpdate } from "@components/settings/tabs/changelog/changelogManager";
+import { setLastSeenHash } from "@components/settings/tabs/changelog/changelogManager";
 import { gitHash } from "@shared/userAgent";
 import { classNameFactory } from "@utils/css";
 import { pluralise } from "@utils/misc";
@@ -130,7 +130,7 @@ export function Updatable(props: CommonProps) {
                     text="Update Now"
                     size="sm"
                     onClick={runWithDispatch(setIsUpdating, async () => {
-                        await saveCurrentHashBeforeUpdate();
+                        await setLastSeenHash(gitHash);
                         if (await update()) {
                             setUpdates([]);
 

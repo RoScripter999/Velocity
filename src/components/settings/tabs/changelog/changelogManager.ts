@@ -122,7 +122,7 @@ async function getLastSeenHash(): Promise<string | null> {
     return (await DataStore.get(LAST_SEEN_HASH_KEY))!;
 }
 
-async function setLastSeenHash(hash: string) {
+export async function setLastSeenHash(hash: string) {
     await DataStore.set(LAST_SEEN_HASH_KEY, hash);
 }
 
@@ -260,10 +260,6 @@ export async function getNewPlugins(): Promise<string[]> {
     return Object.keys(plugins).filter(p => !knownPlugins.has(p) && !plugins[p].hidden && !plugins[p].required);
 }
 
-export async function saveCurrentHashBeforeUpdate(): Promise<void> {
-    await setLastSeenHash(gitHash);
-}
-
 export async function initializeChangelog(repoUrl: string): Promise<{
     commits: ChangelogEntry[];
     newPlugins: string[];
@@ -280,47 +276,57 @@ export async function initializeChangelog(repoUrl: string): Promise<{
         return null;
     }
 
-    // Already seen what's new for this build
+    // Already seen what's new for this build — caller uses persisted history
     if (lastSeenHash === currentHash) return null;
 
-    // Mark as seen immediately so re-opening doesn't re-fetch
+    const history = ((await DataStore.get(CHANGELOG_HISTORY_KEY)) as UpdateSession[]) || [];
+    const [newPlgs, newSettings] = await Promise.all([getNewPlugins(), getNewSettings()]);
+
+    let commits: ChangelogEntry[];
+    let updatedPlugins: string[];
+
+    // Use pre-fetched data if it was saved for exactly this update
+    const preFetched = history.find(e => e.type === "repository_fetch" && e.fromHash === lastSeenHash && e.toHash === currentHash);
+    if (preFetched) {
+        commits = preFetched.commits;
+        updatedPlugins = preFetched.updatedPlugins.filter(p => !newPlgs.includes(p));
+    } else {
+        const repoSlug = normalizeRepoUrl(repoUrl);
+        const comparison = repoSlug
+            ? await fetchRepoComparison(repoSlug, lastSeenHash, currentHash)
+            : { commits: [], updatedPlugins: [] };
+        commits = comparison.commits;
+        updatedPlugins = comparison.updatedPlugins.filter(p => !newPlgs.includes(p));
+    }
+
+    // Mark as seen only after we have the data
     await setLastSeenHash(currentHash);
 
-    const repoSlug = normalizeRepoUrl(repoUrl);
-    const [newPlgs, newSettings, comparison] = await Promise.all([
-        getNewPlugins(),
-        getNewSettings(),
-        repoSlug
-            ? fetchRepoComparison(repoSlug, lastSeenHash, currentHash)
-            : Promise.resolve({ commits: [], updatedPlugins: [] })
-    ]);
-
-    const filteredUpdated = comparison.updatedPlugins.filter(p => !newPlgs.includes(p));
-
-    if (comparison.commits.length > 0 || newPlgs.length > 0 || filteredUpdated.length > 0 || newSettings.size > 0) {
-        const history = (((await DataStore.get(CHANGELOG_HISTORY_KEY)) as UpdateSession[]) || []);
+    if (commits.length > 0 || newPlgs.length > 0 || updatedPlugins.length > 0 || newSettings.size > 0) {
         history.unshift({
             id: crypto.randomUUID(),
             timestamp: Date.now(),
             fromHash: lastSeenHash,
             toHash: currentHash,
-            commits: comparison.commits,
+            commits,
             newPlugins: newPlgs,
-            updatedPlugins: filteredUpdated,
+            updatedPlugins,
             newSettings: newSettings.size > 0 ? Object.fromEntries(newSettings) : undefined,
             type: "update"
         });
         if (history.length > 50) history.splice(50);
         await DataStore.set(CHANGELOG_HISTORY_KEY, history);
+
+        await updateKnownPlugins();
+        await updateKnownSettings();
+
+        return { commits, newPlugins: newPlgs, updatedPlugins };
     }
 
     await updateKnownPlugins();
     await updateKnownSettings();
 
-    return {
-        commits: comparison.commits,
-        newPlugins: newPlgs,
-        updatedPlugins: filteredUpdated
-    };
+    // Nothing new found — return null so caller falls back to persisted history
+    return null;
 }
 
