@@ -320,6 +320,7 @@ export default function VelocitySettings() {
                 <div className={Margins.bottom20}>
                     <Badge
                         icon={Icons.SparklesIcon}
+                        name="Donations"
                         onClick={() => openInviteModal(VELOCITY_GUILD_INVITE)}
                     />
                 </div>
@@ -329,6 +330,8 @@ export default function VelocitySettings() {
                 <div className={Margins.bottom20}>
                     <Badge
                         icon={VelocityIcon}
+                        name="Contributions"
+                        tooltip="Click to view how many plugins you contributed to"
                         onClick={() => openContributorModal(user)}
                     />
                 </div>
