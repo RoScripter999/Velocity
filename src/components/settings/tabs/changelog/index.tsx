@@ -78,14 +78,7 @@ export default function ChangelogTab() {
                 getUpdatedPluginsInRange(repo, gitHash, latestHash)
             ]);
             const filteredUpdated = updatedPlgs.filter(p => !newPlgs.includes(p));
-            setChangelog(updates.value);
-            setNewPlugins(newPlgs);
-            setUpdatedPlugins(filteredUpdated);
             await saveUpdateSession(updates.value, newPlgs, filteredUpdated, newSettings, true);
-        } else {
-            setChangelog([]);
-            setNewPlugins([]);
-            setUpdatedPlugins([]);
         }
     }
 
