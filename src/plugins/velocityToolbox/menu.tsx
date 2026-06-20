@@ -24,8 +24,8 @@ import { openUIElementsModal } from "@components/settings/tabs/plugins/UIElement
 import { getIntlMessage } from "@utils/discord";
 import { useAwaiter } from "@utils/react";
 import { wordsFromCamel, wordsToTitle } from "@utils/text";
-import { OptionType, type Plugin } from "@utils/types";
-import { Icons, Menu, showToast, useMemo, useState } from "@webpack/common";
+import { OptionType, type Plugin, type PluginSettingSelectOption } from "@utils/types";
+import { Icons, Menu, showToast, useEffect, useMemo, useState } from "@webpack/common";
 import type { ReactNode } from "react";
 
 import { settings } from ".";
@@ -53,6 +53,20 @@ export function buildPluginMenuEntries(includeEmpty = false) {
     const pluginSettings = useSettings().plugins;
 
     const [search, setSearch] = useState("");
+    const [asyncOpts, setAsyncOpts] = useState<Record<string, PluginSettingSelectOption[]>>({});
+
+    useEffect(() => {
+        for (const plugin of Object.values(plugins)) {
+            if (!isPluginEnabled(plugin.name) || !plugin.settings) continue;
+            for (const [key, option] of Object.entries(plugin.settings.def)) {
+                if (option.type !== OptionType.SELECT) continue;
+                if (typeof option.options !== "function") continue;
+
+                const mapKey = `${plugin.name}-${key}`;
+                option.options().then(opts => setAsyncOpts(prev => ({ ...prev, [mapKey]: opts })));
+            }
+        }
+    }, []);
 
     const lowerSearch = search.toLowerCase();
 
@@ -105,7 +119,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                         const baseProps = {
                             id: `${p.name}-${key}`,
                             key: key,
-                            label: wordsToTitle(wordsFromCamel(key)),
+                            label: ("displayName" in option ? option.displayName : undefined) ?? wordsToTitle(wordsFromCamel(key)),
                             disabled: isSettingDisabled(p.settings, option)
                         };
 
@@ -124,33 +138,58 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                                 break;
 
                             case OptionType.SELECT: {
-                                const opts = Array.isArray(option.options) ? option.options : [];
+                                const mapKey = `${p.name}-${key}`;
+                                const opts = Array.isArray(option.options)
+                                    ? [...option.options]
+                                    : (asyncOpts[mapKey] ?? []);
 
                                 if (opts.length === 0) {
                                     options.push(
                                         <Menu.MenuItem
                                             {...baseProps}
+                                            key={key}
                                             label={baseProps.label + " (loading)"}
                                         />
                                     );
                                     break;
                                 }
 
+                                const isMulti = Array.isArray(s[key]) || Array.isArray(option.default);
                                 options.push(
-                                    <Menu.MenuItem {...baseProps}>
-                                        {opts.map(opt => (
-                                            <Menu.MenuRadioItem
-                                                group={`${p.name}-${key}`}
-                                                id={`${p.name}-${key}-${opt.value}`}
-                                                key={opt.label}
-                                                label={opt.label}
-                                                checked={s[key] === opt.value}
-                                                action={() => {
-                                                    s[key] = opt.value;
-                                                    if (option.restartNeeded) showToast("Restart to apply the change");
-                                                }}
-                                            />
-                                        ))}
+                                    <Menu.MenuItem {...baseProps} key={key}>
+                                        {opts.map(opt => {
+                                            if (isMulti) {
+                                                const current: unknown[] = s[key] ?? [];
+                                                return (
+                                                    <Menu.MenuCheckboxItem
+                                                        id={`${p.name}-${key}-${opt.value}`}
+                                                        key={String(opt.value)}
+                                                        label={opt.label}
+                                                        checked={current.includes(opt.value)}
+                                                        action={() => {
+                                                            const cur: unknown[] = s[key] ?? [];
+                                                            s[key] = cur.includes(opt.value)
+                                                                ? cur.filter(v => v !== opt.value)
+                                                                : [...cur, opt.value];
+                                                            if (option.restartNeeded) showToast("Restart to apply the change");
+                                                        }}
+                                                    />
+                                                );
+                                            }
+                                            return (
+                                                <Menu.MenuRadioItem
+                                                    group={`${p.name}-${key}`}
+                                                    id={`${p.name}-${key}-${opt.value}`}
+                                                    key={String(opt.value)}
+                                                    label={opt.label}
+                                                    checked={s[key] === opt.value}
+                                                    action={() => {
+                                                        s[key] = opt.value;
+                                                        if (option.restartNeeded) showToast("Restart to apply the change");
+                                                    }}
+                                                />
+                                            );
+                                        })}
                                     </Menu.MenuItem>
                                 );
                                 break;
