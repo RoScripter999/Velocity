@@ -169,7 +169,9 @@ function ThemesTab() {
     }, []);
 
     const filterTheme = useCallback((name: string, isLocal: boolean) => {
-        const enabled = isLocal ? settings.themes.localThemes.some(t => t.name === name) : (settings.themes.onlineThemes ?? []).find(t => t.name === name)?.enabled !== false;
+        const enabled = isLocal
+            ? settings.themes.localThemes.some(t => t.name === name && t.enabled !== false)
+            : (settings.themes.onlineThemes ?? []).find(t => t.name === name)?.enabled !== false;
 
         switch (status) {
             case SearchStatus.ENABLED: if (!enabled) return false; break;
@@ -336,7 +338,7 @@ function ThemesTab() {
                                 name: theme.name,
                                 description: theme.description,
                                 author: "By " + theme.author,
-                                enabled: settings.themes.localThemes.find(t => t.name === theme.fileName)?.enabled !== false,
+                                enabled: settings.themes.localThemes.some(t => t.name === theme.fileName && t.enabled !== false),
                                 setEnabled: (enabled: boolean) => onThemeChange(theme.fileName, enabled, false),
                                 infoButton: <ThemeCardActions fileName={theme.fileName} onDelete={refreshThemes} />,
                                 footer: (
@@ -354,7 +356,7 @@ function ThemesTab() {
                                 name: theme.name,
                                 description: "Online Theme",
                                 author: "",
-                                enabled: theme.enabled === true,
+                                enabled: theme.enabled || false,
                                 setEnabled: (enabled: boolean) => onThemeChange(theme.name, enabled, true),
                                 infoButton: <ThemeCardActions fileName={theme.name} onDelete={() => { }} />,
                                 footer: (
