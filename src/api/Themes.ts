@@ -50,12 +50,12 @@ async function toggle(isEnabled: boolean) {
 
 async function initThemes() {
     themesStyle ??= createAndAppendStyle("velocity-themes", userStyleRootNode);
-    await rebuildThemeLinks();
+    await rebuildThemes();
 }
 
 const themeVersions = new Map<string, number>();
 
-async function rebuildThemeLinks() {
+async function rebuildThemes() {
     const { onlineThemes, onlineThemesEnabled, localThemes } = Settings.themes;
 
     const { ThemeStore } = require("@webpack/common/stores") as typeof import("@webpack/common/stores");
@@ -80,20 +80,33 @@ async function rebuildThemeLinks() {
         }
     }
 
+    const missing = new Set<string>();
+
     if (IS_WEB) {
         for (const theme of localThemes) {
             if (theme.enabled === false) continue;
             if (!shouldApplyTheme(theme.themeActivationModes ?? "always", activeTheme)) continue;
 
-            const themeData = await VelocityNative.themes.getThemeData(theme.name);
-            if (!themeData) continue;
-            const blob = new Blob([themeData], { type: "text/css" });
-            links.add(URL.createObjectURL(blob));
+            try {
+                const themeData = await VelocityNative.themes.getThemeData(theme.name);
+                if (!themeData) throw new Error();
+                const blob = new Blob([themeData], { type: "text/css" });
+                links.add(URL.createObjectURL(blob));
+            } catch {
+                missing.add(theme.name);
+            }
         }
     } else {
         for (const theme of localThemes) {
             if (theme.enabled === false) continue;
             if (!shouldApplyTheme(theme.themeActivationModes ?? "always", activeTheme)) continue;
+
+            try {
+                await VelocityNative.themes.getThemeData(theme.name);
+            } catch {
+                missing.add(theme.name);
+                continue;
+            }
 
             if (!themeVersions.has(theme.name)) {
                 themeVersions.set(theme.name, Date.now());
@@ -101,6 +114,12 @@ async function rebuildThemeLinks() {
 
             links.add(`velocity:///themes/${theme.name}?v=${themeVersions.get(theme.name)}`);
         }
+    }
+
+    if (missing.size > 0) {
+        const plain = JSON.parse(JSON.stringify(Settings.themes));
+        plain.localThemes = plain.localThemes.filter((t: { name: string; }) => !missing.has(t.name));
+        Settings.themes = plain;
     }
 
     const newContent = Array.from(links).map(link => `@import url("${link.trim()}");`).join("\n");
@@ -150,9 +169,9 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle(Settings.useQuickCss);
     SettingsStore.addChangeListener("useQuickCss", toggle);
 
-    SettingsStore.addChangeListener("themes.onlineThemesEnabled", rebuildThemeLinks);
-    SettingsStore.addChangeListener("themes.localThemes", rebuildThemeLinks);
-    SettingsStore.addChangeListener("themes.onlineThemes", rebuildThemeLinks);
+    SettingsStore.addChangeListener("themes.onlineThemesEnabled", rebuildThemes);
+    SettingsStore.addChangeListener("themes.localThemes", rebuildThemes);
+    SettingsStore.addChangeListener("themes.onlineThemes", rebuildThemes);
 
     window.addEventListener("message", event => {
         const { discordPopoutEvent } = event.data || {};
@@ -164,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!IS_WEB) {
         VelocityNative.quickCss.addThemeChangeListener(() => {
             themeVersions.clear(); // bust all versions on theme file change
-            rebuildThemeLinks();
+            rebuildThemes();
         });
     }
 }, { once: true });
@@ -172,13 +191,13 @@ document.addEventListener("DOMContentLoaded", () => {
 export function initQuickCssThemeStore(themeStore: ThemeStore) {
     if (IS_USERSCRIPT) return;
 
-    rebuildThemeLinks();
+    rebuildThemes();
 
     let currentTheme = themeStore.theme;
     themeStore.addChangeListener(() => {
         if (currentTheme === themeStore.theme) return;
 
         currentTheme = themeStore.theme;
-        rebuildThemeLinks();
+        rebuildThemes();
     });
 }
