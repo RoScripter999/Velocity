@@ -19,14 +19,13 @@
 import "./ContributorModal.css";
 
 import { useSettings } from "@api/Settings";
-import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { DevsById } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { fetchUserProfile, openUserProfile } from "@utils/discord";
-import { classes, pluralise } from "@utils/misc";
+import { pluralise } from "@utils/misc";
 import type { ModalPropsRender, User } from "@velocity-types";
-import { Forms, Icons, Modal, openModal, showToast, Tooltip, useEffect, useMemo, UserProfileStore, useStateFromStores } from "@webpack/common";
+import { Icons, Modal, openModal, showToast, Text, useEffect, useMemo, UserProfileStore, useStateFromStores } from "@webpack/common";
 
 import Plugins from "~plugins";
 
@@ -49,7 +48,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
             fetchUserProfile(user.id);
     }, [user.id, user.bot, profile]);
 
-    const { plugins, apiPlugins, corePlugins, hasApiPlugins, totalPlugins, totalSettings, isCore } = useMemo(() => {
+    const { plugins, apiPlugins, corePlugins, totalPlugins, totalSettings } = useMemo(() => {
         const allPlugins = Object.values(Plugins);
         const devId = DevsById[user.id];
 
@@ -65,10 +64,8 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
             plugins,
             apiPlugins,
             corePlugins,
-            hasApiPlugins: apiPlugins.length > 0,
             totalPlugins: pluginsByAuthor.length,
-            totalSettings: plugins.reduce((acc, p) => acc + (p.settings ? Object.keys(p.settings.def).length : 0), 0),
-            isCore: corePlugins.length > 0
+            totalSettings: plugins.reduce((acc, p) => acc + (p.settings ? Object.keys(p.settings.def).length : 0), 0)
         };
     }, [user.id, user.username]);
 
@@ -77,29 +74,16 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
             {...modalProps}
             title={
                 <div className={cl("header")}>
-                    <div className={cl("avatar-wrap")}>
-                        <img
-                            className={cl("avatar")}
-                            src={user.getAvatarURL(void 0, 512, true)}
-                            onClick={() => openUserProfile(user.id)}
-                            draggable={false}
-                            alt=""
-                        />
-                        {isCore && (
-                            <Tooltip text="Contributes to core plugins">
-                                {props => (
-                                    <div {...props} className={cl("core-badge")}>
-                                        <Icons.StarIcon size="xs" color="currentColor" />
-                                    </div>
-                                )}
-                            </Tooltip>
-                        )}
-                    </div>
+                    <img
+                        className={cl("avatar", "avatar-wrap")}
+                        src={user.getAvatarURL(void 0, 512, true)}
+                        onClick={() => openUserProfile(user.id)}
+                        draggable={false}
+                        alt=""
+                    />
 
                     <div className={cl("info")}>
-                        <div className={cl("name-row")}>
-                            <Forms.FormTitle tag="h2" className={cl("name")}>{user.username}</Forms.FormTitle>
-                        </div>
+                        <Text variant="text-md/bold">{user.username}</Text>
 
                         <div className={cl("stats")}>
                             <SectionHeader
@@ -109,7 +93,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                                 tooltip={`${pluralise(totalPlugins, "Plugin")} authored`}
                                 tooltipIcon={false}
                                 icon={() => <Icons.ListViewIcon size="xs" color="var(--text-muted)" />}
-                                tag="p"
                             />
                             {totalSettings > 0 && (
                                 <SectionHeader
@@ -119,24 +102,9 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                                     tooltip="Total configurable settings across their plugins"
                                     tooltipIcon={false}
                                     icon={() => <Icons.SettingsIcon size="xs" color="var(--text-muted)" />}
-                                    tag="p"
                                 />
                             )}
                         </div>
-                        {hasApiPlugins && (
-                            <div className={cl("badge-section")}>
-                                <SectionHeader
-                                    title="API contributor"
-                                    titleColor="text-muted"
-                                    titleVariant="text-sm/normal"
-                                    tooltip="Contributes to API plugins"
-                                    tooltipIcon={false}
-                                    icon={() => <Icons.WrenchIcon size="xs" color="var(--text-muted)" />}
-                                    tag="p"
-                                    className={cl("badge")}
-                                />
-                            </div>
-                        )}
                     </div>
                 </div>
             }
@@ -146,8 +114,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                     : <Paragraph color="text-muted">This contributor hasn't authored any plugins.</Paragraph>
             }
         >
-            {totalPlugins > 0 && <Forms.FormDivider className={classes(Margins.top8, Margins.bottom8)} />}
-
             <div className={cl("plugins")}>
                 {corePlugins.length > 0 && (
                     <div className={cl("plugin-section")}>
@@ -156,7 +122,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                             titleColor="text-muted"
                             titleVariant="text-sm/normal"
                             icon={() => <Icons.ShieldIcon size="xs" color="var(--text-muted)" />}
-                            tag="p"
                         />
                         {corePlugins.map(p =>
                             <PluginCard key={p.name} plugin={p} disabled={true} onRestartNeeded={() => showToast("Restart to apply changes!")} />
@@ -170,7 +135,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                             titleColor="text-muted"
                             titleVariant="text-sm/normal"
                             icon={() => <Icons.WrenchIcon size="xs" color="var(--text-muted)" />}
-                            tag="p"
                         />
                         {apiPlugins.map(p =>
                             <PluginCard key={p.name} plugin={p} disabled={true} onRestartNeeded={() => showToast("Restart to apply changes!")} />
@@ -184,7 +148,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                             titleColor="text-muted"
                             titleVariant="text-sm/normal"
                             icon={() => <Icons.ListViewIcon size="xs" color="var(--text-muted)" />}
-                            tag="p"
                         />
                         {plugins.map(p =>
                             <PluginCard key={p.name} plugin={p} disabled={false} onRestartNeeded={() => showToast("Restart to apply changes!")} />
