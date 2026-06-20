@@ -16,8 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { openBadgesModal } from "@api/Badges";
-import { Badge } from "@api/Badges/BadgesComponent";
+import { Badge } from "@api/Badges";
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { useSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
@@ -298,7 +297,7 @@ export default function VelocitySettings() {
                 <div className={Margins.bottom8}>
                     <SectionHeader
                         icon={() => <Icons.MedalIcon color="var(--chip-yellow-light-background)" size="sm" />}
-                        title={<span style={{ cursor: "pointer" }} onClick={() => openBadgesModal({ userId: user.id })}>Awarded Badges</span>}
+                        title="Awarded Badges"
                         titleColor="chip-yellow-light-background"
                         description="Perks and contributions tied to your user ID"
                         descriptionColor="text-code"
@@ -321,17 +320,7 @@ export default function VelocitySettings() {
                 <div className={Margins.bottom20}>
                     <Badge
                         icon={Icons.SparklesIcon}
-                        title="Donations"
-                        description={
-                            <>
-                                You can manage your perks at any time by opening a modmail ticket in our{" "}
-                                <Buttons.TextButton
-                                    text="support server"
-                                    textVariant="text-sm/semibold"
-                                    onClick={() => openInviteModal(VELOCITY_GUILD_INVITE)}
-                                />
-                            </>
-                        }
+                        onClick={() => openInviteModal(VELOCITY_GUILD_INVITE)}
                     />
                 </div>
             )}
@@ -340,9 +329,6 @@ export default function VelocitySettings() {
                 <div className={Margins.bottom20}>
                     <Badge
                         icon={VelocityIcon}
-                        title="Contributions"
-                        description="Since you've contributed to Velocity you now have a cool new badge!"
-                        tooltip="Click to view how many plugins you contributed to"
                         onClick={() => openContributorModal(user)}
                     />
                 </div>

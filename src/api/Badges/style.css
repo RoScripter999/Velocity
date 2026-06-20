@@ -1,44 +1,27 @@
-.vc-badge-content {
+/* copied from discord styles */
+.vc-badge-slot {
+    align-items: center;
+    background: var(--background-mod-subtle);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    flex-shrink: 0;
+    height: 50px;
+    justify-content: center;
+    width: 50px;
 }
 
-.vc-badge-badge {
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background-color: var(--background-mod-muted);
-    border: 1px solid var(--border-subtle);
-    transition: background-color 0.2s ease;
+.vc-badge-slot:hover {
+    background: var(--control-secondary-background-hover);
+}
 
-    &:hover {
-        background-color: var(--background-mod-subtle, var(--background-modifier-hover));
-    }
+.vc-badge-slot:active {
+    background: var(--control-secondary-background-active);
 }
 
 .vc-badge-icon {
-    background-color: var(--background-mod-muted);
-    padding: 8px;
-    border-radius: 8px;
-    color: var(--interactive-active);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.vc-badge-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-}
-
-.vc-badge-no-badges {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    object-fit: contain;
+    height: 24px;
+    width: 24px;
 }

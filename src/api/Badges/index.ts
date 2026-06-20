@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import Badge from "@api/Badges/Badge";
 import ErrorBoundary from "@components/ErrorBoundary";
 import BadgeAPIPlugin from "@plugins/_api/badges";
-import { openModal } from "@webpack/common";
+import type { BadgeRarity } from "@velocity-types/enums";
 import type { ComponentType, HTMLProps, JSX, MouseEvent } from "react";
 
-import { BadgesModal } from "./BadgesComponent";
+export { Badge };
 
 export const enum BadgePosition {
     START,
@@ -51,6 +52,8 @@ export interface ProfileBadge {
     link?: string;
     /** Badge type for categorization in the badges modal. Putting this in your plugin wont do anything. */
     type?: BadgeType;
+    /** Badge rarity for Discord's badges modal */
+    rarity?: BadgeRarity;
     /** Metadata for the badge modal display */
     meta?: BadgeMeta;
     /** Action to perform when you click the badge */
@@ -128,15 +131,6 @@ export function _getBadges(args: BadgeUserArgs) {
     }
 
     return badges;
-}
-
-/**
- * Open a badges modal of a user
- * @param userInfo The user to show
- * @returns modalKey
- */
-export function openBadgesModal(userInfo: BadgeUserArgs) {
-    return openModal(props => BadgesModal(props, { ...userInfo }));
 }
 
 export interface BadgeUserArgs {

@@ -1,5 +1,6 @@
 export * from "./Activity";
 export * from "./Application";
+export * from "./Badge";
 export * from "./Channel";
 export * from "./Guild";
 export * from "./GuildMember";
