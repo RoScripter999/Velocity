@@ -228,3 +228,11 @@ export const enum BadgeType {
      */
     STRONGLY_DISCOURAGED_CUSTOM = 4
 }
+
+export enum BadgeRarity {
+    COMMON = 1,
+    RARE = 2,
+    EPIC = 3,
+    LEGENDARY = 4,
+    MYTHIC = 5
+}
