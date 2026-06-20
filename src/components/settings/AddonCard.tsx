@@ -46,7 +46,7 @@ interface Props {
     disabledTooltip?: string;
 }
 
-export function AddonCard({ disabled, isNew, badge, name, infoButton, infoButtonTooltip, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave, enabledTooltip, disabledTooltip }: Props) {
+export function AddonCard({ disabled, isNew, name, infoButton, infoButtonTooltip, footer, author, enabled, setEnabled, description, onMouseEnter, onMouseLeave, enabledTooltip, disabledTooltip }: Props) {
     const titleRef = useRef<HTMLDivElement>(null);
     const titleContainerRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +76,6 @@ export function AddonCard({ disabled, isNew, badge, name, infoButton, infoButton
                         </div>
 
                         {isNew && <AddonBadge text="NEW" color="#ED4245" />}
-                        {badge}
                     </Text>
 
                     {!!author && (

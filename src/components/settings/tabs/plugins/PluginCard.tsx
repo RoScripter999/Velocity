@@ -91,7 +91,6 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
             disabled={disabled}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            badge={plugin.renderBadge?.()}
             infoButtonTooltip={hasAnyVisibleSettings(plugin) ? "Open settings" : "Plugin info"}
             enabledTooltip="Disable plugin"
             disabledTooltip="Enable plugin"

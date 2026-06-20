@@ -47,27 +47,11 @@ export function makeRange(start: number, end: number, step = 1) {
 export type IconComponent = FC<IconProps & Record<string, any>>;
 
 export const PluginTags = [
-    "Accessibility",
-    "Activity",
-    "Appearance",
-    "Chat",
-    "Commands",
-    "Console",
-    "Customisation",
-    "Developers",
-    "Emotes",
-    "Friends",
-    "Fun",
-    "Media",
-    "Notifications",
-    "Organisation",
-    "Privacy",
-    "Reactions",
-    "Roles",
-    "Servers",
-    "Shortcuts",
-    "Utility",
-    "Voice"
+    "Accessibility", "Activity", "Appearance", "Chat",
+    "Commands", "Console", "Customisation", "Developers",
+    "Emotes", "Friends", "Fun", "Media", "Notifications",
+    "Organisation", "Privacy", "Reactions", "Roles",
+    "Servers", "Shortcuts", "Utility", "Voice"
 ] as const;
 
 export type PluginTag = typeof PluginTags[number];
@@ -111,9 +95,9 @@ export interface Patch {
      * This is ran before patches are registered, so if this returns false, the patch will never be registered.
      */
     predicate?(): boolean;
-    /** The minimum build number for this patch to be applied */
+    /** @ignore The minimum build number for this patch to be applied */
     fromBuild?: number;
-    /** The maximum build number for this patch to be applied */
+    /** @ignore The maximum build number for this patch to be applied */
     toBuild?: number;
 }
 
@@ -133,6 +117,7 @@ export interface PluginDef {
     description: string;
     /** Additional search terms that will bring up your plugin */
     searchTerms?: string[];
+    /** Search tags that will show up when a tag is selected in Plugins tab */
     tags?: PluginTag[];
     authors: PluginAuthor[];
     start?(): void;
@@ -197,8 +182,6 @@ export interface PluginDef {
      * The key will be used as text for the button
      */
     toolboxActions?: Record<string, () => void> | (() => ReactNode);
-
-    renderBadge?: () => ReactNode;
 
     /**
      * Managed style to automatically enable and disable when the plugin is enabled or disabled
