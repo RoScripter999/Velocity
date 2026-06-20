@@ -73,7 +73,8 @@ export const settings = definePluginSettings({
     },
     status: {
         type: OptionType.SELECT,
-        description: "On which status will it automatically join the call",
+        displayName: "Join On Status",
+        description: "On which status will it automatically join the call (privacy feature)",
         default: ["invisible", "dnd", "online"],
         options: statusOptions
     },
