@@ -24,7 +24,6 @@ import { waitForComponent } from "./internal";
 
 export const Text = waitForComponent<t.Text>("Text", filters.componentByCode('="div",selectable:'));
 
-/** TODO: Migrate all icons to use {@link Icons} */
 export let Icons: t.Icons = {} as t.Icons;
 export function setIcons(component: t.Icons) {
     Icons = component;
