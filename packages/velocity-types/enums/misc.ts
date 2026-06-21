@@ -215,6 +215,20 @@ export const enum NestedPanelLeadingDecorationType {
     ICON = 0,
 }
 
+export const enum HeaderDecorationType {
+    /** Renders a ButtonGroup component decoration */
+    BUTTON_GROUP = 0,
+    /** Renders a ButtonGroup component decoration */
+    STACKED_ICONS = 1
+}
+
+export const enum HeaderDecoratioButtonsButtonType {
+    /** Renders a Button component */
+    BUTTON = 0,
+    /** Renders any component */
+    STRONGLY_DISCOURAGED_CUSTOM = 1
+}
+
 export const enum BadgeType {
     NEW = 0,
     BETA = 1,

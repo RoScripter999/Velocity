@@ -1,5 +1,6 @@
 import { ButtonVariant, SelectOption, Select, RawCSSColor } from "../../components";
-import { BadgeType, InlineNoticeType, LayoutType, NestedPanelLeadingDecorationType, NestedPanelTrailingDecorationType } from "../../../enums";
+import { ButtonsProps } from "../../components/Buttons";
+import { BadgeType, HeaderDecoratioButtonsButtonType, HeaderDecorationType, InlineNoticeType, LayoutType, NestedPanelLeadingDecorationType, NestedPanelTrailingDecorationType } from "../../../enums";
 import { ComponentType, JSX, ReactNode } from "react";
 
 // copy(Object.values(find(m => m?.X?.PROFILE_SETTING === "profile_setting").X).map(v => `"${v}"`).join("|"))
@@ -96,10 +97,11 @@ export interface SplitNode {
     layout: ContentNode[];
 }
 
-export interface CategoryNode extends LayoutBuilderNode {
+export interface CategoryNode extends LayoutBuilderNode, BadgesNode {
     type: LayoutType.CATEGORY;
     useTitle?(): ReactNode;
     buildLayout?(): ContentNode[];
+    usePredicate?(): boolean;
     useSubtitle?(): ReactNode;
     /** Changes the label Subnav category button from the default value of {@link useTitle} */
     useSubnavLabel?(): ReactNode;
@@ -108,7 +110,24 @@ export interface CategoryNode extends LayoutBuilderNode {
      * @see {@link InlineNoticeType}.
      */
     useInlineNotice?(): InlineNoticeNode;
-    useHeaderDecoration?(): ReactNode;
+    /** Renders a decoration component next to {@link useTitle} */
+    useHeaderDecoration?():
+        | {
+            type: HeaderDecorationType.BUTTON_GROUP;
+            buttons: Array<
+                | {
+                    type: HeaderDecoratioButtonsButtonType.STRONGLY_DISCOURAGED_CUSTOM;
+                    decoration: () => ReactNode;
+                }
+                | ({
+                    type: HeaderDecoratioButtonsButtonType.BUTTON;
+                } & Omit<ButtonsProps["Button"], "type">)
+            >;
+        }
+        | {
+            type: HeaderDecorationType.STACKED_ICONS;
+        } & UseIconsNode;
+
     /**
      * @ignore Only use when rendering category inside a {@link TabItemNode}.
      * Using a {@link layout} outside of a {@link TabItemNode} will result in a "{@link type 10} nodes should never be rendered directly" crash.
@@ -204,11 +223,7 @@ export interface NestedPanelNode extends LayoutNode {
     useTrailingDecoration?: () =>
         | {
             type: NestedPanelTrailingDecorationType.STACKED_ICONS;
-            useIcons: () => {
-                frontIcon: { shape: "ROUNDED" | "SQUIRCLE"; icon: ReactNode; };
-                backIcon?: { shape: "ROUNDED" | "SQUIRCLE"; icon: ReactNode; };
-            };
-        }
+        } & UseIconsNode
         | {
             type: NestedPanelTrailingDecorationType.TEXT;
             useText: () => string;
@@ -315,6 +330,18 @@ export interface CustomNode extends LayoutNode {
     Component(): ReactNode;
 }
 
+type UseIconsNode = {
+    /**
+     * Renders icons
+     * @param shape Renders the shape of the icon
+     * @param icon Icon component to render
+     */
+    useIcons: () => {
+        frontIcon: { shape: "ROUNDED" | "SQUIRCLE"; icon: ComponentType<any>; };
+        backIcon?: { shape: "ROUNDED" | "SQUIRCLE"; icon: ComponentType<any>; };
+    };
+};
+
 type BadgesNode = {
     /**
      * Renders a persistent badge and will never dismiss.
@@ -346,6 +373,7 @@ type InlineNoticeNode =
         noticeType: "critical" | "warning" | "info" | "success";
         useText(): ReactNode;
         useTitle?(): ReactNode;
+        iconAlign?: "center";
         /* Runs whenever the notice renders */
         trackView?(): void;
         /* onClick returns a promise. so it has "loading" set to true by default. */

@@ -3,6 +3,8 @@ import { TextVariant } from "../components";
 
 export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive";
 
+type Booleanish = boolean | "true" | "false";
+
 export interface ButtonsProps {
     Button: {
         /** @ignore You probably dont need to use this. @default button */
@@ -18,18 +20,18 @@ export interface ButtonsProps {
         /** Adds offset margin to the {@link icon}. @default 0 */
         iconOpticalOffsetMargin?: number;
         /** Makes the button on its full size in a element. @default false */
-        fullWidth?: boolean;
+        fullWidth?: Booleanish;
         focusProps?: Record<string, any>;
-        loading?: boolean;
+        loading?: Booleanish;
         /** @ignore Only used when the user's device narrator settings is on. */
         loadingStartedLabel?: string;
         /** @ignore Only used when the user's device narrator settings is on. */
         loadingFinishedLabel?: string;
         /** Rounds the button @default false */
-        rounded?: boolean;
+        rounded?: Booleanish;
         /** type click. @default button */
         type?: ButtonHTMLAttributes<any>["type"];
-        disabled?: boolean;
+        disabled?: Booleanish;
         /** Minimum size of the button. Note: numbers get converted into CSS automatically. */
         minWidth?: CSSProperties["minWidth"];
         style?: CSSProperties;
@@ -53,7 +55,7 @@ export interface ButtonsProps {
         type?: ButtonHTMLAttributes<any>["type"];
         /** Background color variant of the text. @default primary */
         variant?: "primary" | "secondary" | "always-white" | "critical";
-        disabled?: boolean;
+        disabled?: Booleanish;
         buttonRef?: Ref<HTMLButtonElement>;
         onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
     };
@@ -64,9 +66,9 @@ export interface ButtonsProps {
         /** Size of the button @default md */
         size?: "xs" | "sm" | "md";
         icon?: ComponentType<any>;
-        disabled?: boolean;
+        disabled?: Booleanish;
         /** Creates a spinning animation on the button for loading animations */
-        loading?: boolean;
+        loading?: Booleanish;
         focusProps?: Record<string, any>;
         buttonRef?: Ref<HTMLButtonElement>;
         onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
@@ -85,7 +87,7 @@ export interface ButtonsProps {
         /** Aligns items along the main axis: start, center, end, or distribute space. etc. @default start */
         justify?: "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly";
         /** Keeps all children inside the {@link ButtonGroup} element */
-        wrap?: boolean;
+        wrap?: Booleanish;
         /** Applies a standard {@link CSSProperties CSS} padding with a direction control */
         padding?: number | {
             top?: number;
@@ -94,7 +96,7 @@ export interface ButtonsProps {
             left?: number;
         };
         /** Makes the {@link ButtonGroup} container on its full size in a element. @default false */
-        fullWidth?: boolean;
+        fullWidth?: Booleanish;
         className?: string;
         style?: CSSProperties;
     };
