@@ -42,8 +42,8 @@ export default definePlugin({
         {
             find: '"PLAINTEXT_PREVIEW":"OTHER"',
             replacement: {
-                match: /"IMAGE"===\i\|\|"VIDEO"===\i\|\|"CLIP"===\i/,
-                replace: "false"
+                match: /"return IMAGE"===\i\|\|"VIDEO"===\i\|\|"CLIP"===\i/,
+                replace: "return false"
             }
         },
         {
