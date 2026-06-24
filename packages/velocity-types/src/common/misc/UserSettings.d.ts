@@ -150,6 +150,10 @@ export interface AccordionNode extends LayoutNode {
 export interface ListNode extends LayoutNode {
     type: LayoutType.LIST;
     layout: ContentNode[];
+    /**
+     * Defines the maximum number of visible nodes in the {@link layout} list before remaining nodes are wrapped in an {@link AccordionNode}.
+     * This can be seen in the Voice & Video Sounds category. And no, the {@link AccordionNode} will not automatically change its subtitle based on the nodes in {@link layout}
+     */
     collapseAfter?: number;
     useCollapsibleTitle?: (isExpanded: boolean, hiddenCount: number) => string;
     useCollapsedSubtitle?: () => string;
