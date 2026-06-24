@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { definePluginSettings } from "@api/Settings";
+import { definePluginSettings, Settings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { ImageIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
@@ -31,7 +31,7 @@ import type { ComponentType } from "react";
 
 const GuildSettingsActionCreators = findByPropsLazy("open", "selectRole", "updateGuild");
 
-const Classes = findCssClassesLazy("item", "iconContainer", "labelContainer", "label", "colorDefault");
+const Classes = findCssClassesLazy("item", "iconContainer", "iconContainerLeft", "labelContainer", "label", "icon", "colorDefault");
 const loadRoleMembers = findByCodeLazy(".GUILD_ROLE_MEMBER_IDS(", "requestMembersById");
 
 const DeveloperMode = getUserSettingLazy("appearance", "developerMode")!;
@@ -142,8 +142,9 @@ export function buildExtraRoleContextMenuItems(role: Role, guild: Guild, popoutR
                                 role="menuitem"
                                 {...popoutProps}
                             >
+                                {Settings.velocityStyles.manaContextMenu && <div className={Classes.iconContainerLeft}><Icons.UserIcon className={Classes.icon} /></div>}
                                 <div className={Classes.label}>View Role Members</div>
-                                <Icons.UserIcon className={Classes.iconContainer} />
+                                {!Settings.velocityStyles.manaContextMenu && <div className={Classes.iconContainer}><Icons.UserIcon className={Classes.icon} /></div>}
                             </div>
                         )}
                     </Popout>
