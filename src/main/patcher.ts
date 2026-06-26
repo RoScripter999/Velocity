@@ -86,14 +86,8 @@ if (!IS_VANILLA) {
             // work around discord unloading when in background
             options.webPreferences.backgroundThrottling = false;
 
-            // Renderer performance boost aggressively cache V8 bytecode
-            // and skip warmup heuristics so JS executes faster on load.
-            if (settings.rendererPerformanceBoost) {
+            if (settings.rendererPerformanceBoost)
                 options.webPreferences.v8CacheOptions = "bypassHeatCheck";
-                // Disable preferred-size-mode polling — Discord doesn't need it
-                // and it causes extra layout passes in the renderer
-                options.webPreferences.enablePreferredSizeMode = false;
-            }
 
             if (frameless) {
                 options.frame = false;
@@ -174,20 +168,23 @@ if (!IS_VANILLA) {
     app.commandLine.appendSwitch("disable-background-timer-throttling");
     app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
 
-    // Renderer performance boost: enable GPU rasterization, zero-copy texture
-    // uploads, and hardware compositing overlays. Also opts into Skia's GPU
-    // renderer and VA-API video acceleration where the platform supports it.
-    // Guarded behind a setting because GPU blocklist overrides can cause
-    // rendering artefacts on some driver/OS combos.
     if (settings.rendererPerformanceBoost) {
-        app.commandLine.appendSwitch("enable-gpu-rasterization");
-        app.commandLine.appendSwitch("enable-zero-copy");
-        app.commandLine.appendSwitch("ignore-gpu-blocklist");
-        app.commandLine.appendSwitch("enable-hardware-overlays", "single-fullscreen,single-on-top,underlay");
-        app.commandLine.appendSwitch(
-            "enable-features",
-            "VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization,UseSkiaRenderer"
-        );
+        app.commandLine.appendSwitch("num-raster-threads", "4");
+        app.commandLine.appendSwitch("enable-accelerated-2d-canvas");
+        app.commandLine.appendSwitch("enable-native-gpu-memory-buffers");
+        app.commandLine.appendSwitch("enable-gpu-memory-buffer-compositor-resources");
+        app.commandLine.appendSwitch("enable-accelerated-video-decode");
+        app.commandLine.appendSwitch("enable-accelerated-video-encode");
+        app.commandLine.appendSwitch("enable-features", "ParallelDownloading");
+
+        if (process.platform === "win32") {
+            app.commandLine.appendSwitch("use-angle", "d3d11");
+            app.commandLine.appendSwitch("enable-features", "D3D11VideoDecoder,DirectCompositionVideoOverlays");
+        } else if (process.platform === "linux") {
+            app.commandLine.appendSwitch("enable-features", "VaapiVideoDecoder,VaapiVideoEncoder,VaapiVideoDecodeLinuxGL");
+        } else if (process.platform === "darwin") {
+            app.commandLine.appendSwitch("use-angle", "metal");
+        }
     }
 } else {
     console.log("[Velocity] Running in vanilla mode. Not loading Velocity");
