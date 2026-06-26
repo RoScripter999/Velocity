@@ -145,7 +145,7 @@ const DefaultSettings: Settings = {
 
     velocityStyles: {
         switchRedesign: "redesigned",
-        showRedesignedIcon: false,
+        showRedesignedIcon: true,
         manaTextInputs: false,
         manaContextMenu: false,
         manaToggleInputs: false
