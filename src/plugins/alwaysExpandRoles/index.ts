@@ -41,7 +41,7 @@ export default definePlugin({
             find: "hasDeveloperContextMenu:",
             replacement: [
                 {
-                    match: /(?<=\?\i\.current\[\i\].{0,100})useState\(!1\)/,
+                    match: /(?<=\?\i\.current\[\i\].{0,100}?)useState\(!1\)/,
                     replace: "useState(!0)"
                 },
                 {
@@ -51,8 +51,8 @@ export default definePlugin({
                     replace: "false"
                 },
                 {
-                    match: /\(\)=>\i\.length<\i\.length/,
-                    replace: "()=>false",
+                    match: /return \i\.length<\i\.length/,
+                    replace: "return false",
                     predicate: () => settings.store.hideArrow
                 }
             ]
