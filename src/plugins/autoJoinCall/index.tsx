@@ -75,7 +75,7 @@ export const settings = definePluginSettings({
         type: OptionType.SELECT,
         displayName: "Join On Status",
         description: "On which status will it automatically join the call (privacy feature)",
-        default: ["invisible", "dnd", "online"],
+        default: ["idle", "online"],
         options: statusOptions
     },
     autoStream: {
