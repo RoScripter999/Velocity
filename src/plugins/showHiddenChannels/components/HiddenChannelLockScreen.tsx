@@ -19,7 +19,7 @@
 import { isPluginEnabled } from "@api/PluginManager";
 import ErrorBoundary from "@components/ErrorBoundary";
 import PermissionsViewerPlugin from "@plugins/permissionsViewer";
-import openRolesAndUsersPermissionsModal, { RoleOrUserPermission } from "@plugins/permissionsViewer/components/RolesAndUsersPermissions";
+import openRolesAndUsersPermissionsModal, { type RoleOrUserPermission } from "@plugins/permissionsViewer/components/RolesAndUsersPermissions";
 import { sortPermissionOverwrites } from "@plugins/permissionsViewer/utils";
 import { classes } from "@utils/misc";
 import { formatDuration } from "@utils/text";

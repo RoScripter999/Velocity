@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,12 @@ import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Role } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { ChannelStore, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
+import { ChannelStore, ChannelTypeSets, Icons, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
 
 import HiddenChannelLockScreen, { setChannelBeginHeader } from "./components/HiddenChannelLockScreen";
 
@@ -39,6 +40,12 @@ const enum ShowMode {
     HiddenIconWithMutedStyle
 }
 
+const enum HiddenChannelTypesToShow {
+    All,
+    Text,
+    Voice
+}
+
 const CONNECT = 1n << 20n;
 
 export const settings = definePluginSettings({
@@ -46,6 +53,16 @@ export const settings = definePluginSettings({
         description: "Hide Unreads",
         type: OptionType.BOOLEAN,
         default: true,
+        restartNeeded: true
+    },
+    hiddenChannelVisibility: {
+        description: "Channel Types to show",
+        type: OptionType.SELECT,
+        options: [
+            { label: "All Channels", value: HiddenChannelTypesToShow.All, default: true },
+            { label: "Text Channels", value: HiddenChannelTypesToShow.Text },
+            { label: "Voice Channels", value: HiddenChannelTypesToShow.Voice }
+        ],
         restartNeeded: true
     },
     showMode: {
@@ -84,7 +101,7 @@ export default definePlugin({
                 // Remove the special logic for channels we don't have access to
                 {
                     match: /if\(!\i\.\i\.can\(\i\.\i\.VIEW_CHANNEL.+?{if\(this\.id===\i\).+?threadIds:\[\]}}/,
-                    replace: ""
+                    replace: "if(!$self.shouldShowHiddenChannel(this.record)){$&}"
                 },
                 // Do not check for unreads when selecting the render level if the channel is hidden
                 {
@@ -99,7 +116,7 @@ export default definePlugin({
                 // Remove permission checking for getRenderLevel function
                 {
                     match: /(getRenderLevel\(\i\){.+?return)!\i\.\i\.can\(\i\.\i\.VIEW_CHANNEL,this\.record\)\|\|/,
-                    replace: (_, rest) => `${rest} `
+                    replace: (_, rest) => `${rest}!$self.shouldShowHiddenChannel(this.record)||`
                 }
             ]
         },
@@ -150,7 +167,7 @@ export default definePlugin({
             // Render null instead of the buttons if the channel is hidden
             replacement: {
                 match: /(?<=renderOpenChatButton(?:",|=)\(\)=>{)/,
-                replace: "if($self.isHiddenChannel(this.props?.channel))return null;"
+                replace: "if($self.isHiddenChannel(this?.props?.channel))return null;"
             }
         },
         {
@@ -356,22 +373,22 @@ export default definePlugin({
                 {
                     // Render our HiddenChannelLockScreen component instead of the main voice channel component
                     match: /renderContent\(\i\){.+?this\.renderVoiceChannelEffects.+?children:/,
-                    replace: "$&!this.props.inCall&&$self.isHiddenChannel(this.props.channel,true)?$self.HiddenChannelLockScreen(this.props.channel):"
+                    replace: "$&!this?.props?.inCall&&$self.isHiddenChannel(this?.props?.channel,true)?$self.HiddenChannelLockScreen(this?.props?.channel):"
                 },
                 {
                     // Disable gradients for the HiddenChannelLockScreen of voice channels
                     match: /renderContent\(\i\){.+?disableGradients:/,
-                    replace: "$&!this.props.inCall&&$self.isHiddenChannel(this.props.channel,true)||"
+                    replace: "$&!this?.props?.inCall&&$self.isHiddenChannel(this?.props?.channel,true)||"
                 },
                 {
                     // Disable useless components for the HiddenChannelLockScreen of voice channels
                     match: /(?:{|,)render(?!Header|ExternalHeader).{0,30}?:/g,
-                    replace: "$&!this.props.inCall&&$self.isHiddenChannel(this.props.channel,true)?()=>null:"
+                    replace: "$&!this?.props?.inCall&&$self.isHiddenChannel(this?.props?.channel,true)?()=>null:"
                 },
                 {
                     // Disable bad CSS class which mess up hidden voice channels styling
                     match: /(?=\i\|\|\i!==\i\.\i\.FULL_SCREEN.{0,100}?this\._callContainerRef)/,
-                    replace: '$&!this.props.inCall&&$self.isHiddenChannel(this.props.channel,true)?"":'
+                    replace: '$&!this?.props?.inCall&&$self.isHiddenChannel(this?.props?.channel,true)?"":'
                 }
             ]
         },
@@ -511,11 +528,30 @@ export default definePlugin({
 
             return !PermissionStore.can(PermissionsBits.VIEW_CHANNEL, channel) || checkConnect && !PermissionStore.can(PermissionsBits.CONNECT, channel);
         } catch (e) {
-            console.error("[ViewHiddenChannels#isHiddenChannel]: ", e);
+            new Logger("ShowHiddenChannels#isHiddenChannel").error("Failed to check hidden channel type:", e);
+
             return false;
         }
     },
 
+    shouldShowHiddenChannel(channel: Channel) {
+        try {
+            if (!this.isHiddenChannel(channel)) return true;
+
+            switch (settings.store.hiddenChannelVisibility) {
+                case HiddenChannelTypesToShow.Text:
+                    return ChannelTypeSets.GUILD_TEXT_ONLY.has(channel.type);
+                case HiddenChannelTypesToShow.Voice:
+                    return ChannelTypeSets.GUILD_VOCAL.has(channel.type);
+                case HiddenChannelTypesToShow.All:
+                default:
+                    return true;
+            }
+        } catch (e) {
+            new Logger("ShowHiddenChannels").error("Failed to check hidden channel type:", e);
+            return true;
+        }
+    },
     resolveGuildChannels(channels: Record<string | number, Array<{ channel: Channel; comparator: number; }> | string | number>, shouldIncludeHidden: boolean) {
         if (shouldIncludeHidden) return channels;
 
@@ -553,16 +589,7 @@ export default definePlugin({
     HiddenChannelLockScreen: (channel: any) => <HiddenChannelLockScreen channel={channel} />,
 
     LockIcon: ErrorBoundary.wrap(() => (
-        <svg
-            className={ChannelListClasses.icon}
-            height="18"
-            width="20"
-            viewBox="0 0 24 24"
-            aria-hidden={true}
-            role="img"
-        >
-            <path fill="currentcolor" fillRule="evenodd" d="M17 11V7C17 4.243 14.756 2 12 2C9.242 2 7 4.243 7 7V11C5.897 11 5 11.896 5 13V20C5 21.103 5.897 22 7 22H17C18.103 22 19 21.103 19 20V13C19 11.896 18.103 11 17 11ZM12 18C11.172 18 10.5 17.328 10.5 16.5C10.5 15.672 11.172 15 12 15C12.828 15 13.5 15.672 13.5 16.5C13.5 17.328 12.828 18 12 18ZM15 11H9V7C9 5.346 10.346 4 12 4C13.654 4 15 5.346 15 7V11Z" />
-        </svg>
+        <Icons.LockIcon className={ChannelListClasses.icon} size="refresh_sm" />
     ), { noop: true }),
 
     HiddenChannelIcon: ErrorBoundary.wrap(() => (
