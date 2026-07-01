@@ -20,12 +20,10 @@ import "./styles.css";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Flex } from "@components/Flex";
-import { Link } from "@components/Link";
 import { Devs } from "@utils/constants";
 import { identity } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import { MediaEngineStore, Select, Slider, useState, useStateFromStores, VoiceActions } from "@webpack/common";
+import { Buttons, MediaEngineStore, Select, Slider, useState, useStateFromStores, VoiceActions } from "@webpack/common";
 
 const settings = definePluginSettings({
     saveDropdownState: {
@@ -85,24 +83,19 @@ function VoiceSettings() {
     const noCamera = videoDevices.length === 0 || videoDevices.every(d => d.disabled || !d.name);
 
     return (
-        <div style={{ marginTop: "20px" }}>
-            <div style={{ marginBottom: "10px" }}>
-                <Link className="vc-panelsettings-button" onClick={() => {
-                    settings.store.saveDropdownState = !open;
-                    setOpen(!open);
-                }}>
-                    {open ? "▼ Hide" : "► Settings"}
-                </Link>
-            </div>
-
+        <div>
+            <Buttons.TextButton text={open ? "▼ Hide" : "► Settings"} variant="secondary" onClick={() => {
+                settings.store.saveDropdownState = !open;
+                setOpen(!open);
+            }} />
             {open && (
-                <Flex flexDirection="column" gap={6}>
+                <div className="vc-panelSettings-settings">
                     <VolumeSlider label="Output volume" max={200} getVal={() => MediaEngineStore.getOutputVolume()} setVal={VoiceActions.setOutputVolume} />
                     <VolumeSlider label="Input volume" max={100} getVal={() => MediaEngineStore.getInputVolume()} setVal={VoiceActions.setInputVolume} />
                     <DeviceSelect label="Output device" getDeviceId={() => MediaEngineStore.getOutputDeviceId()} getDevices={() => Object.values(MediaEngineStore.getOutputDevices())} setDevice={VoiceActions.setOutputDevice} />
                     <DeviceSelect label="Input device" getDeviceId={() => MediaEngineStore.getInputDeviceId()} getDevices={() => Object.values(MediaEngineStore.getInputDevices())} setDevice={VoiceActions.setInputDevice} />
                     <DeviceSelect label="Camera" getDeviceId={() => MediaEngineStore.getVideoDeviceId()} getDevices={() => Object.values(MediaEngineStore.getVideoDevices())} setDevice={VoiceActions.setVideoDevice} disabled={noCamera} />
-                </Flex>
+                </div>
             )}
         </div>
     );
@@ -119,10 +112,10 @@ export default definePlugin({
 
     patches: [
         {
-            find: "}getAccessibilityLabel(){",
+            find: ".VOICE_PANEL_INTRODUCTION)&&",
             replacement: {
-                match: /this.renderVoiceStates\(\),\i/,
-                replace: "$&,$self.VoiceSettings()"
+                match: /(?<=\i\?null:\(0,\i\.jsx\)\(\i,\{channel:\i,canGoLive:\i\}\))/,
+                replace: ",$self.VoiceSettings()"
             }
         }
     ]

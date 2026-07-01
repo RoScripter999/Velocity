@@ -1,7 +1,6 @@
-.vc-panelsettings-button {
-    color: var(--header-secondary);
-
-    &:hover {
-        text-decoration: underline;
-    }
+.vc-panelSettings-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
 }
