@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 */
 
 import { Logger } from "@utils/Logger";
-import type { Channel, CloudUpload, CustomEmoji, Message } from "@velocity-types";
+import type { Channel, CustomEmoji, Message } from "@velocity-types";
 import { MessageStore } from "@webpack/common";
 import type { Promisable } from "type-fest";
 
@@ -30,56 +30,40 @@ export interface MessageObject {
     tts: boolean;
 }
 
-export interface MessageReplyOptions {
-    messageReference: Message["messageReference"];
+export interface SendMessageOptions {
+    messageReference?: Message["messageReference"];
     allowedMentions?: {
-        parse: Array<string>;
+        parse: string[];
         repliedUser: boolean;
     };
+    location: string;
+    stickerIds?: string[];
+    alsoForwardToChannelId?: string;
+
+    // If you end up using these, update their type
+    scheduledTimestamp?: unknown;
+    mediaMention?: unknown;
 }
 
-export interface MessageOptions {
-    stickers?: string[];
-    uploads?: CloudUpload[];
-    replyOptions: MessageReplyOptions;
+export interface SendMessageProps {
+    hasStickers: boolean;
+    hasAttachments: boolean;
     content: string;
     channel: Channel;
     type?: any;
-    hasStickers: boolean;
-    hasAttachments: boolean;
     openWarningPopout: (props: any) => any;
 }
 
-export type MessageSendListener = (channelId: string, messageObj: MessageObject, options: MessageOptions) => Promisable<void | { cancel: boolean; }>;
+export type MessageSendListener = (channelId: string, messageObj: MessageObject, options: SendMessageOptions, props: SendMessageProps) => Promisable<void | { cancel: boolean; }>;
 export type MessageEditListener = (channelId: string, messageId: string, messageObj: MessageObject) => Promisable<void | { cancel: boolean; }>;
 
 const sendListeners = new Set<MessageSendListener>();
 const editListeners = new Set<MessageEditListener>();
 
-interface MessageOptions2 {
-    content: string;
-    channelId: string,
-    command: unknown | null;
-    isGif?: boolean;
-    scheduledTimestamp?: unknown;
-    stickers?: string[];
-    uploads?: CloudUpload[];
-    alsoForwardToChannelId?: unknown;
-}
-
-export async function _handlePreSend(
-    channelId: string,
-    messageObj: MessageObject,
-    options: MessageOptions,
-    replyOptions: MessageReplyOptions,
-    options2: MessageOptions2
-) {
-    options.stickers = options2.stickers;
-    options.uploads = options2.uploads;
-    options.replyOptions = replyOptions;
+export async function _handlePreSend(channelId: string, messageObj: MessageObject, options: SendMessageOptions, props: SendMessageProps) {
     for (const listener of sendListeners) {
         try {
-            const result = await listener(channelId, messageObj, options);
+            const result = await listener(channelId, messageObj, options, props);
             if (result?.cancel) {
                 return true;
             }

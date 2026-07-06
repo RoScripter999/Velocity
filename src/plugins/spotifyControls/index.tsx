@@ -57,7 +57,7 @@ export default definePlugin({
 
     patches: [
         {
-            find: ".DISPLAY_NAME_STYLES_COACHMARK)",
+            find: "#{intl::USER_PROFILE_ACCOUNT_POPOUT_BUTTON_A11Y_LABEL}",
             replacement: {
                 match: /(?<=\i\.jsxs?\)\()(\i),{(?=[^}]*?userTag:\i,occluded:)/,
                 replace: "$self.PanelWrapper,{VelocityOriginal:$1,"

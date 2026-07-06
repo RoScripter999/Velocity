@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: check that tag matches package.json version
               run: |
@@ -22,10 +22,10 @@ jobs:
 
             - uses: pnpm/action-setup@v6 # Install pnpm using packageManager key in package.json
 
-            - name: Use Node.js 22
+            - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: "pnpm"
 
             - name: Install dependencies

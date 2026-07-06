@@ -38,9 +38,9 @@ export default definePlugin({
             find: ".handleSendMessage,onResize:",
             replacement: {
                 // https://regex101.com/r/7iswuk/1
-                match: /let (\i)=\i\.\i\.parse\((\i),.+?\.getSendMessageOptions\((\{.+?\})\),.{0,100}?\};(?=.+?(\i)\.flags=)(?<=\)\(({.+?})\)\.then.+?)/,
-                replace: (m, parsedMessage, channel, extra2, replyOptions, extra) => m +
-                    `if(await Velocity.Api.MessageEvents._handlePreSend(${channel}.id,${parsedMessage},${extra},${replyOptions},${extra2}))` +
+                match: /let (\i)=\i\.\i\.parse\((\i),.+?\.getSendMessageOptions\(\{.+?\}\)?;(?=.+?(\i)\.flags=)(?<=\)\(({.+?})\)\.then.+?)/,
+                replace: (m, parsedMessage, channel, options, props) => m +
+                    `if(await Velocity.Api.MessageEvents._handlePreSend(${channel}.id,${parsedMessage},${options},${props}))` +
                     "return{shouldClear:false,shouldRefocus:true};"
             }
         },

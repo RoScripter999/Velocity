@@ -118,7 +118,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                 {corePlugins.length > 0 && (
                     <div className={cl("plugin-section")}>
                         <SectionHeader
-                            title="CORE"
+                            title="Core"
                             titleColor="text-muted"
                             titleVariant="text-sm/normal"
                             icon={() => <Icons.ShieldIcon size="xs" color="var(--text-muted)" />}
@@ -131,7 +131,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                 {apiPlugins.length > 0 && (
                     <div className={cl("plugin-section")}>
                         <SectionHeader
-                            title="API"
+                            title="Api"
                             titleColor="text-muted"
                             titleVariant="text-sm/normal"
                             icon={() => <Icons.WrenchIcon size="xs" color="var(--text-muted)" />}
