@@ -81,14 +81,6 @@ export default definePlugin({
                     replace: "{...$1,...$self.getPlatform(true)}"
                 }
             ]
-        },
-        {
-            find: '"2025-01-virtual-currency-rollout"',
-            replacement: {
-                match: /\i\.(?:get|use)Config\(\i\)\.enabled/g,
-                replace: "!0"
-            }
-
         }
     ],
 
