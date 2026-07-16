@@ -71,6 +71,11 @@ export const CspPolicies: PolicyMap = {
     // Function Specific
     "api.github.com": ConnectSrc, // used for updating Velocity itself
     "ws.audioscrobbler.com": ConnectSrc, // Last.fm API
+    "musicbrainz.org": ConnectSrc,
+    "*.listenbrainz.org": ConnectSrc,
+    "coverartarchive.org": ConnectSrc,
+    "archive.org": ConnectSrc,
+    "*.archive.org": ConnectSrc,
     "translate-pa.googleapis.com": ConnectSrc, // Google Translate API
     "*.vencord.dev": ImageSrc, // VenCloud (api.velocity.dev) and Badges (badges.velocity.dev)
     "manti.vendicated.dev": ImageSrc, // ReviewDB API

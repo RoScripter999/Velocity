@@ -29,9 +29,9 @@ import { getIntlMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import type { Message } from "@velocity-types";
+import type { Message, MessageAttachment } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { ChannelStore, FluxDispatcher, Icons, Menu, MessageStore, Parser, SelectedChannelStore, Timestamp, UserStore, useStateFromStores } from "@webpack/common";
+import { AuthenticationStore, ChannelStore, FluxDispatcher, Icons, Menu, MessageStore, Parser, SelectedChannelStore, Timestamp, UserStore, useStateFromStores } from "@webpack/common";
 
 import overlayStyle from "./deleteStyleOverlay.css?managed";
 import textStyle from "./deleteStyleText.css?managed";
@@ -40,6 +40,15 @@ import { openHistoryModal } from "./HistoryModal";
 interface MLMessage extends Message {
     editHistory?: { timestamp: Date; content: string; }[];
     firstEditTimestamp?: Date;
+}
+
+interface MLAttachment extends MessageAttachment {
+    /**
+     * if the attachment was deleted
+     *
+     * a non-deleted {@link MLMessage|Message} can have deleted attachments
+     */
+    deleted?: boolean;
 }
 
 const MessageClasses = findCssClassesLazy("edited", "communicationDisabled", "isSystemMessage");
@@ -169,8 +178,8 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (children, props) =
 };
 
 const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channel }) => {
-    const messages = MessageStore.getMessages(channel?.id)._array as MLMessage[];
-    if (!messages?.some(msg => msg.deleted || msg.editHistory?.length)) return;
+    const messages = MessageStore.getMessages(channel?.id)._array;
+    if (!messages?.some(msg => msg.deleted || (msg as MLMessage).editHistory?.length)) return;
 
     const group = findGroupChildrenByChildId("mark-channel-read", children) ?? children;
     group.push(
@@ -268,6 +277,29 @@ export default definePlugin({
         };
     },
 
+    handleUpdateAttachments(newMessage: MLMessage): MLAttachment[] {
+        const oldMessage = MessageStore.getMessage(newMessage.channel_id, newMessage.id) as MLMessage | undefined;
+        // if oldMessage is undefined, this is a new message and we shouldn't touch the attachments
+        if (!oldMessage || this.shouldIgnore(newMessage, true)) {
+            return newMessage.attachments;
+        }
+        // not sure if it's ever actually null after an edit but discord does a null check here
+        if (!newMessage.attachments?.length) {
+            return oldMessage.attachments.map((a): MLAttachment => ({ ...a, deleted: true }));
+        }
+        const attachments: MLAttachment[] = [];
+        for (const oldAttachment of oldMessage.attachments) {
+            const wasDeleted = newMessage.attachments.every(a => a.id !== oldAttachment.id);
+            if (wasDeleted) {
+                attachments.push({ ...oldAttachment, deleted: true });
+            } else {
+                attachments.push(oldAttachment);
+            }
+        }
+        return attachments;
+    },
+
+
     handleDelete(cache: any, data: { ids: string[], id: string; mlDeleted?: boolean; }, isBulk: boolean) {
         try {
             if (cache == null || (!isBulk && !cache.has(data.id))) return cache;
@@ -320,6 +352,25 @@ export default definePlugin({
         }
     },
 
+    // It is possible to replace a message in place by creating a new message with the same nonce as an existing one.
+    // This is not considered an edit since it's a new message. Thus it bypasses our edit logging and can be used to "delete" a message by replacing it with an empty one.
+    // This fixes that bypass
+    normalizeNonce(msg: Message) {
+        try {
+            if (!msg.nonce || msg.author.id === AuthenticationStore.getId()) return;
+
+            const prevMsg = MessageStore.getMessage(msg.channel_id, msg.nonce);
+            if (!prevMsg || prevMsg.state !== "SENT") return;
+
+            if (prevMsg.id !== msg.id) {
+                delete msg.nonce;
+            }
+        } catch (e) {
+            console.error("[MessageLogger] Error normalizing nonce");
+        }
+    },
+
+
     EditMarker({ message, className, children, ...props }: any) {
         return (
             <span
@@ -362,6 +413,13 @@ export default definePlugin({
     }),
 
     patches: [
+        {
+            find: "this.truncateTop",
+            replacement: {
+                match: /receiveMessage\((\i)\)\{/,
+                replace: "$& $self.normalizeNonce($1);"
+            }
+        },
         {
             find: '"MessageStore"',
             replacement: [
@@ -422,10 +480,10 @@ export default definePlugin({
         },
 
         {
-            // Updated message transformer(?)
+            // Updated message transformer
             find: ".PREMIUM_REFERRAL&&(",
             replacement: {
-                // Pass through editHistory & deleted & original attachments to the "edited message" transformer
+                // Pass through editHistory & deleted to the "edited message" transformer
                 match: /(?<=null!=\i\.edited_timestamp\)return )\i\(\i,\{reactions:(\i)\.reactions.{0,50}\}\)/,
                 replace:
                     "Object.assign($&,{ deleted:$1.deleted, editHistory:$1.editHistory, firstEditTimestamp:$1.firstEditTimestamp })"
@@ -444,7 +502,7 @@ export default definePlugin({
                 },
                 // dont allow deleting attachments from deleted messages
                 {
-                    match: /(?<=function \i\(\i\)\{let\{[^}]*?item:(\i),\i:\i,)canRemoveItem:(\i)(?=,onRemoveItem:)/,
+                    match: /(?<=\{let\{[^}]*?item:(\i),autoPlayGif:\i,)canRemoveItem:(\i)(?=,onRemoveItem:)/,
                     replace: "_canRemoveItem:$2 = arguments[0].canRemoveItem && !$1?.originalItem?.deleted"
                 }
             ]

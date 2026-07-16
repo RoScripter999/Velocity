@@ -16,7 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { ConstEnumToRuntimeEnum } from "@utils/types";
 import type * as t from "@velocity-types";
+import * as enums from "@velocity-types/enums";
 import { findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import { waitForStore } from "./internal";
@@ -25,7 +27,7 @@ export const Flux: t.Flux = findByPropsLazy("connectStores");
 
 export type GenericStore = t.FluxStore & Record<string, any>;
 
-export const DraftType = findByPropsLazy("ChannelMessage", "SlashCommand");
+export const DraftType: ConstEnumToRuntimeEnum<typeof enums.DraftType> = findByPropsLazy("ChannelMessage", "SlashCommand");
 
 export let MessageStore: t.MessageStore;
 
