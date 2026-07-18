@@ -250,17 +250,16 @@ export default definePlugin({
         {
             find: "NOISE_CANCELLATION_POPOUT}",
             replacement: {
-                match: /children\s*:\s*\[\s*(t\?)/,
-                replace: "children:[$self.CrashButton(), $1"
+                match: /className:\i\.\i,children:\[\(0,\i\.jsx\)\(\i,\{\}\),/,
+                replace: "$&$self.CrashButton(),"
             },
             predicate: () => settings.store.buttonLocation === "voice"
         },
         {
-            find: "#{intl::CLIPS_SAVE_CLIP_TOOLTIP}",
+            find: "#{intl::uQn9B8::raw})))",
             replacement: {
-                // actions__4cd01
-                match: /(return\s+null\s*==\s*et[^?]+?\?\s*null\s*:\s*\(0,\s*\w+\.\w+\)\("div",\s*\{\s*className:\s*\w+\.\w+,\s*children:\s*\[)/,
-                replace: "$1$self.CrashButton(),"
+                match: /children:\s*\[\i\s*\?\?\s*\i\s*\?\?\s*\i,/,
+                replace: "$&$self.CrashButton(),"
             },
             predicate: () => settings.store.buttonLocation === "stream"
         }
