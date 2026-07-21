@@ -65,6 +65,7 @@ let themesLoaded = false;
 async function loadThemes(onFail?: () => void) {
     if (themesLoaded) return;
     try {
+        // In dev mode if you want to add and test themes, change this line to VelocityNative.themes.getThemeData("themeLibThemes.json") as unknown as ThemeResult;
         ThemesJSON = await VelocityNative.themes.getVelocityThemes();
 
         if (typeof ThemesJSON === "string") ThemesJSON = JSON.parse(ThemesJSON);
