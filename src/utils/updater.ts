@@ -40,6 +40,9 @@ async function Unwrap<T>(p: Promise<IpcRes<T>>) {
 export async function checkForUpdates() {
     changes = await Unwrap(VelocityNative.updater.getUpdates());
 
+    // we filter the read me file when a new plugin is added.
+    changes = changes.filter(c => c.message && !c.message.toLowerCase().includes("readme.md"));
+
     // we only want to check this for the git updater, not the http updater
     if (!IS_STANDALONE) {
         if (changes.some(c => c.hash === gitHash)) {
