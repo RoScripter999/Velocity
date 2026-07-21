@@ -52,35 +52,13 @@ function ReasonsComponent() {
     };
 
     const optionReasons = [
-        {
-            id: "none",
-            value: 0,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_NONE")
-        }, {
-            id: "1hour",
-            value: 3600,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_1HR")
-        }, {
-            id: "6hours",
-            value: 21600,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_6HR")
-        }, {
-            id: "12hours",
-            value: 43200,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_12HR")
-        }, {
-            id: "1day",
-            value: 86400,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_24HR")
-        }, {
-            id: "3days",
-            value: 259200,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_3D")
-        }, {
-            id: "7days",
-            value: 604800,
-            label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_7D")
-        }
+        { id: "none", value: 0, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_NONE") },
+        { id: "1hour", value: 3600, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_1HR") },
+        { id: "6hours", value: 21600, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_6HR") },
+        { id: "12hours", value: 43200, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_12HR") },
+        { id: "1day", value: 86400, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_24HR") },
+        { id: "3days", value: 259200, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_3D") },
+        { id: "7days", value: 604800, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_7D") }
     ];
 
     return (
@@ -239,9 +217,14 @@ const settings = definePluginSettings({
         default: true,
         restartNeeded: true
     },
+    removeAllReasons: {
+        type: OptionType.BOOLEAN,
+        description: "Removes all the premade reasons and only shows the custom reasons"
+    },
     isOtherDefault: {
         type: OptionType.BOOLEAN,
-        description: "Selects the 'Other' option by default. (Shows a text input)"
+        displayName: "Is \"Other\" Default",
+        description: "Selects the 'Other' option by default. (Shows a text area)"
     }
 });
 
@@ -285,14 +268,16 @@ export default definePlugin({
 
     getReasons() {
         const storedReasons = settings.store.reasons.map(normalize).filter(r => r.text.trim());
-        const pairs = storedReasons.length
-            ? storedReasons.map(r => ({ name: r.text, value: r.text }))
-            : [
-                getIntlMessage("BAN_REASON_OPTION_SPAM_ACCOUNT"),
-                getIntlMessage("BAN_REASON_OPTION_HACKED_ACCOUNT"),
-                getIntlMessage("BAN_REASON_OPTION_BREAKING_RULES")
-            ].map(s => ({ name: s, value: s }));
-        return pairs.concat({ name: getIntlMessage("BAN_REASON_OPTION_OTHER"), value: "other" });
+
+        const customReasons = storedReasons.map(r => ({ name: r.text, value: r.text }));
+        const defaultReasons = [
+            getIntlMessage("BAN_REASON_OPTION_SPAM_ACCOUNT"),
+            getIntlMessage("BAN_REASON_OPTION_HACKED_ACCOUNT"),
+            getIntlMessage("BAN_REASON_OPTION_BREAKING_RULES")
+        ].map(s => ({ name: s, value: s }));
+
+        const reasons = settings.store.removeAllReasons ? customReasons : defaultReasons.concat(customReasons);
+        return reasons.concat({ name: getIntlMessage("BAN_REASON_OPTION_OTHER"), value: "other" });
     },
 
     getDefaultState: () => settings.store.isOtherDefault ? "other" : ""
