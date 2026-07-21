@@ -19,10 +19,9 @@
 import { Devs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
 import definePlugin from "@utils/types";
-import type { Message } from "@velocity-types";
 import { MessageFlags } from "@velocity-types/enums";
 import { findLazy } from "@webpack";
-import { ChannelStore, Constants, Icons, PermissionsBits, PermissionStore, RestAPI, showToast, Toasts, UserStore } from "@webpack/common";
+import { Constants, Icons, PermissionsBits, PermissionStore, RestAPI, showToast, Toasts, UserStore } from "@webpack/common";
 
 const uniqueIdProp = findLazy(m => typeof m.uniqueId === "function");
 
@@ -75,7 +74,7 @@ export default definePlugin({
     messagePopoverButton: {
         required: true,
         icon: () => <Icons.CirclePlusIcon size="refresh_sm" />,
-        render(msg: Message) {
+        render(msg) {
             if (UserStore.getCurrentUser().id !== msg.author.id || msg.deleted || msg.attachments.length === 10) return null;
 
             const currChannel = getCurrentChannel();
@@ -86,9 +85,6 @@ export default definePlugin({
             return {
                 icon: Icons.CirclePlusIcon,
                 label: "Left click to add, Right click to remove",
-                message: msg,
-                channel: ChannelStore.getChannel(msg.channel_id),
-
                 onClick: async () => {
                     const input = document.createElement("input");
                     input.type = "file";

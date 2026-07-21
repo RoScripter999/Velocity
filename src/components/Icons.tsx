@@ -46,9 +46,9 @@ export type IconProps = Omit<SVGProps<SVGSVGElement>, "width" | "height" | "colo
     colorClass?: string;
 };
 
-export function createIcon(Svg: (props: IconProps) => ReactElement | null): FC<IconProps> {
-    const Comp: FC<IconProps> = props => {
-        const { size = "md", width, height, color = "interactive-icon-default", colorClass } = props;
+export function createIcon(Svg: (props: IconProps) => ReactElement): FC<IconProps> {
+    return props => {
+        const { size = "md", width, height, color = "interactive-icon-default", colorClass = "", ...rest } = props;
 
         const resolvedSize =
             typeof size === "number"
@@ -65,18 +65,25 @@ export function createIcon(Svg: (props: IconProps) => ReactElement | null): FC<I
                         ? color
                         : `var(--${color})`
                 : "currentColor";
-        return (
-            <Svg
-                width={resolvedSize ?? 24}
-                height={resolvedSize ?? 24}
-                color={resolvedColor as any}
-                className={colorClass}
-            />
-        );
-    };
 
-    return Comp;
+
+        const element = Svg({
+            width: resolvedSize ?? 24,
+            height: resolvedSize ?? 24,
+            color: resolvedColor as any,
+            ...(colorClass ? { className: colorClass } : {}),
+            ...rest
+        });
+
+        const elementProps = (element as ReactElement<any>).props;
+
+        return Icon({
+            ...elementProps,
+            children: elementProps.children
+        });
+    };
 }
+
 
 /**
  * @deprecated
@@ -94,8 +101,8 @@ export function Icon({
 }: SVGProps<SVGSVGElement>) {
     return (
         <svg
-            aria-hidden={true}
-            role="img"
+            role={props.role ?? "img"}
+            aria-hidden={props["aria-hidden"] ?? (props["aria-label"] == null)}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox={props.viewBox || "0 0 24 24"}
@@ -109,6 +116,7 @@ export function Icon({
 export const VelocityIcon = createIcon((props: IconProps) => (
     <Icon {...props}>
         <path
+            className={props.colorClass ?? ""}
             fill={props.color}
             transform="scale(1.25) translate(-2 -2)"
             d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"

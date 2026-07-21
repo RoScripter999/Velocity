@@ -23,7 +23,7 @@ import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import type { DiscordLocale, Message } from "@velocity-types";
 import { findLazy } from "@webpack";
-import { ChannelStore, i18n, Menu } from "@webpack/common";
+import { i18n, Menu } from "@webpack/common";
 
 import { settings } from "./settings";
 import { setShouldShowTranslateEnabledTooltip, TranslateChatBarIcon, TranslateIcon } from "./TranslateIcon";
@@ -110,8 +110,6 @@ export default definePlugin({
             return {
                 label: "Translate",
                 icon: TranslateIcon,
-                message,
-                channel: ChannelStore.getChannel(message.channel_id),
                 onClick: async () => {
                     const trans = await translate("received", content);
                     handleTranslate(message.id, trans);

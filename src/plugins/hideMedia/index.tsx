@@ -27,7 +27,7 @@ import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Message } from "@velocity-types";
-import { ChannelStore, Menu } from "@webpack/common";
+import { Menu } from "@webpack/common";
 
 const KEY = "HideMedia_HiddenIds";
 
@@ -130,8 +130,6 @@ export default definePlugin({
             return {
                 label: isHidden ? "Show Media" : "Hide Media",
                 icon: mediaIcon(isHidden),
-                message: msg,
-                channel: ChannelStore.getChannel(msg.channel_id),
                 onClick: () => toggleHide(msg.channel_id, msg.id)
             };
         }
