@@ -123,8 +123,8 @@ export default definePlugin({
         {
             find: '"badge-details"',
             replacement: {
-                match: /(\{fromContent:\i\.\i\.QUEST_BADGE\}\))\}\}/,
-                replace: "$1},...$self.badgeActions()}"
+                match: /fromContent:\s*\w+\.\w+\.QUEST_BADGE\s*\}\s*\)\s*\}\s*,/,
+                replace: "$&...$self.badgeActions(),"
             }
         }
     ],

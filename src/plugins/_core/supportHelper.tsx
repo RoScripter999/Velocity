@@ -268,8 +268,8 @@ export default definePlugin({
     {
         find: "#{intl::FORUM_FOLLOW_TOOLTIP}",
         replacement: {
-            match: /Thread\((\w+),"Forum Toolbar"\)(\s*\}\s*\}\s*\)\s*\}\s*\))/,
-            replace: "Thread($1,\"Forum Toolbar\")$2,$self.renderOpenDevtoolsButton({channel:$1})"
+            match: /joinThread\((\w+),\s*"Forum Toolbar"\)\)\s*\}\s*\}\s*\)\s*\}\)/,
+            replace: "joinThread($1,\"Forum Toolbar\"))}})}),$self.renderOpenDevtoolsButton({channel:$1})"
         }
     }],
 

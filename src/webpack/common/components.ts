@@ -76,6 +76,11 @@ export function setColorPicker(component: t.ColorPicker) {
     ColorPicker = component;
 }
 
+export let RoleMemberPopout: t.RoleMemberPopout = () => null;
+export function setRoleMemberPopout(component: t.RoleMemberPopout) {
+    RoleMemberPopout = component;
+}
+
 export const UserSummaryItem = waitForComponent("UserSummaryItem", filters.componentByCode("defaultRenderUser", "showDefaultAvatarsForNullUsers"));
 export const TagGroup = waitForComponent<t.TagGroup>("TagGroup", filters.componentByCode('"none",layout'));
 

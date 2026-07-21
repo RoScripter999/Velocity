@@ -879,3 +879,10 @@ export type TagGroup = ComponentType<{
     removable?: boolean;
     inInput?: boolean;
 }>;
+
+export type RoleMemberPopout = ComponentType<{
+    popoutProps: PopoutProps;
+    guildId: string;
+    channelId: string;
+    roleId: string;
+}>;

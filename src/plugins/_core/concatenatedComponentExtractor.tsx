@@ -18,7 +18,7 @@
 
 import { Devs } from "@utils/constants";
 import definePlugin, { StartAt } from "@utils/types";
-import { setColorPicker, setCreateScroller, setFilePicker, setIcons } from "@webpack/common";
+import { setColorPicker, setCreateScroller, setFilePicker, setIcons, setRoleMemberPopout } from "@webpack/common";
 
 export default definePlugin({
     name: "ConcatenatedComponentExtractor",
@@ -58,6 +58,13 @@ export default definePlugin({
                 replace: "$self.setFilePicker($1);"
             }
         },
+        {
+            find: ".ROLE_MENTION)",
+            replacement: {
+                match: /function (\i)(?=.+?renderPopout:.{0,20}\1,\{guildId:\i,channelId:\i)/,
+                replace: "$self.setRoleMemberPopout($1);$&"
+            }
+        },
 
         {
             find: "interactiveLabel:!0,",
@@ -79,6 +86,7 @@ export default definePlugin({
         return Velocity.Settings.velocityStyles.showRedesignedIcon;
     },
 
+    setRoleMemberPopout,
     setCreateScroller,
     setColorPicker,
     setFilePicker,
