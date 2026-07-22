@@ -95,7 +95,7 @@ export interface ButtonsProps {
             bottom?: number;
             left?: number;
         };
-        /** Makes the {@link ButtonGroup} container on its full size in a element. @default false */
+        /** Makes the {@link ButtonGroup} container on its full size in a element. @default true */
         fullWidth?: Booleanish;
         className?: string;
         style?: CSSProperties;

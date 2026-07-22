@@ -19,6 +19,6 @@ export type PostPayloads = HypeSquadOnlinePayload | UserMeProfilePayload | UserM
 export type GetPayloads<TUrl extends string> =
     TUrl extends `/users/${string}/profile` ? UserMeProfileGetResponse :
     TUrl extends `/users/${string}/settings` ? UserMeSettingsGetResponse :
-    TUrl extends `/users/${string}/profile` ? VirtualCurrencySkusRedeemGetResponse :
+    TUrl extends `/virtual-currency/skus/${string}/redeem` ? VirtualCurrencySkusRedeemGetResponse :
     { [key: string]: any; };
 
