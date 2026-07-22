@@ -21,12 +21,11 @@ import "./styles.css";
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { createIcon, Icon, type IconProps } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Guild } from "@velocity-types";
-import { ChannelStore, Dialog, GuildMemberStore, GuildRoleStore, GuildStore, match, Menu, PermissionsBits, Popout, PopoutClasses, Tooltip, useRef, UserStore } from "@webpack/common";
+import { ChannelStore, Dialog, GuildMemberStore, GuildRoleStore, GuildStore, Icons, match, Menu, PermissionsBits, Popout, PopoutClasses, Tooltip, useRef, UserStore } from "@webpack/common";
 
 import openRolesAndUsersPermissionsModal, { PermissionType, type RoleOrUserPermission } from "./components/RolesAndUsersPermissions";
 import UserPermissions from "./components/UserPermissions";
@@ -42,17 +41,6 @@ const enum MenuItemParentType {
     Channel,
     Guild
 }
-
-const SafetyIcon = createIcon((props: IconProps) => (
-    <Icon {...props}>
-        <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            fill={props.color}
-            d="M4.27 5.22A2.66 2.66 0 0 0 3 7.5v2.3c0 5.6 3.3 10.68 8.42 12.95.37.17.79.17 1.16 0A14.18 14.18 0 0 0 21 9.78V7.5c0-.93-.48-1.78-1.27-2.27l-6.17-3.76a3 3 0 0 0-3.12 0L4.27 5.22ZM6 7.68l6-3.66V12H6.22C6.08 11.28 6 10.54 6 9.78v-2.1Zm6 12.01V12h5.78A11.19 11.19 0 0 1 12 19.7Z"
-        />
-    </Icon>
-));
 
 export const settings = definePluginSettings({
     permissionsSortOrder: {
@@ -77,8 +65,8 @@ function MenuItem(guildId: string, id?: string, type?: MenuItemParentType, showI
         <Menu.MenuItem
             id="perm-viewer-permissions"
             label="Permissions"
-            leadingAccessory={showIcon ? { type: "icon", icon: SafetyIcon } : undefined}
-            icon={showIcon ? SafetyIcon : undefined}
+            leadingAccessory={showIcon ? { type: "icon", icon: Icons.ShieldIcon } : undefined}
+            icon={showIcon ? Icons.ShieldIcon : undefined}
             action={() => {
                 const guild = GuildStore.getGuild(guildId);
 
@@ -219,7 +207,7 @@ export default definePlugin({
                                 className={classes(className, "vc-permviewer-role-button")}
                                 onClick={e => popoutProps.onClick(e)}
                             >
-                                <SafetyIcon size="xs" />
+                                <Icons.ShieldIcon color="currentColor" size="xs" />
                             </button>
                         )}
                     </Tooltip>

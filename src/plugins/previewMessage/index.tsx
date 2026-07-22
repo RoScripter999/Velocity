@@ -93,7 +93,7 @@ const PreviewButton: ChatBarButtonFactory = ({ isMainChat, isEmpty, type: { atta
                 }
             }}
         >
-            <Icons.EyeIcon size="refresh_sm" color="currentColor" />
+            <Icons.EyeIcon color="currentColor" />
         </ChatBarButton>
     );
 };

@@ -22,7 +22,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Icon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import definePlugin, { type IconComponent, OptionType } from "@utils/types";
-import { useEffect, useState } from "@webpack/common";
+import { Icons, useEffect, useState } from "@webpack/common";
 
 let lastState = false;
 
@@ -43,6 +43,7 @@ const settings = definePluginSettings({
 });
 
 const SilentMessageIcon: IconComponent = ({ height = 20, width = 20, className, enabled }) => {
+    const d = "M22.07 3.29 18.68 7h2.82c.28 0 .5.23.5.5v1a.5.5 0 0 1-.5.5h-5.33a.5.5 0 0 1-.5-.5v-1a1 1 0 0 1 .21-.63l1.1-1.38 1.99-2.5H16.5a.5.5 0 0 1-.5-.5V1.5c0-.28.22-.5.5-.5h5.33c.28 0 .5.22.5.5v1.11a1 1 0 0 1-.26.68ZM19 11.5a.5.5 0 0 0-.5-.5h-2.33a2.5 2.5 0 0 1-2.5-2.5v-1a3 3 0 0 1 .65-1.87l.48-.6c.18-.23.12-.57-.08-.78a2.5 2.5 0 0 1-.7-1.49.94.94 0 0 0-.07-.24 2 2 0 0 0-3.87-.07.62.62 0 0 1-.39.44A7 7 0 0 0 5 9.5v2.09a.5.5 0 0 1-.13.33l-1.1 1.22A3 3 0 0 0 3 15.15v.28c0 .67.34 1.29.95 1.56 1.31.6 4 1.51 8.05 1.51 4.05 0 6.74-.91 8.05-1.5.61-.28.95-.9.95-1.57v-.28a3 3 0 0 0-.77-2l-1.1-1.23a.5.5 0 0 1-.13-.33v-.09ZM9.18 19.84A.16.16 0 0 0 9 20a3 3 0 1 0 6 0c0-.1-.09-.17-.18-.16a24.84 24.84 0 0 1-5.64 0Z";
     if (enabled) {
         return (
             <Icon
@@ -58,7 +59,7 @@ const SilentMessageIcon: IconComponent = ({ height = 20, width = 20, className, 
                         <path stroke="black" strokeWidth="5.99068" d="M0 24 24 0" />
                     </mask>
                 </defs>
-                <path fill="currentColor" mask="url(#silent-msg-mask)" d="M18 10.7101C15.1085 9.84957 13 7.17102 13 4c0-.30736.0198-.6101.0582-.907C12.7147 3.03189 12.3611 3 12 3 8.686 3 6 5.686 6 9v5c0 1.657-1.344 3-3 3v1h18v-1c-1.656 0-3-1.343-3-3v-3.2899ZM8.55493 19c.693 1.19 1.96897 2 3.44497 2s2.752-.81 3.445-2H8.55493ZM18.2624 5.50209 21 2.5V1h-4.9651v1.49791h2.4411L16 5.61088V7h5V5.50209h-2.7376Z" />
+                <Icons.BellZIcon mask="url(#silent-msg-mask)" color="currentColor" />
                 <path fill="var(--status-danger)" d="m21.178 1.70703 1.414 1.414L4.12103 21.593l-1.414-1.415L21.178 1.70703Z" />
             </Icon>
         );
@@ -72,7 +73,7 @@ const SilentMessageIcon: IconComponent = ({ height = 20, width = 20, className, 
             className={className}
             style={{ scale: "1.2" }}
         >
-            <path fill="currentColor" d="M18 10.7101C15.1085 9.84957 13 7.17102 13 4c0-.30736.0198-.6101.0582-.907C12.7147 3.03189 12.3611 3 12 3 8.686 3 6 5.686 6 9v5c0 1.657-1.344 3-3 3v1h18v-1c-1.656 0-3-1.343-3-3v-3.2899ZM8.55493 19c.693 1.19 1.96897 2 3.44497 2s2.752-.81 3.445-2H8.55493ZM18.2624 5.50209 21 2.5V1h-4.9651v1.49791h2.4411L16 5.61088V7h5V5.50209h-2.7376Z" />
+            <Icons.BellZIcon color="currentColor" />
         </Icon>
     );
 };

@@ -20,16 +20,15 @@ import "./styles.css";
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
 import { definePluginSettings } from "@api/Settings";
-import { Icon } from "@components/Icons";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getTheme, insertTextIntoChatInputBox } from "@utils/discord";
-import definePlugin, { IconComponent, OptionType } from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { Theme } from "@velocity-types/enums";
-import { Forms, Modal, openModal, Parser, Select, useMemo, useState } from "@webpack/common";
+import { Forms, Icons, Modal, openModal, Parser, Select, useMemo, useState } from "@webpack/common";
 
 const settings = definePluginSettings({
     replaceMessageContents: {
@@ -120,21 +119,6 @@ function PickerModal(props: ModalPropsRender) {
     );
 }
 
-const SendTimestampIcon: IconComponent = ({ height = 20, width = 20 }) => {
-    return (
-        <Icon
-            width={width}
-            height={height}
-            style={{ scale: "1.2" }}
-        >
-            <g fill="none" fillRule="evenodd">
-                <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z" />
-                <rect width="24" height="24" />
-            </g>
-        </Icon>
-    );
-};
-
 const SendTimestampButton: ChatBarButtonFactory = ({ isAnyChat }) => {
     if (!isAnyChat) return null;
 
@@ -144,7 +128,7 @@ const SendTimestampButton: ChatBarButtonFactory = ({ isAnyChat }) => {
             onClick={() => openModal(props => <PickerModal {...props} />)}
             buttonProps={{ "aria-haspopup": "dialog" }}
         >
-            <SendTimestampIcon />
+            <Icons.CalendarIcon color="currentColor" />
         </ChatBarButton>
     );
 };
@@ -157,7 +141,7 @@ export default definePlugin({
     settings,
 
     chatBarButton: {
-        icon: SendTimestampIcon,
+        icon: () => <Icons.CalendarIcon color="currentColor" />,
         render: SendTimestampButton
     },
 
