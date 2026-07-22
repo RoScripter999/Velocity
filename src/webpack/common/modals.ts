@@ -25,7 +25,8 @@ export const ConfirmModal: t.ConfirmModal = findExportedComponentLazy("ConfirmMo
 // Modal key: "Media Viewer Modal"
 export const openMediaModal: (props: t.MediaModalProps) => void = findByCodeLazy("hasMediaOptions", "shouldHideMediaOptions");
 
-export const MultiStepModal = findComponentByCodeLazy<t.MultiStepModalProps>(".stepKey===");
+/** @ignore This is an experimental component, Lazy loaded from playgrounds. */
+export const MultiStepModal = proxyLazyWebpack<t.MultiStepModal>(() => findComponentByCodeLazy(".stepKey==="));
 
 /** @ignore This is an experimental component, If you'd like you can finish the prop typings. */
 export const LayerModal = proxyLazyWebpack<t.LayerModal>(() => findComponentByCodeLazy('"data-mana-component":"layer-modal",'));

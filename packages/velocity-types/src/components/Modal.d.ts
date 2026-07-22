@@ -295,3 +295,4 @@ export interface ModalAPI {
 export type Modal = ComponentType<ModalProps>;
 export type ConfirmModal = ComponentType<ConfirmModalProps>;
 export type LayerModal = ComponentType<LayerModalProps>;
+export type MultiStepModal = ComponentType<MultiStepModalProps>;
