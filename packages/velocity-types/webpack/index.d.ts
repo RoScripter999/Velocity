@@ -170,8 +170,8 @@ export type WebpackRequire = ((moduleId: PropertyKey) => ModuleExports) & {
     g: typeof globalThis;
     /** Harmony module decorator. Decorates a module as an ES Module, and prevents Node.js "module.exports" from being set */
     hmd: (this: WebpackRequire, module: Module) => any;
-    /** Shorthand for Object.prototype.hasOwnProperty */
-    o: typeof Object.prototype.hasOwnProperty;
+    /** Shorthand for Object.prototype.hasOwnProperty.call */
+    o: typeof Object.prototype.hasOwnProperty.call;
     /**
      * Function to load a script tag. "done" is called when the loading has finished or a timeout has occurred.
      * "done" will be attached to existing scripts loading if src === url or data-webpack === `${uniqueName}:${key}`,
