@@ -62,7 +62,6 @@ export const FieldSet = waitForComponent<t.FieldSet>("FieldSet", filters.compone
 export const Popout = waitForComponent<t.Popout>("Popout", filters.componentByCode("ref:this.ref,", "renderPopout:this.renderPopout,"));
 export const Dialog = waitForComponent<t.Dialog>("Dialog", filters.componentByCode("inDialog:!0"));
 export const TabBar = waitForComponent<t.TabBar>("TabBar", filters.componentByCode("ref:this.tabBarRef,className:"));
-export const Paginator = waitForComponent<t.Paginator>("Paginator", filters.componentByCode('rel:"prev",children:'));
 export const Clickable = waitForComponent<t.Clickable>("Clickable", filters.componentByCode("this.context?this.renderNonInteractive():"));
 export const Avatar = waitForComponent<t.Avatar>("Avatar", filters.componentByCode(".size-1.375*"));
 

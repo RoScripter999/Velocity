@@ -1,0 +1,62 @@
+.vc-paginator {
+    display: flex;
+    align-items: center;
+    margin: auto;
+    justify-content: space-between;
+}
+
+.vc-paginator-bubbles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 8px;
+}
+
+.vc-paginator-bubble {
+    font-weight: 600;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    min-height: 28px;
+    width: min-content;
+    padding: 6px;
+    margin: 4px;
+    cursor: pointer;
+    color: var(--text-strong);
+    min-width: 28px;
+    border-radius: 14px;
+}
+
+.vc-paginator-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    padding: 12px;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+
+.vc-paginator-button:disabled {
+    pointer-events: none;
+}
+
+.vc-paginator-button:hover {
+    color: var(--interactive-text-hover);
+    background-color: var(--background-base-lower);
+}
+
+.vc-paginator-bubble[data-selected="true"] {
+    color: var(--white-500);
+    background-color: var(--background-brand)
+}
+
+.vc-paginator-bubble:not([data-selected="true"]):hover {
+    background-color: var(--background-base-lower)
+}

@@ -631,19 +631,6 @@ export type useToken = (color: {
     resolve: Resolve;
 }) => ReturnType<Resolve>;
 
-export type Paginator = ComponentType<{
-    currentPage: number;
-    maxVisiblePages: number;
-    pageSize: number;
-    totalCount: number;
-
-    onPageChange?(page: number): void;
-    hideMaxPage?: boolean;
-    disablePaginationGap?: boolean;
-    className?: string;
-    renderPageWrapper?(page: { type: "PAGE"; key: string; targetPage: number; selected: boolean; disabled: boolean; navigateToPage(): void; }, element: ReactNode): ReactNode;
-}>;
-
 export type TabBar = ComponentType<PropsWithChildren<{
     className?: string;
     type?: "side" | "top" | "top-pill";

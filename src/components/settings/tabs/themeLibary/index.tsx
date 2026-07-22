@@ -21,6 +21,7 @@ import "./styles.css";
 import { Settings } from "@api/Settings";
 import { Card } from "@components/Card";
 import { Flex } from "@components/Flex";
+import { Paginator } from "@components/Paginator";
 import { SectionHeader } from "@components/settings/tabs";
 import { SettingsTab } from "@components/settings/tabs/SectionSettings";
 import type { Dev } from "@utils/constants";
@@ -28,7 +29,7 @@ import { classNameFactory } from "@utils/css";
 import { openImageModal } from "@utils/discord";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { Buttons, LoadingIndicator, Paginator, SearchableSelect, SearchBar, Text, Tooltip, useEffect, useState } from "@webpack/common";
+import { Buttons, LoadingIndicator, SearchableSelect, SearchBar, Text, Tooltip, useEffect, useState } from "@webpack/common";
 
 import { openThemeModal } from "./download";
 

@@ -26,6 +26,7 @@ export * from "./Heading";
 export * from "./Icons";
 export * from "./Link";
 export * from "./margins";
+export * from "./Paginator";
 export * from "./Paragraph";
 export * from "./settings";
 export * from "./Span";
