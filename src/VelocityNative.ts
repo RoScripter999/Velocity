@@ -55,7 +55,7 @@ export default {
     },
 
     updater: {
-        getUpdates: () => invoke<IpcRes<Record<"hash" | "author" | "message", string>[]>>(IpcEvents.GET_UPDATES),
+        getUpdates: () => invoke<IpcRes<Array<Record<"hash" | "author" | "message", string> & { files?: string[]; }>>>(IpcEvents.GET_UPDATES),
         update: () => invoke<IpcRes<boolean>>(IpcEvents.UPDATE),
         rebuild: () => invoke<IpcRes<boolean>>(IpcEvents.BUILD),
         getRepo: () => invoke<IpcRes<string>>(IpcEvents.GET_REPO)

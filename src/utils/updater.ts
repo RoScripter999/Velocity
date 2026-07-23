@@ -26,7 +26,7 @@ export const UpdateLogger = /* #__PURE__*/ new Logger("Updater", "white");
 export let isOutdated = false;
 export let isNewer = false;
 export let updateError: any;
-export let changes: Record<"hash" | "author" | "message", string>[];
+export let changes: (Record<"hash" | "author" | "message", string> & { files?: string[]; })[];
 
 async function Unwrap<T>(p: Promise<IpcRes<T>>) {
     const res = await p;
@@ -41,7 +41,7 @@ export async function checkForUpdates() {
     changes = await Unwrap(VelocityNative.updater.getUpdates());
 
     // we filter the read me file when a new plugin is added.
-    changes = changes.filter(c => c.message && !c.message.toLowerCase().includes("readme.md"));
+    changes = changes.filter(c => !c.files?.some(f => f.toLowerCase().includes("readme")));
 
     // we only want to check this for the git updater, not the http updater
     if (!IS_STANDALONE) {

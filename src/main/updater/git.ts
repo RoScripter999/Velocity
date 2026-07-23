@@ -54,14 +54,19 @@ async function calculateGitChanges() {
     const existsOnOrigin = (await git("ls-remote", "origin", branch)).stdout.length > 0;
     if (!existsOnOrigin) return [];
 
-    const res = await git("log", `HEAD...origin/${branch}`, "--pretty=format:%an/%h/%s");
+    const res = await git("log", `HEAD...origin/${branch}`, "--pretty=format:%an/%h/%s%n%N", "--name-only");
 
     const commits = res.stdout.trim();
-    return commits ? commits.split("\n").map(line => {
-        const [author, hash, ...rest] = line.split("/");
+    return commits ? commits.split("\n\n").map(block => {
+        const lines = block.split("\n");
+        const [author, hash, ...rest] = lines[0].split("/");
+        const files = lines.slice(1).filter(Boolean);
+
         return {
-            hash, author,
-            message: rest.join("/").split("\n")[0]
+            hash,
+            author,
+            message: rest.join("/"),
+            files
         };
     }) : [];
 }
