@@ -14,7 +14,7 @@ export type TextInputProps = PropsWithChildren<(Field extends ComponentType<infe
     spellCheck?: boolean;
     readOnly?: boolean;
 
-    maxLength?: number;
+    maxLength?: number | null;
     minLength?: number;
     error?: string;
     validateOn?: "change" | "blur";
