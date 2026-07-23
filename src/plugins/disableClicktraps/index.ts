@@ -32,6 +32,14 @@ function clickTrapCss() {
             display: none;
             flex: unset;
         }
+
+        .carouselModal_d3a6f0 {
+            pointer-events: none !important;
+        }
+
+        .carouselModal_d3a6f0 * {
+            pointer-events: auto !important;
+        }
         `;
 }
 
