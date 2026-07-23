@@ -1,0 +1,106 @@
+.vc-cu-modal-top {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.vc-cu-modal-no-search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 0;
+}
+
+.vc-cu-modal-chevron svg {
+    transition: transform 0.15s ease;
+}
+
+.vc-cu-modal-chevron-expanded svg {
+    transform: rotate(90deg);
+}
+
+.vc-cu-modal-args {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--background-modifier-accent);
+}
+
+.vc-cu-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.vc-cu-modal-grid-full {
+    grid-column: span 2;
+}
+
+.vc-cu-perms-container {
+    display: flex;
+    gap: 16px;
+    background: var(--background-base-low);
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.vc-cu-perms-left {
+    width: 200px;
+    height: 350px;
+    padding-right: 12px;
+    border-right: 4px solid var(--border-muted);
+}
+
+.vc-cu-perms-right {
+    flex: 1;
+    height: 350px
+}
+
+
+.vc-cu-perms-scroller {
+    height: 100%;
+    overflow: auto
+}
+
+.vc-cu-perms-item-bttn {
+    cursor: pointer;
+    width: 100%;
+    min-width: 0;
+}
+
+.vc-cu-perms-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 5px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.vc-cu-perms-item-avatar {
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.vc-cu-perms-item-active {
+    background-color: var(--background-mod-strong);
+}
+
+.vc-cu-perms-item:not(.vc-cu-perms-item-active):hover {
+    background-color: var(--background-mod-subtle);
+}
+
+.vc-cu-perms-item-text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+    flex: 1;
+}
