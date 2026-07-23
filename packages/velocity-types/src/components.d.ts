@@ -1,6 +1,7 @@
 import type { Moment } from "moment";
 import type { ButtonHTMLAttributes, ComponentClass, ComponentPropsWithRef, ComponentType, Context, CSSProperties, ElementType, FC, FocusEvent, FunctionComponent, HTMLAttributes, HtmlHTMLAttributes, HTMLProps, JSX, KeyboardEvent, MouseEvent, PointerEvent, PropsWithChildren, ReactNode, Ref, RefObject, SVGProps } from "react";
 import type { Status } from "./common";
+import { TextInputProps } from "./components/TextInput";
 
 // copy(find(m => Array.isArray(m) && m.includes("heading-sm/normal")).map(JSON.stringify).join("|"))
 export type TextVariant = "heading-sm/normal" | "heading-sm/medium" | "heading-sm/semibold" | "heading-sm/bold" | "heading-sm/extrabold" | "heading-md/normal" | "heading-md/medium" | "heading-md/semibold" | "heading-md/bold" | "heading-md/extrabold" | "heading-lg/normal" | "heading-lg/medium" | "heading-lg/semibold" | "heading-lg/bold" | "heading-lg/extrabold" | "heading-xl/normal" | "heading-xl/medium" | "heading-xl/semibold" | "heading-xl/bold" | "heading-xl/extrabold" | "heading-xxl/normal" | "heading-xxl/medium" | "heading-xxl/semibold" | "heading-xxl/bold" | "heading-xxl/extrabold" | "eyebrow" | "heading-deprecated-12/normal" | "heading-deprecated-12/medium" | "heading-deprecated-12/semibold" | "heading-deprecated-12/bold" | "heading-deprecated-12/extrabold" | "redesign/heading-18/bold" | "text-xxs/normal" | "text-xxs/medium" | "text-xxs/semibold" | "text-xxs/bold" | "text-xs/normal" | "text-xs/medium" | "text-xs/semibold" | "text-xs/bold" | "text-sm/normal" | "text-sm/medium" | "text-sm/semibold" | "text-sm/bold" | "text-md/normal" | "text-md/medium" | "text-md/semibold" | "text-md/bold" | "text-lg/normal" | "text-lg/medium" | "text-lg/semibold" | "text-lg/bold" | "redesign/message-preview/normal" | "redesign/message-preview/medium" | "redesign/message-preview/semibold" | "redesign/message-preview/bold" | "redesign/channel-title/normal" | "redesign/channel-title/medium" | "redesign/channel-title/semibold" | "redesign/channel-title/bold" | "display-sm" | "display-md" | "display-lg" | "code";
@@ -301,88 +302,6 @@ export type Timestamp = ComponentType<PropsWithChildren<{
     compact?: boolean;
     isInline?: boolean;
     isVisibleOnlyOnHover?: boolean;
-}>>;
-
-export type TextInput = ComponentType<PropsWithChildren<(Field extends ComponentType<infer P> ? Omit<P, "errorMessage"> : {}) & {
-    name?: string;
-    value?: string | number;
-    defaultValue?: string;
-    onChange?(value: string, name?: string): void;
-
-    placeholder?: string;
-    type?: "text" | "password" | "email" | "number";
-    editable?: boolean;
-    disabled?: boolean;
-    spellCheck?: boolean;
-    readOnly?: boolean;
-
-    maxLength?: number | null;
-    minLength?: number;
-    error?: string;
-    validateOn?: "change" | "blur";
-    defaultDirty?: boolean;
-
-    onBlur?(event: FocusEvent<HTMLInputElement>): void;
-    onFocus?(event: FocusEvent<HTMLInputElement>): void;
-    onKeyDown?(event: KeyboardEvent<HTMLInputElement>): void;
-    onClear?(event: MouseEvent<HTMLElement>): void;
-
-    size?: "md" | "sm";
-    fullWidth?: boolean;
-    showCharacterCount?: boolean;
-    clearable?: boolean | { show: boolean; };
-
-    inputRef?: Ref<HTMLInputElement>;
-    focusProps?: any;
-    className?: string;
-    id?: string;
-    "aria-label"?: string;
-    role?: string;
-    style?: CSSProperties;
-
-    leading?: string | {
-        type: "tags";
-        label: string;
-        items: Array<{
-            id: string;
-            label: string;
-            icon?: ComponentType<{ size?: string; color?: string; }>;
-        }>;
-        onRemove?: (ids: Set<string>) => void;
-    } | {
-        type?: "icon";
-        icon: ComponentType<{ size?: string; color?: string; }>;
-        onClick?: (e: MouseEvent) => void;
-        "aria-label"?: string;
-        tooltip?: string;
-    } | {
-        type: "image";
-        src: string;
-    } | ComponentType<{ size?: string; color?: string; }>;
-
-    trailing?: string | {
-        type: "button";
-        button: ReactNode;
-    } | {
-        type: "tags";
-        label: string;
-        items: Array<{
-            id: string;
-            label: string;
-            icon?: ComponentType<{ size?: string; color?: string; }>;
-        }>;
-        onRemove?: (ids: Set<string>) => void;
-    } | {
-        type?: "icon";
-        icon: ComponentType<any>;
-        disabled?: boolean;
-        onClick?: (e: UIEvent) => void;
-        "aria-label"?: string;
-        tooltip?: string;
-    } | {
-        type: "image";
-        src: string;
-    } | ComponentType<{ size?: string; color?: string; }>;
 }>>;
 
 export type TextArea = ComponentType<Omit<HTMLProps<HTMLTextAreaElement>, "onChange"> & (Field extends ComponentType<infer P> ? Omit<P, "errorMessage"> : {}) & {
@@ -807,7 +726,7 @@ export type SearchBar = ComponentType<{
     onFocus?: (e: FocusEvent) => void;
     autoComplete?: string;
     /** {@link TextInput} props */
-    inputProps?: Record<string, any>;
+    inputProps?: TextInputProps;
     "aria-label"?: string;
     ref?: Ref<HTMLInputElement>;
 }>;
