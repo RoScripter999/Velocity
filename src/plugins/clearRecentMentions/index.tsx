@@ -16,14 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { sleep } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { Constants, FluxDispatcher, Icons, Menu, RestAPI } from "@webpack/common";
+import { Buttons, Constants, FluxDispatcher, Icons, RestAPI } from "@webpack/common";
 
 interface RecentMentionMessage {
     id?: string;
@@ -138,27 +137,35 @@ async function clearRecentMentions(): Promise<ClearResult> {
     }
 }
 
-const ClearMentionsMenuItem: NavContextMenuPatchCallback = children => {
+function ClearMentionsButton() {
     if (isClearing) return null;
-    children.push(
-        <Menu.MenuItem
-            id="vc-clear-recent-mentions"
-            label="Clear Recent Mentions"
-            action={clearRecentMentions}
-            icon={Icons.CopyIcon}
-            leadingAccessory={{ type: "icon", icon: Icons.CopyIcon }}
+
+    return (
+        <Buttons.Button
+            text="Clear Recent Mentions"
+            size="sm"
+            variant="secondary"
+            onClick={clearRecentMentions}
+            icon={Icons.DoubleCheckmarkIcon}
         />
     );
-};
+}
 
 export default definePlugin({
     name: "ClearRecentMentions",
-    description: "Adds a Mentions filter menu action to mark recent mentions as read and dismiss them from the Inbox Mentions tab.",
+    description: "Adds a button to clear all Recent Mentions in the Inbox Mentions tab.",
     tags: ["Notifications", "Shortcuts", "Accessibility"],
     authors: [Devs.RoScripter999],
     settings,
 
-    contextMenus: {
-        "mentions-filter": { render: ClearMentionsMenuItem, required: true }
-    }
+    patches: [{
+        find: "#{intl::FILTER}",
+        lazy: true,
+        replacement: {
+            match: /(return\s*)(\(0,(\i)\.jsx\)\(\i\.\i,\{text:\i\.intl\.string\(\i\.t\.\i\),.{0,300}onClick:\i\}\)\s*\}\))/,
+            replace: "$1[(0,$3.jsx)($self.ClearMentionsButton,{}),$2]"
+        }
+    }],
+
+    ClearMentionsButton
 });
