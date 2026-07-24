@@ -17,8 +17,24 @@
 */
 
 import { app } from "electron";
-import { existsSync, mkdirSync, readdirSync, renameSync, statSync, writeFileSync } from "original-fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, renameSync, statSync } from "original-fs";
 import { basename, dirname, join } from "path";
+
+function copyDirSync(src: string, dest: string) {
+    mkdirSync(dest, { recursive: true });
+
+    for (const file of readdirSync(src)) {
+        const srcPath = join(src, file);
+        const destPath = join(dest, file);
+        const stat = statSync(srcPath);
+
+        if (stat.isDirectory()) {
+            copyDirSync(srcPath, destPath);
+        } else {
+            copyFileSync(srcPath, destPath);
+        }
+    }
+}
 
 function isNewer($new: string, old: string) {
     const newParts = $new.slice(4).split(".").map(Number);
@@ -47,21 +63,25 @@ function patchLatest() {
 
         if (latestVersion === currentVersion) return;
 
+        const oldResources = join(discordPath, currentVersion, "resources");
+        const oldVelocityAsar = join(oldResources, "app.asar");
+
         const resources = join(discordPath, latestVersion, "resources");
-        const app = join(resources, "app.asar");
-        const _app = join(resources, "_app.asar");
+        const newAppAsar = join(resources, "app.asar");
+        const newAppAsarBackup = join(resources, "_app.asar");
 
-        if (!existsSync(app) || statSync(app).isDirectory()) return;
+        if (!existsSync(oldVelocityAsar) || !existsSync(newAppAsar)) return;
 
-        console.info("[Velocity] Detected Host Update. Repatching...");
+        console.info(`[Velocity] Detected Host Update (${currentVersion} -> ${latestVersion}). Repatching...`);
 
-        renameSync(app, _app);
-        mkdirSync(app);
-        writeFileSync(join(app, "package.json"), JSON.stringify({
-            name: "discord",
-            main: "index.js"
-        }));
-        writeFileSync(join(app, "index.js"), `require(${JSON.stringify(join(__dirname, "patcher.js"))});`);
+        renameSync(newAppAsar, newAppAsarBackup);
+
+        const oldStat = statSync(oldVelocityAsar);
+        if (oldStat.isDirectory()) {
+            copyDirSync(oldVelocityAsar, newAppAsar);
+        } else {
+            copyFileSync(oldVelocityAsar, newAppAsar);
+        }
     } catch (err) {
         console.error("[Velocity] Failed to repatch latest host update", err);
     }
