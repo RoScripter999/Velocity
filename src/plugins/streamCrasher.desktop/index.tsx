@@ -18,7 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Icon } from "@components/Icons";
+import { createIcon, Icon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType, type PluginNative } from "@utils/types";
@@ -88,14 +88,14 @@ const Button = findComponentByCodeLazy(".GREEN,positionKeyStemOverride:");
 const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron");
 const ButtonClasses = findCssClassesLazy("redGlow", "enabled", "disabled", "plated");
 
-const CrashIcon = ({ isEnabled }) => (
-    <Icon width="24" height="24" viewBox="0 0 24 24">
+const CrashIcon = ({ isEnabled }) => createIcon(props => (
+    <Icon {...props}>
         <path
             fill={isEnabled ? "var(--icon-voice-muted)" : "currentColor"}
             d="M18.75 6c0 2.08-1.19 3.91-3 4.98V12c0 .83-.67 1.5-1.5 1.5h-4.5c-.83 0-1.5-.67-1.5-1.5v-1.02c-1.81-1.08-3-2.91-3-4.98C5.25 2.69 8.27 0 12 0s6.75 2.69 6.75 6zM9.38 8.25c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm6.75-1.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5 1.5-.67 1.5-1.5zM4.8 15c.3-.6 1-.85 1.6-.55L12 17l5.6-2.55c.6-.3 1.35-.05 1.6.55s.05 1.35-.55 1.6L14.8 18l3.65 1.6c.6.3.85 1 .55 1.6s-1 .85-1.6.55L12 19l-5.6 2.75c-.6.3-1.35.05-1.6-.55s-.05-1.35.55-1.6L9.2 18l-3.65-1.6c-.6-.3-.85-1-.55-1.6z"
         />
     </Icon>
-);
+))({ size: "md" });
 
 const ChevronIcon = ({ isEnabled, isShown }) => (
     <Icon width="15" height="15" fill="none" style={{ transform: isShown ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
@@ -103,7 +103,7 @@ const ChevronIcon = ({ isEnabled, isShown }) => (
     </Icon>
 );
 
-function CrashButton() {
+function CrashButton(props?: { nameplate?: any; }) {
     const buttonRef = useRef(null);
     const { isEnabled, showChevron } = settings.use(["isEnabled", "showChevron"]);
     const isStreaming = useStateFromStores([ApplicationStreamingStore], () => ApplicationStreamingStore.getActiveStreamForUser(UserStore.getCurrentUser()?.id) != null);
@@ -124,14 +124,14 @@ function CrashButton() {
                 animation={Popout.Animation.FADE}
                 spacing={4}
                 targetElementRef={buttonRef}
-                renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} settings={settings} />}
+                renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} />}
             >
                 {({ onClick: openPopout }) => (
                     <div ref={buttonRef}>
                         <Button
                             aria-checked={isEnabled}
                             aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                            icon={() => <CrashIcon isEnabled={isEnabled} />}
+                            icon={CrashIcon({ isEnabled })}
                             onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
                             onContextMenu={openPopout}
                             plated={false}
@@ -152,7 +152,7 @@ function CrashButton() {
             animation={Popout.Animation.FADE}
             spacing={4}
             targetElementRef={buttonRef}
-            renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} settings={settings} />}
+            renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} />}
         >
             {({ onClick: openPopout }, { isShown }) => (
                 <div
@@ -163,10 +163,10 @@ function CrashButton() {
                         aria-checked={isEnabled}
                         aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
                         className={classes(Classes.audioButtonWithMenu, ButtonClasses.enabled)}
-                        icon={() => <CrashIcon isEnabled={isEnabled} />}
+                        icon={CrashIcon({ isEnabled })}
                         onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
                         onContextMenu={openPopout}
-                        plated={false}
+                        plated={props?.nameplate != null || false}
                         redGlow={isEnabled}
                         role="switch"
                         tooltipShouldShow={!isShown}
@@ -178,7 +178,7 @@ function CrashButton() {
                         icon={() => <ChevronIcon isEnabled={isEnabled} isShown={isShown} />}
                         onClick={openPopout}
                         onContextMenu={openPopout}
-                        plated={false}
+                        plated={props?.nameplate != null || false}
                         redGlow={isEnabled}
                         tooltipForceOpen={false}
                         tooltipShouldShow={!isShown}
@@ -243,15 +243,15 @@ export default definePlugin({
             find: "#{intl::USER_PROFILE_ACCOUNT_POPOUT_BUTTON_A11Y_LABEL}",
             replacement: {
                 match: /(className:\i\.\i,style:\i,children:\[)/,
-                replace: "$1$self.CrashButton(),"
+                replace: "$1$self.CrashButton(arguments[0]),"
             },
             predicate: () => settings.store.buttonLocation === "account"
         },
         {
             find: "NOISE_CANCELLATION_POPOUT}",
             replacement: {
-                match: /className:\i\.\i,children:\[\(0,\i\.jsx\)\(\i,\{\}\),/,
-                replace: "$&$self.CrashButton(),"
+                match: /(hasRemoteVoiceState:\i.{0,100}className:\i\.\i,children:\[)/,
+                replace: "$1$self.CrashButton(),"
             },
             predicate: () => settings.store.buttonLocation === "voice"
         },

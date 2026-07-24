@@ -24,8 +24,8 @@ import { openUIElementsModal } from "@components/settings/tabs/plugins/UIElement
 import { getIntlMessage } from "@utils/discord";
 import { useAwaiter } from "@utils/react";
 import { wordsFromCamel, wordsToTitle } from "@utils/text";
-import { OptionType, type Plugin, type PluginSettingSelectOption } from "@utils/types";
-import { Icons, Menu, showToast, useEffect, useMemo, useState } from "@webpack/common";
+import { type DefinedSettings, OptionType, type Plugin } from "@utils/types";
+import { Icons, Menu, showToast, TextInput, useMemo, useState } from "@webpack/common";
 import type { ReactNode } from "react";
 
 import { settings } from ".";
@@ -49,24 +49,234 @@ function buildPluginMenu() {
     );
 }
 
-export function buildPluginMenuEntries(includeEmpty = false) {
-    const pluginSettings = useSettings().plugins;
+/**
+ * Utility function for building context menu plugin settings.
+ *
+ * @param {DefinedSettings} settings Settings to render (must not be hooks).
+ * @param {boolean} [showOpenSettings] Renders an open settings button on the bottom
+ * @param {number[]} [separators] Seperators rendered under/above the setting index (1-based index). minus for below
+ * @param {string[]} [ignore] Settings that should not be rendered
+ */
+export function BuildPluginSettings(settings: DefinedSettings, showOpenSettings?: boolean, separators?: number[], ignore?: string[]): ReactNode[] | null {
+    if (!settings?.def || !settings?.store) return null;
 
-    const [search, setSearch] = useState("");
-    const [asyncOpts, setAsyncOpts] = useState<Record<string, PluginSettingSelectOption[]>>({});
+    const options: ReactNode[] = [];
+    const s = settings.store;
+    let renderedOptionCount = 1;
+    let lastWasSeparator = false;
 
-    useEffect(() => {
-        for (const plugin of Object.values(plugins)) {
-            if (!isPluginEnabled(plugin.name) || !plugin.settings) continue;
-            for (const [key, option] of Object.entries(plugin.settings.def)) {
-                if (option.type !== OptionType.SELECT) continue;
-                if (typeof option.options !== "function") continue;
+    for (const [key, option] of Object.entries(settings.def)) {
+        if (ignore?.includes(key)) continue;
 
-                const mapKey = `${plugin.name}-${key}`;
-                option.options().then(opts => setAsyncOpts(prev => ({ ...prev, [mapKey]: opts })));
+        let isHidden = isSettingHidden(settings, option);
+        const opt = option as typeof settings.store;
+        if (typeof opt.hidden === "function") {
+            try {
+                isHidden = opt.hidden.call(settings);
+            } catch { }
+        }
+        if (isHidden) continue;
+
+        if (separators?.includes(renderedOptionCount) && options.length > 0 && !lastWasSeparator) {
+            options.push(<Menu.MenuSeparator key={`separator-at-${renderedOptionCount}`} />);
+            lastWasSeparator = true;
+        }
+
+        const displayName = "displayName" in option ? option.displayName : undefined;
+        const label = displayName ?? wordsToTitle(wordsFromCamel(key));
+
+        const baseProps = {
+            id: `settings-${key}`,
+            key,
+            label,
+            disabled: isSettingDisabled(settings, option)
+        };
+
+        let pushed = false;
+
+        switch (option.type) {
+            case OptionType.BOOLEAN:
+                options.push(
+                    <Menu.MenuCheckboxItem
+                        {...baseProps}
+                        checked={!!s[key]}
+                        action={() => {
+                            s[key] = !s[key];
+                            if ("restartNeeded" in option && option.restartNeeded) {
+                                showToast("Restart to apply the change");
+                            }
+                        }}
+                    />
+                );
+                pushed = true;
+                break;
+
+            case OptionType.STRING:
+            case OptionType.NUMBER:
+                options.push(
+                    <Menu.MenuControlItem
+                        {...baseProps}
+                        control={(props, ref) => (
+                            <TextInput
+                                ref={ref}
+                                {...props}
+                                id={baseProps.id}
+                                size="sm"
+                                type={option.type === OptionType.NUMBER ? "number" : "text"}
+                                value={s[key] ?? ""}
+                                placeholder={option.placeholder}
+                                onChange={v => {
+                                    s[key] = v;
+                                    if (option.onChange) option.onChange(v);
+                                }}
+                                {...(option.componentProps || {})}
+                            />
+                        )}
+                    />
+                );
+                pushed = true;
+                break;
+
+            case OptionType.SELECT: {
+                let opts = [] as any[];
+                if (Array.isArray(option.options)) {
+                    opts = [...option.options];
+                } else if (typeof option.options === "function") {
+                    if ((option as any).resolvedOptions) {
+                        opts = (option as any).resolvedOptions;
+                    } else {
+                        option.options().then((resolved: any) => {
+                            (option as any).resolvedOptions = resolved;
+                        });
+                    }
+                }
+
+                if (opts.length === 0) {
+                    options.push(
+                        <Menu.MenuItem
+                            {...baseProps}
+                            key={key}
+                            label={`${baseProps.label} (loading)`}
+                        />
+                    );
+                    pushed = true;
+                    break;
+                }
+
+                const isMulti = Array.isArray(s[key]) || ("default" in option && Array.isArray(option.default));
+                options.push(
+                    <Menu.MenuItem {...baseProps} key={key}>
+                        {opts.map(opt => {
+                            if (isMulti) {
+                                const current: unknown[] = s[key] ?? [];
+                                return (
+                                    <Menu.MenuCheckboxItem
+                                        id={`settings-${key}-${opt.value}`}
+                                        key={String(opt.value)}
+                                        label={opt.label}
+                                        checked={current.includes(opt.value)}
+                                        action={() => {
+                                            const cur: unknown[] = s[key] ?? [];
+                                            s[key] = cur.includes(opt.value)
+                                                ? cur.filter(v => v !== opt.value)
+                                                : [...cur, opt.value];
+                                            if ("restartNeeded" in option && option.restartNeeded) {
+                                                showToast("Restart to apply the change");
+                                            }
+                                        }}
+                                    />
+                                );
+                            }
+                            return (
+                                <Menu.MenuRadioItem
+                                    group={`settings-${key}`}
+                                    id={`settings-${key}-${opt.value}`}
+                                    key={String(opt.value)}
+                                    label={opt.label}
+                                    checked={s[key] === opt.value}
+                                    action={() => {
+                                        s[key] = opt.value;
+                                        if ("restartNeeded" in option && option.restartNeeded) {
+                                            showToast("Restart to apply the change");
+                                        }
+                                    }}
+                                />
+                            );
+                        })}
+                    </Menu.MenuItem>
+                );
+                pushed = true;
+                break;
+            }
+
+            case OptionType.SLIDER: {
+                if ("stickToMarkers" in option && option.stickToMarkers) continue;
+                if ("componentProps" in option && option.componentProps) continue;
+                if (!("markers" in option) || !option.markers?.length) continue;
+
+                options.push(
+                    <Menu.MenuControlItem
+                        {...baseProps}
+                        control={(props, ref) => (
+                            <Menu.MenuSliderControl
+                                ref={ref}
+                                {...props}
+                                minValue={option.markers[0]}
+                                maxValue={option.markers.at(-1)!}
+                                value={s[key]}
+                                onChange={v => s[key] = v}
+                            />
+                        )}
+                    />
+                );
+                pushed = true;
+                break;
             }
         }
-    }, []);
+
+        if (pushed) {
+            lastWasSeparator = false;
+
+            const hasNegativeMatch = separators?.some(val => val < 0 && Math.abs(val) === renderedOptionCount);
+            const hasPositiveMatch = separators?.some(val => val > 0 && val === renderedOptionCount + 1);
+
+            if ((hasNegativeMatch || hasPositiveMatch) && !lastWasSeparator) {
+                options.push(<Menu.MenuSeparator key={`separator-after-${renderedOptionCount}`} />);
+                lastWasSeparator = true;
+            }
+
+            renderedOptionCount++;
+        }
+    }
+
+    if (showOpenSettings) {
+        const plugin = Object.values(plugins).find(p => p.settings === settings);
+        if (plugin) {
+            if (options.length > 0 && !lastWasSeparator) {
+                options.push(<Menu.MenuSeparator key="open-settings-separator" />);
+            }
+            options.push(
+                <Menu.MenuItem
+                    id={`${plugin.name}-open`}
+                    key="open-settings-item"
+                    label={getIntlMessage("OPEN_SETTINGS")}
+                    leadingAccessory={{
+                        type: "icon",
+                        icon: Icons.SettingsIcon
+                    }}
+                    icon={Icons.SettingsIcon}
+                    action={() => openPluginModal(plugin)}
+                />
+            );
+        }
+    }
+
+    return options;
+}
+
+export function buildPluginMenuEntries(includeEmpty = false) {
+    useSettings().plugins;
+    const [search, setSearch] = useState("");
 
     const lowerSearch = search.toLowerCase();
 
@@ -105,119 +315,17 @@ export function buildPluginMenuEntries(includeEmpty = false) {
 
             {candidates
                 .map(p => {
-                    const options = [] as ReactNode[];
+                    const options = p.settings ? BuildPluginSettings(p.settings) : [];
 
                     let hasAnyOption = false;
-
-                    if (p.settings) for (const [key, option] of Object.entries(p.settings.def)) {
-                        if (isSettingHidden(p.settings, option)) continue;
-
-                        hasAnyOption = true;
-
-                        const s = pluginSettings[p.name];
-
-                        const baseProps = {
-                            id: `${p.name}-${key}`,
-                            key: key,
-                            label: ("displayName" in option ? option.displayName : undefined) ?? wordsToTitle(wordsFromCamel(key)),
-                            disabled: isSettingDisabled(p.settings, option)
-                        };
-
-                        switch (option.type) {
-                            case OptionType.BOOLEAN:
-                                options.push(
-                                    <Menu.MenuCheckboxItem
-                                        {...baseProps}
-                                        checked={s[key]}
-                                        action={() => {
-                                            s[key] = !s[key];
-                                            if (option.restartNeeded) showToast("Restart to apply the change");
-                                        }}
-                                    />
-                                );
-                                break;
-
-                            case OptionType.SELECT: {
-                                const mapKey = `${p.name}-${key}`;
-                                const opts = Array.isArray(option.options)
-                                    ? [...option.options]
-                                    : (asyncOpts[mapKey] ?? []);
-
-                                if (opts.length === 0) {
-                                    options.push(
-                                        <Menu.MenuItem
-                                            {...baseProps}
-                                            key={key}
-                                            label={baseProps.label + " (loading)"}
-                                        />
-                                    );
-                                    break;
-                                }
-
-                                const isMulti = Array.isArray(s[key]) || Array.isArray(option.default);
-                                options.push(
-                                    <Menu.MenuItem {...baseProps} key={key}>
-                                        {opts.map(opt => {
-                                            if (isMulti) {
-                                                const current: unknown[] = s[key] ?? [];
-                                                return (
-                                                    <Menu.MenuCheckboxItem
-                                                        id={`${p.name}-${key}-${opt.value}`}
-                                                        key={String(opt.value)}
-                                                        label={opt.label}
-                                                        checked={current.includes(opt.value)}
-                                                        action={() => {
-                                                            const cur: unknown[] = s[key] ?? [];
-                                                            s[key] = cur.includes(opt.value)
-                                                                ? cur.filter(v => v !== opt.value)
-                                                                : [...cur, opt.value];
-                                                            if (option.restartNeeded) showToast("Restart to apply the change");
-                                                        }}
-                                                    />
-                                                );
-                                            }
-                                            return (
-                                                <Menu.MenuRadioItem
-                                                    group={`${p.name}-${key}`}
-                                                    id={`${p.name}-${key}-${opt.value}`}
-                                                    key={String(opt.value)}
-                                                    label={opt.label}
-                                                    checked={s[key] === opt.value}
-                                                    action={() => {
-                                                        s[key] = opt.value;
-                                                        if (option.restartNeeded) showToast("Restart to apply the change");
-                                                    }}
-                                                />
-                                            );
-                                        })}
-                                    </Menu.MenuItem>
-                                );
-                                break;
-                            }
-
-                            case OptionType.SLIDER:
-                                if (option.stickToMarkers || option.componentProps) continue;
-
-                                options.push(
-                                    <Menu.MenuControlItem
-                                        {...baseProps}
-                                        control={(props, ref) => (
-                                            <Menu.MenuSliderControl
-                                                ref={ref}
-                                                {...props}
-                                                minValue={option.markers[0]}
-                                                maxValue={option.markers.at(-1)!}
-                                                value={s[key]}
-                                                onChange={v => s[key] = v}
-                                            />
-                                        )}
-                                    />
-                                );
-                                break;
+                    if (p.settings) {
+                        for (const _ of Object.entries(p.settings.def)) {
+                            hasAnyOption = true;
+                            break;
                         }
                     }
 
-                    const hasVisibleOptions = options.length > 0;
+                    const hasVisibleOptions = !!options?.length;
                     const shouldSkip = !hasVisibleOptions && !(includeEmpty && hasAnyOption);
                     if (shouldSkip) return null;
 

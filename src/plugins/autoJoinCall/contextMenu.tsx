@@ -18,75 +18,17 @@
 
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { openPluginModal } from "@components/settings";
+import { BuildPluginSettings } from "@plugins/velocityToolbox/menu";
 import { Icons, Menu } from "@webpack/common";
 
-import AutoJoinCallPlugin, { settings, statusOptions } from ".";
+import AutoJoinCallPlugin, { settings } from ".";
 
 export function AutoJoinMenu({ closePopout }: { closePopout(): void; }) {
-    const { autoJoinEnabled, voiceSetting, status, autoStream, streamSound } = settings.use(["autoJoinEnabled", "voiceSetting", "status", "autoStream", "streamSound"]);
+    settings.use();
 
     return (
         <Menu.Menu navId="manage-autojoin" onClose={closePopout}>
-            <Menu.MenuCheckboxItem
-                id="autojoin-enabled"
-                label="Enable Auto Join"
-                checked={autoJoinEnabled}
-                action={() => settings.store.autoJoinEnabled = !settings.store.autoJoinEnabled}
-            />
-            <Menu.MenuSeparator />
-            <Menu.MenuItem id="autojoin-voice" label="Voice on Join">
-                <Menu.MenuRadioItem
-                    id="voice-none"
-                    group="autojoin-voice"
-                    label="None"
-                    checked={voiceSetting === "none"}
-                    action={() => settings.store.voiceSetting = "none"}
-                />
-                <Menu.MenuRadioItem
-                    id="voice-mute"
-                    group="autojoin-voice"
-                    label="Auto Mute"
-                    checked={voiceSetting === "mute"}
-                    action={() => settings.store.voiceSetting = "mute"}
-                />
-                <Menu.MenuRadioItem
-                    id="voice-deafen"
-                    group="autojoin-voice"
-                    label="Auto Deafen"
-                    checked={voiceSetting === "deafen"}
-                    action={() => settings.store.voiceSetting = "deafen"}
-                />
-            </Menu.MenuItem>
-            <Menu.MenuItem id="autojoin-status" label="Join On Status">
-                {statusOptions.map(({ label, value }) => (
-                    <Menu.MenuCheckboxItem
-                        key={value}
-                        id={`status-${value}`}
-                        label={label}
-                        checked={status.includes(value)}
-                        action={() => {
-                            settings.store.status = status.includes(value)
-                                ? status.filter(x => x !== value)
-                                : [...status, value];
-                        }}
-                    />
-                ))}
-            </Menu.MenuItem>
-            {!IS_WEB && <>
-                <Menu.MenuSeparator />
-                <Menu.MenuCheckboxItem
-                    id="autojoin-autostream"
-                    label="Auto Stream on Join"
-                    checked={autoStream ?? false}
-                    action={() => settings.store.autoStream = !settings.store.autoStream}
-                />
-                <Menu.MenuCheckboxItem
-                    id="autojoin-streamsound"
-                    label="Stream with Sound"
-                    checked={streamSound ?? true}
-                    action={() => settings.store.streamSound = !settings.store.streamSound}
-                />
-            </>}
+            {BuildPluginSettings(settings, false, [7, -2, -4], ["channelId"])}
         </Menu.Menu>
     );
 }

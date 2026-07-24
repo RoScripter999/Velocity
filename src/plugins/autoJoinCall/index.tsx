@@ -54,6 +54,7 @@ export const settings = definePluginSettings({
     },
     channelId: {
         type: OptionType.STRING,
+        displayName: "Channel IDs",
         description: "Check for channel ids",
         default: ""
     },

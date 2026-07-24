@@ -17,48 +17,17 @@
 */
 
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { openPluginModal } from "@components/settings";
-import StreamCrasherPlugin, { crashModeLabels, settings } from "@plugins/streamCrasher.desktop";
-import { Icons, Menu } from "@webpack/common";
+import { settings } from "@plugins/streamCrasher.desktop";
+import { BuildPluginSettings } from "@plugins/velocityToolbox/menu";
+import { Menu } from "@webpack/common";
 
-export function CrasherContextMenu({ closePopout, settings }) {
-    const { isEnabled, keybindEnabled, crashMode } = settings.use(["isEnabled", "keybindEnabled", "crashMode"]);
+export function CrasherContextMenu({ closePopout }) {
+    const { isEnabled, keybindEnabled, crashMode } = settings.use(["isEnabled", "keybindEnabled", "crashMode", "imageUrl"]);
 
     return (
         <Menu.Menu navId="stream-crasher-context" onClose={closePopout}>
-            <Menu.MenuCheckboxItem
-                id="context-toggle"
-                label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                checked={isEnabled}
-                action={() => settings.store.isEnabled = !settings.store.isEnabled}
-            />
-            <Menu.MenuCheckboxItem
-                id="keybind-toggle"
-                label={keybindEnabled ? "Disable Keybind" : "Enable Keybind"}
-                checked={keybindEnabled}
-                action={() => settings.store.keybindEnabled = !settings.store.keybindEnabled}
-            />
-            <Menu.MenuSeparator />
-            <Menu.MenuItem id="crash-mode" label="Crash Mode">
-                {Object.entries(crashModeLabels).map(([value, { value: label, subText }]) => (
-                    <Menu.MenuCheckboxItem
-                        key={value}
-                        id={value}
-                        label={label}
-                        subtext={subText}
-                        checked={crashMode === value}
-                        action={() => settings.store.crashMode = value}
-                    />
-                ))}
-            </Menu.MenuItem>
-            <Menu.MenuSeparator />
-            <Menu.MenuItem
-                id="settings"
-                label="Crasher Settings"
-                icon={Icons.SettingsIcon}
-                leadingAccessory={{ type: "icon", icon: Icons.SettingsIcon }}
-                action={() => openPluginModal(StreamCrasherPlugin)}
-            />
+            {BuildPluginSettings(settings, true, [-3], ["buttonLocation"])}
+
         </Menu.Menu>
     );
 }

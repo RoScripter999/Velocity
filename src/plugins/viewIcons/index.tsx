@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { NavContextMenuPatchCallback } from "@api/ContextMenu";
+import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { ImageIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
@@ -24,6 +24,7 @@ import { openImageModal } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel, Guild, User } from "@velocity-types";
 import { GuildMemberStore, IconUtils, Menu } from "@webpack/common";
+import type { MouseEvent } from "react";
 
 
 interface UserContextProps {
@@ -68,10 +69,18 @@ const settings = definePluginSettings({
     }
 });
 
-const openAvatar = (url: string) => openImage(url, 512, 512);
-const openBanner = (url: string) => openImage(url, 1024);
+const openAvatar = (url: string, event?: MouseEvent) => openImage({ url, width: 512, height: 512, event });
+const openBanner = (url: string, event?: MouseEvent) => openImage({ url, width: 1024, event });
 
-function openImage(url: string, width: number, height?: number) {
+interface OpenImageProps {
+    url: string;
+    width: number;
+    height?: number;
+    event?: MouseEvent;
+}
+
+function openImage({ url, width, height, event }: OpenImageProps) {
+    event?.stopPropagation();
     const u = new URL(url, window.location.href);
 
     const format = url.startsWith("/")
@@ -206,8 +215,8 @@ export default definePlugin({
         {
             find: "return{avatarProps:{",
             replacement: {
-                match: /(?<=avatarProps:(\i),eventHandlers:\i.{0,100}?)return null==(?<=onOpenAvatar:(\i).+?)/,
-                replace: "$2&&=$self.openAvatar.bind(undefined,$1.src);$&"
+                match: /onClick:\(\)=>\{(if\(null!=(\i))(?<=onOpenAvatar:\2.{0,400}?\{avatarProps:(\i).{0,800}?)/,
+                replace: 'style:{cursor:"pointer"},onClick:vcEvent=>{$self.openAvatar($3.src, vcEvent);return;$1'
             }
         },
         // Banners
@@ -215,7 +224,7 @@ export default definePlugin({
             find: 'backgroundColor:"COMPLETE"',
             replacement: {
                 match: /(overflow:"visible",.{0,125}?!1\),)style:{(?=.+?backgroundImage:null!=(\i)\?`url\(\$\{\2\}\))/,
-                replace: (_, rest, bannerSrc) => `${rest}onClick:()=>${bannerSrc}!=null&&$self.openBanner(${bannerSrc}),style:{cursor:${bannerSrc}!=null?"pointer":void 0,`
+                replace: (_, rest, bannerSrc) => `${rest}onClick:vcEvent=>${bannerSrc}!=null&&$self.openBanner(${bannerSrc}, vcEvent),style:{cursor:${bannerSrc}!=null?"pointer":void 0,`
             }
         },
         // Group DMs top small & large icon
@@ -224,8 +233,7 @@ export default definePlugin({
             replacement: {
                 match: /null==\i\.icon\?.+?src:(\(0,\i\.\i\).+?\))(?=[,}])/,
                 // We have to check that icon is not an unread GDM in the server bar
-                replace: (m, iconUrl) =>
-                    `${m},onClick:e=>{arguments[0]?.channel?.type===3&&arguments[0]?.size!=="SIZE_40"&&(e.stopPropagation(),$self.openAvatar(${iconUrl}))}`
+                replace: (m, iconUrl) => `${m},onClick:vcEvent=>arguments[0]?.size!=="SIZE_48"&&$self.openAvatar(${iconUrl},vcEvent)`
             }
         },
         // User DMs top small icon
@@ -233,8 +241,7 @@ export default definePlugin({
             find: ".channel.getRecipientId(),",
             replacement: {
                 match: /(?=,src:(\i.getAvatarURL\(.+?[)]))/,
-                replace: (_, avatarUrl) =>
-                    `,onClick:e=>{e.stopPropagation();$self.openAvatar(${avatarUrl})}`
+                replace: (_, avatarUrl) => `,onClick:vcEvent=>$self.openAvatar(${avatarUrl},vcEvent)`
             }
         },
         // User Dms top large icon
@@ -242,8 +249,7 @@ export default definePlugin({
             find: ".EMPTY_GROUP_DM)",
             replacement: {
                 match: /(?<=SIZE_80,)(?=src:(.+?\))[,}])/,
-                replace: (_, avatarUrl) =>
-                    `,onClick:e=>{e.stopPropagation();$self.openAvatar(${avatarUrl})}`
+                replace: (_, avatarUrl) => `onClick:vcEvent=>$self.openAvatar(${avatarUrl},vcEvent),`
             }
         }
     ]

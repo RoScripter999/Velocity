@@ -19,22 +19,22 @@
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Icon } from "@components/Icons";
+import { createIcon, Icon } from "@components/Icons";
 import { openPluginModal } from "@components/settings";
 import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { Icons, Menu, Popout, useRef } from "@webpack/common";
+import { findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
+import { ConnectedAccountsStore, Icons, Menu, Popout, useRef, useState, useStateFromStores } from "@webpack/common";
 
 import managedStyle from "./style.css?managed";
 
 // Same as StreamCrasher
 const Button = findComponentByCodeLazy(".GREEN,positionKeyStemOverride:");
-const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron");
-const ButtonClasses = findCssClassesLazy("redGlow", "enabled", "disabled", "plated");
+const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron", "hasColorGlow");
 
 const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
+const ConnectedAccountActions = findByPropsLazy("setShowActivity");
 
 const settings = definePluginSettings({
     oldIcon: {
@@ -53,8 +53,8 @@ function ActivityToggleIcon(showCurrentGame?: boolean, oldIcon?: boolean) {
         ? "M23.27 4.73 19.27 .73 -.27 20.27 3.73 24.27Z"
         : "M23.27 4.54 19.46.73 .73 19.46 4.54 23.27 23.27 4.54Z";
 
-    return (
-        <svg width="20" height="20" viewBox="0 0 24 24">
+    return createIcon(props => (
+        <Icon {...props}>
             <path
                 fill={!showCurrentGame && !oldIcon ? "var(--icon-voice-muted)" : "currentColor"}
                 mask={!showCurrentGame ? "url(#gameActivityMask)" : void 0}
@@ -67,8 +67,8 @@ function ActivityToggleIcon(showCurrentGame?: boolean, oldIcon?: boolean) {
                     <path fill="black" d={maskBlackPath} />
                 </mask>
             </>}
-        </svg>
-    );
+        </Icon>
+    ));
 }
 
 const ChevronIcon = ({ showCurrentGame, isShown }) => (
@@ -80,6 +80,13 @@ const ChevronIcon = ({ showCurrentGame, isShown }) => (
 function ActivityContextMenu({ closePopout }) {
     const showCurrentGame = ShowCurrentGame.useSetting();
 
+    const connectedAccounts = useStateFromStores([ConnectedAccountsStore], () => ConnectedAccountsStore.getAccounts());
+    const spotifyAccounts = connectedAccounts.filter(account => account.type === "spotify" && !account.revoked);
+
+    const spotifyAccount = spotifyAccounts[0];
+    // The update is an API request which takes a bit to update the store, so we have to use our own state to reflect the change immediately
+    const [shareSpotifyActivity, setShareSpotifyActivity] = useState(spotifyAccount?.showActivity ?? false);
+
     return (
         <Menu.Menu navId="game-activity-options" onClose={closePopout}>
             <Menu.MenuCheckboxItem
@@ -88,6 +95,15 @@ function ActivityContextMenu({ closePopout }) {
                 checked={!showCurrentGame}
                 action={() => ShowCurrentGame.updateSetting(old => !old)}
             />
+            {spotifyAccounts.length === 1 && <Menu.MenuCheckboxItem
+                id="vc-toggle-spotify"
+                label="Share Spotify Activity"
+                checked={shareSpotifyActivity}
+                action={async () => {
+                    ConnectedAccountActions.setShowActivity(spotifyAccount.type, spotifyAccount.id, !shareSpotifyActivity);
+                    setShareSpotifyActivity(!shareSpotifyActivity);
+                }}
+            />}
             <Menu.MenuSeparator />
             <Menu.MenuItem
                 id="game-activity-context-settings"
@@ -101,7 +117,7 @@ function ActivityContextMenu({ closePopout }) {
 }
 
 function GameActivityToggleButton(props: { nameplate?: any; }) {
-    const buttonRef = useRef(null);
+    const buttonRef = useRef<HTMLDivElement | null>(null);
     const showCurrentGame = ShowCurrentGame.useSetting();
     const { oldIcon } = settings.use(["oldIcon"]);
 
@@ -117,7 +133,7 @@ function GameActivityToggleButton(props: { nameplate?: any; }) {
             {({ onClick: openPopout }, { isShown }) => (
                 <div
                     ref={buttonRef}
-                    className={classes(Classes.audioButtonParent, !showCurrentGame && ButtonClasses.redGlow, isShown && Classes.popoutOpen)}
+                    className={classes(Classes.audioButtonParent, !showCurrentGame && Classes.hasColorGlow, isShown && Classes.popoutOpen)}
                 >
                     <Button
                         aria-checked={!showCurrentGame}
