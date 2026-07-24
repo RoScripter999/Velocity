@@ -5,8 +5,19 @@ export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "crit
 
 type Booleanish = boolean | "true" | "false";
 
+interface ClickEvents {
+    onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+    onDoubleClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+    onMouseEnter?: (e: MouseEvent<HTMLButtonElement>) => void;
+    onMouseLeave?: (e: MouseEvent<HTMLButtonElement>) => void;
+    onMouseUp?: (e: MouseEvent<HTMLButtonElement>) => void;
+    onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void;
+    onKeyDown?: (e: KeyboardEvent<HTMLButtonElement>) => void;
+    onContextMenu?: (e: MouseEvent<HTMLButtonElement>) => void;
+}
+
 export interface ButtonsProps {
-    Button: {
+    Button: ClickEvents & {
         /** @ignore You probably dont need to use this. @default button */
         role?: string;
         /** Background color variant of the button. @default primary */
@@ -36,16 +47,8 @@ export interface ButtonsProps {
         minWidth?: CSSProperties["minWidth"];
         style?: CSSProperties;
         buttonRef?: Ref<HTMLButtonElement>;
-        onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onDoubleClick?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onMouseEnter?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onMouseLeave?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onMouseUp?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onKeyDown?: (e: KeyboardEvent<HTMLButtonElement>) => void;
-        onContextMenu?: (e: MouseEvent<HTMLButtonElement>) => void;
     };
-    TextButton: {
+    TextButton: ClickEvents & {
         /** Limits how many downlines the text creates when too long. */
         lineClamp?: number;
         /** If not provided nothing renders. */
@@ -57,9 +60,8 @@ export interface ButtonsProps {
         variant?: "primary" | "secondary" | "always-white" | "critical";
         disabled?: Booleanish;
         buttonRef?: Ref<HTMLButtonElement>;
-        onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
     };
-    IconButton: {
+    IconButton: ClickEvents & {
         role?: ButtonHTMLAttributes;
         /** Background color variant of the button. @default primary */
         variant?: "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "icon-only";
@@ -71,9 +73,6 @@ export interface ButtonsProps {
         loading?: Booleanish;
         focusProps?: Record<string, any>;
         buttonRef?: Ref<HTMLButtonElement>;
-        onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onMouseEnter?: (e: MouseEvent<HTMLButtonElement>) => void;
-        onMouseLeave?: (e: MouseEvent<HTMLButtonElement>) => void;
     };
     ButtonGroup: {
         /** Which HTML element the {@link ButtonGroup} is. @default div  */

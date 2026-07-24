@@ -1,19 +1,28 @@
 import { FluxStore } from "..";
 
+export type PlatformType = "twitch" | "youtube" | "skype" | "steam" | "leagueoflegends" | "battlenet" | "bluesky" | "bungie" | "reddit" | "twitter" | "twitter_legacy" | "spotify" | "facebook" | "xbox" | "samsung" | "contacts" | "instagram" | "mastodon" | "soundcloud" | "github" | "playstation" | "playstation-stg" | "epicgames" | "riotgames" | "roblox" | "paypal" | "ebay" | "tiktok" | "crunchyroll" | "domain" | "amazon-music" | "meta_quest_or_horizon";
+
 export namespace ConnectedAccountsStore {
     export interface ConnectedAccount {
         id: string;
-        type: string;
-        name?: string;
-        revoked?: boolean;
-        accessToken?: string;
-        integrations?: Integration[];
+        type: PlatformType;
+        name: string;
+        revoked: boolean;
+        friendSync: boolean;
+        showActivity: boolean;
+        twoWayLink: boolean;
+        verified: boolean;
+        visibility: number;
+        accessToken: string | null;
+        metadata: any | null;
+        metadataVisibility: number;
+        integrations: Integration[];
     }
 
-    interface Integration {
+    export interface Integration {
         id: string;
         type: string;
-        guild?: any;
+        guild: any | null;
         [key: string]: any;
     }
 }
