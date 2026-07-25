@@ -62,7 +62,18 @@ function GapButton({ pageCount, onJump, disabled }: { pageCount: number; onJump(
                     autoFocus={true}
                     type="number"
                     value={value}
-                    onChange={setValue}
+                    onChange={newValue => {
+                        const parsed = parseInt(newValue, 10);
+                        if (isNaN(parsed)) {
+                            setValue("");
+                        } else if (parsed < 1) {
+                            setValue("1");
+                        } else if (parsed > pageCount) {
+                            setValue(String(pageCount));
+                        } else {
+                            setValue(newValue);
+                        }
+                    }}
                     onBlur={() => {
                         setIsOpen(false);
                         setValue("");
@@ -73,11 +84,11 @@ function GapButton({ pageCount, onJump, disabled }: { pageCount: number; onJump(
                             setIsOpen(false);
                             setValue("");
                         }
+                        if (e.key === "e" || e.key === "-" || e.key === "+" || e.key === ".") {
+                            e.preventDefault();
+                        }
                     }}
                     disabled={disabled}
-                    placeholder={`1-${pageCount}`}
-                    maxLength={String(pageCount).length}
-                    minLength={1}
                 />
             </div>
         );
