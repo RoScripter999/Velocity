@@ -137,25 +137,24 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
     const userId = props?.user?.id;
     if (!userId) return;
 
-    const group = findGroupChildrenByChildId("devmode-copy-id", children);
-    if (group) {
-        const hasCustomColor = userHasCustomColor(userId);
+    const group = findGroupChildrenByChildId("remove-friend", children) ?? findGroupChildrenByChildId("add-friend", children);
+    if (!group) return;
 
-        group.push(
-            <Menu.MenuItem
-                key="vc-custom-user-color"
-                id="vc-custom-user-color"
-                label={hasCustomColor ? "Remove Custom Color" : "Set Custom Color"}
-                action={() => {
-                    if (hasCustomColor) {
-                        removeCustomUserColor(userId);
-                    } else {
-                        addCustomUserColor(userId, "ff0000");
-                    }
-                }}
-            />
-        );
-    }
+    const hasCustomColor = userHasCustomColor(userId);
+    group.splice((group.findIndex(c => c?.props?.id === "remove-friend") !== -1 ? group.findIndex(c => c?.props?.id === "remove-friend") : group.findIndex(c => c?.props?.id === "add-friend")) + 1, 0, (
+        <Menu.MenuItem
+            key="vc-custom-user-color"
+            id="vc-custom-user-color"
+            label={hasCustomColor ? "Remove Custom Color" : "Set Custom Color"}
+            action={() => {
+                if (hasCustomColor) {
+                    removeCustomUserColor(userId);
+                } else {
+                    addCustomUserColor(userId, "ff0000");
+                }
+            }}
+        />
+    ));
 };
 
 export default definePlugin({
@@ -166,7 +165,7 @@ export default definePlugin({
     settings,
 
     contextMenus: {
-        "user-context": userContextMenuPatch
+        "user-context": { required: true, render: userContextMenuPatch }
     },
 
     patches: [

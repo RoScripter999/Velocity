@@ -73,7 +73,7 @@ function ChannelsSettings() {
     };
 
     return (
-        <section >
+        <section>
             <TextInput
                 placeholder="Add channel ID..."
                 value={inputValue}

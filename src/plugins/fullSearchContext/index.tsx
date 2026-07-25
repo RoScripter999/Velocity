@@ -106,6 +106,6 @@ export default definePlugin({
     },
 
     contextMenus: {
-        "message-actions": contextMenuPatch
+        "message-actions": { required: true, render: contextMenuPatch }
     }
 });

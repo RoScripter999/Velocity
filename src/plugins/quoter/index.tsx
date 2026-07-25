@@ -134,20 +134,23 @@ export default definePlugin({
     managedStyle,
 
     contextMenus: {
-        "message": (children, { message }) => {
-            if (!message.content) return;
-            children.push(
-                <Menu.MenuItem
-                    id="vc-quote"
-                    label="Quote"
-                    icon={Icons.QuoteIcon}
-                    leadingAccessory={{
-                        type: "icon",
-                        icon: Icons.QuoteIcon
-                    }}
-                    action={() => openModal(props => <QuoteModal message={message} {...props} />)}
-                />
-            );
+        "message": {
+            required: true,
+            render: (children, { message }) => {
+                if (!message.content) return;
+                children.push(
+                    <Menu.MenuItem
+                        id="vc-quote"
+                        label="Quote"
+                        icon={Icons.QuoteIcon}
+                        leadingAccessory={{
+                            type: "icon",
+                            icon: Icons.QuoteIcon
+                        }}
+                        action={() => openModal(props => <QuoteModal message={message} {...props} />)}
+                    />
+                );
+            }
         }
     }
 });
