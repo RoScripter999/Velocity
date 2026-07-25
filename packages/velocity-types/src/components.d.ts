@@ -725,26 +725,6 @@ export type SearchBar = ComponentType<{
     ref?: Ref<HTMLInputElement>;
 }>;
 
-export type CopyInput = ComponentType<{
-    value: string;
-    text?: string;
-    mode?: "default" | "success" | "error";
-    onCopy?: (value: string) => void;
-
-    supportsCopy?: boolean;
-    disabled?: boolean;
-
-    hideMessage?: ReactNode;
-    placeholder?: string;
-    autoFocus?: boolean;
-    spellCheck?: boolean;
-
-    className?: string;
-    inputClassName?: string;
-}> & {
-    Modes: Record<"DEFAULT" | "SUCCESS" | "ERROR", string>;
-};
-
 export type FilePicker = ComponentType<{
     filename: string | undefined;
     className?: string;

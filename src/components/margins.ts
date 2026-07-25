@@ -29,8 +29,7 @@ export type MarginSize = (typeof Sizes)[number];
 export const Margins: Record<`${MarginDirection}${MarginSize}`, string> = {} as any;
 
 export function generateMarginCss() {
-    // idk why discord put p+p
-    let css = "p{margin:0}\np+p{margin:0}";
+    let css = "";
 
     for (const direction of Directions) {
         for (const size of Sizes) {

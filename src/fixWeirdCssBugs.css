@@ -2,3 +2,8 @@
 body {
     app-region: no-drag;
 }
+
+/* Fix ugly scroller button when interacting with input components */
+input[type="number"]::-webkit-inner-spin-button {
+    opacity: 0 !important;
+}
