@@ -215,8 +215,8 @@ export default definePlugin({
         {
             find: "return{avatarProps:{",
             replacement: {
-                match: /onClick:\(\)=>\{(if\(null!=(\i))(?<=onOpenAvatar:\2.{0,400}?\{avatarProps:(\i).{0,800}?)/,
-                replace: 'style:{cursor:"pointer"},onClick:vcEvent=>{$self.openAvatar($3.src, vcEvent);return;$1'
+                match: /(?<=avatarProps:(\i),eventHandlers:\i.{0,150}?)return null==(?<=onOpenAvatar:(\i).+?)/,
+                replace: "$2&&=$self.openAvatar.bind(undefined,$1.src);$&"
             }
         },
         // Banners
