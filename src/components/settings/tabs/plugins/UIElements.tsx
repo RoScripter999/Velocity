@@ -157,6 +157,17 @@ export function UIElementsButton() {
         </div>
     );
 }
+
+function EmptyOrder() {
+    return (
+        <section>
+            <Paragraph color="text-muted" className={cl("no-buttons")}>
+                You have no plugins enabled that control this section.
+            </Paragraph>
+        </section>
+    );
+}
+
 function Section(props: {
     title: string;
     settings: SettingsPluginUiElements;
@@ -176,7 +187,9 @@ function Section(props: {
         return !(isContextMenu ? Object.values(data.menus).every(m => m.required === true) : data?.required === true);
     });
 
-    if (visibleButtons.length === 0) return null;
+    if (visibleButtons.length === 0) {
+        return EmptyOrder();
+    }
 
     return (
         <section>
@@ -238,6 +251,10 @@ function DraggableSection(props: {
     useEffect(() => {
         setOrder(getOrderedNames(buttonMap, settings));
     }, [buttonMap, settings]);
+
+    if (order.length === 0) {
+        return EmptyOrder();
+    }
 
     const moveRow = useCallback((from: number, to: number) => {
         setOrder(prev => {

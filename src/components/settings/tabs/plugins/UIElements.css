@@ -65,3 +65,7 @@
 .vc-plugin-ui-elements-switches-row-wrapper[data-dragging="true"] {
     opacity: 0.4;
 }
+
+.vc-plugin-ui-elements-no-buttons {
+    justify-self: center;
+}
