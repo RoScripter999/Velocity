@@ -41,7 +41,6 @@ const SilentTypingIcon: IconComponent = ({ height = 20, width = 20, className, e
                 height={height}
                 className={className}
                 viewBox="0 0 24 24"
-                style={{ scale: "1.2" }}
             >
                 <defs>
                     <mask id="silent-typing-msg-mask">
@@ -49,7 +48,7 @@ const SilentTypingIcon: IconComponent = ({ height = 20, width = 20, className, e
                         <path stroke="#000" strokeWidth="5.99068" d="M0 24 24 0"></path>
                     </mask>
                 </defs>
-                <Icons.KeyboardIcon fill="currentColor" mask="url(#silent-typing-msg-mask)" />
+                <Icons.KeyboardIcon color="currentColor" mask="url(#silent-typing-msg-mask)" />
                 <path fill="var(--status-danger)" d="m21.178 1.70703 1.414 1.414L4.12103 21.593l-1.414-1.415L21.178 1.70703Z" />
             </Icon>
         );
@@ -61,9 +60,8 @@ const SilentTypingIcon: IconComponent = ({ height = 20, width = 20, className, e
             height={height}
             className={className}
             viewBox="0 0 24 24"
-            style={{ scale: "1.2" }}
         >
-            <Icons.KeyboardIcon fill="currentColor" />
+            <Icons.KeyboardIcon color="currentColor" />
         </Icon>
     );
 };
@@ -151,7 +149,7 @@ export default definePlugin({
     },
 
     chatBarButton: {
-        icon: SilentTypingIcon,
+        icon: () => SilentTypingIcon,
         render: SilentTypingToggle
     }
 });

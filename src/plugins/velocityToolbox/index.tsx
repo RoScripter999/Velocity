@@ -84,6 +84,7 @@ export default definePlugin({
     headerBarButton: {
         icon: () => ToolboxIcon,
         render: Button,
+        required: true,
         priority: 1337
     }
 });

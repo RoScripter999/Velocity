@@ -178,6 +178,7 @@ export default definePlugin({
         },
         {
             find: '"IntegrationQueryStore"',
+            lazy: true,
             replacement: {
                 match: /(?<=search\((\i),(\i)\)\{)null==\i\.getResults\(\1,\2\)&&/,
                 replace: "return $self.tenorIntegrationSearch($1,$2);null==void 0&&"

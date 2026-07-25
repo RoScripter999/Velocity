@@ -32,7 +32,7 @@ const settings = definePluginSettings({
     }
 });
 
-const ReverseMessageIcon: IconComponent = ({ height = 20, width = 20, enabled }) => {
+const ReverseMessageIcon: IconComponent = ({ height = 20, width = 20, enabled = false }) => {
     return (
         <Icon width={width} height={height} viewBox="0 0 24 24">
             <path
@@ -77,7 +77,7 @@ export default definePlugin({
     settings,
 
     chatBarButton: {
-        icon: ReverseMessageIcon,
+        icon: () => ReverseMessageIcon,
         render: ReverseMessageButton
     }
 });

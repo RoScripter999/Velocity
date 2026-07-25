@@ -17,24 +17,12 @@
 */
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
-import { classes } from "@utils/misc";
-import type { IconComponent } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { ConfirmModal, Icons, openModal, Tooltip, useEffect, useState } from "@webpack/common";
 
 import { settings } from "./settings";
 import { TranslateModal } from "./TranslateModal";
 import { cl } from "./utils";
-
-export const TranslateIcon: IconComponent = ({ className }) => {
-    return (
-        <Icons.LanguageIcon
-            color="currentColor"
-            size="refresh_sm"
-            className={classes(cl("icon"), className)}
-        />
-    );
-};
 
 export let setShouldShowTranslateEnabledTooltip: undefined | ((show: boolean) => void);
 
@@ -91,7 +79,7 @@ export const TranslateChatBarIcon: ChatBarButtonFactory = ({ isMainChat }) => {
                 "aria-haspopup": "dialog"
             }}
         >
-            <TranslateIcon className={cl({ "auto-translate": autoTranslate, "chat-button": true })} />
+            <Icons.LanguageIcon color="currentColor" className={cl({ "auto-translate": autoTranslate, "chat-button": true })} />
         </ChatBarButton>
     );
 

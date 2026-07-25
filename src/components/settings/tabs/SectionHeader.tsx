@@ -26,7 +26,7 @@ import type { ComponentPropsWithoutRef, ComponentType, CSSProperties, ReactNode 
 
 const cl = classNameFactory("vc-settings-section-header-");
 
-interface Props {
+export interface SectionHeaderProps {
     icon?: ComponentType<any>;
     title: ReactNode;
     tooltip?: string | ComponentPropsWithoutRef<typeof RichTooltip>;
@@ -69,7 +69,7 @@ export function SectionHeader({
     descriptionVariant = "text-sm/normal",
     descriptionColor = "text-muted",
     style
-}: Props) {
+}: SectionHeaderProps) {
     const tooltipText = typeof tooltip === "string" ? tooltip : undefined;
     const richTooltipProps = typeof tooltip === "object" ? tooltip : undefined;
 

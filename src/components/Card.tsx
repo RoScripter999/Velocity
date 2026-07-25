@@ -39,9 +39,13 @@ export type CardProps = ComponentType<PropsWithChildren<HTMLProps<HTMLDivElement
     Types: Record<"BRAND" | "DANGER" | "PRIMARY" | "SUCCESS" | "WARNING", string>;
 };
 
-export const Card = function ({ type = "primary", outline = true, padding = "sm", children, className, ...restProps }: ComponentProps<CardProps>) {
+export const Card = function ({ type = "primary", outline = true, padding = "sm", children, className, style, ...restProps }: ComponentProps<CardProps>) {
     return (
-        <div className={classes(cl("primary", type, outline && "outline"), className)} style={padding !== "none" ? { padding: `var(--size-${padding})` } : undefined} {...restProps}>
+        <div
+            className={classes(cl("primary", type, outline && "outline"), className)}
+            style={padding !== "none" ? { padding: `var(--size-${padding})`, ...style } : style}
+            {...restProps}
+        >
             {children}
         </div>
     );

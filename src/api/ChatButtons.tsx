@@ -99,7 +99,7 @@ export type ChatBarButtonData = {
      * This icon is used only for Settings UI. Your render function must still render an icon,
      * and it can be different from this one.
      */
-    icon: IconComponent;
+    icon: () => IconComponent;
     /**
      * Only set to true only if this button is strictly critical for your plugin,
      * Do not set this to true if the feature or method can be accessed via alternative ways (e.g., settings, commands, menus).
@@ -163,7 +163,7 @@ export function _injectButtons(buttons: ReactNode[], props: ChatBarProps) {
  * The icon argument is used only for Settings UI. Your render function must still render an icon,
  * and it can be different from this one.
  */
-export const addChatBarButton = (id: string, render: ChatBarButtonFactory, icon: IconComponent, required: boolean) => ChatBarButtonMap.set(id, { render, icon, required });
+export const addChatBarButton = (id: string, render: ChatBarButtonFactory, icon: () => IconComponent, required: boolean) => ChatBarButtonMap.set(id, { render, icon, required });
 export const removeChatBarButton = (id: string) => ChatBarButtonMap.delete(id);
 
 export interface ChatBarButtonProps {
@@ -179,7 +179,7 @@ export const ChatBarButton = ErrorBoundary.wrap((props: ChatBarButtonProps) => {
     return (
         <Tooltip text={props.tooltip}>
             {({ onMouseEnter, onMouseLeave }) => (
-                <div className={`expression-picker-chat-input-button ${ChannelTextAreaClasses?.buttonContainer ?? ""} vc-chatbar-button`}>
+                <div className={`${ChannelTextAreaClasses?.buttonContainer ?? ""} vc-chatbar-button`}>
                     <Clickable
                         aria-label={props.tooltip}
                         onMouseEnter={onMouseEnter}
@@ -190,7 +190,7 @@ export const ChatBarButton = ErrorBoundary.wrap((props: ChatBarButtonProps) => {
                         onAuxClick={props.onAuxClick}
                         {...props.buttonProps}
                     >
-                        <div className={ButtonWrapperClasses.buttonWrapper}>
+                        <div className={`${ButtonWrapperClasses.buttonWrapper} vc-chatbar-button-inner`}>
                             {props.children}
                         </div>
                     </Clickable>

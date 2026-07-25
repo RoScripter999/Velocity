@@ -89,7 +89,7 @@ export interface Settings {
         messagePopoverButtons: SettingsPluginUiElements;
         chatBarButtons: SettingsPluginUiElements;
         contextMenuButtons: SettingsPluginUiElements;
-
+        headerBarButtons: SettingsPluginUiElements;
     },
 
     velocityStyles: {
@@ -140,7 +140,8 @@ const DefaultSettings: Settings = {
     uiElements: {
         chatBarButtons: {},
         messagePopoverButtons: {},
-        contextMenuButtons: {}
+        contextMenuButtons: {},
+        headerBarButtons: {}
     },
 
     velocityStyles: {

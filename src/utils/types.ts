@@ -28,7 +28,7 @@ import type { MessageClickListener, MessageEditListener, MessageSendListener } f
 import type { MessagePopoverButtonData } from "@api/MessagePopover";
 import type { IconProps } from "@components/Icons";
 import type { FluxEvents } from "@velocity-types";
-import type { ComponentType, FC, ReactNode } from "react";
+import type { ComponentClass, ComponentType, FC, ReactNode } from "react";
 import type { LiteralUnion } from "type-fest";
 
 // exists to export default definePlugin({...})
@@ -44,7 +44,7 @@ export function makeRange(start: number, end: number, step = 1) {
     return ranges;
 }
 
-export type IconComponent = FC<IconProps & Record<string, any>>;
+export type IconComponent = FC<Record<string, any> & { [K in keyof IconProps]: any; }> | ComponentClass<any>;
 
 export const PluginTags = [
     "Accessibility", "Activity", "Appearance", "Chat",

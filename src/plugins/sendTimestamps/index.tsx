@@ -141,7 +141,7 @@ export default definePlugin({
     settings,
 
     chatBarButton: {
-        icon: () => <Icons.CalendarIcon color="currentColor" />,
+        icon: () => Icons.CalendarIcon,
         render: SendTimestampButton
     },
 

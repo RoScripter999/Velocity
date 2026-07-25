@@ -17,7 +17,7 @@
 */
 
 import type { CSSColorToken } from "@velocity-types";
-import type { Icons } from "@webpack/common";
+import { type Icons, React } from "@webpack/common";
 import type { FC, ReactElement, SVGProps } from "react";
 
 /** @ignore Please do not use this in your icons. */
@@ -54,28 +54,26 @@ export function createIcon(Svg: (props: IconProps) => ReactElement): FC<IconProp
             typeof size === "number"
                 ? size
                 : size === "custom"
-                    ? Number(width ?? height ?? 24)
-                    : Sizes[size];
+                    ? Number(width ?? height ?? Sizes.md)
+                    : Sizes[size] ?? Sizes.md;
 
-        const resolvedColor =
-            typeof color === "string" && color.length > 0
-                ? color === "currentColor"
-                    ? color
-                    : /^#|rgb\(|hsl\(|rgba\(|hsla\(/.test(color)
-                        ? color
-                        : `var(--${color})`
-                : "currentColor";
+        const resolvedColor = typeof color === "string" && color.length > 0 ? color === "currentColor"
+            ? color
+            : /^#|rgb\(|hsl\(|rgba\(|hsla\(/.test(color)
+                ? color
+                : `var(--${color})` as IconProps["color"]
+            : "currentColor";
 
 
         const element = Svg({
             width: resolvedSize ?? 24,
             height: resolvedSize ?? 24,
-            color: resolvedColor as any,
+            color: resolvedColor,
             ...(colorClass ? { className: colorClass } : {}),
             ...rest
-        });
+        }) as ReactElement<any>;
 
-        const elementProps = (element as ReactElement<any>).props;
+        const elementProps = element.props;
 
         return Icon({
             ...elementProps,

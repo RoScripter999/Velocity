@@ -44,7 +44,7 @@ export type MessagePopoverButtonData = {
      * This icon is used only for Settings UI. Your render function must still return an icon,
      * and it can be different from this one.
      */
-    icon: IconComponent;
+    icon: () => IconComponent;
     required?: boolean;
 };
 
@@ -57,7 +57,7 @@ export const MessagePopoverButtonMap = new Map<string, MessagePopoverButtonData>
 export function addMessagePopoverButton(
     identifier: string,
     render: MessagePopoverButtonFactory,
-    icon: IconComponent,
+    icon: () => IconComponent,
     required: boolean
 ) {
     MessagePopoverButtonMap.set(identifier, { render, icon, required });

@@ -23,10 +23,10 @@ import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import type { DiscordLocale, Message } from "@velocity-types";
 import { findLazy } from "@webpack";
-import { i18n, Menu } from "@webpack/common";
+import { i18n, Icons, Menu } from "@webpack/common";
 
 import { settings } from "./settings";
-import { setShouldShowTranslateEnabledTooltip, TranslateChatBarIcon, TranslateIcon } from "./TranslateIcon";
+import { setShouldShowTranslateEnabledTooltip, TranslateChatBarIcon } from "./TranslateIcon";
 import { handleTranslate, TranslationAccessory } from "./TranslationAccessory";
 import { cl, translate } from "./utils";
 
@@ -44,7 +44,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
         <Menu.MenuItem
             id="vc-trans"
             label="Translate"
-            leadingAccessory={{ type: "icon", icon: TranslateIcon }}
+            leadingAccessory={{ type: "icon", icon: Icons.LanguageIcon }}
             action={async () => {
                 const trans = await translate("received", content);
                 handleTranslate(message.id, trans);
@@ -97,19 +97,19 @@ export default definePlugin({
     renderMessageAccessory: props => <TranslationAccessory message={props.message} />,
 
     chatBarButton: {
-        icon: TranslateIcon,
+        icon: () => Icons.LanguageIcon,
         render: TranslateChatBarIcon
     },
 
     messagePopoverButton: {
-        icon: TranslateIcon,
-        render(message: Message) {
+        icon: () => Icons.LanguageIcon,
+        render(message) {
             const content = getMessageContent(message);
             if (!content) return null;
 
             return {
                 label: "Translate",
-                icon: TranslateIcon,
+                icon: Icons.LanguageIcon,
                 onClick: async () => {
                     const trans = await translate("received", content);
                     handleTranslate(message.id, trans);

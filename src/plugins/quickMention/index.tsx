@@ -28,7 +28,7 @@ export default definePlugin({
     tags: ["Chat", "Shortcuts"],
 
     messagePopoverButton: {
-        icon: () => <Icons.AtIcon color="currentColor" />,
+        icon: () => Icons.AtIcon,
         render(msg) {
             const channel = ChannelStore.getChannel(msg.channel_id);
             if (channel.guild_id && !PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return null;

@@ -269,14 +269,8 @@ export const startPlugin = traceFunction("startPlugin", function startPlugin(p: 
     if (renderMessageDecoration) addMessageDecoration(name, renderMessageDecoration);
     if (renderMessageAccessory) addMessageAccessory(name, renderMessageAccessory);
     if (messagePopoverButton) addMessagePopoverButton(name, messagePopoverButton.render, messagePopoverButton.icon, messagePopoverButton.required ?? false);
-    if (headerBarButton) {
-        const { icon, render, priority = 0, location } = headerBarButton;
-        if (location === "channeltoolbar") {
-            addChannelToolbarButton(name, render, icon, priority);
-        } else {
-            addHeaderBarButton(name, render, icon, priority);
-        }
-    }
+    if (headerBarButton) (headerBarButton.location === "channeltoolbar" ? addChannelToolbarButton : addHeaderBarButton)(name, headerBarButton.render, headerBarButton.icon, headerBarButton.priority ?? 0, headerBarButton.required ?? false);
+
     return true;
 }, p => `startPlugin ${p.name}`);
 

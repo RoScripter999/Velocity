@@ -17,9 +17,8 @@
 */
 
 import type { Message } from "@velocity-types";
-import { Parser, useEffect, useState } from "@webpack/common";
+import { Icons, Parser, useEffect, useState } from "@webpack/common";
 
-import { TranslateIcon } from "./TranslateIcon";
 import { cl, TranslationValue } from "./utils";
 
 const TranslationSetters = new Map<string, (v: TranslationValue) => void>();
@@ -55,7 +54,7 @@ export function TranslationAccessory({ message }: { message: Message; }) {
 
     return (
         <span className={cl("accessory")}>
-            <TranslateIcon size="sm" className={cl("accessory-icon")} />
+            <Icons.LanguageIcon size="sm" className={cl("accessory-icon")} />
             {Parser.parse(translation.text)}
             <br />
             (translated from {translation.sourceLanguage} - <Dismiss onDismiss={() => setTranslation(undefined)} />)

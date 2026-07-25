@@ -73,7 +73,7 @@ export default definePlugin({
 
     messagePopoverButton: {
         required: true,
-        icon: () => <Icons.CirclePlusIcon size="refresh_sm" />,
+        icon: () => Icons.CirclePlusIcon,
         render(msg) {
             if (UserStore.getCurrentUser().id !== msg.author.id || msg.deleted || msg.attachments.length === 10) return null;
 

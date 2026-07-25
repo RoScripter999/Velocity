@@ -16,12 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
+import { IconComponent } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { Clickable, Tooltip, useEffect, useState } from "@webpack/common";
+import { Clickable, Tooltip, useEffect } from "@webpack/common";
 import type { ComponentType, JSX, MouseEventHandler, ReactNode, RefObject } from "react";
 
 const logger = new Logger("HeaderBarAPI");
@@ -71,16 +73,12 @@ export interface HeaderBarButtonData {
     /** Function that renders the button component */
     render: HeaderBarButtonFactory;
     /** Icon component used for settings UI display */
-    icon: ComponentType<any>;
+    icon: () => IconComponent;
     /** Higher priority buttons appear further right. Default: 0 */
     priority?: number;
     /** Where to render the button. Default: "headerbar" */
     location?: "headerbar" | "channeltoolbar";
-}
-
-interface ButtonEntry {
-    render: HeaderBarButtonFactory;
-    priority: number;
+    required?: boolean;
 }
 
 /**
@@ -148,8 +146,8 @@ export function ChannelToolbarButton(props: ChannelToolbarButtonProps) {
     return <HeaderBarIcon {...props} />;
 }
 
-const headerBarButtons = new Map<string, ButtonEntry>();
-const channelToolbarButtons = new Map<string, ButtonEntry>();
+export const HeaderBarButtonMap = new Map<string, HeaderBarButtonData>();
+export const ChannelToolbarButtonMap = new Map<string, HeaderBarButtonData>();
 
 const headerBarListeners = new Set<() => void>();
 const channelToolbarListeners = new Set<() => void>();
@@ -157,8 +155,9 @@ const channelToolbarListeners = new Set<() => void>();
 /**
  * Adds a button to the header bar (title bar area).
  *
- * @param id - Unique identifier for the button (e.g., "my-plugin-button")
+ * @param identifier - Unique identifier for the button (e.g., "my-plugin-button")
  * @param render - Function that returns the button JSX
+ * @param icon - Icon component used for settings UI display
  * @param priority - Higher values appear further right. Default: 0
  *
  * @example
@@ -168,28 +167,35 @@ const channelToolbarListeners = new Set<() => void>();
  *         tooltip="My Button"
  *         onClick={handleClick}
  *     />
- * ));
+ * ), MyIcon);
  */
-export function addHeaderBarButton(id: string, render: HeaderBarButtonFactory, priority = 0) {
-    headerBarButtons.set(id, { render, priority });
+export function addHeaderBarButton(identifier: string, render: HeaderBarButtonFactory, icon: () => IconComponent, priority = 0, required = false) {
+    const data = { render, icon, priority, required };
+    HeaderBarButtonMap.set(identifier, data);
+
+    if (required && !Settings.uiElements.headerBarButtons[identifier]) {
+        Settings.uiElements.headerBarButtons[identifier] = { enabled: true, order: 0, required: true };
+    }
+
     headerBarListeners.forEach(listener => listener());
 }
 
 /**
  * Removes a button from the header bar.
  *
- * @param id - The identifier used when adding the button
+ * @param identifier - The identifier used when adding the button
  */
-export function removeHeaderBarButton(id: string) {
-    headerBarButtons.delete(id);
+export function removeHeaderBarButton(identifier: string) {
+    HeaderBarButtonMap.delete(identifier);
     headerBarListeners.forEach(listener => listener());
 }
 
 /**
  * Adds a button to the channel toolbar (below the search bar, next to pins/members).
  *
- * @param id - Unique identifier for the button (e.g., "my-plugin-toolbar")
+ * @param identifier - Unique identifier for the button (e.g., "my-plugin-toolbar")
  * @param render - Function that returns the button JSX
+ * @param icon - Icon component used for settings UI display
  * @param priority - Higher values appear further right. Default: 0
  *
  * @example
@@ -199,34 +205,45 @@ export function removeHeaderBarButton(id: string) {
  *         tooltip="My Button"
  *         onClick={handleClick}
  *     />
- * ));
+ * ), MyIcon);
  */
-export function addChannelToolbarButton(id: string, render: HeaderBarButtonFactory, priority = 0) {
-    channelToolbarButtons.set(id, { render, priority });
+export function addChannelToolbarButton(identifier: string, render: HeaderBarButtonFactory, icon: () => IconComponent, priority = 0, required = false) {
+    const data = { render, icon, priority, required };
+    ChannelToolbarButtonMap.set(identifier, data);
+
+    if (required && !Settings.uiElements.headerBarButtons[identifier]) {
+        Settings.uiElements.headerBarButtons[identifier] = { enabled: true, order: 0, required: true };
+    }
+
     channelToolbarListeners.forEach(listener => listener());
 }
 
 /**
  * Removes a button from the channel toolbar.
  *
- * @param id - The identifier used when adding the button
+ * @param identifier - The identifier used when adding the button
  */
-export function removeChannelToolbarButton(id: string) {
-    channelToolbarButtons.delete(id);
+export function removeChannelToolbarButton(identifier: string) {
+    ChannelToolbarButtonMap.delete(identifier);
     channelToolbarListeners.forEach(listener => listener());
 }
 
 function HeaderBarButtons() {
-    const [, forceUpdate] = useState(0);
+    const forceUpdate = useForceUpdater();
+    const { uiElements } = useSettings(["uiElements.headerBarButtons.*"]);
 
     useEffect(() => {
-        const listener = () => forceUpdate(n => n + 1);
+        const listener = () => forceUpdate();
         headerBarListeners.add(listener);
         return () => { headerBarListeners.delete(listener); };
-    }, []);
+    }, [forceUpdate]);
 
-    return Array.from(headerBarButtons)
-        .sort(([, a], [, b]) => a.priority - b.priority)
+    return Array.from(HeaderBarButtonMap)
+        .filter(([id, data]) => {
+            if (!data.required && uiElements.headerBarButtons[id]?.enabled === false) return false;
+            return true;
+        })
+        .sort(([, a], [, b]) => (a.priority ?? 0) - (b.priority ?? 0))
         .map(([id, { render: Button }]) => (
             <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render header bar button: ${id}`, e.error)}>
                 <Button />
@@ -236,15 +253,20 @@ function HeaderBarButtons() {
 
 function ChannelToolbarButtons() {
     const forceUpdate = useForceUpdater();
+    const { uiElements } = useSettings(["uiElements.headerBarButtons.*"]);
 
     useEffect(() => {
-        const listener = () => forceUpdate;
+        const listener = () => forceUpdate();
         channelToolbarListeners.add(listener);
         return () => { channelToolbarListeners.delete(listener); };
-    }, []);
+    }, [forceUpdate]);
 
-    return Array.from(channelToolbarButtons)
-        .sort(([, a], [, b]) => a.priority - b.priority)
+    return Array.from(ChannelToolbarButtonMap)
+        .filter(([id, data]) => {
+            if (!data.required && uiElements.headerBarButtons[id]?.enabled === false) return false;
+            return true;
+        })
+        .sort(([, a], [, b]) => (a.priority ?? 0) - (b.priority ?? 0))
         .map(([id, { render: Button }]) => (
             <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render channel toolbar button: ${id}`, e.error)}>
                 <Button />

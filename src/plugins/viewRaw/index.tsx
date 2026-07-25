@@ -169,7 +169,7 @@ export default definePlugin({
     },
 
     messagePopoverButton: {
-        icon: () => <Icons.AngleBracketsIcon color="currentColor" size="refresh_sm" />,
+        icon: () => Icons.AngleBracketsIcon,
         render(msg) {
             return {
                 label: "View Raw",

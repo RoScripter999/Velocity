@@ -106,7 +106,7 @@ export default definePlugin({
     startAt: StartAt.Init,
 
     chatBarButton: {
-        icon: () => <Icons.EyeIcon size="refresh_sm" color="currentColor" />,
+        icon: () => Icons.EyeIcon,
         required: true,
         render: PreviewButton
     }

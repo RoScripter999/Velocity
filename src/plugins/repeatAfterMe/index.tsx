@@ -177,7 +177,7 @@ export default definePlugin({
     },
 
     chatBarButton: {
-        icon: RepeatAfterMeIcon,
+        icon: () => RepeatAfterMeIcon,
         render: DMEchoToggle
     }
 });

@@ -329,7 +329,7 @@ export default definePlugin({
     ],
 
     messagePopoverButton: {
-        icon: () => <Icons.EyeIcon color="currentColor" size="refresh_sm" />,
+        icon: () => Icons.EyeIcon,
         render(msg) {
             return {
                 label: "Hide",

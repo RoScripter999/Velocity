@@ -18,20 +18,19 @@
 
 import "./UIElements.css";
 
-import { ChatBarButtonMap } from "@api/ChatButtons";
+import { type ChatBarButtonData, ChatBarButtonMap } from "@api/ChatButtons";
 import { type ContextMenuButtonData, ContextMenuButtonMap } from "@api/ContextMenu";
-import { MessagePopoverButtonMap } from "@api/MessagePopover";
+import { type HeaderBarButtonData, HeaderBarButtonMap } from "@api/HeaderBar";
+import { type MessagePopoverButtonData, MessagePopoverButtonMap } from "@api/MessagePopover";
 import { type SettingsPluginUiElements, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
-import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
-import { openPluginModal, SectionHeader } from "@components/settings";
+import { openPluginModal, SectionHeader, type SectionHeaderProps } from "@components/settings";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
-import type { IconComponent } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
-import { Icons, Modal, openModal, RichTooltip, Text, useCallback, useEffect, useRef, useState } from "@webpack/common";
+import { Icons, Modal, openModal, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useRef, useState } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 interface RowProps {
@@ -53,7 +52,7 @@ const useDrop = findByCodeLazy(".dropTargetOptions=", ".collect");
 
 const UI_ELEMENT_TYPE = "ui-element";
 
-export function DraggableRow({ id, index, moveRow, onContextMenu, children }: RowProps) {
+function DraggableRow({ id, index, moveRow, onContextMenu, children }: RowProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     const [, drop] = useDrop({
@@ -89,6 +88,7 @@ export function DraggableRow({ id, index, moveRow, onContextMenu, children }: Ro
             ref={ref}
             data-drag-id={id}
             className={cl("switches-row-wrapper")}
+            padding="none"
             data-dragging={isDragging}
             onContextMenu={onContextMenu}
             style={{
@@ -157,60 +157,56 @@ export function UIElementsButton() {
         </div>
     );
 }
-
-function ContextMenuSection(props: {
+function Section(props: {
     title: string;
-    description: string;
     settings: SettingsPluginUiElements;
     icon: ComponentType<any>;
-    buttonMap: Map<string, ContextMenuButtonData>;
+    buttonMap: Map<string, ContextMenuButtonData | HeaderBarButtonData>;
+    tooltip?: SectionHeaderProps["tooltip"];
+    tooltipIcon?: SectionHeaderProps["tooltipIcon"];
 }) {
-    const { buttonMap, description, title, settings, icon } = props;
+    const { buttonMap, title, settings, icon, tooltip, tooltipIcon } = props;
     const names = [...buttonMap.keys()];
 
     if (names.length === 0) return null;
 
+    const visibleButtons = names.filter(name => {
+        const data = buttonMap.get(name);
+        const isContextMenu = "menus" in data!;
+        return !(isContextMenu ? Object.values(data.menus).every(m => m.required === true) : data?.required === true);
+    });
+
+    if (visibleButtons.length === 0) return null;
+
     return (
         <section>
             <SectionHeader
-                tag="h3"
-                titleVariant="heading-xl/bold"
+                titleVariant="text-sm/normal"
                 title={title}
-                description={description}
-                descriptionVariant="text-sm/normal"
-                className={Margins.bottom20}
+                titleColor="text-muted"
+                margin="bottom20"
+                tooltipIcon={tooltipIcon}
                 icon={icon}
-                tooltipIcon={() => <Icons.WarningIcon color="currentColor" size="refresh_sm" />}
-                tooltip={{
-                    asset: <Icons.WarningIcon color="var(--icon-feedback-warning)" size="lg" />, title: "Some Items are hidden!", body: <Text variant="text-sm/normal" color="text-subtle">
-                        Hidden items are required by active plugins to function.
-                    </Text>
-                }}
+                tooltip={tooltip}
             />
 
-            <div className={cl("switches")}>
-                {names.map(name => {
+            <ScrollerAuto fade className={cl("switches")}>
+                {visibleButtons.map(name => {
                     const data = buttonMap.get(name);
+                    const isContextMenu = "menus" in data!;
 
-                    const isRequired = Object.values(data?.menus ?? {}).every(
-                        m => m.required === true
-                    );
-
-                    if (isRequired) return null;
+                    const Icon = !isContextMenu ? data?.icon() : undefined;
 
                     return (
                         <Card
                             key={name}
+                            padding="none"
                             className={cl("switches-row-wrapper")}
                             onContextMenu={() => openPluginModal(Velocity.Plugins.plugins[name])}
                         >
-                            <Paragraph
-                                size="md"
-                                weight="semibold"
-                                className={cl("switches-row")}
-                            >
+                            <Paragraph size="md" weight="semibold" className={cl("switches-row")}>
+                                {Icon && <Icon size="refresh_sm" color="currentColor" height={20} width={20} />}
                                 {name}
-
                                 <span style={{ marginLeft: "auto" }}>
                                     <Switch
                                         checked={settings[name]?.enabled ?? true}
@@ -224,19 +220,18 @@ function ContextMenuSection(props: {
                         </Card>
                     );
                 })}
-            </div>
+            </ScrollerAuto>
         </section>
     );
 }
 
-function Section(props: {
+function DraggableSection(props: {
     title: string;
-    description: string;
     settings: SettingsPluginUiElements;
     icon: ComponentType<any>;
-    buttonMap: Map<string, { icon: IconComponent; required?: boolean; }>;
+    buttonMap: Map<string, ChatBarButtonData> | Map<string, MessagePopoverButtonData>;
 }) {
-    const { buttonMap, description, title, settings, icon } = props;
+    const { buttonMap, title, settings, icon } = props;
 
     const [order, setOrder] = useState(() => getOrderedNames(buttonMap, settings));
 
@@ -264,23 +259,27 @@ function Section(props: {
     return (
         <section>
             <SectionHeader
-                tag="h3"
-                titleVariant="heading-xl/bold"
+                titleVariant="text-sm/normal"
                 title={title}
-                description={description}
-                descriptionVariant="text-sm/normal"
-                className={Margins.bottom20}
+                titleColor="text-muted"
+                margin="bottom20"
                 icon={icon}
             />
-            <div className={cl("switches")}>
+            <ScrollerAuto fade className={cl("switches")}>
                 {order.map((name, index) => {
-                    const Icon = buttonMap.get(name)!.icon ?? Icons.UnknownGameIcon;
+                    const Icon = buttonMap.get(name)?.icon();
                     const isRequired = buttonMap.get(name)?.required === true;
 
                     return (
-                        <DraggableRow onContextMenu={() => openPluginModal(Velocity.Plugins.plugins[name])} key={`${title}-${name}`} id={`${title}-${name}`} index={index} moveRow={moveRow}>
+                        <DraggableRow
+                            onContextMenu={() => openPluginModal(Velocity.Plugins.plugins[name])}
+                            key={`${title}-${name}`}
+                            id={`${title}-${name}`}
+                            index={index}
+                            moveRow={moveRow}
+                        >
                             <Paragraph size="md" weight="semibold" className={cl("switches-row")}>
-                                <Icon height={20} width={20} />
+                                {Icon && <Icon size="refresh_sm" color="currentColor" height={20} width={20} />}
                                 {name}
 
                                 {isRequired ? (
@@ -308,49 +307,93 @@ function Section(props: {
                         </DraggableRow>
                     );
                 })}
-            </div>
+            </ScrollerAuto>
         </section>
     );
 }
 
 function UIElementsModal(props: ModalPropsRender) {
     const { uiElements } = useSettings(["uiElements.*"]);
+    const [activeTab, setActiveTab] = useState<"chatbar" | "popover" | "context" | "headerbar">("chatbar");
 
     return (
-        <Modal {...props} size="lg" title={
-            <SectionHeader
-                layout="horizontal"
-                title="UI Elements"
-                titleVariant="text-lg/bold"
-                titleColor="text-strong"
-                description="Drag to reorder · Right-Click to open plugin settings"
-                tooltip="You can configure which buttons you want to hide or change positions, Buttons appear based on enabled plugins."
-                margin="bottom8"
-            />
-        }
+        <Modal
+            {...props}
+            size="xl"
+            title={
+                <SectionHeader
+                    layout="horizontal"
+                    title="UI Elements"
+                    titleVariant="text-lg/bold"
+                    titleColor="text-strong"
+                    description="Drag to reorder · Right-Click to open plugin settings"
+                    tooltip="You can configure which buttons you want to hide or change positions, Buttons appear based on enabled plugins."
+                    margin="bottom8"
+                />
+            }
         >
             <div className={cl("modal-content")}>
-                <Section
-                    title="Chatbar Buttons"
-                    description="These are the buttons on the right side of the chat input bar"
-                    icon={Icons.ChatIcon}
-                    buttonMap={ChatBarButtonMap}
-                    settings={uiElements.chatBarButtons}
-                />
-                <Section
-                    title="Message Popover Buttons"
-                    description="These are the floating buttons on the right when you hover over a message"
-                    icon={Icons.PencilIcon}
-                    buttonMap={MessagePopoverButtonMap}
-                    settings={uiElements.messagePopoverButtons}
-                />
-                <ContextMenuSection
-                    title="Context Menu Items"
-                    description="These are items added to right-click context menus by plugins"
-                    icon={Icons.ListBulletsIcon}
-                    buttonMap={ContextMenuButtonMap}
-                    settings={uiElements.contextMenuButtons}
-                />
+                <TabBar
+                    type="top"
+                    look="brand"
+                    orientation="horizontal"
+                    selectedItem={activeTab}
+                    onItemSelect={setActiveTab}
+                >
+                    <TabBar.Item id="chatbar">
+                        Chatbar Buttons
+                    </TabBar.Item>
+                    <TabBar.Item id="popover">
+                        Message Popover Buttons
+                    </TabBar.Item>
+                    <TabBar.Item id="headerbar">
+                        Header Buttons
+                    </TabBar.Item>
+                    <TabBar.Item id="context">
+                        Context Menu Buttons
+                    </TabBar.Item>
+                </TabBar>
+
+                {activeTab === "chatbar" && (
+                    <DraggableSection
+                        title="These are the buttons on the right side of the chat input bar"
+                        icon={Icons.ChatIcon}
+                        buttonMap={ChatBarButtonMap}
+                        settings={uiElements.chatBarButtons}
+                    />
+                )}
+
+                {activeTab === "popover" && (
+                    <DraggableSection
+                        title="These are the floating buttons on the right when you hover over a message"
+                        icon={Icons.PencilIcon}
+                        buttonMap={MessagePopoverButtonMap}
+                        settings={uiElements.messagePopoverButtons}
+                    />
+                )}
+
+                {activeTab === "headerbar" && (
+                    <Section
+                        title="These are the buttons in the header bar and channel toolbar"
+                        icon={Icons.SettingsIcon}
+                        buttonMap={HeaderBarButtonMap}
+                        settings={uiElements.headerBarButtons}
+                    />
+                )}
+
+                {activeTab === "context" && (
+                    <Section
+                        title="These are buttons added to right-click context menus by plugins"
+                        icon={Icons.ListBulletsIcon}
+                        buttonMap={ContextMenuButtonMap}
+                        settings={uiElements.contextMenuButtons}
+                        tooltipIcon={() => <Icons.WarningIcon color="currentColor" size="refresh_sm" />}
+                        tooltip={{
+                            title: "Some Items are hidden!",
+                            body: "Hidden items are required by enabled plugins to function."
+                        }}
+                    />
+                )}
             </div>
         </Modal>
     );
