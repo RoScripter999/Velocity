@@ -23,7 +23,7 @@ import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType, type PluginNative } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { ApplicationStreamingStore, Popout, useEffect, useRef, UserStore, useStateFromStores } from "@webpack/common";
+import { ApplicationStreamingStore, HiddenVisually, Icons, Popout, useEffect, useId, useRef, UserStore, useStateFromStores } from "@webpack/common";
 
 import { CrasherContextMenu, StreamCrasherPatch } from "./menu";
 import { setCrashMode, setLastSourceId, updateStream } from "./utils";
@@ -85,11 +85,11 @@ export const settings = definePluginSettings({
 
 // Same as GameActivityToggle
 const Button = findComponentByCodeLazy(".GREEN,positionKeyStemOverride:");
-const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron");
+const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron", "buttonChevronIcon");
 const ButtonClasses = findCssClassesLazy("redGlow", "enabled", "disabled", "plated");
 
 const CrashIcon = ({ isEnabled }) => createIcon(props => (
-    <Icon {...props}>
+    <Icon {...props} style={{ scale: 1.2 }}>
         <path
             fill={isEnabled ? "var(--icon-voice-muted)" : "currentColor"}
             d="M18.75 6c0 2.08-1.19 3.91-3 4.98V12c0 .83-.67 1.5-1.5 1.5h-4.5c-.83 0-1.5-.67-1.5-1.5v-1.02c-1.81-1.08-3-2.91-3-4.98C5.25 2.69 8.27 0 12 0s6.75 2.69 6.75 6zM9.38 8.25c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm6.75-1.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5.67 1.5 1.5 1.5 1.5-.67 1.5-1.5zM4.8 15c.3-.6 1-.85 1.6-.55L12 17l5.6-2.55c.6-.3 1.35-.05 1.6.55s.05 1.35-.55 1.6L14.8 18l3.65 1.6c.6.3.85 1 .55 1.6s-1 .85-1.6.55L12 19l-5.6 2.75c-.6.3-1.35.05-1.6-.55s-.05-1.35.55-1.6L9.2 18l-3.65-1.6c-.6-.3-.85-1-.55-1.6z"
@@ -97,14 +97,17 @@ const CrashIcon = ({ isEnabled }) => createIcon(props => (
     </Icon>
 ));
 
-const ChevronIcon = ({ isEnabled, isShown }) => (
-    <Icon width="15" height="15" fill="none" style={{ transform: isShown ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
-        <path fill={isEnabled ? "var(--icon-voice-muted)" : "currentColor"} d="M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z" />
-    </Icon>
-);
+const ChevronIcon = ({ isEnabled, isShown }) => {
+    const IconComponent = isShown ? Icons.ChevronSmallUpIcon : Icons.ChevronSmallDownIcon;
+    const iconColor = !isEnabled ? "currentColor" : "var(--icon-voice-muted)";
+
+    return <IconComponent size="xxs" className={Classes.buttonChevronIcon} color={iconColor} />;
+};
 
 function CrashButton(props?: { nameplate?: any; }) {
     const buttonRef = useRef(null);
+    const id = useId();
+
     const { isEnabled, showChevron } = settings.use(["isEnabled", "showChevron"]);
     const isStreaming = useStateFromStores([ApplicationStreamingStore], () => ApplicationStreamingStore.getActiveStreamForUser(UserStore.getCurrentUser()?.id) != null);
 
@@ -115,35 +118,6 @@ function CrashButton(props?: { nameplate?: any; }) {
     }, [isStreaming, isEnabled]);
 
     if (!isStreaming) return null;
-
-    if (!showChevron) {
-        return (
-            <Popout
-                position="top"
-                align="left"
-                animation={Popout.Animation.FADE}
-                spacing={4}
-                targetElementRef={buttonRef}
-                renderPopout={({ closePopout }) => <CrasherContextMenu closePopout={closePopout} />}
-            >
-                {({ onClick: openPopout }) => (
-                    <div ref={buttonRef}>
-                        <Button
-                            aria-checked={isEnabled}
-                            aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                            icon={CrashIcon({ isEnabled })}
-                            onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
-                            onContextMenu={openPopout}
-                            plated={false}
-                            redGlow={isEnabled}
-                            role="switch"
-                            tooltipText={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                        />
-                    </div>
-                )}
-            </Popout>
-        );
-    }
 
     return (
         <Popout
@@ -157,33 +131,42 @@ function CrashButton(props?: { nameplate?: any; }) {
             {({ onClick: openPopout }, { isShown }) => (
                 <div
                     ref={buttonRef}
-                    className={classes(Classes.audioButtonParent, isEnabled && ButtonClasses.redGlow, isShown && Classes.popoutOpen)}
+                    className={showChevron ? classes(Classes.audioButtonParent, isEnabled && ButtonClasses.redGlow, isShown && Classes.popoutOpen) : undefined}
                 >
                     <Button
                         aria-checked={isEnabled}
                         aria-label={isEnabled ? "Disable Crasher" : "Enable Crasher"}
-                        className={classes(Classes.audioButtonWithMenu, ButtonClasses.enabled)}
+                        className={showChevron ? classes(Classes.audioButtonWithMenu, ButtonClasses.enabled) : undefined}
                         icon={CrashIcon({ isEnabled })}
                         onClick={() => settings.store.isEnabled = !settings.store.isEnabled}
                         onContextMenu={openPopout}
-                        plated={props?.nameplate != null || false}
+                        plated={showChevron ? (props?.nameplate != null || false) : false}
                         redGlow={isEnabled}
                         role="switch"
-                        tooltipShouldShow={!isShown}
+                        tooltipShouldShow={showChevron ? !isShown : undefined}
                         tooltipText={isEnabled ? "Disable Crasher" : "Enable Crasher"}
                     />
-                    <Button
-                        aria-label="Crasher Options"
-                        className={classes(Classes.buttonChevron, isShown && Classes.popoutOpen, ButtonClasses.enabled)}
-                        icon={() => <ChevronIcon isEnabled={isEnabled} isShown={isShown} />}
-                        onClick={openPopout}
-                        onContextMenu={openPopout}
-                        plated={props?.nameplate != null || false}
-                        redGlow={isEnabled}
-                        tooltipForceOpen={false}
-                        tooltipShouldShow={!isShown}
-                        tooltipText="Crasher Options"
-                    />
+                    {showChevron && (
+                        <>
+                            {settings.store.isEnabled && (
+                                <HiddenVisually id={id}>
+                                    Disable Stream Crasher
+                                </HiddenVisually>
+                            )}
+                            <Button
+                                aria-label="Crasher Options"
+                                className={classes(Classes.buttonChevron, isShown && Classes.popoutOpen, ButtonClasses.enabled)}
+                                icon={() => <ChevronIcon isEnabled={isEnabled} isShown={isShown} />}
+                                onClick={openPopout}
+                                onContextMenu={openPopout}
+                                plated={props?.nameplate != null || false}
+                                redGlow={isEnabled}
+                                tooltipForceOpen={false}
+                                tooltipShouldShow={!isShown}
+                                tooltipText="Crasher Options"
+                            />
+                        </>
+                    )}
                 </div>
             )}
         </Popout>

@@ -57,6 +57,7 @@ export const Select = waitForComponent<t.Select>("Select", filters.componentByCo
 export const SearchableSelect = waitForComponent<t.SearchableSelect>("SearchableSelect", filters.componentByCode('?"multiple":"single",required:'));
 export const Slider = waitForComponent<t.Slider>("Slider", filters.componentByCode("markDash", "this.renderMark("));
 export const HelpMessage = waitForComponent<t.HelpMessage>("HelpMessage", filters.componentByCode("messageType:", "textColor:", "children:"));
+export const HiddenVisually = waitForComponent<t.HiddenVisually>("HiddenVisually", filters.componentByCode('="span",showOnFocus'));
 export const Field = waitForComponent<t.Field>("Field", filters.componentByCode('"fieldset":"div"'));
 export const FieldSet = waitForComponent<t.FieldSet>("FieldSet", filters.componentByCode('"fieldset",{...'));
 export const Popout = waitForComponent<t.Popout>("Popout", filters.componentByCode("ref:this.ref,", "renderPopout:this.renderPopout,"));
@@ -122,7 +123,6 @@ waitFor(m => {
     return str.includes(".resolve({theme:") && str.includes('"refresh-fast-follow-avatars"') && !str.includes("useMemo");
 }, m => useToken = m);
 
-export const MaskedLink = waitForComponent<t.MaskedLink>("MaskedLink", filters.componentByCode("MASKED_LINK)"));
 export const Timestamp = waitForComponent<t.Timestamp>("Timestamp", filters.componentByCode("#{intl::MESSAGE_EDITED_TIMESTAMP_A11Y_LABEL}"));
 export const OAuth2AuthorizeModal = waitForComponent("OAuth2AuthorizeModal", filters.componentByCode("hasContentBackground", "nextStep", "onClose?.()"));
 

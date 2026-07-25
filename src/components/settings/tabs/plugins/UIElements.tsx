@@ -22,7 +22,7 @@ import { type ChatBarButtonData, ChatBarButtonMap } from "@api/ChatButtons";
 import { type ContextMenuButtonData, ContextMenuButtonMap } from "@api/ContextMenu";
 import { type HeaderBarButtonData, HeaderBarButtonMap } from "@api/HeaderBar";
 import { type MessagePopoverButtonData, MessagePopoverButtonMap } from "@api/MessagePopover";
-import { type SettingsPluginUiElements, useSettings } from "@api/Settings";
+import { Settings, type SettingsPluginUiElements, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
 import { Paragraph } from "@components/Paragraph";
 import { openPluginModal, SectionHeader, type SectionHeaderProps } from "@components/settings";
@@ -103,7 +103,7 @@ function DraggableRow({ id, index, moveRow, onContextMenu, children }: RowProps)
 }
 
 
-export function getOrderedNames(buttonMap: Map<string, any>, settings: SettingsPluginUiElements) {
+export function getOrderedNames<T extends boolean = false>(buttonMap: Map<string, any>, settings: SettingsPluginUiElements<T>) {
     const known = new Set(buttonMap.keys());
 
     // Collect all known keys. Prefer keys that already have a saved order.
@@ -112,7 +112,7 @@ export function getOrderedNames(buttonMap: Map<string, any>, settings: SettingsP
 
     for (const name of known) {
         const entry = settings[name];
-        if (entry != null && typeof entry.order === "number") {
+        if (entry != null && typeof entry === "object" && typeof entry.order === "number") {
             withOrder.push({ name, order: entry.order });
         } else {
             withoutOrder.push(name);
@@ -132,12 +132,15 @@ export function openUIElementsModal(): void {
     return void openModal(modalProps => <UIElementsModal {...modalProps} />);
 }
 
-export function UIElementsButton() {
-    const { uiElements } = useSettings(["uiElements.*"]);
+export function hasUIElements() {
+    return getOrderedNames(ChatBarButtonMap, Settings.uiElements.chatBarButtons).length > 0 ||
+        getOrderedNames(ContextMenuButtonMap, Settings.uiElements.contextMenuButtons).length > 0 ||
+        getOrderedNames(MessagePopoverButtonMap, Settings.uiElements.messagePopoverButtons).length > 0 ||
+        getOrderedNames(HeaderBarButtonMap, Settings.uiElements.headerBarButtons).length > 0;
+}
 
-    const chatBarOrder = getOrderedNames(ChatBarButtonMap, uiElements.chatBarButtons);
-    const popoverOrder = getOrderedNames(MessagePopoverButtonMap, uiElements.messagePopoverButtons);
-    const hasAny = chatBarOrder.length > 0 || popoverOrder.length > 0;
+export function UIElementsButton() {
+    const hasAny = hasUIElements();
 
     return (
         <div className={cl("button")} onClick={() => hasAny && openUIElementsModal()}>
@@ -170,7 +173,7 @@ function EmptyOrder() {
 
 function Section(props: {
     title: string;
-    settings: SettingsPluginUiElements;
+    settings: SettingsPluginUiElements<false>;
     icon: ComponentType<any>;
     buttonMap: Map<string, ContextMenuButtonData | HeaderBarButtonData>;
     tooltip?: SectionHeaderProps["tooltip"];
@@ -179,12 +182,16 @@ function Section(props: {
     const { buttonMap, title, settings, icon, tooltip, tooltipIcon } = props;
     const names = [...buttonMap.keys()];
 
-    if (names.length === 0) return null;
-
     const visibleButtons = names.filter(name => {
         const data = buttonMap.get(name);
-        const isContextMenu = "menus" in data!;
-        return !(isContextMenu ? Object.values(data.menus).every(m => m.required === true) : data?.required === true);
+        if (!data) return false;
+
+        // Native type-narrowing using the 'in' operator
+        if ("icon" in data) {
+            return !(data.required === true);
+        }
+
+        return !data.every(m => m && typeof m === "object" && "required" in m && m.required === true);
     });
 
     if (visibleButtons.length === 0) {
@@ -206,9 +213,8 @@ function Section(props: {
             <ScrollerAuto fade className={cl("switches")}>
                 {visibleButtons.map(name => {
                     const data = buttonMap.get(name);
-                    const isContextMenu = "menus" in data!;
 
-                    const Icon = !isContextMenu ? data?.icon() : undefined;
+                    const Icon = data && "icon" in data ? data.icon() : undefined;
 
                     return (
                         <Card
@@ -222,10 +228,9 @@ function Section(props: {
                                 {name}
                                 <span style={{ marginLeft: "auto" }}>
                                     <Switch
-                                        checked={settings[name]?.enabled ?? true}
+                                        checked={settings[name] !== false}
                                         onChange={v => {
-                                            settings[name] ??= {} as any;
-                                            settings[name].enabled = v;
+                                            settings[name] = v;
                                         }}
                                     />
                                 </span>
@@ -240,7 +245,7 @@ function Section(props: {
 
 function DraggableSection(props: {
     title: string;
-    settings: SettingsPluginUiElements;
+    settings: SettingsPluginUiElements<true>;
     icon: ComponentType<any>;
     buttonMap: Map<string, ChatBarButtonData> | Map<string, MessagePopoverButtonData>;
 }) {
@@ -302,7 +307,7 @@ function DraggableSection(props: {
                                 {isRequired ? (
                                     <RichTooltip
                                         title="Cannot Disable"
-                                        body="This plugin is required to have this button."
+                                        body="This button can only be moved"
                                         asset={<Icons.DenyIcon />}
                                     >
                                         <span style={{ marginLeft: "auto" }}>
@@ -343,8 +348,7 @@ function UIElementsModal(props: ModalPropsRender) {
                     title="UI Elements"
                     titleVariant="text-lg/bold"
                     titleColor="text-strong"
-                    description="Drag to reorder · Right-Click to open plugin settings"
-                    tooltip="You can configure which buttons you want to hide or change positions, Buttons appear based on enabled plugins."
+                    description="You can configure which buttons you want to hide or change positions, Buttons appear based on enabled plugins."
                     margin="bottom8"
                 />
             }
@@ -392,7 +396,7 @@ function UIElementsModal(props: ModalPropsRender) {
                 {activeTab === "headerbar" && (
                     <Section
                         title="These are the buttons in the header bar and channel toolbar"
-                        icon={Icons.SettingsIcon}
+                        icon={Icons.WindowTopIcon}
                         buttonMap={HeaderBarButtonMap}
                         settings={uiElements.headerBarButtons}
                     />
@@ -401,7 +405,7 @@ function UIElementsModal(props: ModalPropsRender) {
                 {activeTab === "context" && (
                     <Section
                         title="These are buttons added to right-click context menus by plugins"
-                        icon={Icons.ListBulletsIcon}
+                        icon={Icons.MenuIcon}
                         buttonMap={ContextMenuButtonMap}
                         settings={uiElements.contextMenuButtons}
                         tooltipIcon={() => <Icons.WarningIcon color="currentColor" size="refresh_sm" />}

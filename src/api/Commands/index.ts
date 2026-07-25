@@ -46,16 +46,14 @@ export let OptionalMessageOption: CommandOption = OptPlaceholder;
  */
 export let RequiredMessageOption: CommandOption = ReqPlaceholder;
 
-// Discord's command list has random gaps for some reason, which can cause issues while rendering the commands
-// Add this offset to every added command to keep them unique
-let commandIdOffset: number;
+let idCounter = 99;
 
 export const _init = function (cmds: VelocityCommand[]) {
     try {
         BUILT_IN = cmds;
         OptionalMessageOption = cmds.find(c => (c.untranslatedName || c.displayName) === "shrug")!.options![0];
         RequiredMessageOption = cmds.find(c => (c.untranslatedName || c.displayName) === "me")!.options![0];
-        commandIdOffset = Math.abs(BUILT_IN.map(x => Number(x.id)).sort((x, y) => x - y)[0]) - BUILT_IN.length;
+        idCounter = Math.abs(BUILT_IN.map(x => Number(x.id)).sort((x, y) => x - y)[0]) + 1;
     } catch (e) {
         new Logger("CommandsAPI").error("Failed to load CommandsApi", e, " - cmds is", cmds);
     }
@@ -183,9 +181,10 @@ export function prepareOption<O extends CommandOption | VelocityCommand>(opt: O)
     return opt;
 }
 
+const isSubCommandParent = (cmd: VelocityCommand) => cmd.options?.[0]?.type === ApplicationCommandOptionType.SUB_COMMAND;
+const getSubCommandName = (cmd: VelocityCommand, option: CommandOption) => `${cmd.name} ${option.name}`;
+
 // Yes, Discord registers individual commands for each subcommand
-// TODO: This probably doesn't support nested subcommands. If that is ever needed,
-// investigate
 function registerSubCommands(cmd: VelocityCommand, plugin: string) {
     cmd.options?.forEach(o => {
         if (o.type !== ApplicationCommandOptionType.SUB_COMMAND)
@@ -195,9 +194,9 @@ function registerSubCommands(cmd: VelocityCommand, plugin: string) {
             ...o,
             options: o.options !== undefined ? o.options : undefined,
             type: ApplicationCommandType.CHAT_INPUT,
-            name: `${cmd.name} ${o.name}`,
+            name: getSubCommandName(cmd, o),
             id: `${o.name}-${cmd.id}`,
-            displayName: `${cmd.name} ${o.name}`,
+            displayName: getSubCommandName(cmd, o),
             subCommandPath: [{
                 name: o.name,
                 type: o.type,
@@ -224,15 +223,16 @@ export function registerCommand<C extends VelocityCommand>(command: C, plugin: s
     command.isVelocityCommand = true;
     command.untranslatedName ??= command.name;
     command.untranslatedDescription ??= command.description;
-    command.id ??= `-${BUILT_IN.length + commandIdOffset + 1}`;
+    command.id ??= `-${idCounter++}`;
     command.applicationId ??= "-1"; // BUILT_IN;
     command.type ??= ApplicationCommandType.CHAT_INPUT;
     command.inputType ??= ApplicationCommandInputType.BUILT_IN_TEXT;
     command.plugin ||= plugin;
 
     prepareOption(command);
+    commands[command.name] = command;
 
-    if (command.options?.[0]?.type === ApplicationCommandOptionType.SUB_COMMAND) {
+    if (isSubCommandParent(command)) {
         registerSubCommands(command, plugin);
         return;
     }

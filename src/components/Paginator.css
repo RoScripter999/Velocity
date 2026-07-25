@@ -1,87 +1,99 @@
-.vc-paginator {
-    display: flex;
-    align-items: center;
+.vc-paginator-page-control-container {
+    bottom: 0;
+    margin-top: 16px;
+    width: 100%;
+}
+
+.vc-paginator-page-control {
     margin: auto;
-    justify-content: space-between;
+    padding: 4px 0;
 }
 
-.vc-paginator-bubbles {
-    display: flex;
+.vc-paginator-page-button,
+.vc-paginator-page-control {
     align-items: center;
-    justify-content: center;
-    margin: 0 8px;
+    display: flex;
+    width: min-content;
 }
 
-.vc-paginator-bubble {
+.vc-paginator-page-button {
     box-sizing: border-box;
     color: var(--text-strong);
     cursor: pointer;
     font-weight: var(--font-weight-semibold);
-    height: var(--custom-paginator-round-button-size);
+    height: 28px;
     justify-content: center;
-    text-align: center;
     margin: 4px;
-    min-width: var(--custom-paginator-round-button-size);
+    min-width: 28px;
     padding: 6px;
-    border-radius: 14px;
+    white-space: nowrap;
 }
 
-.vc-paginator-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    background: none;
-    padding: 12px;
-    transition: background-color 0.2s ease;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-}
-
-
-.vc-paginator-button:disabled {
-    cursor: not-allowed;
-    opacity: .5;
-}
-
-.vc-paginator-button:hover {
-    color: var(--interactive-text-hover);
+.vc-paginator-page-button:hover {
     background-color: var(--background-mod-normal);
+    color: var(--interactive-text-hover);
 }
 
-.vc-paginator-bubble[data-selected="true"] {
-    color: var(--white);
-    background-color: var(--brand-500)
+.vc-paginator-round-rutton {
+    border-radius: 14px;
+    min-width: 28px;
 }
 
-.vc-paginator-bubble:not([data-selected="true"]):hover {
-    background-color: var(--background-base-lower)
+.vc-paginator-end-button {
+    padding: 0 8px;
+    width: auto;
+}
+
+
+.vc-paginator-end-button:first-child {
+    padding-inline-end: 12px;
+}
+
+.vc-paginator-end-button:last-child {
+    padding-inline-start: 12px;
+}
+
+.vc-paginator-end-button-inner {
+    align-items: center;
+    display: flex;
 }
 
 .vc-paginator-gap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    width: 28px;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    background-color: unset;
-    border: none;
-    border-radius: 4px;
-    color: var(--text-normal);
-    transition: background-color 0.2s ease;
-    font-weight: var(--font-weight-semibold);
-}
-
-.vc-paginator-gap:hover {
-    background-color: var(--background-secondary);
-}
-
-.vc-paginator-gap-input input {
-    width: 40px;
-    height: 28px;
+    color: var(--text-default);
+    margin: 8px 4px;
     text-align: center;
+    width: 28px;
+}
+
+
+.vc-paginator-icon-caret {
+    display: inline-block;
+    height: 1em;
+    width: 1em;
+}
+
+.vc-paginator-icon-caret:first-child {
+    margin-inline-end: 4px;
+}
+
+.vc-paginator-icon-caret:last-child {
+    margin-inline-start: 4px;
+}
+
+.vc-paginator-gap-input {
+    width: 50px;
+}
+
+.vc-paginator-selected,
+.vc-paginator-selected:hover {
+    background-color: var(--brand-500);
+    color: var(--white);
+}
+
+.vc-paginator-gap-input + .vc-paginator-selected {
+    margin-inline-start: 10px;
+}
+
+.vc-paginator-selected + .vc-paginator-gap-input {
+    margin-inline-start: 6px;
 }

@@ -45,5 +45,6 @@ export interface CommandInteraction {
 
 export interface VelocityCommand extends Omit<Command, "execute"> {
     isVelocityCommand?: boolean;
+    rootCommand?: VelocityCommand;
     execute(interaction: CommandInteraction, ctx: CommandContext): Promisable<void | CommandReturnValue>;
 }

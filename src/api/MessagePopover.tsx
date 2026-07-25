@@ -39,13 +39,13 @@ export interface MessagePopoverButtonItem {
 
 export type MessagePopoverButtonFactory = (message: Message) => MessagePopoverButtonItem | null;
 export type MessagePopoverButtonData = {
-    render: MessagePopoverButtonFactory;
+    readonly render: MessagePopoverButtonFactory;
     /**
      * This icon is used only for Settings UI. Your render function must still return an icon,
      * and it can be different from this one.
      */
-    icon: () => IconComponent;
-    required?: boolean;
+    readonly icon: () => IconComponent;
+    readonly required?: boolean;
 };
 
 export const MessagePopoverButtonMap = new Map<string, MessagePopoverButtonData>();
@@ -60,7 +60,7 @@ export function addMessagePopoverButton(
     icon: () => IconComponent,
     required: boolean
 ) {
-    MessagePopoverButtonMap.set(identifier, { render, icon, required });
+    MessagePopoverButtonMap.set(identifier, Object.freeze({ render, icon, required }));
 }
 
 export function removeMessagePopoverButton(identifier: string) {

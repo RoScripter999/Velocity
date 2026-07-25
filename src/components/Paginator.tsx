@@ -18,10 +18,13 @@
 
 import "./Paginator.css";
 
+import { classNameFactory } from "@utils/css";
 import { getIntlMessage } from "@utils/discord";
 import { classes } from "@utils/misc";
+import { filters, findComponentByCodeLazy } from "@webpack";
 import { Icons, Text, TextInput, useMemo, useState } from "@webpack/common";
-import type { ReactNode } from "react";
+import { waitForComponent } from "@webpack/common/internal";
+import type { ButtonHTMLAttributes, ComponentType, ReactNode } from "react";
 
 export interface PaginatorProps {
     currentPage: number;
@@ -36,6 +39,11 @@ export interface PaginatorProps {
     renderPageWrapper?(page: { type: "PAGE"; key: string; targetPage: number; selected: boolean; disabled: boolean; navigateToPage(): void; }, element: ReactNode): ReactNode;
 }
 
+const cl = classNameFactory("vc-paginator-");
+
+const Button = waitForComponent<ComponentType<any> & { Colors: any, Looks: any; Sizes: any; }>("Button", filters.componentByCode(".Type.PULSING_ELLIPSIS,", ".MEDIUM"));
+const InteractiveButton = findComponentByCodeLazy<ButtonHTMLAttributes<any>>("static defaultProps=", "handleKeyPress=");
+
 function GapButton({ pageCount, onJump, disabled }: { pageCount: number; onJump(page: number): void; disabled: boolean; }) {
     const [isOpen, setIsOpen] = useState(false);
     const [value, setValue] = useState<string>("");
@@ -49,13 +57,9 @@ function GapButton({ pageCount, onJump, disabled }: { pageCount: number; onJump(
 
     if (isOpen) {
         return (
-            <div className="vc-paginator-gap-input">
+            <div className={cl("gap-input")}>
                 <TextInput
-                    inputRef={element => {
-                        if (element) {
-                            element.focus();
-                        }
-                    }}
+                    autoFocus={true}
                     type="number"
                     value={value}
                     onChange={setValue}
@@ -80,12 +84,11 @@ function GapButton({ pageCount, onJump, disabled }: { pageCount: number; onJump(
     }
 
     return (
-        <button
-            className="vc-paginator-gap"
+        <InteractiveButton
             onClick={() => setIsOpen(true)}
         >
-            <Text aria-hidden variant="heading-sm/semibold">{"\u2026"}</Text>
-        </button>
+            <Text aria-hidden variant="heading-sm/semibold" className={cl("round-rutton", "page-button", "gap")}>{"\u2026"}</Text>
+        </InteractiveButton>
     );
 }
 
@@ -124,66 +127,80 @@ export function Paginator({ className, currentPage, totalCount, pageSize, onPage
             if (!hideMaxPage) visible.push(max);
         }
 
-        console.error("visiblePages:", visible);
         return visible;
     }, [currentPage, max, maxVisiblePages, hideMaxPage]);
 
     if (max <= 1) return null;
 
     return (
-        <div className={classes("vc-paginator", className)}>
-            <button
-                className="vc-paginator-button"
-                disabled={currentPage === 1}
-                onClick={() => onPageChange(currentPage - 1)}
-            >
-                <Icons.ChevronSmallLeftIcon size="sm" />
-                <Text lineClamp={1} variant="text-md/semibold" color={currentPage === 1 ? "text-muted" : "text-default"}>{getIntlMessage("BACK")}</Text>
-            </button>
-            <div className="vc-paginator-bubbles">
-                {visiblePages.map((value, key) => {
-                    if (value === "gap") {
-                        return (
-                            <GapButton
-                                key={`gap-${key}`}
-                                pageCount={max}
-                                onJump={onPageChange}
-                                disabled={disablePaginationGap}
-                            />
+        <div className={classes("paginator-container", className)}>
+            <div className={cl("page-control-container")}>
+                <nav className={cl("page-control")}>
+                    <Button
+                        className={cl("end-button", "page-button")}
+                        innerClassName={cl("end-button-inner")}
+                        look={Button.Looks.BLANK}
+                        color={Button.Colors.TRANSPARENT}
+                        rel="prev"
+                        disabled={currentPage === 1}
+                        onClick={() => onPageChange(currentPage - 1)}
+                    >
+                        <Icons.ChevronSmallLeftIcon className={cl("icon-caret")} />
+                        <span>{getIntlMessage("BACK")}</span>
+                    </Button>
+
+                    {visiblePages.map((value, key) => {
+                        if (value === "gap") {
+                            return (
+                                <GapButton
+                                    key={`gap-${key}`}
+                                    pageCount={max}
+                                    onJump={onPageChange}
+                                    disabled={disablePaginationGap}
+                                />
+                            );
+                        }
+
+                        const pageButton = (
+                            <InteractiveButton
+                                key={`page-${value}`}
+                                className={cl("round-rutton", "page-button", { selected: currentPage === value })}
+                                onClick={() => onPageChange(Number(value))}
+                                aria-label={`Page ${value}`}
+                                aria-current={currentPage === value ? "page" : void 0}
+                            >
+                                <span>{value}</span>
+                            </InteractiveButton>
                         );
-                    }
 
-                    const bubble = (
-                        <div
-                            key={`page-${value}`}
-                            className="vc-paginator-bubble"
-                            onClick={() => onPageChange(Number(value))}
-                            data-selected={currentPage === value}
-                        >{value}</div>
-                    );
+                        if (renderPageWrapper) {
+                            return renderPageWrapper({
+                                type: "PAGE",
+                                key: String(key),
+                                targetPage: Number(value),
+                                selected: currentPage === value,
+                                disabled: false,
+                                navigateToPage: () => onPageChange(Number(value))
+                            }, pageButton);
+                        }
 
-                    if (renderPageWrapper) {
-                        return renderPageWrapper({
-                            type: "PAGE",
-                            key: String(key),
-                            targetPage: Number(value),
-                            selected: currentPage === value,
-                            disabled: false,
-                            navigateToPage: () => onPageChange(Number(value))
-                        }, bubble);
-                    }
+                        return pageButton;
+                    })}
 
-                    return bubble;
-                })}
+                    <Button
+                        className={cl("end-button", "page-button")}
+                        innerClassName={cl("end-button-inner")}
+                        look={Button.Looks.BLANK}
+                        color={Button.Colors.TRANSPARENT}
+                        rel="next"
+                        disabled={currentPage === max}
+                        onClick={() => onPageChange(currentPage + 1)}
+                    >
+                        <span>{getIntlMessage("PAGINATION_NEXT")}</span>
+                        <Icons.ChevronSmallRightIcon className={cl("icon-caret")} />
+                    </Button>
+                </nav>
             </div>
-            <button
-                className="vc-paginator-button"
-                disabled={currentPage === max}
-                onClick={() => onPageChange(currentPage + 1)}
-            >
-                <Text lineClamp={1} variant="text-md/semibold" color={currentPage === max ? "text-muted" : "text-default"}>{getIntlMessage("PAGINATION_NEXT")}</Text>
-                <Icons.ChevronSmallRightIcon size="sm" />
-            </button>
         </div>
     );
 }

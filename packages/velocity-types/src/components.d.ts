@@ -1,5 +1,5 @@
 import type { Moment } from "moment";
-import type { ButtonHTMLAttributes, ComponentClass, ComponentPropsWithRef, ComponentType, Context, CSSProperties, ElementType, FC, FocusEvent, FunctionComponent, HTMLAttributes, HtmlHTMLAttributes, HTMLProps, JSX, KeyboardEvent, MouseEvent, PointerEvent, PropsWithChildren, ReactNode, Ref, RefObject, SVGProps } from "react";
+import type { ButtonHTMLAttributes, ComponentClass, ComponentPropsWithRef, ComponentType, Context, CSSProperties, ElementType, FC, FocusEvent, FunctionComponent, HTMLAttributes, HTMLElementType, HtmlHTMLAttributes, HTMLProps, JSX, KeyboardEvent, MouseEvent, PointerEvent, PropsWithChildren, ReactNode, Ref, RefObject, SVGProps } from "react";
 import type { Status } from "./common";
 import { TextInputProps } from "./components/TextInput";
 
@@ -198,6 +198,14 @@ export type HelpMessage = ComponentType<{
     /** Hides the {@link HelpMessage} component */
     hidden?: boolean;
 }>;
+
+
+export type HiddenVisually = ComponentType<PropsWithChildren<HTMLAttributes<HTMLElement> & {
+    tag?: HTMLElementType;
+    showOnFocus?: boolean;
+    className?: string;
+}>>;
+
 
 export type Tooltip = ComponentType<{
     text: ReactNode | ComponentType;
@@ -588,19 +596,6 @@ export type TabBar = ComponentType<PropsWithChildren<{
     }>>;
 };
 
-export type MaskedLink = ComponentType<PropsWithChildren<{
-    href: string;
-    rel?: string;
-    target?: string;
-    title?: string,
-    className?: string;
-    tabIndex?: number;
-    onClick?(): void;
-    trusted?: boolean;
-    messageId?: string;
-    channelId?: string;
-}>>;
-
 export interface ScrollerBaseProps {
     className?: string;
     style?: CSSProperties;
@@ -725,7 +720,6 @@ export type SearchBar = ComponentType<{
     onBlur?: (e: FocusEvent) => void;
     onFocus?: (e: FocusEvent) => void;
     autoComplete?: string;
-    /** {@link TextInput} props */
     inputProps?: TextInputProps;
     "aria-label"?: string;
     ref?: Ref<HTMLInputElement>;

@@ -20,7 +20,7 @@ import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { isPluginEnabled, isSettingDisabled, isSettingHidden, plugins } from "@api/PluginManager";
 import { Settings, type ThemeDef, useSettings } from "@api/Settings";
 import { openPluginModal, openSettingsTabModal, PluginsTab, ThemesTab } from "@components/settings";
-import { openUIElementsModal } from "@components/settings/tabs/plugins/UIElements";
+import { hasUIElements, openUIElementsModal } from "@components/settings/tabs/plugins/UIElements";
 import { getIntlMessage } from "@utils/discord";
 import { useAwaiter } from "@utils/react";
 import { wordsFromCamel, wordsToTitle } from "@utils/text";
@@ -485,11 +485,11 @@ export function renderPopout(onClose: () => void) {
                 label="Open Notification Log"
                 action={openNotificationLogModal}
             />
-            <Menu.MenuItem
+            {hasUIElements() && <Menu.MenuItem
                 id="ui_elements"
                 label="Open UIElements Settings"
                 action={openUIElementsModal}
-            />
+            />}
 
             {buildThemeMenu()}
             {buildPluginMenu()}

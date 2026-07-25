@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Settings, useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
@@ -25,6 +24,8 @@ import { IconComponent } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { Clickable, Tooltip, useEffect } from "@webpack/common";
 import type { ComponentType, JSX, MouseEventHandler, ReactNode, RefObject } from "react";
+
+import { Settings, useSettings } from "./Settings";
 
 const logger = new Logger("HeaderBarAPI");
 
@@ -71,14 +72,14 @@ export type HeaderBarButtonFactory = () => JSX.Element | null;
 
 export interface HeaderBarButtonData {
     /** Function that renders the button component */
-    render: HeaderBarButtonFactory;
+    readonly render: HeaderBarButtonFactory;
     /** Icon component used for settings UI display */
-    icon: () => IconComponent;
+    readonly icon: () => IconComponent;
     /** Higher priority buttons appear further right. Default: 0 */
-    priority?: number;
+    readonly priority?: number;
     /** Where to render the button. Default: "headerbar" */
-    location?: "headerbar" | "channeltoolbar";
-    required?: boolean;
+    readonly location?: "headerbar" | "channeltoolbar";
+    readonly required?: boolean;
 }
 
 /**
@@ -170,11 +171,11 @@ const channelToolbarListeners = new Set<() => void>();
  * ), MyIcon);
  */
 export function addHeaderBarButton(identifier: string, render: HeaderBarButtonFactory, icon: () => IconComponent, priority = 0, required = false) {
-    const data = { render, icon, priority, required };
+    const data = Object.freeze({ render, icon, priority, required });
     HeaderBarButtonMap.set(identifier, data);
 
-    if (required && !Settings.uiElements.headerBarButtons[identifier]) {
-        Settings.uiElements.headerBarButtons[identifier] = { enabled: true, order: 0, required: true };
+    if (!required) {
+        Settings.uiElements.headerBarButtons[identifier] = true;
     }
 
     headerBarListeners.forEach(listener => listener());
@@ -208,11 +209,11 @@ export function removeHeaderBarButton(identifier: string) {
  * ), MyIcon);
  */
 export function addChannelToolbarButton(identifier: string, render: HeaderBarButtonFactory, icon: () => IconComponent, priority = 0, required = false) {
-    const data = { render, icon, priority, required };
+    const data = Object.freeze({ render, icon, priority, required });
     ChannelToolbarButtonMap.set(identifier, data);
 
-    if (required && !Settings.uiElements.headerBarButtons[identifier]) {
-        Settings.uiElements.headerBarButtons[identifier] = { enabled: true, order: 0, required: true };
+    if (!required) {
+        Settings.uiElements.headerBarButtons[identifier] = true;
     }
 
     channelToolbarListeners.forEach(listener => listener());
@@ -228,47 +229,28 @@ export function removeChannelToolbarButton(identifier: string) {
     channelToolbarListeners.forEach(listener => listener());
 }
 
-function HeaderBarButtons() {
+function ToolbarButtons({ type }: { type: "header" | "channel"; }) {
     const forceUpdate = useForceUpdater();
     const { uiElements } = useSettings(["uiElements.headerBarButtons.*"]);
 
+    const map = type === "header" ? HeaderBarButtonMap : ChannelToolbarButtonMap;
+
     useEffect(() => {
         const listener = () => forceUpdate();
-        headerBarListeners.add(listener);
-        return () => { headerBarListeners.delete(listener); };
-    }, [forceUpdate]);
+        (type === "header" ? headerBarListeners : channelToolbarListeners).add(listener);
+        return () => {
+            (type === "header" ? headerBarListeners : channelToolbarListeners).delete(listener);
+        };
+    }, [forceUpdate, type]);
 
-    return Array.from(HeaderBarButtonMap)
+    return Array.from(map)
         .filter(([id, data]) => {
-            if (!data.required && uiElements.headerBarButtons[id]?.enabled === false) return false;
+            if (!data.required && uiElements.headerBarButtons[id] === false) return false;
             return true;
         })
         .sort(([, a], [, b]) => (a.priority ?? 0) - (b.priority ?? 0))
         .map(([id, { render: Button }]) => (
-            <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render header bar button: ${id}`, e.error)}>
-                <Button />
-            </ErrorBoundary>
-        ));
-}
-
-function ChannelToolbarButtons() {
-    const forceUpdate = useForceUpdater();
-    const { uiElements } = useSettings(["uiElements.headerBarButtons.*"]);
-
-    useEffect(() => {
-        const listener = () => forceUpdate();
-        channelToolbarListeners.add(listener);
-        return () => { channelToolbarListeners.delete(listener); };
-    }, [forceUpdate]);
-
-    return Array.from(ChannelToolbarButtonMap)
-        .filter(([id, data]) => {
-            if (!data.required && uiElements.headerBarButtons[id]?.enabled === false) return false;
-            return true;
-        })
-        .sort(([, a], [, b]) => (a.priority ?? 0) - (b.priority ?? 0))
-        .map(([id, { render: Button }]) => (
-            <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render channel toolbar button: ${id}`, e.error)}>
+            <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render ${type} button: ${id}`, e.error)}>
                 <Button />
             </ErrorBoundary>
         ));
@@ -276,10 +258,10 @@ function ChannelToolbarButtons() {
 
 /** @internal Injected by HeaderBarAPI patch (do NOT call directly) */
 export function _addHeaderBarButtons() {
-    return [<HeaderBarButtons key="vc-header-bar-buttons" />];
+    return [<ToolbarButtons type="header" key="vc-header-bar-buttons" />];
 }
 
 /** @internal Injected by HeaderBarAPI patch (do NOT call directly) */
 export function _addChannelToolbarButtons(toolbar: ReactNode[]) {
-    toolbar.push(<ChannelToolbarButtons key="vc-channel-toolbar-buttons" />);
+    toolbar.push(<ToolbarButtons type="channel" key="vc-channel-toolbar-buttons" />);
 }

@@ -22,9 +22,7 @@ import type { ReactElement } from "react";
 
 import { Settings } from "./Settings";
 
-export type ContextMenuButtonData = {
-    menus: ContextMenuDef;
-};
+export type ContextMenuButtonData = readonly ContextMenuDef[];
 
 export type ContextMenuDef =
     | NavContextMenuPatchCallback
@@ -71,19 +69,20 @@ export function addContextMenuPatch(navId: string | Array<string>, patch: NavCon
             contextMenuPatches = new Set();
             navPatches.set(id, contextMenuPatches);
         }
-        contextMenuPatches.add({ patch, pluginName, required });
+        contextMenuPatches.add(Object.freeze({ patch, pluginName, required }));
     }
     if (pluginName) {
-        const existing: any = ContextMenuButtonMap.get(pluginName);
+        const existing = ContextMenuButtonMap.get(pluginName) ?? [];
+        const patchDef: ContextMenuDef = required ? Object.freeze({ render: patch, required }) : patch;
 
-        ContextMenuButtonMap.set(pluginName, {
-            menus: {
-                ...(existing)?.menus ?? {},
-                [navId.toString()]: {
-                    required
-                }
-            }
+        const alreadyExists = existing.some(item => {
+            const cb = typeof item === "function" ? item : item.render;
+            return cb === patch;
         });
+
+        if (!alreadyExists) {
+            ContextMenuButtonMap.set(pluginName, Object.freeze([...existing, patchDef]));
+        }
     }
 }
 
@@ -112,7 +111,20 @@ export function removeContextMenuPatch<T extends string | Array<string>>(navId: 
                 const deleted = patches.delete(entry);
                 if (entry.pluginName) {
                     const stillExists = [...navPatches.values()].some(s => [...s].some(e => e.pluginName === entry.pluginName));
-                    if (!stillExists) ContextMenuButtonMap.delete(entry.pluginName);
+                    if (!stillExists) {
+                        ContextMenuButtonMap.delete(entry.pluginName);
+                    } else {
+                        const existing = ContextMenuButtonMap.get(entry.pluginName);
+                        if (existing) {
+                            const filtered = existing.filter(item => (typeof item === "function" ? item : item.render) !== patch);
+
+                            if (filtered.length === 0) {
+                                ContextMenuButtonMap.delete(entry.pluginName);
+                            } else {
+                                ContextMenuButtonMap.set(entry.pluginName, Object.freeze(filtered));
+                            }
+                        }
+                    }
                 }
                 return deleted;
             }
@@ -190,15 +202,17 @@ export function _usePatchContextMenu(props: ContextMenuProps) {
     if (!Array.isArray(props.children)) props.children = [props.children];
 
     if (contextMenuPatches) {
-        for (const { patch, pluginName, required } of contextMenuPatches) {
-            if (pluginName) {
-                const entry = ContextMenuButtonMap.get(pluginName);
-                if (entry && !required && Settings.uiElements.contextMenuButtons[pluginName]?.enabled === false) continue;
-            }
-            try {
-                patch(props.children, ...props.contextMenuAPIArguments);
-            } catch (err) {
-                ContextMenuLogger.error(`Patch for ${props.navId} errored,`, err);
+        if (contextMenuPatches) {
+            for (const { patch, pluginName } of contextMenuPatches) {
+                if (pluginName) {
+                    const enabled = Settings.uiElements.contextMenuButtons[pluginName];
+                    if (enabled === false) continue;
+                }
+                try {
+                    patch(props.children, ...props.contextMenuAPIArguments);
+                } catch (err) {
+                    ContextMenuLogger.error(`Patch for ${props.navId} errored,`, err);
+                }
             }
         }
     }

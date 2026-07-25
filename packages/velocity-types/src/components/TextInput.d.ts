@@ -8,6 +8,7 @@ export type TextInputProps = PropsWithChildren<(Field extends ComponentType<infe
     onChange?(value: string, name?: string): void;
 
     placeholder?: string;
+    autoFocus?: boolean;
     type?: "text" | "password" | "email" | "number";
     editable?: boolean;
     disabled?: boolean;

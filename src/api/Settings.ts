@@ -29,12 +29,11 @@ const logger = new Logger("Settings");
 export interface SettingsPluginUiElement {
     enabled: boolean;
     /** Position index used to persist drag-and-drop order */
-    order: number;
-    required: boolean;
+    order?: number;
 }
-export type SettingsPluginUiElements = {
-    /** id will be whatever id the element was registered with. Usually, but not always, the plugin name */
-    [id: string]: SettingsPluginUiElement;
+
+export type SettingsPluginUiElements<T extends boolean = false> = {
+    [id: string]: T extends true ? SettingsPluginUiElement : boolean;
 };
 
 export type ThemeActivationMode = "always" | "light" | "dark";
@@ -86,11 +85,11 @@ export interface Settings {
     };
 
     uiElements: {
-        messagePopoverButtons: SettingsPluginUiElements;
-        chatBarButtons: SettingsPluginUiElements;
+        messagePopoverButtons: SettingsPluginUiElements<true>;
+        chatBarButtons: SettingsPluginUiElements<true>;
         contextMenuButtons: SettingsPluginUiElements;
         headerBarButtons: SettingsPluginUiElements;
-    },
+    };
 
     velocityStyles: {
         switchRedesign: false | "redesigned";

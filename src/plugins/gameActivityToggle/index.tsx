@@ -25,13 +25,13 @@ import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { ConnectedAccountsStore, Icons, Menu, Popout, useRef, useState, useStateFromStores } from "@webpack/common";
+import { ConnectedAccountsStore, HiddenVisually, Icons, Menu, Popout, React, useId, useRef, useState, useStateFromStores } from "@webpack/common";
 
 import managedStyle from "./style.css?managed";
 
 // Same as StreamCrasher
 const Button = findComponentByCodeLazy(".GREEN,positionKeyStemOverride:");
-const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron", "hasColorGlow");
+const Classes = findCssClassesLazy("audioButtonWithMenu", "audioButtonParent", "popoutOpen", "buttonChevron", "buttonChevronIcon", "hasColorGlow");
 
 const ShowCurrentGame = getUserSettingLazy<boolean>("status", "showCurrentGame")!;
 const ConnectedAccountActions = findByPropsLazy("setShowActivity");
@@ -71,11 +71,13 @@ function ActivityToggleIcon(showCurrentGame?: boolean, oldIcon?: boolean) {
     ));
 }
 
-const ChevronIcon = ({ showCurrentGame, isShown }) => (
-    <Icon width="15" height="15" style={{ transform: isShown ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
-        <path fill={!showCurrentGame ? "var(--icon-voice-muted)" : "currentColor"} d="M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z" />
-    </Icon>
-);
+const ChevronIcon = ({ showCurrentGame, isShown }) => {
+    const IconComponent = isShown ? Icons.ChevronSmallUpIcon : Icons.ChevronSmallDownIcon;
+    const iconColor = showCurrentGame ? "currentColor" : "var(--icon-voice-muted)";
+
+    return <IconComponent size="xxs" className={Classes.buttonChevronIcon} color={iconColor} />;
+};
+
 
 function ActivityContextMenu({ closePopout }) {
     const showCurrentGame = ShowCurrentGame.useSetting();
@@ -118,6 +120,8 @@ function ActivityContextMenu({ closePopout }) {
 
 function GameActivityToggleButton(props: { nameplate?: any; }) {
     const buttonRef = useRef<HTMLDivElement | null>(null);
+    const id = useId();
+
     const showCurrentGame = ShowCurrentGame.useSetting();
     const { oldIcon } = settings.use(["oldIcon"]);
 
@@ -148,6 +152,9 @@ function GameActivityToggleButton(props: { nameplate?: any; }) {
                         tooltipShouldShow={!isShown}
                         tooltipText={showCurrentGame ? "Disable Game Activity" : "Enable Game Activity"}
                     />
+                    {!showCurrentGame && <HiddenVisually id={id}>
+                        Disable Game Activity
+                    </HiddenVisually>}
                     <Button
                         aria-label="Activity Options"
                         className={classes(Classes.buttonChevron, isShown && Classes.popoutOpen)}

@@ -22,12 +22,11 @@ import { BuildPluginSettings } from "@plugins/velocityToolbox/menu";
 import { Menu } from "@webpack/common";
 
 export function CrasherContextMenu({ closePopout }) {
-    const { isEnabled, keybindEnabled, crashMode } = settings.use(["isEnabled", "keybindEnabled", "crashMode", "imageUrl"]);
+    settings.use(["isEnabled", "keybindEnabled", "crashMode", "imageUrl"]);
 
     return (
         <Menu.Menu navId="stream-crasher-context" onClose={closePopout}>
             {BuildPluginSettings(settings, true, [-3], ["buttonLocation"])}
-
         </Menu.Menu>
     );
 }

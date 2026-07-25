@@ -94,17 +94,17 @@ export interface ChatBarProps {
 
 export type ChatBarButtonFactory = (props: ChatBarProps & { isMainChat: boolean; isAnyChat: boolean; }) => JSX.Element | null;
 export type ChatBarButtonData = {
-    render: ChatBarButtonFactory;
+    readonly render: ChatBarButtonFactory;
     /**
      * This icon is used only for Settings UI. Your render function must still render an icon,
      * and it can be different from this one.
      */
-    icon: () => IconComponent;
+    readonly icon: () => IconComponent;
     /**
      * Only set to true only if this button is strictly critical for your plugin,
      * Do not set this to true if the feature or method can be accessed via alternative ways (e.g., settings, commands, menus).
      */
-    required?: boolean;
+    readonly required?: boolean;
 };
 
 /**
@@ -163,7 +163,7 @@ export function _injectButtons(buttons: ReactNode[], props: ChatBarProps) {
  * The icon argument is used only for Settings UI. Your render function must still render an icon,
  * and it can be different from this one.
  */
-export const addChatBarButton = (id: string, render: ChatBarButtonFactory, icon: () => IconComponent, required: boolean) => ChatBarButtonMap.set(id, { render, icon, required });
+export const addChatBarButton = (id: string, render: ChatBarButtonFactory, icon: () => IconComponent, required: boolean) => ChatBarButtonMap.set(id, Object.freeze({ render, icon, required }));
 export const removeChatBarButton = (id: string) => ChatBarButtonMap.delete(id);
 
 export interface ChatBarButtonProps {
