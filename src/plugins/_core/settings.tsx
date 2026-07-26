@@ -163,7 +163,7 @@ export default definePlugin({
                                 type: LayoutType.CATEGORY,
                                 useTitle: () => "Themes",
                                 buildLayout: () => [
-                                    {
+                                    !IS_USERSCRIPT && {
                                         key: "themes_lib_panel_nav",
                                         type: LayoutType.NESTED_PANEL_NAVIGATOR,
                                         useTitle: () => "Theme Library",
@@ -198,7 +198,7 @@ export default definePlugin({
                                         type: LayoutType.CUSTOM,
                                         Component: ThemesTab
                                     }
-                                ]
+                                ].filter(isTruthy)
                             }
                         ]
                     }
