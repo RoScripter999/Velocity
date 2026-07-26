@@ -90,7 +90,11 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
                     id: String(opt.value),
                     value: opt.value,
                     label: opt.label,
-                    disabled: opt.disabled
+                    disabled: opt.disabled,
+                    leading: opt.icon ? {
+                        type: "avatar",
+                        src: opt.icon
+                    } : undefined
                 })}
                 {...setting.componentProps}
             />}

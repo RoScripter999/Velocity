@@ -20,11 +20,12 @@ import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
 import { generateId, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import definePlugin, { StartAt } from "@utils/types";
-import type { MessageAttachment } from "@velocity-types";
-import { DraftStore, DraftType, Icons, UploadStore, UserStore, useStateFromStores } from "@webpack/common";
+import type { CloudUpload, MessageAttachment } from "@velocity-types";
+import { DraftStore, DraftType, Icons, UploadAttachmentStore, UploadStore, UserStore, useStateFromStores } from "@webpack/common";
 
-const getDraft = (channelId: string) =>
-    DraftStore.getDraft(channelId, DraftType.ChannelMessage);
+const objectURLMap = new Map<string, string[]>();
+
+const getDraft = (channelId: string) => DraftStore.getDraft(channelId, DraftType.ChannelMessage);
 
 const getImageBox = (url: string): Promise<{ width: number, height: number; } | null> =>
     new Promise(res => {
@@ -36,35 +37,35 @@ const getImageBox = (url: string): Promise<{ width: number, height: number; } | 
 
 const getAttachments = async (channelId: string) =>
     await Promise.all(
-        UploadStore.getFiles(channelId).map(async upload => {
-            const { isImage, filename, spoiler, file } = upload;
+        UploadAttachmentStore.getUploads(channelId, DraftType.ChannelMessage)
+            .map(async (upload: CloudUpload) => {
+                const { isImage, filename, spoiler, item: { file } } = upload;
 
-            if (!file) return null;
+                // FIXME: revoke object url to fix memory leak
+                const url = URL.createObjectURL(file);
+                const attachment: MessageAttachment = {
+                    id: generateId(),
+                    filename: spoiler ? "SPOILER_" + filename : filename,
+                    // weird eh? if i give it the normal content type the preview doenst work
+                    content_type: undefined,
+                    size: upload.getSize(),
+                    spoiler,
+                    // discord adds query params to the url, so we need to add a hash to prevent that
+                    url: url + "#",
+                    proxy_url: url + "#"
+                };
 
-            const url = URL.createObjectURL(file);
-
-            const attachment: MessageAttachment = {
-                id: generateId(),
-                filename: spoiler ? "SPOILER_" + filename : filename,
-                content_type: undefined,
-                size: upload.size ?? 0,
-                spoiler: !!spoiler,
-                url: url + "#",
-                proxy_url: url + "#"
-            };
-
-
-            if (isImage) {
-                const box = await getImageBox(url);
-                if (box) {
-                    attachment.width = box.width;
-                    attachment.height = box.height;
+                if (isImage) {
+                    const box = await getImageBox(url);
+                    if (box) {
+                        attachment.width = box.width;
+                        attachment.height = box.height;
+                    }
                 }
-            }
 
-            return attachment;
-        })
-    ).then(list => list.filter(Boolean) as MessageAttachment[]);
+                return { attachment, objectURL: url };
+            })
+    );
 
 const PreviewButton: ChatBarButtonFactory = ({ isMainChat, isEmpty, type: { attachments }, channel }) => {
     const channelId = channel.id;
@@ -81,12 +82,20 @@ const PreviewButton: ChatBarButtonFactory = ({ isMainChat, isEmpty, type: { atta
     return (
         <ChatBarButton
             tooltip="Preview Message"
-            onClick={async () =>
-                sendBotMessage(channelId, {
-                    content: getDraft(channelId),
-                    author: UserStore.getCurrentUser(),
-                    attachments: hasAttachments ? await getAttachments(channelId) : undefined
-                })}
+            onClick={async () => {
+                const attachments = hasAttachments ? await getAttachments(channelId) : undefined;
+                const message = sendBotMessage(
+                    channelId,
+                    {
+                        content: getDraft(channelId),
+                        author: UserStore.getCurrentUser(),
+                        attachments: attachments?.map(a => a.attachment)
+                    }
+                );
+
+                if (attachments)
+                    objectURLMap.set(message.id, attachments.map(a => a.objectURL));
+            }}
             buttonProps={{
                 style: {
                     translate: "0 2px"
@@ -109,6 +118,16 @@ export default definePlugin({
         icon: () => Icons.EyeIcon,
         required: true,
         render: PreviewButton
+    },
+
+    flux: {
+        MESSAGE_DELETE({ id: messageId }) {
+            const objectURLs = objectURLMap.get(messageId);
+            if (objectURLs) {
+                objectURLs.forEach(url => URL.revokeObjectURL(url));
+                objectURLMap.delete(messageId);
+            }
+        }
     }
 });
 

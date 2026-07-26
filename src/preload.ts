@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,47 +17,25 @@
 */
 
 import { debounce } from "@shared/debounce";
-import { contextBridge, webFrame } from "electron";
-import { readFileSync, watch } from "fs";
-import { join } from "path";
+import { IpcEvents } from "@shared/IpcEvents";
+import { contextBridge, webFrame } from "electron/renderer";
 
-import VelocityNative from "./VelocityNative";
+import VelocityNative, { invoke, sendSync } from "./VelocityNative";
 
 contextBridge.exposeInMainWorld("VelocityNative", VelocityNative);
 
 // Discord
 if (location.protocol !== "data:") {
-    // #region cssInsert
-    const rendererCss = join(__dirname, IS_DISCORD_DESKTOP ? "renderer.css" : "velocityDesktopRenderer.css");
-    const style = document.createElement("style");
-    style.id = "velocity-css-core";
-    style.textContent = readFileSync(rendererCss, "utf-8");
-
-    if (document.readyState === "complete") {
-        document.documentElement.appendChild(style);
-    } else {
-        document.addEventListener("DOMContentLoaded", () => document.documentElement.appendChild(style), {
-            once: true
-        });
-    }
-
-    if (IS_DEV) {
-        // persistent means keep process running if watcher is the only thing still running
-        // which we obviously don't want
-        watch(rendererCss, { persistent: false }, () => {
-            document.getElementById("velocity-css-core")!.textContent = readFileSync(rendererCss, "utf-8");
-        });
-    }
-    // #endregion
+    invoke(IpcEvents.INIT_FILE_WATCHERS);
 
     if (IS_DISCORD_DESKTOP) {
-        webFrame.executeJavaScript(readFileSync(join(__dirname, "renderer.js"), "utf-8"));
+        webFrame.executeJavaScript(sendSync<string>(IpcEvents.PRELOAD_GET_RENDERER_JS));
+        // Not supported in sandboxed preload scripts but Discord doesn't support it either so who cares
         require(process.env.DISCORD_PRELOAD!);
     }
 } // Monaco popout
 else {
     contextBridge.exposeInMainWorld("setCss", debounce(VelocityNative.quickCss.set));
     contextBridge.exposeInMainWorld("getCurrentCss", VelocityNative.quickCss.get);
-    // shrug
-    contextBridge.exposeInMainWorld("getTheme", () => "vs-dark");
+    contextBridge.exposeInMainWorld("getTheme", VelocityNative.quickCss.getEditorTheme);
 }

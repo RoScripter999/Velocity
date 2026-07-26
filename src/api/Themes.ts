@@ -25,6 +25,7 @@ import { coreStyleRootNode, managedStyleRootNode, userStyleRootNode, velocityRoo
 
 let style: HTMLStyleElement;
 let themesStyle: HTMLStyleElement;
+const themeUrls = new Map<string, string>();
 
 function shouldApplyTheme(mode: ThemeActivationMode, activeTheme?: "light" | "dark") {
     if (mode === "always") return true;
@@ -65,6 +66,7 @@ async function rebuildThemes() {
         : ThemeStore.theme === "light" ? "light" : "dark";
 
     const links = new Set<string>();
+    const newThemeUrls = new Map<string, string>();
 
     if (onlineThemesEnabled) {
         for (const rawLink of onlineThemes) {
@@ -90,8 +92,14 @@ async function rebuildThemes() {
             try {
                 const themeData = await VelocityNative.themes.getThemeData(theme.name);
                 if (!themeData) throw new Error();
+
+                const oldUrl = themeUrls.get(theme.name);
+                if (oldUrl) URL.revokeObjectURL(oldUrl);
+
                 const blob = new Blob([themeData], { type: "text/css" });
-                links.add(URL.createObjectURL(blob));
+                const url = URL.createObjectURL(blob);
+                newThemeUrls.set(theme.name, url);
+                links.add(url);
             } catch {
                 missing.add(theme.name);
             }
@@ -114,6 +122,16 @@ async function rebuildThemes() {
 
             links.add(`velocity:///themes/${theme.name}?v=${themeVersions.get(theme.name)}`);
         }
+    }
+
+    for (const [name, url] of themeUrls) {
+        if (!newThemeUrls.has(name)) {
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    if (Object.keys(newThemeUrls).length > 0) {
+        Object.assign(themeUrls, newThemeUrls);
     }
 
     if (missing.size > 0) {

@@ -24,7 +24,7 @@ import { IpcEvents } from "@shared/IpcEvents";
 import type { IpcRes } from "@utils/types";
 import { ipcRenderer } from "electron";
 
-function invoke<T = any>(event: IpcEvents, ...args: any[]) {
+export function invoke<T = any>(event: IpcEvents, ...args: any[]) {
     return ipcRenderer.invoke(event, ...args) as Promise<T>;
 }
 

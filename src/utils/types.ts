@@ -315,6 +315,7 @@ export interface PluginSettingSelectDef extends PluginSettingDefCommon {
 export interface PluginSettingSelectOption {
     label: string;
     value: string | number | boolean;
+    icon?: string;
     default?: boolean;
 }
 

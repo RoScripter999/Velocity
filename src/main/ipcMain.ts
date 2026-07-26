@@ -22,16 +22,17 @@ import "./settings";
 
 import { debounce } from "@shared/debounce";
 import { IpcEvents } from "@shared/IpcEvents";
-import { BrowserWindow, ipcMain, shell, systemPreferences } from "electron";
+import { BrowserWindow, ipcMain, nativeTheme, shell, systemPreferences } from "electron";
 import monacoHtml from "file://monacoWin.html?minify&base64";
 import { FSWatcher, mkdirSync, readFileSync, unlinkSync, watch, writeFileSync } from "fs";
 import { open, readdir, readFile } from "fs/promises";
 import { release } from "os";
-import { join, normalize } from "path";
+import { join } from "path";
 
 import { registerCspIpcHandlers } from "./csp/manager";
 import { getThemeInfo, stripBOM, type UserThemeHeader } from "./themes";
-import { ALLOWED_PROTOCOLS, QUICKCSS_PATH, SETTINGS_DIR, THEMES_DIR } from "./utils/constants";
+import { ALLOWED_PROTOCOLS, QUICK_CSS_PATH, SETTINGS_DIR, THEMES_DIR } from "./utils/constants";
+import { ensureSafePath } from "./utils/ensureSafePath";
 import { makeLinksOpenExternally } from "./utils/externalLinks";
 
 const RENDERER_CSS_PATH = join(__dirname, "renderer.css");
@@ -40,16 +41,9 @@ mkdirSync(THEMES_DIR, { recursive: true });
 
 registerCspIpcHandlers();
 
-export function ensureSafePath(basePath: string, path: string) {
-    const normalizedBasePath = normalize(basePath + "/");
-    const newPath = join(basePath, path);
-    const normalizedPath = normalize(newPath);
-    return normalizedPath.startsWith(normalizedBasePath) ? normalizedPath : null;
-}
-
 async function readCss() {
     try {
-        return await readFile(QUICKCSS_PATH, "utf-8");
+        return await readFile(QUICK_CSS_PATH, "utf-8");
     } catch {
         return "";
     }
@@ -80,7 +74,7 @@ function getThemeData(fileName: string) {
     return readFile(safePath, "utf-8");
 }
 
-ipcMain.handle(IpcEvents.OPEN_QUICKCSS, () => shell.openPath(QUICKCSS_PATH));
+ipcMain.handle(IpcEvents.OPEN_QUICKCSS, () => shell.openPath(QUICK_CSS_PATH));
 
 ipcMain.handle(IpcEvents.OPEN_EXTERNAL, (_, url) => {
     try {
@@ -91,20 +85,28 @@ ipcMain.handle(IpcEvents.OPEN_EXTERNAL, (_, url) => {
     if (!ALLOWED_PROTOCOLS.includes(protocol))
         throw "Disallowed protocol.";
 
-    shell.openExternal(url);
+    shell.openExternal(url)
+        .catch(err => console.error("[Velocity] Failed to open external link", url, err));
 });
 
 ipcMain.handle(IpcEvents.GET_QUICK_CSS, () => readCss());
 ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) =>
-    writeFileSync(QUICKCSS_PATH, css)
+    writeFileSync(QUICK_CSS_PATH, css)
 );
 
 ipcMain.handle(IpcEvents.GET_THEMES_LIST, () => listThemes());
 ipcMain.handle(IpcEvents.GET_THEME_DATA, (_, fileName) => getThemeData(fileName));
-ipcMain.handle(IpcEvents.GET_THEME_SYSTEM_VALUES, () => ({
-    // win & mac only
-    "os-accent-color": `#${systemPreferences.getAccentColor?.() || ""}`
-}));
+ipcMain.handle(IpcEvents.GET_THEME_SYSTEM_VALUES, () => {
+    let accentColor = systemPreferences.getAccentColor?.() ?? "";
+
+    if (accentColor.length && accentColor[0] !== "#") {
+        accentColor = `#${accentColor}`;
+    }
+
+    return {
+        "os-accent-color": accentColor
+    };
+});
 
 ipcMain.handle(IpcEvents.GET_VELOCITY_THEMES, async () => {
     const res = await fetch("https://api.github.com/repos/RoScripter999/Velocity/releases/latest");
@@ -134,25 +136,43 @@ ipcMain.handle(IpcEvents.OPEN_THEMES_FOLDER, (_, fileName?: string) =>
 );
 ipcMain.handle(IpcEvents.OPEN_SETTINGS_FOLDER, () => shell.openPath(SETTINGS_DIR));
 
-export function initIpc(mainWindow: BrowserWindow) {
-    let quickCssWatcher: FSWatcher | undefined;
+let fsWatchers = [] as FSWatcher[];
 
-    open(QUICKCSS_PATH, "a+").then(fd => {
+ipcMain.handle(IpcEvents.INIT_FILE_WATCHERS, ({ sender }) => {
+    fsWatchers.forEach(w => w.close());
+
+    let quickCssWatcher: FSWatcher | undefined;
+    let rendererCssWatcher: FSWatcher | undefined;
+
+    open(QUICK_CSS_PATH, "a+").then(fd => {
         fd.close();
-        quickCssWatcher = watch(QUICKCSS_PATH, { persistent: false }, debounce(async () => {
-            mainWindow.webContents.postMessage(IpcEvents.QUICK_CSS_UPDATE, await readCss());
+        quickCssWatcher = watch(QUICK_CSS_PATH, { persistent: false }, debounce(async () => {
+            sender.postMessage(IpcEvents.QUICK_CSS_UPDATE, await readCss());
         }, 50));
     }).catch(() => { });
 
     const themesWatcher = watch(THEMES_DIR, { persistent: false }, debounce(() => {
-        mainWindow.webContents.postMessage(IpcEvents.THEME_UPDATE, void 0);
+        sender.postMessage(IpcEvents.THEME_UPDATE, void 0);
     }));
 
-    mainWindow.once("closed", () => {
+    if (IS_DEV) {
+        rendererCssWatcher = watch(RENDERER_CSS_PATH, { persistent: false }, async () => {
+            sender.postMessage(IpcEvents.RENDERER_CSS_UPDATE, await readFile(RENDERER_CSS_PATH, "utf-8"));
+        });
+    }
+    fsWatchers = [quickCssWatcher, themesWatcher, rendererCssWatcher].filter(Boolean) as FSWatcher[];
+
+    sender.once("destroyed", () => {
         quickCssWatcher?.close();
         themesWatcher.close();
+        rendererCssWatcher?.close();
+        fsWatchers = [];
     });
-}
+});
+
+ipcMain.on(IpcEvents.GET_MONACO_THEME, e => {
+    e.returnValue = nativeTheme.shouldUseDarkColors ? "vs-dark" : "vs-light";
+});
 
 ipcMain.handle(IpcEvents.OPEN_MONACO_EDITOR, async () => {
     const title = "Velocity QuickCSS Editor";
@@ -166,6 +186,7 @@ ipcMain.handle(IpcEvents.OPEN_MONACO_EDITOR, async () => {
         title,
         autoHideMenuBar: true,
         darkTheme: true,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#1e1e1e" : "white",
         webPreferences: {
             preload: join(__dirname, IS_DISCORD_DESKTOP ? "preload.js" : "velocityDesktopPreload.js"),
             contextIsolation: true,

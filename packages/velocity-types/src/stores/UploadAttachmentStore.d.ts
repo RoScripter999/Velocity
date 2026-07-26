@@ -1,32 +1,11 @@
-import { FluxStore } from "..";
-
-export namespace UploadAttachmentStore {
-    export interface Upload {
-        id: string;
-        filename: string;
-        description?: string;
-        spoiler: boolean;
-        isThumbnail?: boolean;
-        isImage?: boolean;
-        isVideo?: boolean;
-        mimeType?: string;
-        status?: string;
-        uploadedFilename?: string;
-        item: {
-            file: File;
-            platform?: number;
-            origin?: string;
-        };
-        upload(): void;
-        removeFromMsgDraft(): void;
-    }
-}
+import { CloudUpload, FluxStore } from "..";
+import { DraftType } from "../../enums";
 
 export class UploadAttachmentStore extends FluxStore {
-    getFirstUpload(channelId: string, draftType: number): UploadAttachmentStore.Upload | null;
-    hasAdditionalUploads(channelId: string, draftType: number): boolean;
-    getUploads(channelId: string, draftType: number): UploadAttachmentStore.Upload[];
-    getUploadCount(channelId: string, draftType: number): number;
-    getUpload(channelId: string, uploadId: string, draftType: number): UploadAttachmentStore.Upload | undefined;
-    findUpload(channelId: string, draftType: number, predicate: (upload: UploadAttachmentStore.Upload) => boolean): UploadAttachmentStore.Upload | undefined;
+    getFirstUpload(channelId: string, draftType: DraftType): CloudUpload | null;
+    hasAdditionalUploads(channelId: string, draftType: DraftType): boolean;
+    getUploads(channelId: string, draftType: DraftType): CloudUpload[];
+    getUploadCount(channelId: string, draftType: DraftType): number;
+    getUpload(channelId: string, uploadId: string, draftType: DraftType): CloudUpload;
+    findUpload(channelId: string, draftType: DraftType, predicate: (upload: CloudUpload) => boolean): CloudUpload | undefined;
 }

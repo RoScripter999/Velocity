@@ -18,37 +18,31 @@
 
 import { useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
-import { Flex } from "@components/Flex";
-import { Margins } from "@components/margins";
 import { SectionHeader, SettingsTab } from "@components/settings";
 import { Switch } from "@components/Switch";
-import { classes } from "@utils/misc";
 import { findByCodeLazy } from "@webpack";
-import { Icons, Select, Text } from "@webpack/common";
+import { Select } from "@webpack/common";
 
-const experimentActions = findByCodeLazy("EXPERIMENT_OVERRIDE_BUCKET", "experimentId:", "experimentBucket:");
+const ExperimentOverride = findByCodeLazy("EXPERIMENT_OVERRIDE_BUCKET", "experimentId:", "experimentBucket:");
 
-const THEME_SWITCHES = () => [
+const THEME_SWITCHES = [
     {
         key: "manaToggleInputs",
         title: "Mana Toggle Inputs",
         description: "Enable the new mana toggle input components",
-        experiment: { type: "apex", name: "2025-09-mana-toggle-inputs" },
-        icon: Icons.ScienceIcon
+        experiment: { type: "apex", name: "2025-09-mana-toggle-inputs" }
     },
     {
         key: "manaTextInputs",
         title: "Mana Text Inputs",
         description: "Enable the new mana text input components",
-        experiment: { type: "apex", name: "2025-09-mana-text-inputs" },
-        icon: Icons.TextIcon
+        experiment: { type: "apex", name: "2025-09-mana-text-inputs" }
     },
     {
         key: "manaContextMenu",
         title: "Mana Context Menu",
         description: "Enable the new mana context menu redesign",
-        experiment: { type: "apex", name: "2025-11-mana-context-menu" },
-        icon: Icons.MenuIcon
+        experiment: { type: "apex", name: "2025-11-mana-context-menu" }
     }
 ];
 
@@ -57,8 +51,7 @@ export function VelocityThemesTab() {
 
     const handleSwitchChange = (key: string, val: boolean, experiment: any) => {
         velocityStyles[key] = val;
-        if (experiment)
-            experimentActions(experiment.type, experiment.name, val ? 1 : -1);
+        if (experiment) ExperimentOverride(experiment.type, experiment.name, val ? 1 : -1);
     };
 
     return (
@@ -66,52 +59,47 @@ export function VelocityThemesTab() {
             <SectionHeader
                 title="Velocity Themes"
                 titleVariant="heading-md/normal"
-                tooltip="Some themes are powered by Discord experiments"
-                description="Configure your discord UI designs with pre-built Velocity themes."
+                tooltip="Themes that are premade and built into the client."
+                description="Configure your discord UI designs."
                 descriptionColor="text-default"
                 margin="bottom16"
             />
 
-            <Card className="vc-settings-card">
-                <SectionHeader title="Switch Redesign" margin="bottom8" />
-                <Select
-                    options={[
-                        { label: "Built-in", value: false },
-                        { label: "Redesigned", value: "redesigned" }
-                    ]}
-                    select={value => { velocityStyles.switchRedesign = value; }}
-                    isSelected={value => value === velocityStyles.switchRedesign}
-                    serialize={String}
-                />
-                {velocityStyles.switchRedesign === "redesigned" && (
-                    <>
-                        <Text className={classes(Margins.top16, Margins.bottom8)} variant="text-sm/semibold" color="text-muted">Additional Setting</Text>
+            <div style={{ marginBottom: "1.5em" }}>
+                <Card className="vc-settings-card">
+                    <Select
+                        label="Switch Redesign"
+                        description="Enable the new mana base switch"
+                        layout="horizontal"
+                        options={[
+                            { label: "Built-in", value: false },
+                            { label: "Redesigned", value: "redesigned" }
+                        ]}
+                        select={value => { velocityStyles.switchRedesign = value; }}
+                        isSelected={value => value === velocityStyles.switchRedesign}
+                        serialize={String}
+                    />
+                </Card>
+
+                {velocityStyles.switchRedesign === "redesigned" &&
+                    <Card className="vc-settings-card">
                         <Switch
                             checked={velocityStyles.showRedesignedIcon ?? true}
                             onChange={val => { velocityStyles.showRedesignedIcon = val; }}
                             title="Show checkmark icon"
                             description="Show a litle icon in the middle of the thumb"
                         />
-                    </>
-                )}
-            </Card>
-
-            <Text className={classes(Margins.top16, Margins.bottom8)} variant="text-sm/semibold" color="text-subtle">Switches have diffrent sizes so they might look weird on this page!</Text>
-            {THEME_SWITCHES().map(theme => (
+                    </Card>
+                }
+            </div>
+            {THEME_SWITCHES.map(theme => (
                 <Card key={theme.key} className="vc-settings-card">
-                    <Flex alignItems="center" gap={12}>
-                        <SectionHeader
-                            icon={theme.icon}
-                            title={theme.title}
-                            description={theme.description}
-                            layout="horizontal"
-                            style={{ flex: 1 }}
-                        />
-                        <Switch
-                            checked={velocityStyles[theme.key] ?? false}
-                            onChange={val => handleSwitchChange(theme.key, val, theme.experiment)}
-                        />
-                    </Flex>
+                    <Switch
+                        title={theme.title}
+                        description={theme.description}
+                        checked={velocityStyles[theme.key] ?? false}
+                        onChange={val => handleSwitchChange(theme.key, val, theme.experiment)}
+                    />
                 </Card>
             ))}
         </SettingsTab>

@@ -21,7 +21,7 @@ import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { useTimer } from "@utils/react";
-import { formatDuration } from "@utils/text";
+import { formatDurationVerbose } from "@utils/text";
 import definePlugin, { OptionType } from "@utils/types";
 import { SelectedChannelStore, Toasts, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
@@ -122,7 +122,7 @@ export default definePlugin({
         }, [userId, channelId]);
 
         return <p style={{ margin: 0, fontFamily: "var(--font-code)" }}>
-            {formatDuration(Math.floor(totalTimeRef.current / 1000), "seconds", true, settings.store.format as "regular" | "stopwatch")}
+            {formatDurationVerbose(Math.floor(totalTimeRef.current / 1000), "seconds", true, settings.store.format as "regular" | "stopwatch")}
         </p>;
     }
 });

@@ -18,17 +18,19 @@
 
 import "./styles.css";
 
-import { Margins } from "@components/margins";
+import { definePluginSettings } from "@api/Settings";
+import { Flex } from "@components/Flex";
+import { Paragraph } from "@components/Paragraph";
 import { SectionHeader } from "@components/settings";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
-import { getIntlMessage } from "@utils/discord";
+import { copyWithToast, getIntlMessage } from "@utils/discord";
 import { useForceUpdater } from "@utils/react";
-import definePlugin, { StartAt } from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 import type { ModalPropsRender, SidebarItemNode } from "@velocity-types";
 import { LayoutType } from "@velocity-types/enums";
 import { findByPropsLazy } from "@webpack";
-import { Avatar, Buttons, closeAllModals, ConfirmModal, HelpMessage, Icons, IconUtils, Modal, openModal, TextInput, useEffect, UserStore, useState } from "@webpack/common";
+import { Avatar, Buttons, ConfirmModal, Icons, IconUtils, Modal, openModal, TextInput, useEffect, UserStore, useState } from "@webpack/common";
 
 import { autoLogin, getSavedTokens, loginToken, removeUser, saveToken } from "./utils";
 
@@ -38,6 +40,22 @@ const { closeSuspendedUser } = findByPropsLazy("loginToken", "switchAccountToken
 const cl = classNameFactory("vc-nl-");
 
 let cachedToken: string | null = null;
+
+const settings = definePluginSettings({
+    autoLogin: {
+        type: OptionType.SELECT,
+        default: "",
+        description: "Which account to automatically login if logged out",
+        options: async () => {
+            const tokens = await getSavedTokens();
+            return Object.entries(tokens).map(([id, data]) => ({
+                value: id,
+                label: data.userInfo.username,
+                icon: data.userInfo.avatar.src
+            }));
+        }
+    }
+});
 
 function LoginModal(modalProps: ModalPropsRender) {
     const [users, setUsers] = useState<{ id: string; name: string; avatar: { src: string; decoration?: string; }; }[]>([]);
@@ -67,12 +85,21 @@ function LoginModal(modalProps: ModalPropsRender) {
                     value={token}
                     error={token.length > 0 && !isValidToken ? "Invalid User Token" : undefined}
                     onChange={setToken}
+                    trailing={{
+                        type: "button", button: isValidToken && <Buttons.Button
+                            icon={Icons.DoorEnterIcon}
+                            variant="secondary"
+                            size="sm"
+                            text={getIntlMessage("LOGIN")}
+                            onClick={() => loginToken(token)}
+                        />
+                    }}
                 />
                 <Buttons.Button
-                    disabled={!isValidToken}
-                    icon={Icons.DoorEnterIcon}
-                    text={getIntlMessage("LOGIN")}
-                    onClick={() => loginToken(token)}
+                    icon={Icons.CopyIcon}
+                    variant="secondary"
+                    text="Copy Token"
+                    onClick={() => copyWithToast(getToken())}
                 />
             </div>
             {users.length === 0
@@ -130,7 +157,7 @@ const NeverLogoutSidebar = (): SidebarItemNode => ({
     onClick: () => openModal(modalProps => <ConfirmModal
         {...modalProps}
         title="Logout"
-        subtitle="Are you sure you wanna logout? This wont log you out of your account."
+        subtitle="Are you sure you wanna logout? This won't log you out of your account."
         confirmText="Logout"
         onConfirm={closeSuspendedUser}
     />)
@@ -142,14 +169,25 @@ export default definePlugin({
     tags: ["Utility", "Shortcuts"],
     authors: [Devs.RoScripter999],
     searchTerms: ["MoreAlts", "Backup", "Accounts"],
+    settings,
 
-    // If user isn't logged-in the plugin wont start, thus this is required.
-    startAt: StartAt.WebpackReady,
     settingsAboutComponent: () => (
-        <>
-            <HelpMessage className={Margins.bottom16} messageType="warn">Logging out from user settings will reset your token</HelpMessage>
-            <Buttons.TextButton text="Logout without reset" onClick={() => { closeSuspendedUser(); closeAllModals(); }} />
-        </>
+        <Flex flexDirection="column" gap=".5em">
+            <Paragraph>
+                Do not use the "Log out" button when using the plugin, Discord will reset your token if you do so.
+                This plugin will not 100% always prevent logouts due to some issues with Discord
+            </Paragraph>
+            <Paragraph>
+                Your token is saved on login and used whenever you need to login thru token.
+            </Paragraph>
+            <Paragraph>
+                By using token logins; Discord will and not detect your location during the session.
+                It is <strong>highly</strong> not recommended to share your token to other people.
+            </Paragraph>
+            <Paragraph>
+                If you did share one of your "active" Discord tokens you should immediately logout using the "Log out" button to reset it.
+            </Paragraph>
+        </Flex>
     ),
 
     LoginButton,
@@ -212,6 +250,13 @@ export default definePlugin({
 
                 cachedToken = null;
             }
+        },
+        WINDOW_INIT() {
+            const currentToken = getToken();
+
+            if (!currentToken && settings.store.autoLogin) {
+                autoLogin(settings.store.autoLogin);
+            }
         }
     },
 
@@ -222,7 +267,7 @@ export default definePlugin({
         if (currentToken && currentUser) {
             const { id, username } = currentUser;
             const avatarUrl = IconUtils.getUserAvatarURL(currentUser, true);
-            const decorationUrl = IconUtils.getAvatarDecorationURL({ avatarDecoration: currentUser?.avatarDecoration as any, size: 128, canAnimate: true });
+            const decorationUrl = IconUtils.getAvatarDecorationURL({ avatarDecoration: currentUser?.avatarDecoration, size: 128, canAnimate: true });
 
             saveToken(id, currentToken, username, {
                 src: avatarUrl,

@@ -22,6 +22,7 @@ import { useSettings } from "@api/Settings";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
 import { findComponentByCodeLazy } from "@webpack";
+import { Field } from "@webpack/common";
 import type { ReactNode } from "react";
 
 const BaseSwitch = findComponentByCodeLazy("0,hasIcon:", ',layout:"horizontal",');
@@ -85,5 +86,9 @@ export function Switch({ checked, onChange, disabled, title, description }: Swit
     if (velocityStyles.switchRedesign === "redesigned")
         return <BaseSwitch label={title} description={description} checked={checked} onChange={onChange} disabled={disabled} />;
 
-    return <BuiltInSwitch checked={checked} onChange={onChange} disabled={disabled} />;
+    return (
+        <Field label={title} description={description as string} layout="horizontal">
+            <BuiltInSwitch checked={checked} onChange={onChange} disabled={disabled} />
+        </Field>
+    );
 }

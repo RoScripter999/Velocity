@@ -17,6 +17,8 @@
 */
 
 export const enum IpcEvents {
+    INIT_FILE_WATCHERS = "VelocityInitFileWatchers",
+
     OPEN_QUICKCSS = "VelocityOpenQuickCss",
     GET_QUICK_CSS = "VelocityGetQuickCss",
     SET_QUICK_CSS = "VelocitySetQuickCss",

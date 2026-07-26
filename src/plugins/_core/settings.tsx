@@ -154,17 +154,17 @@ export default definePlugin({
                 icon: () => <Icons.PaintbrushThickIcon size="refresh_sm" color="currentColor" />,
                 buildLayout: () => [
                     {
-                        key: "themes_category_panel",
+                        key: "themes_panel",
                         type: LayoutType.PANEL,
                         useTitle: () => "Themes",
                         buildLayout: () => [
                             {
-                                key: "themes_nested",
+                                key: "themes_category",
                                 type: LayoutType.CATEGORY,
                                 useTitle: () => "Themes",
                                 buildLayout: () => [
                                     {
-                                        key: "themes_nested_panel",
+                                        key: "themes_lib_panel_nav",
                                         type: LayoutType.NESTED_PANEL_NAVIGATOR,
                                         useTitle: () => "Theme Library",
                                         useSubtitle: () => "Download online themes directly from Discord",
@@ -175,12 +175,12 @@ export default definePlugin({
 
                                         buildLayout: () => [
                                             {
-                                                key: "themes_inner_panel",
+                                                key: "themes_lib_panel",
                                                 type: LayoutType.PANEL,
                                                 useTitle: () => "Theme Library",
                                                 buildLayout: () => [
                                                     {
-                                                        key: "theme_lib_category",
+                                                        key: "themes_lib_category",
                                                         type: LayoutType.CATEGORY,
                                                         useTitle: () => "Theme Libary",
                                                         buildLayout: () => [{
@@ -194,6 +194,7 @@ export default definePlugin({
                                         ]
                                     },
                                     {
+                                        key: "themes_tab",
                                         type: LayoutType.CUSTOM,
                                         Component: ThemesTab
                                     }

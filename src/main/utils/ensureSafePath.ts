@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createSocket, Socket } from "dgram";
+import { join, normalize } from "path";
 
-let xsoSocket: Socket | null = null;
-
-export function sendToOverlay(_: any, data: any) {
-    data.messageType = data.type;
-    const json = JSON.stringify(data);
-    xsoSocket ??= createSocket("udp4");
-    xsoSocket.send(json, 42069, "127.0.0.1");
-}
-
-export function closeSocket() {
-    xsoSocket?.close();
-    xsoSocket = null;
+export function ensureSafePath(basePath: string, path: string) {
+    const normalizedBasePath = normalize(basePath + "/");
+    const newPath = join(basePath, path);
+    const normalizedPath = normalize(newPath);
+    return normalizedPath === normalize(basePath) || normalizedPath.startsWith(normalizedBasePath)
+        ? normalizedPath
+        : null;
 }

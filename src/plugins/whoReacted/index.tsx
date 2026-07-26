@@ -19,12 +19,14 @@
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
+import { Logger } from "@utils/Logger";
 import { sleep } from "@utils/misc";
 import { Queue } from "@utils/Queue";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
 import type { CustomEmoji, Message, ReactionEmoji, User } from "@velocity-types";
-import { ChannelStore, Constants, FluxDispatcher, type React, RestAPI, useEffect, useLayoutEffect, UserStore, UserSummaryItem } from "@webpack/common";
+import { ChannelStore, Constants, FluxDispatcher, RestAPI, useEffect, useLayoutEffect, UserStore, UserSummaryItem } from "@webpack/common";
+import type { UIEvent } from "react";
 
 interface ReactionCacheEntry {
     fetched: boolean;
@@ -68,8 +70,8 @@ async function fetchReactions(msg: Message, emoji: ReactionEmoji, type: number) 
                 emoji,
                 reactionType: type
             });
-        } catch (data_1) {
-            return console.error(data_1);
+        } catch (err) {
+            return new Logger("WhoReacted#fetchReactions").error(err);
         }
     } finally {
         return await sleep(250);
@@ -87,7 +89,7 @@ function getReactionsWithQueue(msg: Message, e: ReactionEmoji, type: number) {
     return cache.users;
 }
 
-function handleClickAvatar(event: React.UIEvent<HTMLElement, Event>) {
+function handleClickAvatar(event: UIEvent<HTMLElement, Event>) {
     event.stopPropagation();
 }
 

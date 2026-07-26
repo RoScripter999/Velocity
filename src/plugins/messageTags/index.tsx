@@ -18,7 +18,7 @@
 
 import "./styles.css";
 
-import { ApplicationCommandInputType, ApplicationCommandOptionType, registerCommand, sendBotMessage } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, registerCommand, sendBotMessage, unregisterCommand } from "@api/Commands";
 import { migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
@@ -187,12 +187,14 @@ export default definePlugin({
     tags: ["Commands", "Customisation", "Utility"],
     settings,
 
-    async start() {
-        const tags = getTags();
-        for (const tagName in tags) {
-            registerTagCommand(tags[tagName]);
-        }
+    start() {
+        getTags().forEach(registerTagCommand);
     },
+
+    stop() {
+        getTags().forEach(tag => unregisterCommand(tag.name));
+    },
+
 
     commands: [
         {
