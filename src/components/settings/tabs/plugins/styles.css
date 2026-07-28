@@ -74,12 +74,6 @@
     }
 }
 
-.vc-plugins-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25em;
-}
-
 .vc-plugins-dev-notice {
     margin-top: 15px;
 }

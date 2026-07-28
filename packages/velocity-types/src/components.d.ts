@@ -739,14 +739,17 @@ export type FilePicker = ComponentType<{
 
 export type TagGroup = ComponentType<{
     listRef?: Ref<any>;
-    /** This is just aria-label. */
+    /**
+     * Shorthand for ariaLabel.
+     * Will spam warnings about "An aria-label or aria-labelledby prop is required for accessibility." if not provided.
+     */
     label?: string;
     disabledKeys?: string[];
     /** Selection mode of the {@link items}. @default none */
     selectionMode?: "none" | "single" | "multiple";
     layout?: "default" | "inline";
     items: Array<{
-        id: string;
+        id: string | number;
         label: string;
         accessibilityHint?: string;
         icon?: ComponentType<any> | { type: "role"; color: string; } | { type: "avatar"; src: string; } | { type: "image"; src: string; };

@@ -34,10 +34,10 @@ import { proxyLazy } from "@utils/lazy";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import { humanFriendlyJoin } from "@utils/text";
-import { OptionType, type Plugin, type PluginTag } from "@utils/types";
+import { OptionType, type Plugin } from "@utils/types";
 import type { ModalPropsRender, User } from "@velocity-types";
-import { Avatar, Clickable, ConfirmModal, FluxDispatcher, Forms, Icons, LoadingIndicator, Modal, openModal, Text, Tooltip, useEffect, useMemo, UserStore, UserUtils, useState } from "@webpack/common";
-import type { Constructor } from "type-fest";
+import { Avatar, Clickable, ConfirmModal, FluxDispatcher, Forms, Icons, LoadingIndicator, Modal, openModal, TagGroup, Text, Tooltip, useEffect, useMemo, UserStore, UserUtils, useState } from "@webpack/common";
+import type { Constructor, SetRequired } from "type-fest";
 
 import { PluginMeta } from "~plugins";
 
@@ -71,18 +71,23 @@ function makeDummyUser(user: { username: string; id?: string; avatar?: string; }
 }
 
 
-function PluginTags({ tags, searchTerms }: { tags: PluginTag[], searchTerms: string[] | undefined; }) {
-    const hasSearchTerms = !searchTerms?.length;
-
+function PluginTags({ plugin }: { plugin: SetRequired<Plugin, "tags">; }) {
     return (
-        <>
-            <SectionHeader title="Tags" className={hasSearchTerms ? Margins.top8 : undefined} />
-            <div className={cl("tags")}>
-                {tags.map(tag => (
-                    <div key={tag} className={cl("tag")}>{tag}</div>
-                ))}
-            </div>
-        </>
+        <div className={!plugin.searchTerms?.length ? Margins.top8 : undefined}>
+            <Text className={Margins.bottom8}>Tags</Text>
+            <TagGroup label="Tags" items={plugin.tags.map((tag, index) => ({ id: index, label: tag }))} />
+        </div>
+    );
+}
+
+function PluginKeywords({ plugin }: { plugin: SetRequired<Plugin, "searchTerms">; }) {
+    return (
+        <div className={classes(Margins.top8, Margins.bottom8)}>
+            <Text className={Margins.bottom8}>Keywords</Text>
+            <Text variant="text-sm/normal" color="text-muted" lineClamp={1} selectable>
+                {humanFriendlyJoin(plugin.searchTerms)}
+            </Text>
+        </div>
     );
 }
 
@@ -205,9 +210,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
         const { settings } = plugin;
         if (!hasSettings || !settings)
             return (
-                <div className={cl("no-settings")}>
-                    <Text variant="text-sm/semibold" color="currentColor">This plugin doesn't have any settings yet. If any are added in the future, they'll show up here.</Text>
-                </div>
+                <Text variant="text-sm/semibold" color="currentColor">This plugin doesn't have any settings yet. If any are added in the future, they'll show up here.</Text>
             );
 
         const options = Object.entries(settings.def).map(([key, setting]) => {
@@ -238,21 +241,8 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
         });
 
         return (
-            <div key={resetKey} className="vc-plugins-settings">
+            <div key={resetKey} className={cl("settings")}>
                 {options}
-            </div>
-        );
-    }
-
-    function renderKeywords() {
-        if (!plugin.searchTerms?.length) return null;
-
-        return (
-            <div className={classes(cl("keywords"), Margins.bottom8)}>
-                <SectionHeader title="Plugin Keywords" tooltip="Search plugins associated with these keywords" />
-                <Text variant="text-sm/normal" color="text-muted" lineClamp={1} selectable>
-                    {humanFriendlyJoin(plugin.searchTerms)}
-                </Text>
             </div>
         );
     }
@@ -264,13 +254,13 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
             {...modalProps}
             size="lg"
             title={plugin.name}
-            subtitle={<div className={cl("info")}>
+            subtitle={
                 <div>
                     <Span color="text-subtle">{plugin.description}</Span>
-                    {renderKeywords()}
-                    {!!plugin.tags?.length && <PluginTags tags={plugin.tags} searchTerms={plugin.searchTerms} />}
+                    {!!plugin.searchTerms?.length && <PluginKeywords plugin={{ ...plugin, searchTerms: plugin.searchTerms }} />}
+                    {!!plugin.tags?.length && <PluginTags plugin={{ ...plugin, tags: plugin.tags }} />}
                 </div>
-            </div>}
+            }
             actions={[
                 ...(plugin.settings && hasChangedSettings ? [{
                     text: "Reset Settings",
@@ -286,16 +276,16 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 }] : [])
             ]}
         >
-            <div className={"vc-settings-modal-content"}>
+            <div>
                 <section>
-                    <SectionHeader title="Plugin Authors" titleVariant="text-md/semibold" tooltipIcon={false} tooltip="The authors of the plugin that contributed in its development" icon={() => <Icons.GroupIcon color="var(--interactive-icon-active)" size="sm" />} className={Margins.bottom8} />
+                    <SectionHeader title="Plugin Authors" titleVariant="text-md/semibold" tooltipIcon={false} tooltip="The authors of the plugin that contributed in its development" icon={() => <Icons.GroupIcon color="var(--interactive-icon-active)" size="sm" />} margin="bottom8" />
                     <div className={cl("authors")}>
                         <ErrorBoundary noop>
                             {authors.length === 0 ? (
                                 <LoadingIndicator type="pulsingEllipsis" />
                             ) : (
                                 <div className={cl("author-list")}>
-                                    {(authors.length ? authors : fallbackAuthors).slice(0, 6).map((user: Partial<User>, i) => (
+                                    {(authors.length ? authors : fallbackAuthors).slice(0, 6).map((user, i) => (
                                         <Tooltip key={i} text={`View ${user.username}'s profile`}>
                                             {({ onMouseEnter, onMouseLeave }) => (
                                                 <Clickable
