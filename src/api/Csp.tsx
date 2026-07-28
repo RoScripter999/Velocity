@@ -108,7 +108,7 @@ function CspPermissionModal({ url, directives, callerName, resolve, ...modalProp
  * Show a Velocity renderer modal asking the user to allow a new CSP domain override.
  * Replaces the old `dialog.showMessageBox` in the main process.
  *
- * @param url        The URL (origin) to allow
+ * @param url The URL (origin) to allow
  * @param directives The CSP directives to enable for that domain
  * @param callerName Human-readable name of the plugin / feature requesting access
  */

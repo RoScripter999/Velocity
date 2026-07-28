@@ -48,7 +48,7 @@ export default {
         deleteTheme: (fileName: string) => invoke<void>(IpcEvents.DELETE_THEME, fileName),
         getThemesList: () => invoke<Array<UserThemeHeader>>(IpcEvents.GET_THEMES_LIST),
         getThemeData: (fileName: string) => invoke<string | undefined>(IpcEvents.GET_THEME_DATA, fileName),
-        getVelocityThemes: () => invoke<any>(IpcEvents.GET_VELOCITY_THEMES),
+        getOnlineThemes: () => invoke<any>(IpcEvents.GET_ONLINE_THEMES),
         getSystemValues: () => invoke<Record<string, string>>(IpcEvents.GET_THEME_SYSTEM_VALUES),
 
         openFolder: (fileName?: string) => invoke<void>(IpcEvents.OPEN_THEMES_FOLDER, fileName)

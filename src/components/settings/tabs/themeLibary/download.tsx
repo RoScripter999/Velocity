@@ -17,62 +17,42 @@
 */
 
 import { Settings } from "@api/Settings";
-import ErrorBoundary from "@components/ErrorBoundary";
-import { Flex } from "@components/Flex";
-import { Heading } from "@components/Heading";
-import { Paragraph } from "@components/Paragraph";
-import type { Theme } from "@components/settings/tabs/themeLibary";
+import { SectionHeader } from "@components/settings";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage, openInviteModal, openUserProfile } from "@utils/discord";
-import { classes } from "@utils/misc";
-import { ModalContent, ModalFooter, ModalRoot, ModalSize } from "@utils/modal";
-import { humanFriendlyJoin } from "@utils/text";
+import type { IconComponent } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
-import { Buttons, Icons, openModal, Text, Tooltip, useState } from "@webpack/common";
-import type { ComponentType } from "react";
+import { Icons, Modal, Text, Tooltip, useState } from "@webpack/common";
+
+import { BannerTryCatch, type Theme } from "./";
 
 interface ThemeModalProps extends ModalPropsRender {
     theme: Theme;
+    onThemeAdded?: () => void;
 }
 
 const cl = classNameFactory("vc-themes-lib-modal-");
 
 interface RowProps {
-    icon?: ComponentType<any>;
-    content?: string;
+    icon: IconComponent;
+    label: string;
     action?: () => void;
     tooltip?: string;
 }
 
-function Row({ icon: Icon, content, action, tooltip }: RowProps) {
-    const icon = () => {
-        if (!Icon) return null;
-
-        const iconContent = <div className={cl("row-icon")}>
-            <Icon />
-        </div>;
-
-        if (!tooltip) return iconContent;
-
-        return (
-            <Tooltip text={tooltip}>
-                {props => <div {...props}>{iconContent}</div>}
-            </Tooltip>
-        );
-    };
-
+function Row({ icon: Icon, label, action, tooltip }: RowProps) {
     return (
-        <Flex
+        <div
             onClick={action}
-            className={classes(cl("row"), action && cl("clickable"))}
-            alignItems="center"
+            className={cl("row", action && "clickable")}
         >
-            {icon()}
-            {content && <div className={cl("row-content")}>{content}</div>}
-        </Flex>
+            {tooltip ? <Tooltip text={tooltip}>{props => <Icon color="currentColor" {...props} />}</Tooltip> : <Icon color="currentColor" />}
+            <Text>{label}</Text>
+        </div>
     );
 }
-function ThemeModal(props: ThemeModalProps & { onThemeAdded?: () => void; }) {
+
+export function ThemeModal(props: ThemeModalProps) {
     const { theme, onClose, onThemeAdded } = props;
     const [loading, setLoading] = useState(false);
 
@@ -93,85 +73,63 @@ function ThemeModal(props: ThemeModalProps & { onThemeAdded?: () => void; }) {
     };
 
     return (
-        <ErrorBoundary>
-            <ModalRoot {...props} size={ModalSize.SMALL}>
-                <div className={cl("banner")}>
-                    <img loading="lazy" className={cl("banner-img")} src={theme.banner} />
-                    <div className={cl("author")}>
-                        <div className={cl("author-mask")}>
-                            <Tooltip hideOnClick={false} text={theme.author.name}>
-                                {tooltipProps => (
-                                    <img
-                                        loading="lazy"
-                                        className={cl("author-img")}
-                                        src={theme.icon}
-                                        {...tooltipProps}
-                                    />
-                                )}
-                            </Tooltip>
-                        </div>
-                    </div>
-                </div>
-
-                <div className={cl("header")}>
-                    <Text variant="heading-lg/semibold">{theme.name}</Text>
-                    {theme.tags?.length && (
-                        <Paragraph color="text-muted">
-                            {humanFriendlyJoin(theme.tags)}
-                        </Paragraph>
+        <Modal title={
+            <SectionHeader
+                title={theme.name}
+                description={theme.description}
+                layout="horizontal"
+                icon={() => <Tooltip hideOnClick={false} text={theme.author.name}>
+                    {tooltipProps => (
+                        <img
+                            loading="lazy"
+                            className={cl("author-img")}
+                            src={theme.icon}
+                            {...tooltipProps}
+                        />
                     )}
-                </div>
+                </Tooltip>} />
+        } actions={[
+            {
+                text: getIntlMessage("CLOSE"),
+                variant: "secondary",
+                loading: loading,
+                onClick: props.onClose
+            },
+            {
+                text: getIntlMessage("DOWNLOAD"),
+                loading: loading,
+                onClick: handleUpload
+            }
+        ]} {...props}>
+            <div>
+                <section className={cl("banner")}>
+                    <Text>Theme Preview</Text>
+                    <BannerTryCatch className={cl("banner-img")} theme={theme} />
+                </section>
 
-                <ModalContent>
-                    <div className={cl("items")}>
-                        <Heading>Theme Info</Heading>
+                <section>
+                    <Text>Theme Info</Text>
+                    <Row
+                        icon={Icons.AngleBracketsIcon}
+                        tooltip="Code"
+                        label={`${theme.name}.css`}
+                    />
+                    <Row
+                        icon={Icons.UserIcon}
+                        label={theme.author.name}
+                        tooltip="Author"
+                        action={Number(theme.author.id) !== 0 ? () => openUserProfile(String(theme.author.id)) : undefined}
+                    />
+                    {theme.invite && (
                         <Row
-                            icon={Icons.ClipboardListIcon}
-                            tooltip="Description"
-                            content={theme.description}
+                            icon={Icons.GameControllerIcon}
+                            tooltip="Invite"
+                            label="Server Invite Link"
+                            action={() => openInviteModal(theme.invite!)}
                         />
-                        <Row
-                            icon={Icons.AngleBracketsIcon}
-                            tooltip="Code"
-                            content={`${theme.name}.css`}
-                        />
-                        <Row
-                            icon={Icons.UserIcon}
-                            content={theme.author.name}
-                            tooltip="Author"
-                            action={Number(theme.author.id) !== 0 ? () => openUserProfile(String(theme.author.id)) : undefined}
-                        />
-                        {theme.invite && (
-                            <Row
-                                icon={Icons.GameControllerIcon}
-                                tooltip="Invite"
-                                content="Server Invite Link"
-                                action={() => openInviteModal(theme.invite!)}
-                            />
-                        )}
-                    </div>
-                </ModalContent>
-                <ModalFooter>
-                    <Buttons.ButtonGroup gap="8" direction="horizontal">
-                        <Buttons.Button
-                            text={getIntlMessage("CLOSE")}
-                            variant="secondary"
-                            loading={loading}
-                            onClick={props.onClose}
-                        />
-                        <Buttons.Button
-                            text={getIntlMessage("DOWNLOAD")}
-                            loading={loading}
-                            onClick={handleUpload}
-                            fullWidth
-                        />
-                    </Buttons.ButtonGroup>
-                </ModalFooter>
-            </ModalRoot>
-        </ErrorBoundary>
+                    )}
+                </section>
+            </div>
+        </Modal>
     );
-}
-
-export function openThemeModal(theme: Theme, onThemeAdded?: () => void) {
-    openModal(props => <ThemeModal {...props} theme={theme} onThemeAdded={onThemeAdded} />);
 }

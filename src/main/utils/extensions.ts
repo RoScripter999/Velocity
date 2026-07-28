@@ -34,11 +34,14 @@ async function extract(data: Buffer, outDir: string) {
     return new Promise<void>((resolve, reject) => {
         unzip(data, (err, files) => {
             if (err) return void reject(err);
+
             Promise.all(Object.keys(files).map(async f => {
                 // Signature stuff
                 // 'Cannot load extension with file or directory name
                 // _metadata. Filenames starting with "_" are reserved for use by the system.';
                 if (f.startsWith("_metadata/")) return;
+
+                if (f.includes("\0")) throw new Error(`Invalid filename: "${f}"`);
 
                 if (f.endsWith("/")) {
                     const dir = ensureSafePath(outDir, f);
@@ -88,9 +91,8 @@ export async function installExt(id: string) {
             .catch(err => console.error(`Failed to extract extension ${id}`, err));
     }
 
-
     if (session.defaultSession.extensions) {
-        session.defaultSession.extensions.loadExtension(id);
+        session.defaultSession.extensions.loadExtension(extDir);
     } else {
         session.defaultSession.loadExtension(extDir);
     }

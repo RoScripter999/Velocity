@@ -9,7 +9,6 @@
     max-width: 320px;
     min-height: 320px;
     transition: box-shadow 0.2s ease-out, transform 0.2s ease-out, background 0.2s ease-out, opacity 0.2s ease-in;
-    padding: 0;
 
     &:hover {
         transform: translateY(-2px);
@@ -30,8 +29,14 @@
     object-fit: cover;
     cursor: pointer;
     display: block;
-    margin: 0;
     border-radius: 8px 8px 0 0;
+}
+
+.vc-themes-lib-banner-img-failed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
 }
 
 .vc-themes-lib-content {
@@ -107,16 +112,16 @@
 
 
 .vc-themes-lib-modal-banner {
-    position: relative;
-    margin-bottom: 32px;
+    margin-bottom: 12px
 }
 
 .vc-themes-lib-modal-banner-img {
     width: 100%;
     height: 197px;
+    margin-top: 8px;
     object-fit: cover;
-    border-radius: 3px 3px 0 0;
-    display: block;
+    cursor: pointer;
+    border-radius: 3px
 }
 
 .vc-themes-lib-modal-author {
@@ -125,64 +130,29 @@
     left: 12px;
 }
 
-.vc-themes-lib-modal-author-mask {
+.vc-themes-lib-modal-author-img {
     width: 48px;
     height: 48px;
-    padding: 4px;
-    background-color: var(--background-base-low);
     border-radius: 20%;
-    overflow: hidden;
-}
-
-.vc-themes-lib-modal-author-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 20%;
-}
-
-.vc-themes-lib-modal-header {
-    margin: 0 20px;
-    align-items: center;
-    gap: 8px;
-    display: flex;
-}
-
-.vc-themes-lib-modal-items {
-    background: var(--background-base-lower);
-    margin: 5px -10px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
 }
 
 .vc-themes-lib-modal-row {
-    padding: 12px;
-    color: var(--text-default);
-    gap: 12px;
-}
-
-.vc-themes-lib-modal-items > .vc-themes-lib-modal-item:not(:last-child) {
-    border-bottom: 1px solid var(--border-subtle);
-}
-
-.vc-themes-lib-modal-row-icon {
-    max-width: 24px;
-    min-width: 24px;
     display: flex;
-}
+    align-items: center;
+    padding: 12px 8px;
+    gap: 12px;
 
-.vc-themes-lib-modal-row-content {
-    width: 100%;
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--border-subtle);
+    }
 }
 
 .vc-themes-lib-modal-clickable {
     cursor: pointer;
-    border-radius: 3px;
-    background-color: transparent;
+    border-radius: 8px;
     transition: background-color ease 100ms;
 
     &:hover {
-        color: var(--interactive-text-hover);
         background-color: var(--bg-overlay-hover, var(--interactive-background-hover));
     }
 }

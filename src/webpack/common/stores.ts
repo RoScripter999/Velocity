@@ -545,9 +545,9 @@ waitForStore("SubscriptionRoleStore", s => SubscriptionRoleStore = s);
 waitForStore("SubscriptionStore", s => SubscriptionStore = s);
 waitForStore("SystemAnalyticsStore", s => SystemAnalyticsStore = s);
 waitForStore("TestModeStore", s => TestModeStore = s);
-waitForStore("ThemeStore", m => {
-    ThemeStore = m;
-    Velocity.Api.Themes.initQuickCssThemeStore(m);
+waitForStore("ThemeStore", s => {
+    ThemeStore = s;
+    Velocity.Api.Themes.initQuickCssThemeStore(s);
 });
 waitForStore("ThreadMemberListStore", s => ThreadMemberListStore = s);
 waitForStore("ThreadMembersStore", s => ThreadMembersStore = s);

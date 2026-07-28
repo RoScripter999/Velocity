@@ -30,7 +30,7 @@ export const enum IpcEvents {
     GET_THEMES_LIST = "VelocityGetThemesList",
     GET_THEME_DATA = "VelocityGetThemeData",
     GET_THEME_SYSTEM_VALUES = "VelocityGetThemeSystemValues",
-    GET_VELOCITY_THEMES = "VelocityGetBuiltInThemes",
+    GET_ONLINE_THEMES = "VelocityGetOnlineThemes",
     UPLOAD_THEME = "VelocityUploadTheme",
     DELETE_THEME = "VelocityDeleteTheme",
     THEME_UPDATE = "VelocityThemeUpdate",

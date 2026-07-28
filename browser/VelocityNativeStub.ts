@@ -49,7 +49,7 @@ window.VelocityNative = {
         ),
         getThemeData: (fileName: string) => DataStore.get(fileName, themeStore),
         getSystemValues: async () => ({}),
-        getVelocityThemes: () => Promise.resolve(""),
+        getOnlineThemes: () => Promise.resolve(""),
         openFolder: async () => Promise.reject("themes:openFolder is not supported on web"),
     },
 

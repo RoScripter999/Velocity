@@ -26,12 +26,12 @@ import { SectionHeader } from "@components/settings/tabs";
 import { SettingsTab } from "@components/settings/tabs/SectionSettings";
 import type { Dev } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
-import { openImageModal } from "@utils/discord";
+import { getIntlMessage, openImageModal } from "@utils/discord";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { Buttons, LoadingIndicator, SearchableSelect, SearchBar, Text, Tooltip, useEffect, useState } from "@webpack/common";
+import { Buttons, LoadingIndicator, openModal, SearchableSelect, SearchBar, Text, Tooltip, useEffect, useState } from "@webpack/common";
 
-import { openThemeModal } from "./download";
+import { ThemeModal } from "./download";
 
 const cl = classNameFactory("vc-themes-lib-");
 
@@ -67,7 +67,7 @@ async function loadThemes(onFail?: () => void) {
     if (themesLoaded) return;
     try {
         // In dev mode if you want to add and test themes, change this line to VelocityNative.themes.getThemeData("themeLibThemes.json") as unknown as ThemeResult;
-        ThemesJSON = await VelocityNative.themes.getVelocityThemes();
+        ThemesJSON = await VelocityNative.themes.getOnlineThemes();
 
         if (typeof ThemesJSON === "string") ThemesJSON = JSON.parse(ThemesJSON);
 
@@ -76,6 +76,39 @@ async function loadThemes(onFail?: () => void) {
     } catch {
         onFail?.();
     }
+}
+
+function LoadFailed() {
+    return (
+        <div className={cl("banner-img-failed")}>
+            <img
+                role="img"
+                aria-hidden={true}
+                src="https://cdn.discordapp.com/assets/content/01fad351459d7599c15e3503bc14fadd01f8d18ffb2c66e064370504bd59ee82.svg"
+            />
+            <Text variant="text-sm/medium" color="text-subtle">{getIntlMessage("IMAGE_ERROR")}</Text>
+        </div>
+    );
+}
+
+
+export function BannerTryCatch({ theme, className }: { theme: Theme; className: string; }) {
+    const [hasError, setHasError] = useState(false);
+
+    return hasError ? <LoadFailed /> :
+        <img
+            src={theme.banner}
+            className={className}
+            draggable={false}
+            onError={() => {
+                setHasError(true);
+            }}
+            onClick={() => openImageModal({
+                url: theme.banner,
+                height: 1680,
+                width: 1680
+            })}
+        />;
 }
 
 
@@ -102,11 +135,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
     return (
         <Card padding="none" className={cl("card")}>
             <Flex flexDirection="column" className={cl("header")}>
-                <img className={cl("banner")} src={theme.banner} onClick={() => openImageModal({
-                    url: theme.banner,
-                    height: 1680,
-                    width: 1680
-                })} />
+                <BannerTryCatch className={cl("banner")} theme={theme} />
                 <div className={cl("icon-wrapper")}>
                     <Tooltip hideOnClick={false} text={theme.author.name}>
                         {tooltipProps => (
@@ -141,7 +170,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
                         if (isOwned) {
                             await handleDelete();
                         } else {
-                            openThemeModal(theme, handleThemeAdded);
+                            openModal(props => <ThemeModal {...props} theme={theme} onThemeAdded={handleThemeAdded} />);
                         }
                     }}
                 />

@@ -108,7 +108,7 @@ ipcMain.handle(IpcEvents.GET_THEME_SYSTEM_VALUES, () => {
     };
 });
 
-ipcMain.handle(IpcEvents.GET_VELOCITY_THEMES, async () => {
+ipcMain.handle(IpcEvents.GET_ONLINE_THEMES, async () => {
     const res = await fetch("https://api.github.com/repos/RoScripter999/Velocity/releases/latest");
     const json = await res.json();
 

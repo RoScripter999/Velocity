@@ -19,9 +19,6 @@
 export function relaunch() {
     if (IS_DISCORD_DESKTOP)
         window.DiscordNative.app.relaunch();
-}
-
-export function showItemInFolder(path: string) {
-    if (IS_DISCORD_DESKTOP)
-        window.DiscordNative.fileManager.showItemInFolder(path);
+    else
+        location.reload();
 }

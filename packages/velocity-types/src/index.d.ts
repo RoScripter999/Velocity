@@ -1,9 +1,6 @@
 export * from "./common";
 export * from "./components";
-export * from "./components/Modal";
-export * from "./components/Buttons";
-export * from "./components/TextInput";
-
+export * from "./components/";
 export * from "./flux";
 export * from "./fluxEvents";
 export * from "./intlKeys";

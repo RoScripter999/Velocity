@@ -17,7 +17,7 @@
 */
 
 import type { CSSColorToken } from "@velocity-types";
-import { type Icons, React } from "@webpack/common";
+import type { Icons } from "@webpack/common";
 import type { FC, ReactElement, SVGProps } from "react";
 
 /** @ignore Please do not use this in your icons. */
@@ -42,7 +42,7 @@ export type IconProps = Omit<SVGProps<SVGSVGElement>, "width" | "height" | "colo
     height?: number;
 
     /** @default "interactive-icon-default" */
-    color?: CSSColorToken | "currentColor" | `#${string}`;
+    color?: CSSColorToken | "currentColor";
     colorClass?: string;
 };
 
@@ -59,9 +59,7 @@ export function createIcon(Svg: (props: IconProps) => ReactElement): FC<IconProp
 
         const resolvedColor = typeof color === "string" && color.length > 0 ? color === "currentColor"
             ? color
-            : /^#|rgb\(|hsl\(|rgba\(|hsla\(/.test(color)
-                ? color
-                : `var(--${color})` as IconProps["color"]
+            : `var(--${color})` as IconProps["color"]
             : "currentColor";
 
 
@@ -111,10 +109,9 @@ export function Icon({
     );
 }
 
-export const VelocityIcon = createIcon((props: IconProps) => (
+export const VelocityIcon = createIcon(props => (
     <Icon {...props}>
         <path
-            className={props.colorClass ?? ""}
             fill={props.color}
             transform="scale(1.25) translate(-2 -2)"
             d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"
@@ -122,7 +119,7 @@ export const VelocityIcon = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const PluginsIcon = createIcon((props: IconProps) => (
+export const PluginsIcon = createIcon(props => (
     <Icon {...props}>
         <g transform="translate(1 0)">
             <path
@@ -133,7 +130,7 @@ export const PluginsIcon = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const ImageIcon = createIcon((props: IconProps) => (
+export const ImageIcon = createIcon(props => (
     <Icon {...props} >
         <path
             fill={props.color}
@@ -142,7 +139,7 @@ export const ImageIcon = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const ImageVisible = createIcon((props: IconProps) => (
+export const ImageVisible = createIcon(props => (
     <Icon {...props}>
         <path
             fill={props.color}
@@ -152,7 +149,7 @@ export const ImageVisible = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const ImageInvisible = createIcon((props: IconProps) => (
+export const ImageInvisible = createIcon(props => (
     <Icon {...props}>
         <path
             fill={props.color}
@@ -162,7 +159,7 @@ export const ImageInvisible = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const GithubIcon = createIcon((props: IconProps) => (
+export const GithubIcon = createIcon(props => (
     <Icon {...props}>
         <path
             fill={props.color}
@@ -171,7 +168,7 @@ export const GithubIcon = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const CloudUploadIcon = createIcon((props: IconProps) => (
+export const CloudUploadIcon = createIcon(props => (
     <Icon {...props}>
         <path
             fill={props.color}
@@ -180,7 +177,7 @@ export const CloudUploadIcon = createIcon((props: IconProps) => (
     </Icon>
 ));
 
-export const BrokenHeart = createIcon((props: IconProps) => (
+export const BrokenHeart = createIcon(props => (
     <Icon viewBox="0 0 36 36" {...props}>
         <g fill={props.color}>
             <path
