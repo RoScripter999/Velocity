@@ -32,7 +32,6 @@ export * from "./Logger";
 export * from "./manaModal";
 export * from "./mergeDefaults";
 export * from "./misc";
-export * from "./modal";
 export * from "./onlyOnce";
 export * from "./patches";
 export * from "./Queue";
