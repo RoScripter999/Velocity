@@ -84,6 +84,7 @@ function LoadFailed() {
             <img
                 role="img"
                 aria-hidden={true}
+                draggable={false}
                 src="https://cdn.discordapp.com/assets/content/01fad351459d7599c15e3503bc14fadd01f8d18ffb2c66e064370504bd59ee82.svg"
             />
             <Text variant="text-sm/medium" color="text-subtle">{getIntlMessage("IMAGE_ERROR")}</Text>
