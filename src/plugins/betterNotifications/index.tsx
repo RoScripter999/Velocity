@@ -58,7 +58,7 @@ export default definePlugin({
 
     patches: [
         {
-            find: ".getDesktopType()===",
+            find: ".playNotificationSound(",
             replacement: {
                 match: /sound:(\i)\?(\i):void 0,volume:([^,]+),onClick/,
                 replace: "sound:($self.handleSoundLogic(arguments[0]?.message, { id: arguments[0]?.guildId }))?undefined:($1?$2:void 0),volume:$3,onClick"
