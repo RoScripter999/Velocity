@@ -726,15 +726,21 @@ export type SearchBar = ComponentType<{
 }>;
 
 export type FilePicker = ComponentType<{
-    filename: string | undefined;
     className?: string;
+    disabled?: boolean;
     filters?: Array<{
         name: string;
         extensions: string[];
     }>;
-    buttonText: string;
-    placeholder: string;
-    onFileSelect: (file: File) => void;
+    id?: string;
+    multiple?: boolean;
+    name?: string;
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
+    tabIndex?: number;
+    title?: string;
+    "aria-hidden"?: boolean;
+    "aria-label"?: string;
 }>;
 
 export type TagGroup = ComponentType<{
