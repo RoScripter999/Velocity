@@ -57,7 +57,7 @@ async function calculateGitChanges() {
     const res = await git("log", `HEAD...origin/${branch}`, "--pretty=format:%an/%h/%s%n%N", "--name-only");
 
     const commits = res.stdout.trim();
-    return commits ? commits.split("\n\n").map(block => {
+    const parsedCommits = commits ? commits.split("\n\n").map(block => {
         const lines = block.split("\n");
         const [author, hash, ...rest] = lines[0].split("/");
         const files = lines.slice(1).filter(Boolean);
@@ -69,6 +69,12 @@ async function calculateGitChanges() {
             files
         };
     }) : [];
+
+    // Filter out commits that only modified README.md since it's really annoying
+    // when a new plugin is added (see build.yml workflow)
+    return parsedCommits.filter(c =>
+        !(c.files.length > 0 && c.files.every(f => f.toLowerCase() === "readme.md"))
+    );
 }
 
 async function pull() {
