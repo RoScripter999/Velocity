@@ -20,7 +20,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import { IconComponent } from "@utils/types";
+import type { IconComponent } from "@utils/types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { Clickable, Tooltip, useEffect } from "@webpack/common";
 import type { ComponentType, JSX, MouseEventHandler, ReactNode, RefObject } from "react";
