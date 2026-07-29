@@ -17,6 +17,7 @@
 */
 
 import * as $Badges from "./Badges";
+import * as $Changelog from "./Changelog";
 import * as $ChatButtons from "./ChatButtons";
 import * as $Commands from "./Commands";
 import * as $ContextMenu from "./ContextMenu";
@@ -107,7 +108,6 @@ export const MemberListDecorators = $MemberListDecorators;
 export const Settings = $Settings;
 /**
  * An API allowing you to dynamically load styles
- * a
  */
 export const Styles = $Styles;
 /**
@@ -119,6 +119,11 @@ export const Notifications = $Notifications;
  * An api allowing you to patch and add/remove items to/from context menus
  */
 export const ContextMenu = $ContextMenu;
+
+/**
+ * An API for handling the changes on velocity
+ */
+export const Changelog = $Changelog;
 
 /**
  * An API allowing you to add buttons to the chat input

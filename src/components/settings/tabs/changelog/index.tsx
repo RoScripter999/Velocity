@@ -18,51 +18,64 @@
 
 import "./styles.css";
 
+import {
+    type ChangelogEntry,
+    clearChangelogHistory,
+    CLLogger,
+    getLatestChangelogDisplay,
+    initializeChangelog,
+    markAsSeen
+} from "@api/Changelog";
 import { Margins } from "@components/margins";
 import { SectionHeader, SettingsTab } from "@components/settings";
 import { Repo } from "@components/settings/tabs/updater/Components";
 import { classNameFactory } from "@utils/css";
 import { useAwaiter } from "@utils/react";
-import { getRepo, UpdateLogger } from "@utils/updater";
+import { getRepo } from "@utils/updater";
 import { Buttons, Forms, Icons, Text, useEffect, useState } from "@webpack/common";
 
-import {
-    type ChangelogEntry,
-    clearChangelogHistory,
-    getLatestChangelogDisplay,
-    initializeChangelog
-} from "./changelogManager";
 import { NewChangesSection } from "./NewChangesSection";
 
 export const cl = classNameFactory("vc-settings-changelog-");
 
+export interface NewChangesSectionProps {
+    commits: ChangelogEntry[];
+    newPlugins: string[];
+    updatedPlugins: string[];
+    removedPlugins: string[];
+    fixedPlugins: string[];
+}
+
 export default function ChangelogTab() {
     const [repo, repoErr, repoPending] = useAwaiter(getRepo, { fallbackValue: "" });
-    const [changelog, setChangelog] = useState<ChangelogEntry[]>([]);
-    const [newPlugins, setNewPlugins] = useState<string[]>([]);
-    const [updatedPlugins, setUpdatedPlugins] = useState<string[]>([]);
+    const [changes, setChanges] = useState<NewChangesSectionProps>({
+        commits: [],
+        newPlugins: [],
+        updatedPlugins: [],
+        removedPlugins: [],
+        fixedPlugins: []
+    });
 
     useEffect(() => {
+        markAsSeen();
+
         if (!repo || repoPending) return;
-        initializeChangelog(repo)
+        initializeChangelog()
             .then(async result => {
                 if (result) {
-                    setChangelog(result.commits);
-                    setNewPlugins(result.newPlugins);
-                    setUpdatedPlugins(result.updatedPlugins);
+                    setChanges(result);
                 } else {
                     const persisted = await getLatestChangelogDisplay();
                     if (persisted) {
-                        setChangelog(persisted.commits);
-                        setNewPlugins(persisted.newPlugins);
-                        setUpdatedPlugins(persisted.updatedPlugins);
+                        setChanges(persisted);
                     }
                 }
             })
-            .catch(e => UpdateLogger.error("Failed to initialize changelog", e));
+            .catch(e => CLLogger.error("Failed to initialize changelog", e));
     }, [repo, repoPending]);
 
-    const hasCurrentChanges = changelog.length > 0 || newPlugins.length > 0 || updatedPlugins.length > 0;
+    const { commits, newPlugins, updatedPlugins, removedPlugins, fixedPlugins } = changes;
+    const hasCurrentChanges = commits.length > 0 || newPlugins.length > 0 || updatedPlugins.length > 0 || removedPlugins.length > 0 || fixedPlugins.length > 0;
 
     return (
         <SettingsTab>
@@ -74,37 +87,43 @@ export default function ChangelogTab() {
                 margin="bottom8"
             />
 
-            <Buttons.ButtonGroup className={Margins.bottom16} direction="horizontal" fullWidth>
-                <Buttons.IconButton
+            {hasCurrentChanges && <Buttons.ButtonGroup className={Margins.bottom16} direction="horizontal" fullWidth>
+                <Buttons.Button
                     icon={Icons.TrashIcon}
                     variant="critical-secondary"
+                    text="Clear History"
                     size="sm"
-                    disabled={!hasCurrentChanges}
                     onClick={async () => {
                         await clearChangelogHistory();
-                        setChangelog([]);
-                        setNewPlugins([]);
-                        setUpdatedPlugins([]);
+                        setChanges({
+                            commits: [],
+                            newPlugins: [],
+                            updatedPlugins: [],
+                            removedPlugins: [],
+                            fixedPlugins: []
+                        });
                     }}
                 />
-            </Buttons.ButtonGroup>
+            </Buttons.ButtonGroup>}
 
             <Forms.FormDivider gap={16} />
             <Repo repo={repo} repoPending={repoPending} error={repoErr} />
 
             {hasCurrentChanges ? (
-                <>
+                <section>
                     <Forms.FormDivider gap={18} />
                     <NewChangesSection
-                        commits={changelog}
+                        commits={commits}
                         newPlugins={newPlugins}
                         updatedPlugins={updatedPlugins}
+                        removedPlugins={removedPlugins}
+                        fixedPlugins={fixedPlugins}
                     />
-                </>
+                </section>
             ) : <div className={cl("no-changes")}>
                 <div className={cl("no-changes-inner")}>
                     <div className={cl("no-changes-background")} />
-                    <Text variant="heading-lg/semibold" color="text-muted">You're up to date — no new changes since last update</Text>
+                    <Text variant="heading-lg/semibold" color="text-muted">No new changes detected since last update</Text>
                 </div>
             </div>}
         </SettingsTab>

@@ -1,20 +1,10 @@
-.vc-settings-changelog-parsed h2 {
-    text-transform: none;
-}
-
-.vc-settings-changelog-plugins-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5em
-}
-
+/* #region index.tsx */
 .vc-settings-changelog-no-changes {
     width: 100%;
     height: 400px;
     display: flex;
-    justify-content: center
+    justify-content: center;
 }
-
 
 .vc-settings-changelog-no-changes-background {
     width: 200%;
@@ -30,10 +20,82 @@
     flex-direction: column;
 }
 
-.vc-settings-changelog-added {
-    color: var(--text-feedback-positive);
+/* #endregion */
+
+/* #region NewChangesSection.tsx */
+.vc-settings-changelog-plugins-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.vc-settings-changelog-modified {
-    color: var(--text-feedback-warning);
+.vc-settings-changelog-plugins-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5em;
 }
+
+
+.vc-settings-changelog-list {
+    list-style: disc;
+    margin: var(--space-4) 0 var(--space-4) var(--space-20);
+    padding: 0;
+}
+
+.vc-settings-changelog-list-item {
+    margin-bottom: var(--space-16);
+}
+
+h2.vc-settings-changelog-added,
+h2.vc-settings-changelog-removed,
+h2.vc-settings-changelog-fixed,
+h2.vc-settings-changelog-improved {
+    align-items: center;
+    display: flex;
+    gap: 4px;
+    margin-top: var(--space-24);
+}
+
+h2.vc-settings-changelog-added::after,
+h2.vc-settings-changelog-removed::after,
+h2.vc-settings-changelog-fixed::after,
+h2.vc-settings-changelog-improved::after {
+    flex: 1 1 auto;
+    content: "";
+    height: 1px;
+    opacity: .6;
+}
+
+.vc-settings-changelog-added {
+    color: var(--text-feedback-positive);
+
+    &::after {
+        background-color: var(--text-feedback-positive);
+    }
+}
+
+.vc-settings-changelog-removed {
+    color: var(--text-feedback-critical);
+
+    &::after {
+        background-color: var(--text-feedback-critical);
+    }
+}
+
+.vc-settings-changelog-fixed {
+    color: var(--text-feedback-info);
+
+    &::after {
+        background-color: var(--text-feedback-info);
+    }
+}
+
+.vc-settings-changelog-improved {
+    color: var(--text-brand);
+
+    &::after {
+        background-color: var(--text-brand);
+    }
+}
+
+/* #endregion */

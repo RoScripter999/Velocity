@@ -44,9 +44,28 @@ export interface ThemeDef {
     enabled?: boolean;
 }
 
+export interface ChangelogEntry {
+    hash: string;
+    author: string;
+    message: string;
+    timestamp?: number;
+}
+
+export interface UpdateSession {
+    id: string;
+    timestamp: number;
+    fromHash: string;
+    commits: ChangelogEntry[];
+    newPlugins: string[];
+    updatedPlugins: string[];
+    removedPlugins: string[];
+    fixedPlugins: string[];
+    newSettings?: Record<string, string[]>;
+}
+
 export interface Settings {
     autoUpdate: boolean;
-    autoUpdateNotification: boolean,
+    autoUpdateNotification: boolean;
     useQuickCss: boolean;
     windowMoveable: boolean;
     themes: {
@@ -97,7 +116,7 @@ export interface Settings {
         manaTextInputs: boolean;
         manaContextMenu: boolean;
         manaToggleInputs: boolean;
-    },
+    };
 
     notifications: {
         timeout: number;
@@ -111,6 +130,12 @@ export interface Settings {
         url: string;
         settingsSync: boolean;
         settingsSyncVersion: number;
+    };
+
+    changelog: {
+        history: UpdateSession[];
+        lastSeenHash: string | null;
+        knownPlugins: Record<string, number>;
     };
 }
 
@@ -163,6 +188,12 @@ const DefaultSettings: Settings = {
         url: "https://api.vencord.dev/",
         settingsSync: false,
         settingsSyncVersion: 0
+    },
+
+    changelog: {
+        history: [],
+        lastSeenHash: null,
+        knownPlugins: {}
     }
 };
 const settings = !IS_REPORTER ? VelocityNative.settings.get() : {} as Settings;

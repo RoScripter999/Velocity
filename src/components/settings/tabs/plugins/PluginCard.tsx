@@ -17,7 +17,7 @@
 */
 
 import { showNotice } from "@api/Notices";
-import { hasAnyVisibleSettings, isPluginEnabled, pluginRequiresRestart, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
+import { hasAnyVisibleSettings, isPluginEnabled, pluginRequiresRestart, plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
 import { AddonCard, openPluginModal } from "@components/settings";
 import { Span } from "@components/Span";
@@ -36,9 +36,15 @@ interface PluginCardProps extends HTMLProps<HTMLDivElement> {
 
 export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, onMouseLeave, isNew }: PluginCardProps) {
     const settings = useSettings([`plugins.${plugin.name}.enabled`]).plugins[plugin.name];
-    const isEnabled = () => isPluginEnabled(plugin.name);
+
+    // Since the changelog also renders the plugin card it might
+    // have the chance that it's already been removed, causing the info button to crash.
+    const isRemoved = !plugins[plugin.name];
+
+    const isEnabled = () => isRemoved ? false : isPluginEnabled(plugin.name);
 
     function toggleEnabled() {
+        if (isRemoved) return;
         const wasEnabled = isEnabled();
 
         if (!wasEnabled) {
@@ -88,13 +94,13 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
             isNew={isNew}
             enabled={isEnabled()}
             setEnabled={toggleEnabled}
-            disabled={disabled}
+            disabled={disabled || isRemoved}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            infoButtonTooltip={hasAnyVisibleSettings(plugin) ? "Open settings" : "Plugin info"}
+            infoButtonTooltip={isRemoved ? undefined : (hasAnyVisibleSettings(plugin) ? "Open settings" : "Plugin info")}
             enabledTooltip="Disable plugin"
             disabledTooltip="Enable plugin"
-            infoButton={
+            infoButton={isRemoved ? null : (
                 <button
                     role="switch"
                     aria-checked="false"
@@ -105,7 +111,7 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
                         ? <Icons.SettingsIcon color="currentColor" className={cl("settings-button")} />
                         : <Icons.CircleInformationIcon color="currentColor" className={cl("info-icon")} />}
                 </button>
-            }
+            )}
         />
     );
 }

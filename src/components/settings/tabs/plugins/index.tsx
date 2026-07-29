@@ -20,7 +20,7 @@ import "./styles.css";
 
 import * as DataStore from "@api/DataStore";
 import { isPluginEnabled } from "@api/PluginManager";
-import { Settings } from "@api/Settings";
+import { Settings, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { HeadingTertiary } from "@components/Heading";
@@ -35,7 +35,7 @@ import { Logger } from "@utils/Logger";
 import { classes, isPluginDev } from "@utils/misc";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { type PluginTag, PluginTags } from "@utils/types";
-import { Buttons, ConfirmModal, Field, Forms, HelpMessage, Icons, LoadingIndicator, lodash, openModal, Parser, SearchableSelect, SearchBar, Select, Text, useCallback, useDeferredValue, useEffect, useMemo, useRef, UserStore, useState } from "@webpack/common";
+import { Buttons, ConfirmModal, Field, Forms, HelpMessage, Icons, LoadingIndicator, openModal, Parser, SearchableSelect, SearchBar, Select, Text, useCallback, useDeferredValue, useEffect, useMemo, useRef, UserStore, useState } from "@webpack/common";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
@@ -199,6 +199,21 @@ export default function PluginSettings() {
         []
     );
 
+    const { changelog } = useSettings(["changelog.*"]);
+    const newPlugins = useMemo(() => {
+        const known = changelog.knownPlugins || {};
+        const now = Math.floor(Date.now() / 1000);
+        const time = 1 * 24 * 60 * 60; // 1 day bruh
+
+        return sortedPlugins
+            .map(plugin => plugin.name)
+            .filter(name => {
+                const ts = known[name];
+                if (ts === undefined) return true;
+                return (now - ts) < time;
+            });
+    }, [changelog.knownPlugins, sortedPlugins]);
+
     const hasUserPlugins = useMemo(() => Object.values(PluginMeta).some(m => m.userPlugin), []);
 
     const [savedFilters, , filtersLoading] = useAwaiter(() =>
@@ -234,23 +249,6 @@ export default function PluginSettings() {
             return next;
         });
     }, []);
-
-    const [newPlugins] = useAwaiter(() => DataStore.get("Velocity_newPlugins").then((cachedPlugins: Record<string, number> | undefined) => {
-        const now = Date.now() / 1000;
-        const existingTimestamps: Record<string, number> = {};
-        const sortedPluginNames = Object.values(sortedPlugins).map(plugin => plugin.name);
-
-        const newPlugins: string[] = [];
-        for (const { name: p } of sortedPlugins) {
-            const time = existingTimestamps[p] = cachedPlugins?.[p] ?? now;
-            if ((time + 60 * 60 * 24 * 2) > now) {
-                newPlugins.push(p);
-            }
-        }
-        DataStore.set("Velocity_newPlugins", existingTimestamps);
-
-        return lodash.isEqual(newPlugins, sortedPluginNames) ? [] : newPlugins;
-    }));
 
     const search = deferredSearch.toLowerCase();
 
@@ -344,6 +342,27 @@ export default function PluginSettings() {
 
     useCleanupEffect(() => {
         void DataStore.set("Velocity_pluginFilters", filtersRef.current);
+
+        // Update known plugins map with current timestamps when the tab exits
+        try {
+            const currentPlugins = Object.keys(Plugins);
+            const known = { ...Settings.changelog.knownPlugins };
+            const now = Math.floor(Date.now() / 1000);
+            let changed = false;
+
+            for (const p of currentPlugins) {
+                if (known[p] === undefined) {
+                    known[p] = now;
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                Settings.changelog.knownPlugins = known;
+            }
+        } catch (e) {
+            logger.error("Failed to update known plugins in settings", e);
+        }
 
         if (changes?.hasChanges) {
             openModal(props => (

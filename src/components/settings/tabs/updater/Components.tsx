@@ -16,13 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { updateLastSeenHash } from "@api/Changelog";
 import { Card } from "@components/Card";
 import { ErrorCard } from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
-import { setLastSeenHash } from "@components/settings/tabs/changelog/changelogManager";
 import { gitHash } from "@shared/userAgent";
 import { classNameFactory } from "@utils/css";
 import { pluralise } from "@utils/misc";
@@ -55,7 +55,7 @@ export function HashLink({ repo, hash, disabled = false }: { repo: string; hash:
 export function Repo(props: CommonProps & { error: any; }) {
     const { error } = props;
     return (
-        <>
+        <div>
             <Forms.FormTitle tag="h5">Repository</Forms.FormTitle>
             <Paragraph>
                 {props.repoPending ? (
@@ -72,7 +72,7 @@ export function Repo(props: CommonProps & { error: any; }) {
                     </>
                 )}
             </Paragraph>
-        </>
+        </div>
     );
 }
 
@@ -130,7 +130,7 @@ export function Updatable(props: CommonProps) {
                     text="Update Now"
                     size="sm"
                     onClick={runWithDispatch(setIsUpdating, async () => {
-                        await setLastSeenHash(gitHash);
+                        updateLastSeenHash();
                         if (await update()) {
                             setUpdates([]);
 

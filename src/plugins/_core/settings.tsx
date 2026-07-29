@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { hasNewChangelog } from "@api/Changelog";
 import { definePluginSettings } from "@api/Settings";
 import { PluginsIcon, VelocityIcon } from "@components/Icons";
 import { BackupAndRestoreTab, ChangeLogTab, CloudTab, DevTools, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
@@ -24,7 +25,7 @@ import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
 import type { LayoutNode, PanelNode, SectionNode, SidebarItemNode } from "@velocity-types";
-import { LayoutType, NestedPanelLeadingDecorationType } from "@velocity-types/enums";
+import { BadgeType, LayoutType, NestedPanelLeadingDecorationType } from "@velocity-types/enums";
 import { Icons } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
@@ -93,14 +94,14 @@ export default definePlugin({
         }
     ],
 
-    buildEntry(options: {
+    buildEntry<T extends Partial<SidebarItemNode>>(options: {
         key: string;
         title: string;
         panelTitle?: string;
         Component: ComponentType<{}>;
         Icon: ComponentType<any>;
-    }): SidebarItemNode {
-        const { key, title, panelTitle = title, Component, Icon } = options;
+    } & T): SidebarItemNode {
+        const { key, title, panelTitle = title, Component, Icon, ...rest } = options;
 
         const panel: PanelNode = {
             key: key + "_panel",
@@ -119,6 +120,7 @@ export default definePlugin({
         };
 
         return {
+            ...rest,
             key,
             type: LayoutType.SIDEBAR_ITEM,
             useTitle: () => title,
@@ -216,7 +218,11 @@ export default definePlugin({
                 title: "Changelog",
                 panelTitle: "Velocity Changelog",
                 Component: ChangeLogTab,
-                Icon: Icons.TopicsIcon
+                Icon: Icons.TopicsIcon,
+                getDismissibleBadges: hasNewChangelog() ? () => [{
+                    badgeType: BadgeType.NEW,
+                    dismissibleContent: "velocity_changelog_" + gitHash
+                }] : undefined
             }),
             this.buildEntry({
                 key: "velocity_cloud",
