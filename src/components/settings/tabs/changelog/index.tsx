@@ -26,7 +26,7 @@ import { Repo } from "@components/settings/tabs/updater/Components";
 import { classNameFactory } from "@utils/css";
 import { useAwaiter } from "@utils/react";
 import { getRepo, UpdateLogger } from "@utils/updater";
-import { Buttons, Forms, Icons, Text, useEffect, useState } from "@webpack/common";
+import { Buttons, Forms, Icons, Text, Toasts, useEffect, useState } from "@webpack/common";
 
 import gitHash from "~git-hash";
 
@@ -78,16 +78,35 @@ export default function ChangelogTab() {
         const updates = await VelocityNative.updater.getUpdates();
         if (!updates.ok) throw new Error(updates.error?.message ?? "Failed to fetch");
 
-        if (updates.value.length > 0) {
-            const latestHash = updates.value[0].hash;
-            const [newPlgs, newSettings, updatedPlgs] = await Promise.all([
-                getNewPlugins(),
-                getNewSettings(),
-                getUpdatedPluginsInRange(repo, gitHash, latestHash)
-            ]);
-            const filteredUpdated = updatedPlgs.filter(p => !newPlgs.includes(p));
-            await saveUpdateSession(updates.value, newPlgs, filteredUpdated, newSettings, true);
+        if (updates.value.length === 0) {
+            Toasts.show({
+                message: "No new commits found",
+                id: Toasts.genId(),
+                type: Toasts.Type.MESSAGE,
+                options: { position: Toasts.Position.BOTTOM }
+            });
+            return;
         }
+
+        const latestHash = updates.value[0].hash;
+        const [newPlgs, newSettings, updatedPlgs] = await Promise.all([
+            getNewPlugins(),
+            getNewSettings(),
+            getUpdatedPluginsInRange(repo, gitHash, latestHash)
+        ]);
+        const filteredUpdated = updatedPlgs.filter(p => !newPlgs.includes(p));
+        await saveUpdateSession(updates.value, newPlgs, filteredUpdated, newSettings, true);
+
+        setChangelog(updates.value);
+        setNewPlugins(newPlgs);
+        setUpdatedPlugins(filteredUpdated);
+
+        Toasts.show({
+            message: "Fetched latest changes from repository",
+            id: Toasts.genId(),
+            type: Toasts.Type.SUCCESS,
+            options: { position: Toasts.Position.BOTTOM }
+        });
     }
 
     async function handleFetchClick() {

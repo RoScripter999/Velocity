@@ -64,19 +64,20 @@ function normalizeRepoUrl(repoUrl: string | null | undefined): string | null {
 interface RepoComparison {
     commits: ChangelogEntry[];
     updatedPlugins: string[];
+    ok: boolean;
 }
 
 async function fetchRepoComparison(repoSlug: string, fromHash: string, toHash: string): Promise<RepoComparison> {
-    const empty: RepoComparison = { commits: [], updatedPlugins: [] };
+    const empty: RepoComparison = { commits: [], updatedPlugins: [], ok: true };
     if (!repoSlug || typeof fetch !== "function") return empty;
     try {
         const res = await fetch(
             `https://api.github.com/repos/${repoSlug}/compare/${fromHash}...${toHash}`,
             { headers: { Accept: "application/vnd.github+json", "Cache-Control": "no-cache" } }
         );
-        if (!res.ok) return empty;
+        if (!res.ok) return { commits: [], updatedPlugins: [], ok: false };
         const data = await res.json();
-        if (!data) return empty;
+        if (!data) return { commits: [], updatedPlugins: [], ok: false };
 
         const commits: ChangelogEntry[] = Array.isArray(data.commits)
             ? data.commits.map((commit: any) => {
@@ -88,7 +89,7 @@ async function fetchRepoComparison(repoSlug: string, fromHash: string, toHash: s
                     message: message.split("\n")[0] || "No message",
                     timestamp: Number.isNaN(timestamp) ? undefined : timestamp
                 };
-            })
+            }).reverse()
             : [];
 
         const pluginNames = new Set<string>();
@@ -99,9 +100,9 @@ async function fetchRepoComparison(repoSlug: string, fromHash: string, toHash: s
             }
         }
 
-        return { commits, updatedPlugins: [...pluginNames] };
+        return { commits, updatedPlugins: [...pluginNames], ok: true };
     } catch {
-        return empty;
+        return { commits: [], updatedPlugins: [], ok: false };
     }
 }
 
@@ -284,6 +285,7 @@ export async function initializeChangelog(repoUrl: string): Promise<{
 
     let commits: ChangelogEntry[];
     let updatedPlugins: string[];
+    let fetchOk = true;
 
     // Use pre-fetched data if it was saved for exactly this update
     const preFetched = history.find(e => e.type === "repository_fetch" && e.fromHash === lastSeenHash && e.toHash === currentHash);
@@ -294,12 +296,21 @@ export async function initializeChangelog(repoUrl: string): Promise<{
         const repoSlug = normalizeRepoUrl(repoUrl);
         const comparison = repoSlug
             ? await fetchRepoComparison(repoSlug, lastSeenHash, currentHash)
-            : { commits: [], updatedPlugins: [] };
+            : { commits: [], updatedPlugins: [], ok: true };
         commits = comparison.commits;
         updatedPlugins = comparison.updatedPlugins.filter(p => !newPlgs.includes(p));
+        fetchOk = comparison.ok;
     }
 
-    // Mark as seen only after we have the data
+    // Couldn't verify the remote diff (network error, hash not pushed yet, etc).
+    // Don't mark this hash as seen or update known state, so the next check retries the full range.
+    if (!fetchOk) {
+        return (commits.length > 0 || newPlgs.length > 0 || updatedPlugins.length > 0 || newSettings.size > 0)
+            ? { commits, newPlugins: newPlgs, updatedPlugins }
+            : null;
+    }
+
+    // Mark as seen only after we have a confirmed comparison
     await setLastSeenHash(currentHash);
 
     if (commits.length > 0 || newPlgs.length > 0 || updatedPlugins.length > 0 || newSettings.size > 0) {
@@ -329,4 +340,3 @@ export async function initializeChangelog(repoUrl: string): Promise<{
     // Nothing new found — return null so caller falls back to persisted history
     return null;
 }
-
