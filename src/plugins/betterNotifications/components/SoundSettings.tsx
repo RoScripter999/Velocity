@@ -215,17 +215,16 @@ export function SoundSettings() {
                         />
                     )}
                 </Flex>
-
-                <Flex alignItems="center" gap="8px" className={Margins.bottom8}>
+                <div className={Margins.bottom8} style={{ position: "relative" }}>
+                    <Buttons.Button text={form.filename ? `File: ${form.filename}` : "Upload sound"} />
                     <FilePicker
-                        filename={form.filename}
-                        placeholder="Choose a sound"
-                        buttonText="Upload Sound"
                         filters={[{ name: "Sound file", extensions: ["mp3", "wav", "ogg", "m4a"] }]}
-                        onFileSelect={handleFileUpload}
+                        onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFileUpload(file);
+                        }}
                     />
-                </Flex>
-
+                </div>
                 <Flex flexDirection="column" gap="4px">
                     <Flex flexDirection="row" gap="8px">
                         <Text variant="text-sm/normal" >
