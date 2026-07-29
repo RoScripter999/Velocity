@@ -19,7 +19,6 @@
 import ErrorBoundary from "@components/ErrorBoundary";
 import { onlyOnce } from "@utils/onlyOnce";
 import { maybePromptToUpdate } from "@utils/updater";
-import type { ModalProps } from "@velocity-types";
 import { Modal, openModal } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
@@ -35,19 +34,18 @@ export function SettingsTab({ children }: PropsWithChildren) {
             message="Failed to render this tab. If this issue persists, try reinstalling."
             onError={handleSettingsTabError}
         >
-            <section className="vc-settings-tab">
+            <main className="vc-settings-tab">
                 {children}
-            </section>
+            </main>
         </ErrorBoundary>
     );
 }
 
-export function openSettingsTabModal(Tab: ComponentType<any>, Size: ModalProps["size"] = "lg") {
+export function openSettingsTabModal(Tab: ComponentType<any>) {
     try {
         openModal(modalProps => (
             <Modal
                 {...modalProps}
-                size={Size}
                 title={Tab.displayName?.replace("SettingsTab", "") || "Settings"}
             >
                 <Tab />
