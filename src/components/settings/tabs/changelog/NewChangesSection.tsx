@@ -16,17 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { ChangelogEntry } from "@api/Changelog";
+import type { ChangelogEntry, UpdateSession } from "@api/Changelog";
 import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
-import { SectionHeader } from "@components/settings";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
+import { pluralise } from "@utils/misc";
 import { wordsToTitle } from "@utils/text";
-import { Icons, showToast, Text } from "@webpack/common";
+import { DateUtils, Forms, Icons, showToast, Text } from "@webpack/common";
 
 import Plugins from "~plugins";
 
-import { cl, NewChangesSectionProps } from ".";
+import { cl } from ".";
 
 interface PluginChangesProps {
     added: string[];
@@ -57,39 +57,35 @@ function PluginChanges({ added, removed, fixed, improved }: PluginChangesProps) 
 
     if (!sections.length) return null;
 
-    return (
-        <Flex flexDirection="column" gap="0.625em">
-            {sections.map(({ id, label, Icon, names }) => {
-                const pluginNames = names.filter(n => id === "removed" || !Plugins[n]?.hidden);
-                if (!pluginNames.length) return null;
+    return sections.map(({ id, label, Icon, names }) => {
+        const pluginNames = names.filter(n => id === "removed" || !Plugins[n]?.hidden);
+        if (!pluginNames.length) return null;
 
-                const IconComponent = Icon();
-                return (
-                    <Flex flexDirection="column" gap="0.3em" key={id}>
-                        <div className={cl("plugins-title")}>
-                            <IconComponent className={cl(id)} size="xs" color="currentColor" />
-                            <Text variant="text-xs/semibold" className={cl(id)}>{label} ({pluginNames.length})</Text>
-                        </div>
-                        <div className={cl("plugins-grid")}>
-                            {pluginNames.map(name => {
-                                const plugin = Plugins[wordsToTitle([name])] ||
-                                    { name: wordsToTitle([name]), description: "Description cannot be displayed since it's no longer in the client." };
-                                return (
-                                    <PluginCard
-                                        key={name}
-                                        plugin={plugin}
-                                        disabled={id === "removed"}
-                                        onRestartNeeded={() => showToast("Restart to apply changes!")}
-                                        isNew={id === "added"}
-                                    />
-                                );
-                            })}
-                        </div>
-                    </Flex>
-                );
-            })}
-        </Flex>
-    );
+        const IconComponent = Icon();
+        return (
+            <Flex flexDirection="column" gap="0.3em" key={id}>
+                <div className={cl("plugins-title")}>
+                    <IconComponent className={cl(id)} size="xs" color="currentColor" />
+                    <Text variant="text-xs/semibold" className={cl(id)}>{pluralise(pluginNames.length, `${label} Plugin`)}</Text>
+                </div>
+                <div className={cl("plugins-grid")}>
+                    {pluginNames.map(name => {
+                        const plugin = Plugins[wordsToTitle([name])] ||
+                            { name: wordsToTitle([name]), description: "Description cannot be displayed since it's no longer in the client." };
+                        return (
+                            <PluginCard
+                                key={name}
+                                plugin={plugin}
+                                disabled={id === "removed"}
+                                onRestartNeeded={() => showToast("Restart to apply changes!")}
+                                isNew={id === "added"}
+                            />
+                        );
+                    })}
+                </div>
+            </Flex>
+        );
+    });
 }
 
 function RegularChanges({ commits }: { commits: ChangelogEntry[]; }) {
@@ -129,35 +125,53 @@ function RegularChanges({ commits }: { commits: ChangelogEntry[]; }) {
             </ul>
         </section>
     ));
+} const SCOPE_PATTERN = /^([\w-]+):\s*/;
+
+function getUncardedCommits(session: UpdateSession) {
+    const cardedPlugins = new Set(
+        [...session.newPlugins, ...session.updatedPlugins, ...session.removedPlugins, ...session.fixedPlugins]
+            .map(name => name.toLowerCase())
+    );
+
+    return session.commits.filter(({ message }) => {
+        const scope = message.match(SCOPE_PATTERN)?.[1];
+        return !scope || !cardedPlugins.has(scope.toLowerCase());
+    });
 }
 
-
-export function NewChangesSection({ commits, newPlugins, updatedPlugins, removedPlugins, fixedPlugins }: NewChangesSectionProps) {
-    const hasPlugins = newPlugins.length > 0 || updatedPlugins.length > 0 || removedPlugins.length > 0 || fixedPlugins.length > 0;
-    const hasCommits = commits.length > 0;
-
-    if (!hasPlugins && !hasCommits) return null;
-
+export function NewChangesSection({ history }: { history: UpdateSession[]; }) {
     return (
         <>
-            <SectionHeader
-                tag="h3"
-                title="Recent Changes"
-                description="New commits and plugin updates since your last version."
-                className={Margins.bottom16}
-            />
-            {hasPlugins && (
-                <div className={Margins.bottom16}>
-                    <Text variant="text-md/semibold" className={Margins.bottom8}>Plugin Changes</Text>
-                    <PluginChanges
-                        added={newPlugins}
-                        improved={updatedPlugins}
-                        removed={removedPlugins}
-                        fixed={fixedPlugins}
-                    />
-                </div>
-            )}
-            {hasCommits && <RegularChanges commits={commits} />}
+            {history.map((session, i) => {
+                const uncardedCommits = getUncardedCommits(session);
+                const hasPlugins = session.newPlugins.length > 0 || session.updatedPlugins.length > 0 ||
+                    session.removedPlugins.length > 0 || session.fixedPlugins.length > 0;
+                const hasCommits = uncardedCommits.length > 0;
+                if (!hasPlugins && !hasCommits) return null;
+
+                return (
+                    <div key={session.id}>
+                        {i > 0 && <Forms.FormDivider gap={20} />}
+                        <div className={cl("session")}>
+                            <Text tag="h2" variant="heading-sm/semibold" className={Margins.bottom8}>
+                                {DateUtils.calendarFormat(new Date(session.timestamp))}
+                            </Text>
+                            {hasPlugins && (
+                                <div className={Margins.bottom16}>
+                                    <PluginChanges
+                                        added={session.newPlugins}
+                                        improved={session.updatedPlugins}
+                                        removed={session.removedPlugins}
+                                        fixed={session.fixedPlugins}
+                                    />
+                                    {hasCommits && <Forms.FormDivider gap={12} />}
+                                </div>
+                            )}
+                            {hasCommits && <RegularChanges commits={uncardedCommits} />}
+                        </div>
+                    </div>
+                );
+            })}
         </>
     );
 }

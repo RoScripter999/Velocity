@@ -19,12 +19,12 @@
 import "./styles.css";
 
 import {
-    type ChangelogEntry,
     clearChangelogHistory,
     CLLogger,
-    getLatestChangelogDisplay,
+    getChangelogHistory,
     initializeChangelog,
-    markAsSeen
+    markAsSeen,
+    type UpdateSession
 } from "@api/Changelog";
 import { Margins } from "@components/margins";
 import { SectionHeader, SettingsTab } from "@components/settings";
@@ -38,44 +38,21 @@ import { NewChangesSection } from "./NewChangesSection";
 
 export const cl = classNameFactory("vc-settings-changelog-");
 
-export interface NewChangesSectionProps {
-    commits: ChangelogEntry[];
-    newPlugins: string[];
-    updatedPlugins: string[];
-    removedPlugins: string[];
-    fixedPlugins: string[];
-}
-
 export default function ChangelogTab() {
     const [repo, repoErr, repoPending] = useAwaiter(getRepo, { fallbackValue: "" });
-    const [changes, setChanges] = useState<NewChangesSectionProps>({
-        commits: [],
-        newPlugins: [],
-        updatedPlugins: [],
-        removedPlugins: [],
-        fixedPlugins: []
-    });
+    const [history, setHistory] = useState<UpdateSession[]>([]);
 
     useEffect(() => {
         markAsSeen();
 
         if (!repo || repoPending) return;
         initializeChangelog()
-            .then(async result => {
-                if (result) {
-                    setChanges(result);
-                } else {
-                    const persisted = await getLatestChangelogDisplay();
-                    if (persisted) {
-                        setChanges(persisted);
-                    }
-                }
-            })
+            .then(() => getChangelogHistory())
+            .then(setHistory)
             .catch(e => CLLogger.error("Failed to initialize changelog", e));
     }, [repo, repoPending]);
 
-    const { commits, newPlugins, updatedPlugins, removedPlugins, fixedPlugins } = changes;
-    const hasCurrentChanges = commits.length > 0 || newPlugins.length > 0 || updatedPlugins.length > 0 || removedPlugins.length > 0 || fixedPlugins.length > 0;
+    const hasCurrentChanges = history.length > 0;
 
     return (
         <SettingsTab>
@@ -95,13 +72,7 @@ export default function ChangelogTab() {
                     size="sm"
                     onClick={async () => {
                         await clearChangelogHistory();
-                        setChanges({
-                            commits: [],
-                            newPlugins: [],
-                            updatedPlugins: [],
-                            removedPlugins: [],
-                            fixedPlugins: []
-                        });
+                        setHistory([]);
                     }}
                 />
             </Buttons.ButtonGroup>}
@@ -112,13 +83,7 @@ export default function ChangelogTab() {
             {hasCurrentChanges ? (
                 <section>
                     <Forms.FormDivider gap={18} />
-                    <NewChangesSection
-                        commits={commits}
-                        newPlugins={newPlugins}
-                        updatedPlugins={updatedPlugins}
-                        removedPlugins={removedPlugins}
-                        fixedPlugins={fixedPlugins}
-                    />
+                    <NewChangesSection history={history} />
                 </section>
             ) : <div className={cl("no-changes")}>
                 <div className={cl("no-changes-inner")}>

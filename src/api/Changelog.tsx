@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { NewChangesSectionProps } from "@components/settings/tabs/changelog";
 import { localStorage } from "@utils/localStorage";
 import { Logger } from "@utils/Logger";
 import { findByCodeLazy } from "@webpack";
@@ -137,30 +136,15 @@ async function updateKnownPlugins(): Promise<void> {
     Settings.changelog.knownPlugins = known;
 }
 
-export async function getLatestChangelogDisplay(): Promise<{
-    commits: ChangelogEntry[];
-    newPlugins: string[];
-    updatedPlugins: string[];
-    removedPlugins: string[];
-    fixedPlugins: string[];
-} | null> {
-    const history = Settings.changelog.history || [];
-    const latest = history[0];
-    if (!latest) return null;
-    return {
-        commits: latest.commits,
-        newPlugins: latest.newPlugins,
-        updatedPlugins: latest.updatedPlugins,
-        removedPlugins: latest.removedPlugins,
-        fixedPlugins: latest.fixedPlugins
-    };
+export async function getChangelogHistory(): Promise<UpdateSession[]> {
+    return Settings.changelog.history || [];
 }
 
 export async function clearChangelogHistory(): Promise<void> {
     Settings.changelog.history = [];
 }
 
-export async function initializeChangelog(): Promise<NewChangesSectionProps | null> {
+export async function initializeChangelog(): Promise<UpdateSession | null> {
     const lastSeenHash = Settings.changelog.lastSeenHash;
 
     // First run — bootstrap known state and show nothing
@@ -186,7 +170,7 @@ export async function initializeChangelog(): Promise<NewChangesSectionProps | nu
     // Don't mark this hash as seen or update known state, so the next check retries the full range.
     if (!comparison.ok) {
         return (commits.length > 0 || newPlgs.length > 0 || updatedPlugins.length > 0)
-            ? { commits, newPlugins: newPlgs, updatedPlugins, removedPlugins, fixedPlugins }
+            ? { id: crypto.randomUUID(), timestamp: Date.now(), fromHash: lastSeenHash, commits, newPlugins: newPlgs, updatedPlugins, removedPlugins, fixedPlugins }
             : null;
     }
 
@@ -195,7 +179,7 @@ export async function initializeChangelog(): Promise<NewChangesSectionProps | nu
     updateLastSeenHash();
 
     if (commits.length > 0 || newPlgs.length > 0 || updatedPlugins.length > 0) {
-        history.unshift({
+        const session: UpdateSession = {
             id: crypto.randomUUID(),
             timestamp: Date.now(),
             fromHash: lastSeenHash,
@@ -204,13 +188,14 @@ export async function initializeChangelog(): Promise<NewChangesSectionProps | nu
             updatedPlugins,
             removedPlugins,
             fixedPlugins
-        });
+        };
+        history.unshift(session);
         if (history.length > 50) history.splice(50);
         Settings.changelog.history = history;
 
         await updateKnownPlugins();
 
-        return { commits, newPlugins: newPlgs, updatedPlugins, removedPlugins, fixedPlugins };
+        return session;
     }
 
     await updateKnownPlugins();

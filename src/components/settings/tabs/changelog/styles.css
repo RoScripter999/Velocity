@@ -23,10 +23,18 @@
 /* #endregion */
 
 /* #region NewChangesSection.tsx */
+
+.vc-settings-changelog-session {
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--background-base-lower)
+}
+
 .vc-settings-changelog-plugins-title {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-bottom: 8px
 }
 
 .vc-settings-changelog-plugins-grid {
