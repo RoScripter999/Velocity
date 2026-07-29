@@ -27,6 +27,7 @@ export let useMemo: typeof React.useMemo;
 export let useRef: typeof React.useRef;
 export let useReducer: typeof React.useReducer;
 export let useCallback: typeof React.useCallback;
+export let useSyncExternalStore: typeof React.useSyncExternalStore;
 export let useDeferredValue: typeof React.useDeferredValue;
 export let useId: typeof React.useId;
 export let memo: typeof React.memo;
@@ -37,5 +38,5 @@ export const createRoot: typeof import("react-dom/client").createRoot = findByCo
 
 waitFor(["createElement", "useEffect"], m => {
     React = m;
-    ({ useEffect, useState, useLayoutEffect, useMemo, useRef, useReducer, useCallback, useDeferredValue, useId, memo } = React);
+    ({ useEffect, useState, useLayoutEffect, useMemo, useRef, useReducer, useCallback, useSyncExternalStore, useDeferredValue, useId, memo } = React);
 });

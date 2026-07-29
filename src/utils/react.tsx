@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { useEffect, useMemo, useReducer, useRef, useState } from "@webpack/common";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "@webpack/common";
 import type { ActionDispatch, DependencyList, ReactNode } from "react";
 
 import { checkIntersecting } from "./misc";
@@ -24,6 +24,8 @@ import { checkIntersecting } from "./misc";
 export * from "./lazyReact";
 
 export const NoopComponent = () => null;
+const USEMAPS_SYM = Symbol("react.useMaps");
+const USEMAPS_ORIGINALS_SYM = Symbol("react.useMaps.originals");
 
 /**
  * Check if a React node is a primitive (string, number, bigint, boolean, undefined)
@@ -152,6 +154,63 @@ export function useTimer({ interval = 1000, deps = [] }: TimerOpts) {
     }, deps);
 
     return time;
+}
+
+type ObservableMap = Map<any, any> & {
+    [USEMAPS_SYM]?: Set<() => void>;
+    [USEMAPS_ORIGINALS_SYM]?: {
+        set: Map<any, any>["set"];
+        delete: Map<any, any>["delete"];
+        clear: Map<any, any>["clear"];
+    };
+};
+
+export function useMaps<T = any>(maps: Map<any, any>[], getValue: () => T): T {
+    return useSyncExternalStore(useCallback((onStoreChange: () => void) => {
+        maps.forEach((map: ObservableMap) => {
+            if (!map[USEMAPS_SYM]) {
+                map[USEMAPS_SYM] = new Set();
+
+                const { set, delete: del, clear } = map;
+                map[USEMAPS_ORIGINALS_SYM] = { set, delete: del, clear };
+
+                map.set = function (...args) {
+                    const res = set.apply(this, args);
+                    map[USEMAPS_SYM]?.forEach(l => l());
+                    return res;
+                };
+
+                map.delete = function (...args) {
+                    const res = del.apply(this, args);
+                    if (res) map[USEMAPS_SYM]?.forEach(l => l());
+                    return res;
+                };
+
+                map.clear = function () {
+                    clear.apply(this);
+                    map[USEMAPS_SYM]?.forEach(l => l());
+                };
+            }
+
+            map[USEMAPS_SYM].add(onStoreChange);
+        });
+
+        return () => {
+            maps.forEach((map: ObservableMap) => {
+                map[USEMAPS_SYM]?.delete(onStoreChange);
+                if (map[USEMAPS_SYM]?.size) return;
+
+                const originals = map[USEMAPS_ORIGINALS_SYM];
+                if (originals) {
+                    map.set = originals.set;
+                    map.delete = originals.delete;
+                    map.clear = originals.clear;
+                }
+                delete map[USEMAPS_SYM];
+                delete map[USEMAPS_ORIGINALS_SYM];
+            });
+        };
+    }, maps), getValue);
 }
 
 export function useCleanupEffect(

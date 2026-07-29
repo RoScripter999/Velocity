@@ -28,9 +28,10 @@ import { Paragraph } from "@components/Paragraph";
 import { openPluginModal, SectionHeader, type SectionHeaderProps } from "@components/settings";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
+import { useMaps } from "@utils/react";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
-import { Icons, Modal, openModal, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useRef, useState } from "@webpack/common";
+import { Icons, Modal, openModal, React, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useRef, useState } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 interface RowProps {
@@ -133,14 +134,25 @@ export function openUIElementsModal(): void {
 }
 
 export function hasUIElements() {
-    return getOrderedNames(ChatBarButtonMap, Settings.uiElements.chatBarButtons).length > 0 ||
-        getOrderedNames(ContextMenuButtonMap, Settings.uiElements.contextMenuButtons).length > 0 ||
-        getOrderedNames(MessagePopoverButtonMap, Settings.uiElements.messagePopoverButtons).length > 0 ||
-        getOrderedNames(HeaderBarButtonMap, Settings.uiElements.headerBarButtons).length > 0;
+    return (
+        [
+            [ChatBarButtonMap, Settings.uiElements.chatBarButtons],
+            [ContextMenuButtonMap, Settings.uiElements.contextMenuButtons],
+            [MessagePopoverButtonMap, Settings.uiElements.messagePopoverButtons],
+            [HeaderBarButtonMap, Settings.uiElements.headerBarButtons]
+        ] as const
+    ).some(([map, settings]) =>
+        getOrderedNames(map, settings).some(name => {
+            const item = map instanceof Map ? map.get(name) : map[name];
+            return Array.isArray(item)
+                ? item.some(i => typeof i === "object" && i !== null && !i.required)
+                : typeof item === "object" && item !== null && !((item as any).required);
+        })
+    );
 }
 
 export function UIElementsButton() {
-    const hasAny = hasUIElements();
+    const hasAny = useMaps([ChatBarButtonMap, ContextMenuButtonMap, MessagePopoverButtonMap, HeaderBarButtonMap], hasUIElements);
 
     return (
         <div className={cl("button")} onClick={() => hasAny && openUIElementsModal()}>
