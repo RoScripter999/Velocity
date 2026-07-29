@@ -39,6 +39,7 @@ import { openInviteModal } from "@utils/discord";
 import { StartAt } from "@utils/types";
 import { SettingsRouter } from "@webpack/common";
 
+import { initChangelog } from "./api/Changelog";
 import { get as dsGet } from "./api/DataStore";
 import { NotificationData, showNotification } from "./api/Notifications";
 import { initPluginManager, PMLogger, startAllPlugins } from "./api/PluginManager";
@@ -192,6 +193,8 @@ async function init() {
     startAllPlugins(StartAt.WebpackReady);
 
     syncSettings();
+    initChangelog();
+
     initTrayIpc();
 
     if (!IS_WEB && !IS_UPDATER_DISABLED) {
