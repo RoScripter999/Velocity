@@ -48,12 +48,14 @@ async function calculateGitChanges() {
 
     const data = await githubGet(`/compare/${gitHash}...HEAD`);
 
-    return data.commits.map((c: any) => ({
-        // github api only sends the long sha
-        hash: c.sha.slice(0, 7),
-        author: c.author?.login ?? c.commit?.author?.name ?? "Unknown Author",
-        message: c.commit.message.split("\n")[0]
-    }));
+    return data.commits
+        .map((c: any) => ({
+            // github api only sends the long sha
+            hash: c.sha.slice(0, 7),
+            author: c.author?.login ?? c.commit?.author?.name ?? "Unknown Author",
+            message: c.commit.message.split("\n")[0]
+        }))
+        .filter((c: any) => !c.message.toLowerCase().startsWith("chore: update plugin count"));
 }
 
 async function fetchUpdates() {

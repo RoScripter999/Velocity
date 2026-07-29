@@ -73,6 +73,7 @@ async function calculateGitChanges() {
     // Filter out commits that only modified README.md since it's really annoying
     // when a new plugin is added (see build.yml workflow)
     return parsedCommits.filter(c =>
+        !c.message.toLowerCase().startsWith("chore: update plugin count") &&
         !(c.files.length > 0 && c.files.every(f => f.toLowerCase() === "readme.md"))
     );
 }
