@@ -63,7 +63,7 @@ export interface SectionNode extends LayoutNode {
     buildLayout(): SidebarItemNode[];
 }
 
-export interface SidebarItemNode extends LayoutBuilderNode {
+export interface SidebarItemNode extends LayoutBuilderNode extends BadgesNode {
     type: LayoutType.SIDEBAR_ITEM;
     useTitle(): ReactNode | string;
     buildLayout(): PanelNode[];
