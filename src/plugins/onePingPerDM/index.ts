@@ -53,7 +53,7 @@ export default definePlugin({
     settings,
     patches: [
         {
-            find: ".getDesktopType()===",
+            find: '"NotificationStore"',
             noWarn: true,
             replacement: [
                 {
