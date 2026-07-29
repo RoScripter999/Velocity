@@ -60,7 +60,7 @@ function PluginChanges({ added, removed, fixed, improved }: PluginChangesProps) 
     return (
         <Flex flexDirection="column" gap="0.625em">
             {sections.map(({ id, label, Icon, names }) => {
-                const pluginNames = names.filter(n => id === "removed" || (!!Plugins[n] && !Plugins[n].hidden));
+                const pluginNames = names.filter(n => id === "removed" || !Plugins[n]?.hidden);
                 if (!pluginNames.length) return null;
 
                 const IconComponent = Icon();
@@ -72,7 +72,7 @@ function PluginChanges({ added, removed, fixed, improved }: PluginChangesProps) 
                         </div>
                         <div className={cl("plugins-grid")}>
                             {pluginNames.map(name => {
-                                const plugin = Plugins[name] ||
+                                const plugin = Plugins[wordsToTitle([name])] ||
                                     { name: wordsToTitle([name]), description: "Description cannot be displayed since it's no longer in the client." };
                                 return (
                                     <PluginCard

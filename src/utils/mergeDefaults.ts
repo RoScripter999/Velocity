@@ -25,7 +25,7 @@
 export function mergeDefaults<T>(obj: T, defaults: T): T {
     for (const key in defaults) {
         const v = defaults[key];
-        if (typeof v === "object" && !Array.isArray(v)) {
+        if (v !== null && typeof v === "object" && !Array.isArray(v)) {
             obj[key] ??= {} as any;
             mergeDefaults(obj[key], v);
         } else {
