@@ -73,7 +73,7 @@ async function fetchRepoComparison(repoSlug: string, fromHash: string, toHash: s
     try {
         const res = await fetch(
             `https://api.github.com/repos/${repoSlug}/compare/${fromHash}...${toHash}`,
-            { headers: { Accept: "application/vnd.github+json", "Cache-Control": "no-cache" } }
+            { headers: { Accept: "application/vnd.github+json" } }
         );
         if (!res.ok) return { commits: [], updatedPlugins: [], ok: false };
         const data = await res.json();
