@@ -47,7 +47,7 @@ const settings = definePluginSettings({
             { label: "Above the Nitro section", value: "aboveNitro", default: true },
             { label: "Below the Nitro section", value: "belowNitro" },
             { label: "Above Activity Settings", value: "aboveActivity" },
-            { label: "Below Activity Settings", value: "belowActivity" },
+            { label: "Below Games & Apps Settings", value: "belowActivity" },
             { label: "At the very bottom", value: "bottom" }
         ]
     },
