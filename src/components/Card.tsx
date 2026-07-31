@@ -39,7 +39,7 @@ export type CardProps = ComponentType<PropsWithChildren<HTMLProps<HTMLDivElement
     Types: Record<"BRAND" | "DANGER" | "PRIMARY" | "SUCCESS" | "WARNING", string>;
 };
 
-export const Card = function ({ type = "primary", outline = true, padding = "sm", children, className, style, ...restProps }: ComponentProps<CardProps>) {
+export function Card({ type = "primary", outline = true, padding = "sm", children, className, style, ...restProps }: ComponentProps<CardProps>) {
     return (
         <div
             className={classes(cl("primary", type, outline && "outline"), className)}
@@ -49,7 +49,7 @@ export const Card = function ({ type = "primary", outline = true, padding = "sm"
             {children}
         </div>
     );
-};
+}
 
 Card.Types = Object.freeze({
     BRAND: "brand",
