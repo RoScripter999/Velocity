@@ -30,7 +30,6 @@ export let useCallback: typeof React.useCallback;
 export let useSyncExternalStore: typeof React.useSyncExternalStore;
 export let useDeferredValue: typeof React.useDeferredValue;
 export let useId: typeof React.useId;
-export let memo: typeof React.memo;
 
 export const ReactDOM: typeof import("react-dom") = findByPropsLazy("createPortal");
 // 299 is an error code used in createRoot and createPortal
@@ -38,5 +37,5 @@ export const createRoot: typeof import("react-dom/client").createRoot = findByCo
 
 waitFor(["createElement", "useEffect"], m => {
     React = m;
-    ({ useEffect, useState, useLayoutEffect, useMemo, useRef, useReducer, useCallback, useSyncExternalStore, useDeferredValue, useId, memo } = React);
+    ({ useEffect, useState, useLayoutEffect, useMemo, useRef, useReducer, useCallback, useSyncExternalStore, useDeferredValue, useId } = React);
 });
