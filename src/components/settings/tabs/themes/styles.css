@@ -2,7 +2,8 @@
 .vc-settings-themes-row {
     display: flex;
     flex-flow: row wrap;
-    gap: var(--space-16)
+    gap: var(--space-16);
+    margin-bottom: 16px;
 }
 
 .vc-settings-themes-settings-icon {

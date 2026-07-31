@@ -21,7 +21,6 @@ import "./styles.css";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
-import { identity } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { Buttons, MediaEngineStore, Select, Slider, useState, useStateFromStores, VoiceActions } from "@webpack/common";
 
@@ -66,13 +65,13 @@ function DeviceSelect({ label, getDeviceId, getDevices, setDevice, disabled }: {
         <Select
             options={devices.map(d => ({
                 value: d.id,
+                id: d.id,
                 label: d.name || "No camera available"
             }))}
-            serialize={identity}
             label={label}
             disabled={disabled}
-            isSelected={v => v === selected}
-            select={setDevice}
+            value={selected}
+            onSelectionChange={setDevice}
         />
     );
 }

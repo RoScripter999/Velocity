@@ -413,38 +413,43 @@ export default function PluginSettings() {
                         <div className={cl("filter-controls")}>
                             <Select
                                 options={[
-                                    { label: "Show All", value: SearchStatus.ALL, default: true },
+                                    { label: "Show All", description: "Show all the plugins", value: SearchStatus.ALL },
                                     { label: "Show Enabled", value: SearchStatus.ENABLED },
                                     { label: "Show Disabled", value: SearchStatus.DISABLED },
                                     { label: "Show New", value: SearchStatus.NEW },
                                     hasUserPlugins && { label: "Show UserPlugins", value: SearchStatus.USER_PLUGINS },
                                     { label: "Show API Plugins", value: SearchStatus.API_PLUGINS }
                                 ].filter(isTruthy)}
-                                serialize={String}
-                                select={status => updateFilters(prev => ({ ...prev, status }))}
-                                isSelected={v => v === filters.status}
-                                closeOnSelect={true}
+                                onSelectionChange={status => updateFilters(prev => ({ ...prev, status }))}
+                                value={filters.status}
+
+                                formatOption={option => ({
+                                    ...option,
+                                    id: option.value
+                                })}
                                 placeholder="Filter by Type"
                             />
                             <Select
                                 options={[
-                                    { label: "Alphabetical", value: SortMode.ALPHABETICAL, default: true },
+                                    { label: "Alphabetical", value: SortMode.ALPHABETICAL },
                                     { label: "Enabled First", value: SortMode.ENABLED },
                                     { label: "Disabled First", value: SortMode.DISABLED },
                                     { label: "Has Settings", value: SortMode.HAS_SETTINGS }
                                 ]}
-                                serialize={String}
-                                select={sortBy => updateFilters(prev => ({ ...prev, sortBy }))}
-                                isSelected={v => v === filters.sortBy}
-                                closeOnSelect={true}
+                                onSelectionChange={sortBy => updateFilters(prev => ({ ...prev, sortBy }))}
+                                value={filters.sortBy}
+                                formatOption={option => ({
+                                    ...option,
+                                    id: option.value
+                                })}
                             />
                             <SearchableSelect
-                                options={PluginTags.map(tag => ({ label: tag, value: tag }))}
-                                value={filters.tags}
-                                onChange={tags => updateFilters(prev => ({ ...prev, tags }))}
+                                options={PluginTags.map(tag => ({ label: tag, value: tag, id: tag }))}
+                                value={Array.from(filters.tags)}
+                                onSelectionChange={tags => updateFilters(prev => ({ ...prev, tags }))}
                                 closeOnSelect={false}
+                                selectionMode="multiple"
                                 placeholder="Filter by Tags"
-                                multi
                             />
                         </div>
                     </ErrorBoundary>

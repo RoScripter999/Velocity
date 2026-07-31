@@ -41,18 +41,17 @@ function SimplePicker({ voice, voices }: PickerProps) {
     const options = voices.map(voice => ({
         label: voice.name,
         value: voice.voiceURI,
-        default: voice.default
+        id: voice.voiceURI
     }));
 
     return (
         <SearchableSelect
             label="Voice"
             placeholder="Select a voice"
-            maxVisibleItems={5}
+            selectionMode="single"
             options={options}
             value={options.find(o => o.value === voice)}
-            onChange={v => settings.store.voice = v}
-            closeOnSelect
+            onSelectionChange={v => settings.store.voice = v}
         />
     );
 }
@@ -92,6 +91,7 @@ function ComplexPicker({ voice, voices }: PickerProps) {
 
     const languageOptions = languageNameMapping.map(l => ({
         label: l.friendlyName,
+        id: l.name,
         value: l.name
     }));
 
@@ -102,9 +102,7 @@ function ComplexPicker({ voice, voices }: PickerProps) {
                 placeholder="Select a language"
                 options={languageOptions}
                 value={languageOptions.find(l => l.value === selectedLanguage)}
-                onChange={v => setSelectedLanguage(v)}
-                maxVisibleItems={5}
-                closeOnSelect
+                onSelectionChange={setSelectedLanguage}
             />
             <SimplePicker
                 voice={voice}

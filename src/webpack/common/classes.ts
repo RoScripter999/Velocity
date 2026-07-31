@@ -18,5 +18,4 @@
 
 import { findCssClassesLazy } from "@webpack";
 
-export const PopoverClasses = findCssClassesLazy("popover", "hoverBarButton", "icon", "buttonContent", "separator");
 export const PopoutClasses = findCssClassesLazy("container", "popoutRoleDot");

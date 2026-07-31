@@ -115,9 +115,9 @@ export default function BackupAndRestoreTab() {
                         { value: "css", label: "QuickCSS" },
                         { value: "datastore", label: "DataStore" }
                     ]}
-                    isSelected={v => v === importMode}
-                    select={setImportMode}
-                    serialize={String}
+                    value={importMode}
+                    formatOption={option => ({ ...option, id: option.value })}
+                    onSelectionChange={setImportMode}
                 />
                 <div className={Margins.top16}>
                     <TextArea

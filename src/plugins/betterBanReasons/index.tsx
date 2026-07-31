@@ -91,11 +91,10 @@ function ReasonsComponent() {
                         />
                         <Select
                             options={optionReasons}
-                            select={v => {
+                            onSelectionChange={v => {
                                 save(reasons.map((x, j) => j === i ? { ...toPlain(x), deleteSeconds: v ?? undefined } : toPlain(x)));
                             }}
-                            isSelected={v => (v ?? null) === (r.deleteSeconds ?? null)}
-                            serialize={v => v == null ? "default" : String(v)}
+                            value={r.deleteSeconds ?? null}
                         />
                     </Flex>
                 </div>

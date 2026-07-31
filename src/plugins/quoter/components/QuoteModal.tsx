@@ -150,9 +150,13 @@ export function QuoteModal({ message, ...props }: ModalPropsRender & { message: 
                                 { label: "Full", value: QuoteAvatarSize.Full },
                                 { label: "Large", value: QuoteAvatarSize.Large }
                             ]}
-                            select={v => settings.store.avatarSize = v}
-                            isSelected={v => v === avatarSize}
-                            serialize={String}
+                            onSelectionChange={v => settings.store.avatarSize = v}
+                            fullWidth
+                            formatOption={option => ({
+                                ...option,
+                                id: option.value
+                            })}
+                            value={avatarSize}
                         />
                     </>)}
                 </Forms.FormSection>

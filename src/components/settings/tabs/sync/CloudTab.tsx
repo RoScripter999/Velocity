@@ -106,16 +106,13 @@ function SettingsSyncSection() {
                     hideBorder
                 />
 
-                <Field
+                <Select
                     label="Sync Rules for This Device"
                     description="This setting controls how settings move between this device and the cloud. You can let changes flow both ways, or choose one place to be the main source of truth."
-                />
-                <Select
                     options={[
                         {
                             label: "Two-way sync (changes go both directions)",
-                            value: "both",
-                            default: true
+                            value: "both"
                         },
                         {
                             label: "This device is the source (upload only)",
@@ -130,13 +127,12 @@ function SettingsSyncSection() {
                             value: "manual"
                         }
                     ]}
-                    isSelected={v => v === state}
-                    serialize={v => String(v)}
-                    select={v => {
+                    value={state}
+                    formatOption={option => ({ ...option, id: option.value })}
+                    onSelectionChange={v => {
                         setState(v);
                         localStorage.Velocity_cloudSyncDirection = v;
                     }}
-                    closeOnSelect={true}
                 />
 
                 <Buttons.ButtonGroup className={Margins.top16} direction="horizontal">

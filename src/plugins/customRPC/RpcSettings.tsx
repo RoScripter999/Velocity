@@ -149,15 +149,18 @@ function PresetCard({ preset, isActive, onDelete }: { preset: RPCPreset; isActiv
                         label="Activity Type"
                         placeholder="Select an option"
                         options={[
-                            { label: "Playing", value: ActivityType.PLAYING, default: true },
+                            { label: "Playing", value: ActivityType.PLAYING },
                             { label: "Streaming", value: ActivityType.STREAMING },
                             { label: "Listening", value: ActivityType.LISTENING },
                             { label: "Watching", value: ActivityType.WATCHING },
                             { label: "Competing", value: ActivityType.COMPETING }
                         ]}
-                        select={v => update("type", v)}
-                        isSelected={v => v === (preset.type ?? ActivityType.PLAYING)}
-                        serialize={v => String(v)}
+                        onSelectionChange={v => update("type", v)}
+                        value={preset.type ?? ActivityType.PLAYING}
+                        formatOption={option => ({
+                            ...option,
+                            id: option.value
+                        })}
                     />
 
                     <div className={cl("pair")}>
@@ -221,16 +224,17 @@ function PresetCard({ preset, isActive, onDelete }: { preset: RPCPreset; isActiv
                         label="Timestamp Mode"
                         placeholder="Select an option"
                         options={[
-                            { label: "None", value: TimestampMode.NONE, default: true },
+                            { label: "None", value: TimestampMode.NONE },
                             { label: "Since discord open", value: TimestampMode.NOW },
                             { label: "Same as your current time", value: TimestampMode.TIME },
                             { label: "Custom", value: TimestampMode.CUSTOM }
                         ]}
-                        maxVisibleItems={5}
-                        closeOnSelect={true}
-                        select={v => update("timestampMode", v)}
-                        isSelected={v => v === (preset.timestampMode ?? TimestampMode.NONE)}
-                        serialize={v => String(v)}
+                        onSelectionChange={v => update("timestampMode", v)}
+                        value={preset.timestampMode ?? TimestampMode.NONE}
+                        formatOption={option => ({
+                            ...option,
+                            id: option.value
+                        })}
                     />
                     <div className={cl("pair")}>
                         <Field type="number" label="Start Timestamp (ms)" initialValue={preset.startTime} onChange={v => update("startTime", v)} disabled={!isCustomTs} />
@@ -283,9 +287,12 @@ export function RPCSettings() {
                 <Select
                     placeholder="Select active preset RPC..."
                     options={presets.map(p => ({ value: p.name, label: p.name }))}
-                    select={v => { settings.store.activePreset = v; setRpc(); }}
-                    isSelected={v => v === s.activePreset}
-                    serialize={String}
+                    onSelectionChange={v => { settings.store.activePreset = v; setRpc(); }}
+                    value={s.activePreset}
+                    formatOption={option => ({
+                        ...option,
+                        id: option.value
+                    })}
                 />
             </>}
             <Forms.FormTitle tag="h4">Presets</Forms.FormTitle>

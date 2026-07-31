@@ -42,6 +42,8 @@ export const Buttons: t.Buttons = {
     ButtonGroup: waitForComponent("ButtonGroup", filters.componentByCode('"data-align"', '"data-direction"'))
 };
 
+export const Select = waitForComponent<t.Select>("Select", filters.componentByCode('"data-mana-component":"select"'));
+
 export const Checkbox = waitForComponent<t.Checkbox>("Checkbox", filters.componentByCode('"data-mana-component":"checkbox-group"'));
 
 export const LoadingIndicator = waitForComponent<t.LoadingIndicator>("LoadingIndicator", filters.componentByCode("wanderingCubes", "spinningCircle"));
@@ -52,8 +54,7 @@ export const RichTooltip = waitForComponent<t.RichTooltip>("RichTooltip", filter
 export const TextInput = waitForComponent<t.TextInput>("TextInput", filters.componentByCode('setHasValue?.(""!==', '="text",'));
 export const SearchBar = waitForComponent<t.SearchBar>("SearchBar", filters.componentByCode("query:", "size:", "autoFocus"));
 export const TextArea = waitForComponent<t.TextArea>("TextArea", filters.componentByCode('"data-mana-component":"text-area"'));
-export const Select = waitForComponent<t.Select>("Select", filters.componentByCode('selectionMode:"single",onSelectionChange:', "isSelected:"));
-export const SearchableSelect = waitForComponent<t.SearchableSelect>("SearchableSelect", filters.componentByCode('?"multiple":"single",required:'));
+export const SearchableSelect = waitForComponent<t.SearchableSelect>("SearchableSelect", filters.componentByCode('??"single"==='));
 export const Slider = waitForComponent<t.Slider>("Slider", filters.componentByCode("markDash", "this.renderMark("));
 export const HelpMessage = waitForComponent<t.HelpMessage>("HelpMessage", filters.componentByCode("messageType:", "textColor:", "children:"));
 export const HiddenVisually = waitForComponent<t.HiddenVisually>("HiddenVisually", filters.componentByCode('="span",showOnFocus'));

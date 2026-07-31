@@ -31,7 +31,7 @@ function LanguageSelect({ settingsKey, includeAuto }: { settingsKey: typeof Lang
 
     const options = useMemo(
         () => {
-            const options = Object.entries(getLanguages()).map(([value, label]) => ({ value, label }));
+            const options = Object.entries(getLanguages()).map(([value, label]) => ({ value, label, id: value }));
             if (!includeAuto)
                 options.shift();
 
@@ -43,12 +43,11 @@ function LanguageSelect({ settingsKey, includeAuto }: { settingsKey: typeof Lang
         <section className={Margins.bottom16}>
             <SearchableSelect
                 options={options}
+                selectionMode="single"
                 label={settings.def[settingsKey].description}
                 value={options.find(o => o.value === currentValue)?.value}
                 placeholder="Select a language"
-                maxVisibleItems={5}
-                closeOnSelect={true}
-                onChange={v => settings.store[settingsKey] = v}
+                onSelectionChange={v => settings.store[settingsKey] = v}
             />
         </section>
     );

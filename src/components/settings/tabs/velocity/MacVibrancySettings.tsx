@@ -18,7 +18,6 @@
 
 import { useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { identity } from "@utils/misc";
 import { Select } from "@webpack/common";
 
 export function MacOSVibrancySettings() {
@@ -83,9 +82,13 @@ export function MacOSVibrancySettings() {
                         value: "hud"
                     }
                 ]}
-                select={v => settings.macosVibrancyStyle = v}
-                isSelected={v => settings.macosVibrancyStyle === v}
-                serialize={identity}
+                onSelectionChange={v => settings.macosVibrancyStyle = v}
+                value={settings.macosVibrancyStyle}
+                fullWidth
+                formatOption={option => ({
+                    ...option,
+                    id: option.value
+                })}
             />
         </ErrorBoundary>
     );

@@ -71,7 +71,8 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
             { label: "All Categories", value: "All" },
             ...Array.from(categories).map(cat => ({
                 label: cat,
-                value: cat
+                value: cat,
+                id: cat
             }))
         ];
     }, [actions]);
@@ -132,9 +133,7 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                     <Select
                         options={categoryOptions}
                         value={selectedCategory}
-                        isSelected={val => val === selectedCategory}
-                        select={setSelectedCategory}
-                        serialize={String}
+                        onSelectionChange={setSelectedCategory}
                     />
                 </div>
 

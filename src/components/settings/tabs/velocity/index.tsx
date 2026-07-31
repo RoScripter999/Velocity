@@ -35,7 +35,7 @@ import { ChangeList } from "@utils/ChangeList";
 import { DONOR_ROLE_ID, IS_MAC, IS_WINDOWS, VELOCITY_GUILD_ID, VELOCITY_GUILD_INVITE } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
-import { classes, identity, shouldShowContributorBadge } from "@utils/misc";
+import { classes, shouldShowContributorBadge } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { useCleanupEffect } from "@utils/react";
 import type { SelectOption } from "@velocity-types";
@@ -62,7 +62,7 @@ function SettingsList() {
         description?: string;
         icon: ComponentType<any>;
         restartRequired?: boolean;
-        options?: ReadonlyArray<SelectOption>;
+        options?: SelectOption[];
     };
 
     const Settings: Record<string, SettingItem[]> = {
@@ -87,8 +87,7 @@ function SettingsList() {
                 options: [
                     {
                         label: "None",
-                        value: "none",
-                        default: true
+                        value: "none"
                     },
                     {
                         label: "Mica (incorporates system theme + desktop wallpaper to paint the background)",
@@ -262,11 +261,11 @@ function SettingsList() {
                                     <div style={{ flex: 1 }}>
                                         <Select
                                             options={setting.options}
-                                            isSelected={v => v === settings[key]}
+                                            value={settings[key]}
                                             layout="horizontal"
-                                            select={v => handleToggle(key, v)}
-                                            closeOnSelect={true}
-                                            serialize={identity}
+                                            fullWidth
+                                            onSelectionChange={v => handleToggle(key, v)}
+                                            formatOption={option => ({ ...option, id: option.value })}
                                         />
                                     </div>
                                 ) : (

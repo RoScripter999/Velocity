@@ -2,6 +2,17 @@ import type { ComponentType, CSSProperties, ForwardRefRenderFunction, MouseEvent
 
 type RC<C> = ComponentType<PropsWithChildren<C & Record<string, any>>>;
 
+type MenuColor = "default" | "brand" | "danger" | "premium" | "premium-gradient" | "success";
+
+type MenuLeadingAccessory =
+    | { type: "icon"; icon: ComponentType<any>; color?: string; className?: string; }
+    | { type: "image"; src: string; }
+    | { type: "emoji"; emojiId?: string; src?: string; animated?: boolean; }
+    | { type: "avatar"; src: string; }
+    | { type: "roleDot"; variant: "dot" | string; color?: any; colors?: any; }
+    | { type: "status"; status: any; }
+    | { type: "guildTag"; element: ReactNode; };
+
 export interface Menu {
     Menu: RC<{
         navId: string;
@@ -18,6 +29,8 @@ export interface Menu {
     MenuSeparator: ComponentType;
     MenuGroup: RC<{
         label?: string;
+        className?: string;
+        color?: MenuColor;
     }>;
     MenuItem: RC<{
         id: string;
@@ -27,14 +40,7 @@ export interface Menu {
         icon?: ComponentType<any>;
         iconLeft?: ComponentType<any>;
         /* Only renders when mana contextmenus experiement is enabled. */
-        leadingAccessory?:
-        | { type: "icon"; icon: ComponentType<any>; color?: string; className?: string; }
-        | { type: "image"; src: string; }
-        | { type: "emoji"; emojiId?: string; src?: string; animated?: boolean; }
-        | { type: "avatar"; src: string; }
-        | { type: "roleDot"; variant: "dot" | string; color?: any; colors?: any; }
-        | { type: "status"; status: any; }
-        | { type: "guildTag"; element: ReactNode; };
+        leadingAccessory?: MenuLeadingAccessory;
         trailingIndicator?: {
             type: "icon";
             icon: ComponentType<any>;
@@ -42,65 +48,68 @@ export interface Menu {
             className?: string;
         };
         shortcut?: string;
-        badge?: "new" | "beta" | string;
+        badge?: string | ({ type: string; } & Record<string, any>);
         loading?: boolean;
         subtext?: ReactNode;
         subtextLineClamp?: number;
-        color?: "default" | "brand" | "danger" | "premium" | "premium-gradient" | "success";
-        render?: (props: any) => ReactNode;
+        color?: MenuColor;
+        /** Renders this item as a fully custom item instead of the default layout. */
+        render?: (props: { color: MenuColor; disabled: boolean; isFocused: boolean; }) => ReactNode;
         onChildrenScroll?: (e: UIEvent) => void;
         childRowHeight?: number;
         listClassName?: string;
         subMenuClassName?: string;
         disabled?: boolean;
-        isFocused?: boolean;
-        onClose?(): void;
         onFocus?(): void;
         className?: string;
         focusedClassName?: string;
-        hasSubmenu?: boolean;
         navigable?: boolean;
+        /** Only used when `render` is set. */
         keepItemStyles?: boolean;
         dontCloseOnAction?: boolean;
         dontCloseOnActionIfHoldingShiftKey?: boolean;
-        subMenuIconClassName?: string;
-        menuItemProps?: Record<string, any>;
         iconProps?: Record<string, any>;
     }>;
     MenuCheckboxItem: RC<{
         id: string;
-        label: string;
+        label?: ReactNode;
+        void_label?: (props: any) => ReactNode;
         checked: boolean;
         action?(e: MouseEvent): void;
         disabled?: boolean;
-        isFocused?: boolean;
-        color?: string;
+        color?: MenuColor;
         subtext?: ReactNode;
-        menuItemProps?: Record<string, any>;
+        subtextLineClamp?: number;
+        leftIcon?: ComponentType<any>;
+        leadingAccessory?: MenuLeadingAccessory;
         className?: string;
         focusedClassName?: string;
     }>;
     MenuRadioItem: RC<{
         id: string;
+        // Not read anywhere in this render function, unconfirmed. Send the radio group module if it matters.
         group: string;
-        label: string;
+        label?: ReactNode;
+        void_label?: (props: any) => ReactNode;
         checked: boolean;
         action?(e: MouseEvent): void;
         disabled?: boolean;
-        isFocused?: boolean;
-        color?: string;
-        showDefaultFocus?: boolean;
-        menuItemProps?: Record<string, any>;
+        color?: MenuColor;
+        subtext?: ReactNode;
+        subtextLineClamp?: number;
+        leftIcon?: ComponentType<any>;
+        leadingAccessory?: MenuLeadingAccessory;
     }>;
     MenuSwitchItem: RC<{
         id: string;
-        label: string;
+        label?: ReactNode;
         checked: boolean;
         action?(e: MouseEvent): void;
         disabled?: boolean;
-        isFocused?: boolean;
-        color?: string;
-        menuItemProps?: Record<string, any>;
+        color?: MenuColor;
+        subtext?: ReactNode;
+        subtextLineClamp?: number;
+        className?: string;
     }>;
     MenuControlItem: RC<{
         id: string;
@@ -108,10 +117,8 @@ export interface Menu {
         control?: ForwardRefRenderFunction<any, any>;
         interactive?: boolean;
         disabled?: boolean;
-        isFocused?: boolean;
-        color?: string;
-        menuItemProps?: Record<string, any>;
-        onClose?(): void;
+        color?: MenuColor;
+        showDefaultFocus?: boolean;
     }>;
     MenuSliderControl: RC<{
         minValue: number;
@@ -123,9 +130,12 @@ export interface Menu {
         "aria-label"?: string;
     }>;
     MenuSearchControl: RC<{
-        query: string;
-        onChange(query: string): void;
+        label?: ReactNode;
+        color?: MenuColor;
+        value: string;
+        onChange(value: string): void;
         placeholder?: string;
+        maxLength?: number;
         disabled?: boolean;
         "aria-label"?: string;
     }>;

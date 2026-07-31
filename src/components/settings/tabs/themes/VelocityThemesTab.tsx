@@ -75,9 +75,10 @@ export function VelocityThemesTab() {
                             { label: "Built-in", value: false },
                             { label: "Redesigned", value: "redesigned" }
                         ]}
-                        select={value => { velocityStyles.switchRedesign = value; }}
-                        isSelected={value => value === velocityStyles.switchRedesign}
-                        serialize={String}
+                        onSelectionChange={value => { velocityStyles.switchRedesign = value; }}
+                        fullWidth
+                        formatOption={option => ({ ...option, id: option.value })}
+                        value={velocityStyles.switchRedesign}
                     />
                 </Card>
 

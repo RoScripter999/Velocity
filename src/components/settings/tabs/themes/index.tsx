@@ -29,7 +29,6 @@ import { AddonCard, openPluginModal, QuickAction, QuickActionCard, SectionHeader
 import type { UserThemeHeader } from "@main/themes";
 import ClientThemePlugin from "@plugins/clientTheme";
 import { classNameFactory } from "@utils/css";
-import { classes } from "@utils/misc";
 import { getStylusWebStoreUrl } from "@utils/web";
 import { Buttons, Dialog, Field, Forms, Icons, Popout, PopoutClasses, SearchBar, Select, Text, TextInput, useCallback, useEffect, useRef, useState } from "@webpack/common";
 
@@ -107,15 +106,15 @@ function ConfigureDialog({ fileName, onDelete, ref }: { fileName: string; onDele
 
             <Select
                 label="Activate theme on"
-                serialize={v => String(v)}
-                isSelected={v => v === current}
+                value={current}
                 options={[
-                    { value: "always", label: "Always", default: true },
+                    { value: "always", label: "Always" },
                     { value: "light", label: "Light mode only" },
                     { value: "dark", label: "Dark mode only" }
                 ]}
                 clearable={current !== "always"}
-                select={value => {
+                formatOption={option => ({ ...option, id: option.value })}
+                onSelectionChange={value => {
                     const isOnline = (settings.themes.onlineThemes ?? []).some(t => t.name === fileName);
                     const key = isOnline ? "onlineThemes" : "localThemes";
                     const list = isOnline ? (settings.themes.onlineThemes ?? []) : settings.themes.localThemes;
@@ -270,7 +269,7 @@ function ThemesTab() {
                     onChange={val => settings.themes.onlineThemesEnabled = val}
                 />
 
-                <div className={classes(cl("row"), Margins.bottom16)}>
+                <div className={cl("row")}>
                     <TextInput
                         placeholder="https://example.com/theme.css"
                         value={onlineThemesText}
@@ -306,7 +305,7 @@ function ThemesTab() {
                 <Forms.FormTitle>Installed Themes</Forms.FormTitle>
                 <Paragraph className={Margins.bottom16}>Manage, Configure, Delete your themes here. Local themes load from your themes folder, online themes from URLs.</Paragraph>
 
-                <div className={classes(cl("row"), Margins.bottom16)}>
+                <div className={cl("row")}>
                     <SearchBar
                         placeholder="Search themes..."
                         query={search}
@@ -320,9 +319,9 @@ function ThemesTab() {
                             { label: "Local", value: SearchStatus.LOCAL },
                             { label: "Online", value: SearchStatus.ONLINE }
                         ]}
-                        isSelected={v => v === status}
-                        select={setStatus}
-                        serialize={v => String(v)}
+                        value={status}
+                        onSelectionChange={setStatus}
+                        formatOption={option => ({ ...option, id: option.value })}
                     />
                 </div>
 

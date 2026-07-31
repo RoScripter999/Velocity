@@ -1,5 +1,4 @@
 import type { ComponentType, PropsWithChildren, ReactNode, RefObject } from "react";
-import type { LiteralUnion } from "type-fest";
 import type { ButtonsProps, ButtonVariant } from "./Buttons";
 
 type RenderFunction = (props: ModalProps) => ReactNode | Promise<ReactNode>;

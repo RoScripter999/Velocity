@@ -252,15 +252,15 @@ export function ThemesLibTab() {
                     />
                     <div style={{ flex: 2 }}>
                         <SearchableSelect
-                            options={ThemesJSON.tags?.map(tag => ({ label: tag, value: tag })) ?? []}
+                            options={ThemesJSON.tags?.map(tag => ({ label: tag, value: tag, id: tag })) ?? []}
                             value={filters.tags}
-                            onChange={(tags: string[]) => {
+                            onSelectionChange={(tags: string[]) => {
                                 setFilters(prev => ({ ...prev, tags: tags ?? [] }));
                                 setCurrentPage(1);
                             }}
                             closeOnSelect={false}
                             placeholder="Filter by Tags"
-                            multi
+                            selectionMode="multiple"
                         />
                     </div>
                 </div>

@@ -17,23 +17,18 @@
 */
 
 import type { PluginSettingSelectDef, PluginSettingSelectOption } from "@utils/types";
-import { filters } from "@webpack";
-import { SearchableSelect, useEffect, useState } from "@webpack/common";
-import { waitForComponent } from "@webpack/common/internal";
+import { SearchableSelect, Select, useEffect, useState } from "@webpack/common";
 
 import { resolveError, type SettingProps, SettingsSection } from "./Common";
 
-// ManaSelect supports selectionMode: "multiple", We use it instead of the regular void select.
-const Select = waitForComponent("SettingsSelect", filters.componentByCode('"data-mana-component":"select"'));
-
 export function SelectSetting({ setting, pluginSettings, definedSettings, onChange, id }: SettingProps<PluginSettingSelectDef>) {
-    const [options, setOptions] = useState<readonly PluginSettingSelectOption[]>(
-        typeof setting.options === "function" ? [] : setting.options
+    const [options, setOptions] = useState<PluginSettingSelectOption[]>(
+        typeof setting.options === "function" ? [] : [...setting.options]
     );
 
     useEffect(() => {
         if (typeof setting.options === "function") {
-            setting.options().then(setOptions);
+            setting.options().then(opts => setOptions([...opts]));
         }
     }, []);
 
@@ -70,11 +65,11 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
                     placeholder={setting.placeholder ?? "Select an option"}
                     options={options}
                     value={isMultiple ? state : options.find(o => o.value === state)}
-                    maxVisibleItems={5}
                     selectionMode={isMultiple ? "multiple" : "single"}
+                    hideTags={isMultiple}
                     closeOnSelect={!isMultiple}
-                    onChange={handleChange}
-                    renderOptionPrefix={renderOptionPrefix}
+                    onSelectionChange={handleChange}
+                    formatOption={option => ({ ...option, id: option.value })}
                     {...setting.componentProps}
                 />
             ) : <Select
@@ -84,13 +79,10 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
                 selectionMode={isMultiple ? "multiple" : "single"}
                 onSelectionChange={handleChange}
                 closeOnSelect={!isMultiple}
-                maxOptionsVisible={5}
                 clearable={!isMultiple && !isDefault}
                 formatOption={(opt: any) => ({
-                    id: String(opt.value),
-                    value: opt.value,
-                    label: opt.label,
-                    disabled: opt.disabled,
+                    ...opt,
+                    id: opt.value,
                     leading: opt.icon ? {
                         type: "avatar",
                         src: opt.icon

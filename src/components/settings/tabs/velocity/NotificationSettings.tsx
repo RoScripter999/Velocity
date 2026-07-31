@@ -20,7 +20,6 @@ import { useSettings } from "@api/Settings";
 import { ErrorCard } from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { SectionHeader } from "@components/settings";
-import { identity } from "@utils/misc";
 import { Buttons, Forms, Icons, Modal, openModal, Select, Slider } from "@webpack/common";
 
 export function NotificationSection() {
@@ -81,14 +80,13 @@ function NotificationSettings() {
                 <Select
                     placeholder="Notification Style"
                     options={[
-                        { label: "Desktop only when Discord is unfocused", value: "not-focused", default: true },
+                        { label: "Desktop only when Discord is unfocused", value: "not-focused" },
                         { label: "Always use Desktop notifications", value: "always" },
                         { label: "Always use Velocity notifications", value: "never" }
                     ] satisfies Array<{ value: typeof settings["useNative"]; } & Record<string, any>>}
-                    closeOnSelect={true}
-                    select={v => settings.useNative = v}
-                    isSelected={v => v === settings.useNative}
-                    serialize={identity}
+                    onSelectionChange={v => settings.useNative = v}
+                    value={settings.useNative}
+                    formatOption={option => ({ ...option, id: option.value })}
                 />
             </section>
 
@@ -105,15 +103,15 @@ function NotificationSettings() {
                     tag="h2"
                 />
                 <Select
-                    isDisabled={isDesktopDisabled}
+                    disabled={isDesktopDisabled}
                     placeholder="Notification Position"
                     options={[
-                        { label: "Bottom Right", value: "bottom-right", default: true },
+                        { label: "Bottom Right", value: "bottom-right" },
                         { label: "Top Right", value: "top-right" }
                     ] satisfies Array<{ value: typeof settings["position"]; } & Record<string, any>>}
-                    select={v => settings.position = v}
-                    isSelected={v => v === settings.position}
-                    serialize={identity}
+                    onSelectionChange={v => settings.position = v}
+                    formatOption={option => ({ ...option, id: option.value })}
+                    value={settings.position}
                 />
             </section>
 

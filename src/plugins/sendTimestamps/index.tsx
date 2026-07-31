@@ -96,18 +96,16 @@ function PickerModal(props: ModalPropsRender) {
                     options={
                         Formats.map(m => ({
                             label: m,
-                            value: m
+                            value: m,
+                            id: m
                         }))
                     }
-                    isSelected={v => v === format}
-                    select={v => setFormat(v)}
-                    serialize={v => v}
-                    renderOptionLabel={o => (
-                        <div className={cl("format-label")}>
-                            {Parser.parse(formatTimestamp(time, o.value))}
-                        </div>
-                    )}
-                    renderOptionValue={() => rendered}
+                    value={format}
+                    onSelectionChange={setFormat}
+                    formatOption={options => ({
+                        ...options,
+                        label: Parser.parse(formatTimestamp(time, options.value))
+                    })}
                 />
             </div>
 

@@ -139,14 +139,14 @@ function SearchHelper() {
             />
             <Select
                 options={[
-                    { label: "findByCode", value: SearchStatus.CODE, default: true },
+                    { label: "findByCode", value: SearchStatus.CODE },
                     { label: "findByProps", value: SearchStatus.PROPS },
                     { label: "findComponentByCode", value: SearchStatus.COMPONENT_BY_CODE },
                     { label: "findModuleId", value: SearchStatus.MODULE_ID }
                 ]}
-                isSelected={value => value === searchType}
-                select={changeSearchType}
-                serialize={v => String(v)}
+                value={searchType}
+                onSelectionChange={changeSearchType}
+                formatOption={option => ({ ...option, id: option.value })}
             />
 
             <Forms.FormDivider gap={20} />
@@ -157,7 +157,7 @@ function SearchHelper() {
                 description={searchType === SearchStatus.MODULE_ID
                     ? "Only the first input is used for module id search."
                     : "All non-empty filters are applied."}
-                className={Margins.top8}
+                margin="top8"
             />
 
             {filters.map((query, index) => (

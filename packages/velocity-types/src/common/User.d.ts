@@ -45,7 +45,7 @@ export class User extends DiscordRecord {
 
     addGuildAvatarHash(guildId: string, avatarHash: string): this;
     getAvatarSource(guildId: string): { uri: string; };
-    getAvatarURL(guildId?: string | null, size?: number, canAnimate?: boolean, format?: string): string;
+    getAvatarURL(guildId?: string | null, size?: number, canAnimate?: boolean, canWebP?: boolean): string;
     hadPremiumSubscription(): boolean;
     hasAvatarForGuild(guildId: string): boolean;
     hasFlag(flag: UserFlags): boolean;

@@ -19,22 +19,10 @@
 import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
 import { ModalPropsRender } from "@velocity-types/src";
-import { Forms, Modal, Select, TextInput, useState } from "@webpack/common";
+import { Modal, Select, TextInput, useState } from "@webpack/common";
 
 import type { SvgElement, SvgRule } from "./types";
 import { normalizeSvgByType } from "./utils";
-
-const ELEMENT_TYPES = [
-    { label: "Path", value: "path" },
-    { label: "Circle", value: "circle" },
-    { label: "Polygon", value: "polygon" }
-] as const;
-
-const RULE_OPTIONS = [
-    { label: "None", value: "none" },
-    { label: "Even-Odd", value: "evenodd" },
-    { label: "Non-Zero", value: "nonzero" }
-] as const;
 
 interface Props extends ModalPropsRender {
     svg: SvgElement;
@@ -75,18 +63,22 @@ export function SvgRuleModal({ svg, onSave, ...modalProps }: Props) {
             <div>
                 <Flex flexDirection="column" gap={16} className={Margins.bottom20}>
                     <div>
-                        <Forms.FormTitle>Element Type</Forms.FormTitle>
                         <Select
-                            options={ELEMENT_TYPES}
-                            isSelected={v => v === type}
-                            select={setType}
-                            serialize={v => v}
+                            label="Element Type"
+                            options={[
+                                { label: "Path", value: "path" },
+                                { label: "Circle", value: "circle" },
+                                { label: "Polygon", value: "polygon" }
+                            ]}
+                            formatOption={option => ({ ...option, id: option.value })}
+                            value={type}
+                            onSelectionChange={setType}
                         />
                     </div>
 
                     <div>
-                        <Forms.FormTitle>Fill Color</Forms.FormTitle>
                         <TextInput
+                            label="Fill Color"
                             value={fill}
                             onChange={setFill}
                             placeholder="currentColor"
@@ -94,12 +86,16 @@ export function SvgRuleModal({ svg, onSave, ...modalProps }: Props) {
                     </div>
 
                     <div>
-                        <Forms.FormTitle>Fill/Clip Rule</Forms.FormTitle>
                         <Select
-                            options={RULE_OPTIONS}
-                            isSelected={v => v === rule}
-                            select={setRule}
-                            serialize={v => v}
+                            label="Fill/Clip Rule"
+                            options={[
+                                { label: "None", value: "none" },
+                                { label: "Even-Odd", value: "evenodd" },
+                                { label: "Non-Zero", value: "nonzero" }
+                            ]}
+                            value={rule}
+                            onSelectionChange={setRule}
+                            formatOption={option => ({ ...option, id: option.value })}
                         />
                     </div>
                 </Flex>
