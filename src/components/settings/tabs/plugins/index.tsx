@@ -413,7 +413,7 @@ export default function PluginSettings() {
                         <div className={cl("filter-controls")}>
                             <Select
                                 options={[
-                                    { label: "Show All", description: "Show all the plugins", value: SearchStatus.ALL },
+                                    { label: "Show All", value: SearchStatus.ALL },
                                     { label: "Show Enabled", value: SearchStatus.ENABLED },
                                     { label: "Show Disabled", value: SearchStatus.DISABLED },
                                     { label: "Show New", value: SearchStatus.NEW },
