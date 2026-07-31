@@ -27,7 +27,7 @@ import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { findCssClassesLazy } from "@webpack";
 import { ComponentDispatch, FocusLock, Icons, Menu, useEffect, useRef } from "@webpack/common";
-import type { ComponentType, HTMLAttributes, ReactNode } from "react";
+import type { ComponentType, HTMLAttributes, ReactElement, ReactNode } from "react";
 
 import fullHeightStyle from "./fullHeightContext.css?managed";
 
@@ -60,8 +60,10 @@ const SECTION_ICONS = (): Record<string, ComponentType<any>> => ({
     velocity_section: VelocityIcon,
     billing_section: Icons.CreditCardIcon,
     app_section: Icons.AppsIcon,
-    activity_section: Icons.GameControllerIcon,
-    developer_section: Icons.StaffBadgeIcon
+    games_and_apps_section: Icons.GameControllerIcon,
+    developer_section: Icons.StaffBadgeIcon,
+    utility_section: Icons.SettingsIcon,
+    playgrounds: Icons.ManaIcon
 });
 
 
@@ -210,10 +212,12 @@ export default definePlugin({
         return <Layer {...props} />;
     },
 
-    transformSettingsEntries(list) {
+    transformSettingsEntries(list: ReactElement<any>[]): ReactNode[] {
         const items: ReactNode[] = [];
+        const destructive: ReactNode[] = [];
         const SECTION_NAMES: Record<string, string> = {
-            user_section: getIntlMessage("USER_SETTINGS")
+            user_section: getIntlMessage("USER_SETTINGS"),
+            utility_section: getIntlMessage("USER_SETTINGS_KEYBINDS_MISCELLANEOUS_SECTION_TITLE")
         };
 
         const flat = list.flat(Infinity);
@@ -222,18 +226,25 @@ export default definePlugin({
             if (!item?.props) continue;
             const { key, props } = item;
 
+            if (props.color === "danger") {
+                destructive.push(item);
+                continue;
+            }
+
             if (key === "velocity_plugins" || key === "velocity_themes") {
                 const children = key === "velocity_plugins"
                     ? buildPluginMenuEntries()
                     : buildThemeMenuEntries();
 
                 items.push(
-                    <Menu.MenuItem key={key} id={key} label={props.label} {...props}>
+                    <Menu.MenuItem key={key} label={props.label} id={props.label} {...props}>
                         {children}
                     </Menu.MenuItem>
                 );
-            } else if ((key?.endsWith("_section")) && (props.label ?? SECTION_NAMES[key])) {
+            } else if ((key?.endsWith("_section") || key === "playgrounds") && (props.label ?? SECTION_NAMES[key])) {
                 const iconLeft = SECTION_ICONS()[key];
+                const children: any = [].concat(props.children ?? []).flat(Infinity);
+                children.filter(c => c?.props?.color === "danger").forEach(c => destructive.push(c));
 
                 items.push(
                     <Menu.MenuItem
@@ -241,8 +252,9 @@ export default definePlugin({
                         label={props.label ?? SECTION_NAMES[key]}
                         id={props.label ?? SECTION_NAMES[key]}
                         {...(iconLeft && { iconLeft })}
+                        {...(iconLeft && { leadingAccessory: { type: "icon", icon: iconLeft } })}
                     >
-                        {this.transformSettingsEntries(props.children)}
+                        {this.transformSettingsEntries(children.filter(c => c?.props?.color !== "danger"))}
                     </Menu.MenuItem>
                 );
             } else {
@@ -250,6 +262,7 @@ export default definePlugin({
             }
         }
 
+        if (destructive.length) items.push(<Menu.MenuSeparator />, destructive);
         return items;
     }
 });

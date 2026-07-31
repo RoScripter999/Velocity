@@ -51,11 +51,11 @@ export default definePlugin({
             }
         },
         {
-            // Scrap this component one way or another.
-            find: '||"file-input",',
+            find: ".currentTarget.files?.[0])",
+            lazy: true,
             replacement: {
-                match: /class \i extends \i\.Component\{(?=_input)/,
-                replace: "$&static{$self.setFilePicker(this)};"
+                match: /(?=function (\i)\(\i\)\{let\{filename:\i,className:\i,filters:\i,)/,
+                replace: "$self.setFilePicker($1);"
             }
         },
         {
