@@ -19,9 +19,12 @@
 import { copyWithToast } from "@utils/discord";
 import type { Embed, EmbedJSON, Message } from "@velocity-types";
 
-type CopyType = "embed" | "full" | "description" | "builder";
+export enum CopyType {
+    EMBED,
+    DESCRIPTION
+}
 
-export function parseDiscordColor(colorValue: string | number): number | null {
+function parseDiscordColor(colorValue: string | number): number | null {
     if (typeof colorValue === "number") return colorValue;
     if (typeof colorValue === "string") {
         if (colorValue.startsWith("#")) return parseInt(colorValue.slice(1), 16);
@@ -52,7 +55,7 @@ export function parseDiscordColor(colorValue: string | number): number | null {
     return null;
 }
 
-export function cleanEmbed(embed: Embed): EmbedJSON {
+export function toEmbedJson(embed: Embed): EmbedJSON {
     const e: EmbedJSON = {};
 
     if (embed.rawTitle) e.title = embed.rawTitle;
@@ -90,42 +93,6 @@ export function cleanEmbed(embed: Embed): EmbedJSON {
     return e;
 }
 
-export function generateEmbedBuilder(embed: EmbedJSON): string {
-    const lines = ["const embed = new EmbedBuilder()"];
-
-    if (embed.title) lines.push(`  .setTitle(${JSON.stringify(embed.title)})`);
-    if (embed.description) lines.push(`  .setDescription(${JSON.stringify(embed.description)})`);
-    if (embed.color) lines.push(`  .setColor(${embed.color})`);
-    if (embed.url) lines.push(`  .setURL(${JSON.stringify(embed.url)})`);
-    if (embed.timestamp) lines.push(`  .setTimestamp(${JSON.stringify(embed.timestamp)})`);
-
-    if (embed.footer?.text) {
-        const footerParts = [embed.footer.text];
-        if (embed.footer.icon_url) footerParts.push(embed.footer.icon_url);
-        lines.push(`  .setFooter({ text: ${JSON.stringify(footerParts[0])}${footerParts[1] ? `, iconURL: ${JSON.stringify(footerParts[1])}` : ""} })`);
-    }
-
-    if (embed.author?.name) {
-        let author = `{ name: ${JSON.stringify(embed.author.name)}`;
-        if (embed.author.icon_url) author += `, iconURL: ${JSON.stringify(embed.author.icon_url)}`;
-        if (embed.author.url) author += `, url: ${JSON.stringify(embed.author.url)}`;
-        author += " }";
-        lines.push(`  .setAuthor(${author})`);
-    }
-
-    if (embed.thumbnail?.url) lines.push(`  .setThumbnail(${JSON.stringify(embed.thumbnail.url)})`);
-    if (embed.image?.url) lines.push(`  .setImage(${JSON.stringify(embed.image.url)})`);
-
-    if (embed.fields?.length) {
-        embed.fields.forEach(f => {
-            lines.push(`  .addFields({ name: ${JSON.stringify(f.name)}, value: ${JSON.stringify(f.value)}, inline: ${f.inline} })`);
-        });
-    }
-
-    lines[lines.length - 1] += ";";
-    return lines.join("\n");
-}
-
 export function copyEmbedContent(msg: Message, type: CopyType, embedIndex: number = 0) {
     if (!msg?.embeds?.length) return;
 
@@ -133,20 +100,12 @@ export function copyEmbedContent(msg: Message, type: CopyType, embedIndex: numbe
     if (!embed) return;
 
     switch (type) {
-        case "embed":
-            const cleanEmbeds = msg.embeds.map(cleanEmbed);
+        case CopyType.EMBED:
+            const cleanEmbeds = msg.embeds.map(toEmbedJson);
             copyWithToast(JSON.stringify({ content: null, embeds: cleanEmbeds, attachments: [] }, null, 2), "Embed JSON copied!");
             break;
-        case "full":
-            copyWithToast(JSON.stringify(msg, null, 2), "Full message JSON copied!");
-            break;
-        case "description":
+        case CopyType.DESCRIPTION:
             copyWithToast(embed.rawDescription, `Embed ${embedIndex + 1} description copied!`);
-            break;
-        case "builder":
-            const cleanedEmbed = cleanEmbed(embed);
-            const builderCode = generateEmbedBuilder(cleanedEmbed);
-            copyWithToast(builderCode, "EmbedBuilder code copied!");
             break;
     }
 }

@@ -22,30 +22,28 @@ import { Margins } from "@components/margins";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import definePlugin from "@utils/types";
-import type { Embed, Message } from "@velocity-types";
+import type { Message } from "@velocity-types";
 import { Forms, Icons, Menu, Modal, openModal } from "@webpack/common";
 
-import { cleanEmbed, copyEmbedContent } from "./utils";
+import { copyEmbedContent, CopyType, toEmbedJson } from "./utils";
 
 function openEmbedRawModal(msg: Message) {
-    const cleanEmbeds = msg.embeds.map(cleanEmbed);
+    const cleanEmbeds = msg.embeds.map(toEmbedJson);
     const embedJson = JSON.stringify({ content: null, embeds: cleanEmbeds, attachments: [] }, null, 4);
 
     openModal(props => (
-        <Modal {...props} title="View Raw Embeds" actions={[
+        <Modal {...props} size="lg" title="View Raw Embeds" actions={[
             {
                 text: "Copy All Embeds JSON",
                 onClick: () => copyWithToast(embedJson, "All embed data copied to clipboard!")
             }
         ]}>
             <div>
-                {cleanEmbeds.map((embed, i) => (
+                {cleanEmbeds.map((embed, index) => (
                     <>
-                        {i > 0 && (
-                            <Forms.FormDivider gap={18} />
-                        )}
-                        <Forms.FormTitle tag="h5">
-                            Embed {i + 1} Data
+                        {index > 0 && <Forms.FormDivider gap={18} />}
+                        <Forms.FormTitle>
+                            Embed {index + 1} Data
                         </Forms.FormTitle>
                         <CodeBlock
                             content={JSON.stringify(embed, null, 4)}
@@ -58,7 +56,7 @@ function openEmbedRawModal(msg: Message) {
                 {cleanEmbeds.length > 1 && (
                     <>
                         <Forms.FormDivider gap={18} />
-                        <Forms.FormTitle tag="h5">
+                        <Forms.FormTitle>
                             All Embeds Combined
                         </Forms.FormTitle>
                         <CodeBlock
@@ -73,81 +71,64 @@ function openEmbedRawModal(msg: Message) {
     ));
 }
 
-const messageContextCallback: NavContextMenuPatchCallback = (children, props) => {
+const messageContextCallback: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
     // discord.js sends the "type" on the embed, its the only thing
     // that is on an actual discord embed. thus this will check if the menu should appear.
-    if (!props.message.embeds.length) return;
-    if (!props.message.embeds.some((props: Embed) => props.type === "rich")) return;
+    if (!message.embeds.length) return;
+    if (!message.embeds.some(props => props.type === "rich")) return;
 
     const group = findGroupChildrenByChildId("copy-link", children);
+    if (!group) return;
 
-    if (group) {
-        group.push(
+    const embedsWithDesc = message.embeds.map((e, i) => e.rawDescription ? i : -1).filter(i => i !== -1);
+    const hasMultipleDesc = embedsWithDesc.length > 1;
+
+    group.push(
+        <Menu.MenuItem id="vc-embed-data" label="Embed Data" leadingAccessory={{ type: "icon", icon: Icons.EmbedIcon }}>
             <Menu.MenuItem
-                id="vc-embed-data"
-                label="Embed Data"
-            >
+                id="data"
+                label="Copy Embed Data"
+                action={() => copyEmbedContent(message, CopyType.EMBED)}
+                icon={Icons.AngleBracketsIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.AngleBracketsIcon }}
+            />
+            <Menu.MenuSeparator />
+            {hasMultipleDesc ? (
                 <Menu.MenuItem
-                    id="data"
-                    label="Copy Embed Data"
-                    action={() => copyEmbedContent(props.message, "embed")}
-                    icon={Icons.AngleBracketsIcon}
-                    leadingAccessory={{ type: "icon", icon: Icons.AngleBracketsIcon }}
-                />
+                    id="vc-copy-embed-description"
+                    label="Copy Embed Description"
+                    leadingAccessory={{ type: "icon", icon: Icons.CopyIcon }}
+                >
+                    {embedsWithDesc.map(i => (
+                        <Menu.MenuItem
+                            key={i}
+                            id={`desc-${i}`}
+                            label={`Copy Embed ${i + 1} Description`}
+                            action={() => copyEmbedContent(message, CopyType.DESCRIPTION, i)}
+                            icon={Icons.CopyIcon}
+                            leadingAccessory={{ type: "icon", icon: Icons.CopyIcon }}
+                        />
+                    ))}
+                </Menu.MenuItem>
+            ) : embedsWithDesc[0] !== undefined ? (
                 <Menu.MenuItem
-                    id="full"
-                    label="Copy Full JSON"
-                    action={() => copyEmbedContent(props.message, "full")}
-                    icon={Icons.TopicsIcon}
-                    leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
-                />
-                <Menu.MenuSeparator />
-                {props.message.embeds.filter((e: Embed) => e.rawDescription).length > 1 ? (
-                    <Menu.MenuItem
-                        id="vc-copy-embed-description"
-                        label="Copy Embed Description"
-                        leadingAccessory={{ type: "icon", icon: Icons.ClipboardListIcon }}
-                    >
-                        {props.message.embeds.map((embed: Embed, i: number) =>
-                            embed.rawDescription ? (
-                                <Menu.MenuItem
-                                    key={i}
-                                    id={`desc-${i}`}
-                                    label={`Copy Embed ${i + 1} Description`}
-                                    action={() => copyEmbedContent(props.message, "description", i)}
-                                    icon={Icons.ClipboardListIcon}
-                                    leadingAccessory={{ type: "icon", icon: Icons.ClipboardListIcon }}
-                                />
-                            ) : null
-                        )}
-                    </Menu.MenuItem>
-                ) : props.message.embeds[0]?.rawDescription ? (
-                    <Menu.MenuItem
-                        id="vc-copy-embed-description"
-                        label="Copy Embed Description"
-                        action={() => copyEmbedContent(props.message, "description", 0)}
-                        icon={Icons.ClipboardListIcon}
-                        leadingAccessory={{ type: "icon", icon: Icons.ClipboardListIcon }}
-                    />
-                ) : null}
-                <Menu.MenuItem
-                    id="vc-copy-embed-builder"
-                    label="Copy EmbedBuilder"
-                    action={() => copyEmbedContent(props.message, "builder")}
+                    id="vc-copy-embed-description"
+                    label="Copy Embed Description"
+                    action={() => copyEmbedContent(message, CopyType.DESCRIPTION, embedsWithDesc[0])}
                     icon={Icons.CopyIcon}
                     leadingAccessory={{ type: "icon", icon: Icons.CopyIcon }}
                 />
-                <Menu.MenuSeparator />
-                <Menu.MenuItem
-                    id="vc-view-raw-embed"
-                    label="View Raw Embed"
-                    action={() => openEmbedRawModal(props.message)}
-                    icon={Icons.TopicsIcon}
-                    leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
-                />
-            </Menu.MenuItem>
-        );
-    }
+            ) : null}
+            <Menu.MenuSeparator />
+            <Menu.MenuItem
+                id="vc-view-raw-embed"
+                label="View Raw Embed"
+                action={() => openEmbedRawModal(message)}
+                icon={Icons.TopicsIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.TopicsIcon }}
+            />
+        </Menu.MenuItem>
+    );
 };
 
 export default definePlugin({
