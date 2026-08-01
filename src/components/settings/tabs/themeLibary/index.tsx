@@ -271,7 +271,7 @@ export function ThemesLibTab() {
                 description="Customize your discord with amazing themes"
                 margin="bottom16"
             />
-            <Flex flexWrap="wrap" justifyContent="flex-start" gap="20px">
+            <Flex flexWrap="wrap" justifyContent="center" gap="20px">
                 {paginatedThemes.length > 0
                     ? paginatedThemes.map(theme => (
                         <ThemeCard

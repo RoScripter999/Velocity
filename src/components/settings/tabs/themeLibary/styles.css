@@ -36,6 +36,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.vc-themes-lib-banner-img-failed img {
+    width: 90%;
+    height: 123px;
     padding: 12px;
 }
 
