@@ -86,6 +86,7 @@ export function CspErrorCard() {
             <SectionHeader
                 tag="h5"
                 title="Blocked Resources"
+                margin="bottom8"
                 description={(
                     <>
                         Some images, styles, or fonts were blocked because they come from disallowed domains.
@@ -97,7 +98,7 @@ export function CspErrorCard() {
                 )}
             />
 
-            <Forms.FormTitle tag="h5" className={classes(Margins.top16, Margins.bottom8)}>Blocked URLs</Forms.FormTitle>
+            <Forms.FormTitle>Blocked URLs</Forms.FormTitle>
             <div className="vc-settings-themes-csp-list">
                 {errors.map((url, i) => (
                     <div key={url}>

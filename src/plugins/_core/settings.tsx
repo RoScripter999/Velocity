@@ -19,8 +19,7 @@
 import { hasNewChangelog } from "@api/Changelog";
 import { definePluginSettings } from "@api/Settings";
 import { PluginsIcon, VelocityIcon } from "@components/Icons";
-import { BackupAndRestoreTab, ChangeLogTab, CloudTab, DevTools, HelpersTab, PluginsTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
-import { ThemesLibTab } from "@components/settings/tabs/themeLibary";
+import { BackupAndRestoreTab, ChangeLogTab, CloudTab, DevTools, HelpersTab, PluginsTab, ThemeLibraryTab, ThemesTab, UpdaterTab, VelocityTab } from "@components/settings/tabs";
 import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
@@ -187,7 +186,7 @@ export default definePlugin({
                                                         useTitle: () => "Theme Libary",
                                                         buildLayout: () => [{
                                                             type: LayoutType.CUSTOM,
-                                                            Component: ThemesLibTab
+                                                            Component: ThemeLibraryTab
                                                         }]
                                                     }
 

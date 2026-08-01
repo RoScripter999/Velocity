@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import "./styles.css";
+import "./ThemeLibrary.css";
 
 import { Settings } from "@api/Settings";
 import { Card } from "@components/Card";
@@ -31,7 +31,7 @@ import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import { Buttons, LoadingIndicator, openModal, SearchableSelect, SearchBar, Text, Tooltip, useEffect, useState } from "@webpack/common";
 
-import { ThemeModal } from "./download";
+import { ThemeModal } from "./ThemeModal";
 
 const cl = classNameFactory("vc-themes-lib-");
 
@@ -180,7 +180,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
     );
 }
 
-export function ThemesLibTab() {
+function ThemeLibrary() {
     const forceUpdate = useForceUpdater();
     const [currentPage, setCurrentPage] = useState(0);
     const [ownedThemes, setOwnedThemes] = useState<string[]>([]);
@@ -320,3 +320,5 @@ export function ThemesLibTab() {
         </SettingsTab >
     );
 }
+
+export default !IS_USERSCRIPT ? ThemeLibrary : null;

@@ -24,7 +24,7 @@ import type { IconComponent } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { Icons, Modal, Text, Tooltip, useState } from "@webpack/common";
 
-import { BannerTryCatch, type Theme } from "./";
+import { BannerTryCatch, type Theme } from "./ThemeLibrary";
 
 interface ThemeModalProps extends ModalPropsRender {
     theme: Theme;
