@@ -20,7 +20,7 @@
     transform: rotate(90deg);
 }
 
-.vc-cu-modal-args {
+.vc-cu-modal-options {
     display: flex;
     flex-direction: column;
     gap: 1.25em;

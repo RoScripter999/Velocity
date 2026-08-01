@@ -35,8 +35,8 @@ export interface Action {
     description: string;
     category?: Categories;
     predicate?: (selfId: string) => boolean;
-    args?: Record<string, PluginSettingDef>;
-    execute: (args: Record<string, any>) => void | Promise<void>;
+    options?: Record<string, PluginSettingDef>;
+    execute: (options: Record<string, any>) => void | Promise<void>;
 }
 
 interface PanelProps extends ModalPropsRender {
@@ -46,16 +46,13 @@ interface PanelProps extends ModalPropsRender {
 
 export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
     const [expandedAction, setExpandedAction] = useState<string | null>(null);
-    const [argValues, setArgValues] = useState<Record<string, Record<string, any>>>(() =>
-        Object.fromEntries(
-            actions
-                .filter(a => a.args)
-                .map(a => [
-                    a.id,
-                    Object.fromEntries(
-                        Object.entries(a.args!).map(([k, v]) => [k, v.default ?? ""])
-                    )
-                ])
+    const [optionValues, setOptionValues] = useState<Record<string, Record<string, any>>>(() =>
+        Object.fromEntries(actions
+            .filter(a => a.options)
+            .map(a => [
+                a.id,
+                Object.fromEntries(Object.entries(a.options!).map(([k, v]) => [k, v.default ?? ""]))
+            ])
         )
     );
 
@@ -146,15 +143,15 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                             <div className={cl("modal-grid")}>
                                 {categoryActions.map(action => {
                                     const isExpanded = expandedAction === action.id;
-                                    const hasArgs = !!action.args;
-                                    const argVals = argValues[action.id] ?? {};
+                                    const hasOptions = !!action.options;
+                                    const optionVals = optionValues[action.id] ?? {};
 
                                     return (
-                                        <Card key={action.id} padding="sm" className={isExpanded && hasArgs ? cl("modal-grid-full") : undefined}>
+                                        <Card key={action.id} padding="sm" className={isExpanded && hasOptions ? cl("modal-grid-full") : undefined}>
                                             <Flex justifyContent="space-between" alignItems="center" gap="8px">
                                                 <SectionHeader tag="h2" title={action.label} description={action.description} descriptionColor="text-default" />
                                                 <Flex gap="4px" alignItems="center">
-                                                    {hasArgs && (
+                                                    {hasOptions && (
                                                         <div className={cl("modal-chevron", isExpanded && "modal-chevron-expanded")}>
                                                             <Buttons.IconButton
                                                                 variant="secondary"
@@ -168,14 +165,14 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                                                         text="Run"
                                                         size="sm"
                                                         disabled={action.predicate ? !action.predicate(target.id) : false}
-                                                        onClick={() => sendMessage(SelectedChannelStore.getChannelId(), { content: encodeCommand(action.id, hasArgs ? argVals : undefined) })}
+                                                        onClick={() => sendMessage(SelectedChannelStore.getChannelId(), { content: encodeCommand(action.id, hasOptions ? optionVals : undefined) })}
                                                     />
                                                 </Flex>
                                             </Flex>
 
-                                            {isExpanded && hasArgs && (
-                                                <div className={cl("modal-args")}>
-                                                    {Object.entries(action.args!).map(([key, setting]) => {
+                                            {isExpanded && hasOptions && (
+                                                <div className={cl("modal-options")}>
+                                                    {Object.entries(action.options!).map(([key, setting]) => {
                                                         if (setting.type === OptionType.CUSTOM || setting.hidden) return null;
                                                         const Component = OptionComponentMap[setting.type];
 
@@ -183,13 +180,13 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                                                             <ErrorBoundary noop key={key}>
                                                                 <Component
                                                                     id={key}
-                                                                    definedSettings={undefined as any}
+                                                                    definedSettings={undefined!}
                                                                     setting={setting}
                                                                     onChange={setting.type === OptionType.BOOLEAN
-                                                                        ? v => setArgValues(prev => ({ ...prev, [action.id]: { ...prev[action.id], [key]: v } }))
-                                                                        : debounce(v => setArgValues(prev => ({ ...prev, [action.id]: { ...prev[action.id], [key]: v } })))
+                                                                        ? v => setOptionValues(prev => ({ ...prev, [action.id]: { ...prev[action.id], [key]: v } }))
+                                                                        : debounce(v => setOptionValues(prev => ({ ...prev, [action.id]: { ...prev[action.id], [key]: v } })))
                                                                     }
-                                                                    pluginSettings={{ ...argVals, enabled: true }}
+                                                                    pluginSettings={{ ...optionVals, enabled: true }}
                                                                     closePluginSettings={() => { }}
                                                                 />
                                                             </ErrorBoundary>

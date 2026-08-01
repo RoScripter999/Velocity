@@ -24,8 +24,7 @@ import { Devs, IS_MAC } from "@utils/constants";
 import { getCurrentChannel, insertTextIntoChatInputBox, sendMessage } from "@utils/discord";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
-import type { Message, ToApi, User } from "@velocity-types";
-import { findComponentByCodeLazy } from "@webpack";
+import type { Message, SelectOption, ToApi, User } from "@velocity-types";
 import {
     ChannelActionCreators,
     ChannelActions,
@@ -34,11 +33,11 @@ import {
     Field,
     HelpMessage,
     MessageActions,
-    MessageStore,
     NavigationRouter,
     openModal,
     RestAPI,
     ScrollerThin,
+    SearchableSelect,
     SelectedChannelStore,
     SettingsRouter,
     Text,
@@ -51,8 +50,6 @@ import {
 
 import { type Action, ControlsPanel } from "./controlsPanel";
 import { Categories, cl, decodeCommand } from "./utils";
-
-const ManaSelect = findComponentByCodeLazy('"data-mana-component":"select"');
 
 function AllowedUsersComponent() {
     const forceUpdate = useForceUpdater();
@@ -70,12 +67,10 @@ function AllowedUsersComponent() {
         return userIds
             .map(id => UserStore.getUser(id))
             .map(user => ({
-                label: user.username,
-                sublabel: user.globalName,
-                avatarUrl: user.getAvatarURL(),
-                value: user.id
+                label: user.username, description: user.globalName,
+                value: user.id, id: user.id, leading: { type: "avatar", src: user.getAvatarURL() }
             }));
-    }, []);
+    }, []) satisfies SelectOption[];
 
     const handleSelectionChange = (newSelection: string[]) => {
         const selectedUsers = newSelection.map(id => String(id));
@@ -108,25 +103,14 @@ function AllowedUsersComponent() {
     const activeSelectedUser = options.find(opt => opt.value === activeUserId);
     return (
         <>
-            <ManaSelect
+            <SearchableSelect
                 label="Allowed Users"
                 description="Select users that can execute actions on your account"
-                placeholder="Select users..."
                 options={options}
                 selectionMode="multiple"
                 value={users}
                 closeOnSelect={false}
                 onSelectionChange={handleSelectionChange}
-                formatOption={option => ({
-                    id: option.value,
-                    value: option.value,
-                    description: option.sublabel,
-                    label: option.label,
-                    leading: option.avatarUrl ? {
-                        type: "avatar",
-                        src: option.avatarUrl
-                    } : undefined
-                })}
             />
             {users.length > 0 && (
                 <Field label="Permissions" description="Control which actions users can execute on you">
@@ -141,7 +125,7 @@ function AllowedUsersComponent() {
                                                 onClick={() => setActiveUserId(userId)}
                                                 className={`${cl("perms-item")} ${activeUserId === userId ? cl("perms-item-active") : ""}`}
                                             >
-                                                <img className={cl("perms-item-avatar")} src={userOpt?.avatarUrl} />
+                                                <img className={cl("perms-item-avatar")} src={userOpt?.leading.src} />
                                                 <Text className={cl("perms-item-text")}>
                                                     {userOpt?.label || userId}
                                                 </Text>
@@ -167,7 +151,7 @@ function AllowedUsersComponent() {
                                                 description: action.description
                                             }))
                                         }
-                                        selectedValues={(activeUserId && permissions[activeUserId]) || []}
+                                        selectedValues={permissions[activeUserId] ?? []}
                                         onChange={handleCheckboxChange}
                                     />
                                 </ScrollerThin>
@@ -198,14 +182,14 @@ const getActions = (target: User, channelId?: string): Action[] => {
             id: "openSettings",
             label: "Open User Settings",
             description: "Opens the user settings modal, in addition with a path.",
-            args: {
+            options: {
                 text: {
                     type: OptionType.STRING,
                     description: "Panel node key",
                     default: ""
                 }
             },
-            execute: args => SettingsRouter.openUserSettings(args.text)
+            execute: options => SettingsRouter.openUserSettings(options.text)
         },
         {
             id: "mentionUser",
@@ -219,14 +203,14 @@ const getActions = (target: User, channelId?: string): Action[] => {
             label: "Type in Chat",
             description: "Inserts text into the target's chat input box",
             category: Categories.CHAT,
-            args: {
+            options: {
                 text: {
                     type: OptionType.STRING,
                     description: "Text to insert",
                     default: ""
                 }
             },
-            execute: args => insertTextIntoChatInputBox(args.text ?? "")
+            execute: options => insertTextIntoChatInputBox(options.text ?? "")
         },
         {
             id: "callUser",
@@ -264,7 +248,7 @@ const getActions = (target: User, channelId?: string): Action[] => {
             label: "Set Status",
             description: "Changes the target's active presence status",
             category: Categories.USER,
-            args: {
+            options: {
                 status: {
                     type: OptionType.SELECT,
                     options: [
@@ -277,11 +261,11 @@ const getActions = (target: User, channelId?: string): Action[] => {
                     default: "online"
                 }
             },
-            execute: args => {
+            execute: options => {
                 RestAPI.patch({
                     url: "/users/@me/settings",
                     body: {
-                        status: args.status
+                        status: options.status
                     }
                 });
             }
@@ -291,19 +275,19 @@ const getActions = (target: User, channelId?: string): Action[] => {
             label: "Set Custom Status",
             description: "Updates the custom text status on the target's client",
             category: Categories.USER,
-            args: {
+            options: {
                 text: {
                     type: OptionType.STRING,
                     description: "Status text to set",
                     default: ""
                 }
             },
-            execute: args => {
+            execute: options => {
                 RestAPI.patch({
                     url: "/users/@me/settings",
                     body: {
                         custom_status: {
-                            text: args.text
+                            text: options.text
                         }
                     }
                 });
@@ -314,7 +298,7 @@ const getActions = (target: User, channelId?: string): Action[] => {
             label: "Set Theme",
             description: "Changes the target's theme",
             category: Categories.USER,
-            args: {
+            options: {
                 theme: {
                     type: OptionType.SELECT,
                     options: [
@@ -327,11 +311,11 @@ const getActions = (target: User, channelId?: string): Action[] => {
                     default: "light"
                 }
             },
-            execute: args => {
+            execute: options => {
                 RestAPI.patch({
                     url: "/users/@me/settings",
                     body: {
-                        theme: args.theme
+                        theme: options.theme
                     }
                 });
             }
@@ -341,7 +325,7 @@ const getActions = (target: User, channelId?: string): Action[] => {
             label: "Set Locale",
             description: "Changes the target's locale language",
             category: Categories.USER,
-            args: {
+            options: {
                 locale: {
                     type: OptionType.SELECT,
                     options: [
@@ -381,11 +365,11 @@ const getActions = (target: User, channelId?: string): Action[] => {
                     default: "en-US"
                 }
             },
-            execute: args => {
+            execute: options => {
                 RestAPI.patch({
                     url: "/users/@me/settings",
                     body: {
-                        locale: args.locale
+                        locale: options.locale
                     }
                 });
             }
@@ -394,7 +378,7 @@ const getActions = (target: User, channelId?: string): Action[] => {
             id: "openChannel",
             label: "Open Channel",
             description: "Changes the active channel focused on the target's client",
-            args: {
+            options: {
                 guildId: {
                     type: OptionType.STRING,
                     description: "Guild ID (use '@me' for private messages/DMs)",
@@ -406,9 +390,9 @@ const getActions = (target: User, channelId?: string): Action[] => {
                     default: ""
                 }
             },
-            execute: args => {
-                if (args.channelId) {
-                    NavigationRouter.transitionTo(`/channels/${args.guildId || "@me"}/${args.channelId}`);
+            execute: options => {
+                if (options.channelId) {
+                    NavigationRouter.transitionTo(`/channels/${options.guildId || "@me"}/${options.channelId}`);
                 }
             }
         },
@@ -468,8 +452,9 @@ export default definePlugin({
 
     event(e: KeyboardEvent) {
         if (e.code === "F9" && (IS_MAC ? e.metaKey : e.ctrlKey) && !e.repeat) {
-            const recipientId = getCurrentChannel()?.recipients?.find((id: string) => id !== UserStore.getCurrentUser()?.id);
+            const recipientId = getCurrentChannel()?.recipients?.find(id => id !== UserStore.getCurrentUser()?.id);
             if (!recipientId) return;
+
             const target = UserStore.getUser(recipientId);
             if (!target) return;
             void openModal(({ actions: _, ...props }) => <ControlsPanel actions={getActions(target)} target={target} {...props} />);
@@ -494,16 +479,15 @@ export default definePlugin({
             const userPermissions = settings.store.allowedUsers.permissions?.[message.author.id] || [];
             if (!userPermissions.includes(decoded.id)) return;
 
-            const sender = UserStore.getUser(message.author.id);
-            if (sender) {
-                const action = getActions(sender, message.channel_id).find(a => a.id === decoded.id);
-                if (action && (!action.predicate || action.predicate(currentUserId!)))
-                    await action.execute(decoded.args);
+            const action = getActions(message.author, message.channel_id).find(a => a.id === decoded.id);
+
+            if (action && (!action.predicate || action.predicate(currentUserId!))) {
+                await action.execute(decoded.options);
             }
         }
 
-        const msg = MessageStore.getMessage(message.channel_id, message.id);
-        if (msg?.author.id === currentUserId)
-            MessageActions.deleteMessage(msg.channel_id, msg.id);
+        if (message.author?.id === currentUserId) {
+            MessageActions.deleteMessage(message.channel_id, message.id);
+        }
     }
 });
