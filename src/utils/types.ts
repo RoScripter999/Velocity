@@ -27,7 +27,7 @@ import type { MessageDecorationFactory } from "@api/MessageDecorations";
 import type { MessageClickListener, MessageEditListener, MessageSendListener } from "@api/MessageEvents";
 import type { MessagePopoverButtonData } from "@api/MessagePopover";
 import type { IconProps } from "@components/Icons";
-import type { FluxEvents } from "@velocity-types";
+import type { FluxEvents, SelectOption } from "@velocity-types";
 import type { ComponentClass, ComponentType, FC, ReactNode } from "react";
 import type { LiteralUnion } from "type-fest";
 
@@ -307,14 +307,11 @@ export interface PluginSettingBooleanDef extends PluginSettingDefCommon {
 
 export interface PluginSettingSelectDef extends PluginSettingDefCommon {
     type: OptionType.SELECT;
-    options: readonly PluginSettingSelectOption[] | (() => Promise<PluginSettingSelectOption[]>);
-    searchable?: boolean;
+    options: PluginSettingSelectOption[] | (() => Promise<PluginSettingSelectOption[]>);
     default?: PluginSettingSelectOption["value"] | PluginSettingSelectOption["value"][];
 }
 
-export interface PluginSettingSelectOption {
-    label: string;
-    value: string | number | boolean;
+export interface PluginSettingSelectOption extends Omit<SelectOption, "id"> {
     icon?: string;
     default?: boolean;
 }
