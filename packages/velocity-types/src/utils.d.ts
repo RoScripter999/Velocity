@@ -120,6 +120,7 @@ export interface RestRequestData<TUrl extends string = string> {
     url: TUrl;
     query?: Record<string, unknown>;
     oldFormErrors?: boolean;
+    rejectWithError?: boolean;
     retries?: number;
 }
 

@@ -87,7 +87,10 @@ export interface ModalProps extends PropsWithChildren<ModalPropsRender> {
 
     /** Action buttons at the bottom of the Modal */
     actions?: ButtonsProps["Button"][];
-    /** Velocity patched prop, Action buttons full width @default true */
+    /**
+     * Action buttons full width.
+     * Default value is patched to true. @default true
+     */
     actionsFullWidth?: boolean;
     /** Custom component to show before actions, useful for e.g. "Don't show again" checkbox */
     actionBarInput?: ReactNode;

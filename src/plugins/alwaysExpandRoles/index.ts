@@ -24,7 +24,7 @@ const settings = definePluginSettings({
     hideArrow: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: "Hide Arrow",
+        description: "Hide Collapse Arrow Button",
         restartNeeded: true
     }
 });
