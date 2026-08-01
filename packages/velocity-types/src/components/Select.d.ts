@@ -32,7 +32,7 @@ export interface SelectOptionGroup {
 
 type StrictOptions<T, K extends string = never> = T extends SelectOptionGroup
     ? Exclude<keyof T, keyof SelectOptionGroup | K> extends never ? Omit<T, "options"> & { options: StrictOptions<T["options"][number], K>[]; } : SelectOptionGroup
-    : Exclude<keyof T, keyof SelectOption | K> extends never ? T : SelectOption;
+    : T extends SelectOption ? T : SelectOption;
 
 export type SelectProps<Options extends SelectOption | SelectOptionGroup = SelectOption | SelectOptionGroup> = (Field extends ComponentType<infer P> ? P : {}) & {
     /**
