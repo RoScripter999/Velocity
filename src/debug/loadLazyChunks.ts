@@ -144,6 +144,8 @@ export async function loadLazyChunks() {
 
                     if (wreq.m[entryPoint]) wreq(entryPoint);
                 } catch (err) {
+                    if (err instanceof TypeError && err.message.includes("reading 'nativeModules'")) continue;
+
                     console.error(err);
                 }
             }
