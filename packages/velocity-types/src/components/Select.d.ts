@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement, ReactNode } from "react";
+import type { ChangeEvent, ComponentType, FocusEvent, KeyboardEvent, ReactElement, ReactNode } from "react";
 import type { Field, IconProps } from "../components";
 import type { IconProps as IconPropsVelocity } from "@components/Icons";
 
@@ -30,6 +30,10 @@ export interface SelectOptionGroup {
     options: SelectOption[];
 }
 
+type StrictOptions<T, K extends string = never> = T extends SelectOptionGroup
+    ? Exclude<keyof T, keyof SelectOptionGroup | K> extends never ? Omit<T, "options"> & { options: StrictOptions<T["options"][number], K>[]; } : SelectOptionGroup
+    : Exclude<keyof T, keyof SelectOption | K> extends never ? T : SelectOption;
+
 export type SelectProps<Options extends SelectOption | SelectOptionGroup = SelectOption | SelectOptionGroup> = (Field extends ComponentType<infer P> ? P : {}) & {
     /**
      * Mode of option selection.
@@ -47,7 +51,10 @@ export type SelectProps<Options extends SelectOption | SelectOptionGroup = Selec
     closeOnSelect?: boolean;
     /** Enables keyboard navigation wrapping between options */
     shouldFocusWrap?: boolean;
-    /** Placeholder text when no value is selected */
+    /**
+     * Placeholder text when no value or query is selected
+     * @default "Select..."
+     */
     placeholder?: string;
     /**
      * Maximum visible options rendered in the list
@@ -82,13 +89,47 @@ export type SelectProps<Options extends SelectOption | SelectOptionGroup = Selec
     variant?: "default" | "filled" | "subtle";
 };
 
-export type Select = <T extends SelectOption | SelectOptionGroup>(props: SelectProps<T>) => ReactElement;
-
-export type SearchableSelect = <T extends SelectOption | SelectOptionGroup>(props: Omit<SelectProps<T>, "selectionMode"> & {
+export type SearchableSelectProps<
+    Options extends SelectOption | SelectOptionGroup = SelectOption | SelectOptionGroup,
+    Keys extends string = string
+> = Omit<SelectProps<StrictOptions<Options, Keys>>, "selectionMode"> & {
     /**
      * Mode of option selection.
-     * @default "multiple"
+     * @default undefined
      */
     selectionMode?: "single" | "multiple";
+    /**
+     * Hides tags from appearing, this only works when {@link SearchableSelectProps.selectionMode selectionMode} is set to `multiple` or `undefined`
+     */
     hideTags?: boolean;
-}) => ReactElement;
+    autoFocus?: boolean;
+    onQueryChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+    onFocus?: (event: FocusEvent<HTMLInputElement>) => void;
+    onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
+    onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
+    /**
+     * Overrides the default search completely. Takes the options and search query and returns the filtered options.
+     * It can also use the {@link SearchableSelectProps.matchSorterOptions matchSorterOptions} custom options
+     * @param options List of options to filter.
+     * @param query Search query text typed by the user.
+     */
+    customMatchSorter?: (
+        options: (Options extends SelectOptionGroup ? SelectOption & Partial<Record<Keys, any>> : StrictOptions<Options, Keys>)[],
+        query: string
+    ) => (Options extends SelectOptionGroup ? SelectOption : Options)[];
+    /**
+     * Configures which properties on option objects are searched when typing.
+     *
+     * @example ```["keywords"]``` Allows searching by `keywords` property
+     * @default ["label"]
+     */
+    matchSorterOptions?: {
+        keys?: (Keys | (Options extends { options: Array<infer Item>; } ? keyof Item : keyof Options) | keyof SelectOption)[];
+    };
+};
+
+export type Select = <T extends SelectOption | SelectOptionGroup>(props: SelectProps<StrictOptions<T>>) => ReactElement;
+export type SearchableSelect = <
+    T extends SelectOption | SelectOptionGroup,
+    K extends string = never
+>(props: SearchableSelectProps<T, K>) => ReactElement;
