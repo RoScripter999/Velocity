@@ -70,7 +70,7 @@ function patchLatest() {
         const newAppAsar = join(resources, "app.asar");
         const newAppAsarBackup = join(resources, "_app.asar");
 
-        if (!existsSync(oldVelocityAsar) || !existsSync(newAppAsar)) return;
+        if (!existsSync(oldVelocityAsar) || !existsSync(newAppAsar) || existsSync(newAppAsarBackup)) return;
 
         console.info(`[Velocity] Detected Host Update (${currentVersion} -> ${latestVersion}). Repatching...`);
 
