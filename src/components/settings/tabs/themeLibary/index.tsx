@@ -182,7 +182,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
 
 export function ThemesLibTab() {
     const forceUpdate = useForceUpdater();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const [ownedThemes, setOwnedThemes] = useState<string[]>([]);
     const [filters, setFilters] = useState({
         tags: [] as string[],
@@ -195,11 +195,11 @@ export function ThemesLibTab() {
         themesLoaded = false;
         ThemesJSON = {} as ThemeResult;
         setLoadFailed(false);
-        loadThemes(() => setLoadFailed(true)).then(() => forceUpdate());
+        loadThemes(() => setLoadFailed(true)).then(forceUpdate);
     };
 
     useEffect(() => {
-        loadThemes(() => setLoadFailed(true)).then(() => forceUpdate());
+        loadThemes(() => setLoadFailed(true)).then(forceUpdate);
         VelocityNative.themes.getThemesList().then(themes => {
             setOwnedThemes(themes.map(v => v.name.replace(/\.css$/, "")));
         });
@@ -212,7 +212,6 @@ export function ThemesLibTab() {
         );
     };
 
-    const itemsPerPage = 10;
     const themesList = ThemesJSON.themes ? Object.values(ThemesJSON.themes) : [];
 
     const filteredThemes = filters.tags.length > 0 || filters.search
@@ -225,8 +224,9 @@ export function ThemesLibTab() {
         : themesList;
 
     const totalThemes = filteredThemes.length;
-    const startIdx = (currentPage - 1) * itemsPerPage;
-    const paginatedThemes = filteredThemes.slice(startIdx, startIdx + itemsPerPage);
+
+    const max = 10;
+    const paginatedThemes = filteredThemes.slice(currentPage * max, currentPage * max + max);
 
     const handleTagSelect = (tag: string) => {
         setFilters(prev => {
@@ -236,7 +236,7 @@ export function ThemesLibTab() {
 
             return { ...prev, tags: updated };
         });
-        setCurrentPage(1);
+        setCurrentPage(0);
     };
 
     return (
@@ -256,7 +256,7 @@ export function ThemesLibTab() {
                             value={filters.tags}
                             onSelectionChange={(tags: string[]) => {
                                 setFilters(prev => ({ ...prev, tags: tags ?? [] }));
-                                setCurrentPage(1);
+                                setCurrentPage(0);
                             }}
                             closeOnSelect={false}
                             placeholder="Filter by Tags"
@@ -271,9 +271,10 @@ export function ThemesLibTab() {
                 description="Customize your discord with amazing themes"
                 margin="bottom16"
             />
-            <Flex flexWrap="wrap" justifyContent="center" gap="20px">
-                {paginatedThemes.length > 0
-                    ? paginatedThemes.map(theme => (
+            {paginatedThemes.length > 0
+                ? <div className={cl("grid")}>
+
+                    {paginatedThemes.map(theme => (
                         <ThemeCard
                             key={theme.name}
                             theme={theme}
@@ -282,25 +283,40 @@ export function ThemesLibTab() {
                             ownedThemes={ownedThemes}
                             onOwnershipChange={handleOwnershipChange}
                         />
-                    ))
-                    : !themesLoaded && !loadFailed
-                        ? <LoadingIndicator type="spinningCircle" />
-                        : <>
-                            <div className={cl("no-themes")} />
-                            <Flex justifyContent="center" alignItems="center" flexDirection="column" style={{ width: "100%", margin: "auto" }}>
-                                <Text variant="display-sm" color={loadFailed ? "text-feedback-critical" : "text-muted"}>{loadFailed ? "Failed to load themes" : "No themes found"}</Text>
-                                {loadFailed && <Buttons.Button text="Retry" variant="primary" size="sm" onClick={retryLoad} />}
-                            </Flex>
-                        </>
-                }
-            </Flex>
+                    ))}
+                </div> : !themesLoaded && !loadFailed
+                    ? <LoadingIndicator type="spinningCircle" />
+                    : <>
+                        <img
+                            src={loadFailed ?
+                                "https://discord.com/assets/b36de980b174d7b798c89f35c116e5c6.svg" :
+                                "https://discord.com/assets/0dfcd735f1a5349c.svg"
+                            }
+                            draggable={false}
+                            style={{ width: "100%", height: 200, marginBottom: 6 }}
+                        />
+                        <Flex justifyContent="center" alignItems="center" flexDirection="column" style={{ width: "100%", margin: "auto" }}>
+                            <Text
+                                variant="text-lg/normal"
+                                color={loadFailed ? "control-critical-secondary-text-default" : "text-muted"}
+                            >
+                                <p style={{ textAlign: "center", whiteSpace: "pre-line" }}>
+                                    {loadFailed
+                                        ? "We tried our best to load the themes.\n\nUnfortunately, Something went wrong and failed."
+                                        : "We searched far and wide.\n\nUnfortunately, No results were found."
+                                    }
+                                </p>
+                            </Text>
+                            {loadFailed && <Buttons.Button variant="secondary" text="Retry Loading" size="sm" onClick={retryLoad} />}
+                        </Flex>
+                    </>}
             <Paginator
                 currentPage={currentPage}
                 maxVisiblePages={totalThemes}
-                pageSize={itemsPerPage}
+                pageSize={max}
                 totalCount={totalThemes}
                 onPageChange={setCurrentPage}
             />
-        </SettingsTab>
+        </SettingsTab >
     );
 }
