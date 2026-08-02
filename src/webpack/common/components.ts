@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import * as VcIcons from "@components/Icons";
 import { LazyComponent } from "@utils/lazyReact";
 import type * as t from "@velocity-types";
 import { filters, find, findCssClassesLazy, mapMangledCssClasses, mapMangledModuleLazy, proxyLazyWebpack, waitFor } from "@webpack";
@@ -24,7 +25,7 @@ import { waitForComponent } from "./internal";
 
 export const Text = waitForComponent<t.Text>("Text", filters.componentByCode('="div",selectable:'));
 
-export let Icons: t.Icons = {} as t.Icons;
+export let Icons: t.Icons = new Proxy({} as t.Icons, { get: () => VcIcons.VelocityIcon });
 export function setIcons(component: t.Icons) {
     Icons = component;
 }
