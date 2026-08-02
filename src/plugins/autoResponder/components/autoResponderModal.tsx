@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { FormSwitch } from "@components/FormSwitch";
+import { Switch } from "@components/Switch";
 import { getIntlMessage } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
 import { Modal, TextInput, useState } from "@webpack/common";
@@ -56,18 +56,18 @@ export function RuleSettingsModal({ rule, onSave, ...props }: { rule: Rule; onSa
             ]}
         >
             <div>
-                <FormSwitch
-                    title="Case Sensitive"
+                <Switch
+                    label="Case Sensitive"
                     description="Only match if trigger is a specific casing"
-                    value={caseSensitive}
+                    checked={caseSensitive}
                     onChange={setCaseSensitive}
-                    hideBorder
                 />
-                <FormSwitch
-                    title="Match Whole Word"
+                <Switch
+                    label="Match Whole Word"
                     description="Only match if trigger a whole word"
-                    value={matchWholeWord}
+                    checked={matchWholeWord}
                     onChange={setMatchWholeWord}
+                    showBorder
                 />
 
                 <div className="vc-autoresponder-cooldown">

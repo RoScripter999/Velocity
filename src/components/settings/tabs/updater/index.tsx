@@ -19,8 +19,8 @@
 import "./styles.css";
 
 import { useSettings } from "@api/Settings";
-import { FormSwitch } from "@components/FormSwitch";
 import { SectionHeader, SettingsTab } from "@components/settings";
+import { Switch } from "@components/Switch";
 import { useAwaiter } from "@utils/react";
 import { getRepo, isNewer, UpdateLogger } from "@utils/updater";
 import { Forms, useState } from "@webpack/common";
@@ -46,16 +46,16 @@ export default IS_UPDATER_DISABLED ? null : function Updater() {
                 descriptionColor="text-default"
                 gap={{ bottom: 20 }}
             />
-            <FormSwitch
-                title="Automatically update"
+            <Switch
+                label="Automatically update"
                 description="Automatically update Velocity without confirmation prompt"
-                value={settings.autoUpdate}
+                checked={settings.autoUpdate}
                 onChange={v => settings.autoUpdate = v}
             />
-            <FormSwitch
-                title="Get notified when an automatic update completes"
+            <Switch
+                label="Get notified when an automatic update completes"
                 description="Show a notification when Velocity automatically updates"
-                value={settings.autoUpdateNotification}
+                checked={settings.autoUpdateNotification}
                 onChange={v => settings.autoUpdateNotification = v}
                 disabled={!settings.autoUpdate}
             />

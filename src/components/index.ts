@@ -20,7 +20,6 @@ export * from "./Card";
 export * from "./CodeBlock";
 export { default as ErrorBoundary } from "./ErrorBoundary";
 export * from "./Flex";
-export * from "./FormSwitch";
 export * from "./Grid";
 export * from "./Heading";
 export * from "./Icons";

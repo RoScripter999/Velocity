@@ -98,6 +98,7 @@ export function AddonCard({ disabled, isNew, name, infoButton, infoButtonTooltip
                                 checked={enabled}
                                 onChange={setEnabled}
                                 disabled={disabled}
+                                gap={false}
                             />
                         </div>
                     )}

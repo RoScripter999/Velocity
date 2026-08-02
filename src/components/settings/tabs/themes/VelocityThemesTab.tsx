@@ -81,25 +81,24 @@ export function VelocityThemesTab() {
                         value={velocityStyles.switchRedesign}
                     />
                 </Card>
-
-                {velocityStyles.switchRedesign === "redesigned" &&
-                    <Card className="vc-settings-card">
-                        <Switch
-                            checked={velocityStyles.showRedesignedIcon ?? true}
-                            onChange={val => { velocityStyles.showRedesignedIcon = val; }}
-                            title="Show checkmark icon"
-                            description="Show a litle icon in the middle of the thumb"
-                        />
-                    </Card>
-                }
+                <Card className="vc-settings-card">
+                    <Switch
+                        checked={velocityStyles.showRedesignedIcon ?? true}
+                        onChange={val => { velocityStyles.showRedesignedIcon = val; }}
+                        label="Show checkmark icon"
+                        description="Show a litle icon in the middle of the thumb"
+                        gap={false}
+                    />
+                </Card>
             </div>
             {THEME_SWITCHES.map(theme => (
                 <Card key={theme.key} className="vc-settings-card">
                     <Switch
-                        title={theme.title}
+                        label={theme.title}
                         description={theme.description}
                         checked={velocityStyles[theme.key] ?? false}
                         onChange={val => handleSwitchChange(theme.key, val, theme.experiment)}
+                        gap={false}
                     />
                 </Card>
             ))}

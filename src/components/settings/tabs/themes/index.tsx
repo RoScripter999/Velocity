@@ -21,11 +21,11 @@ import "./styles.css";
 import { isPluginEnabled } from "@api/PluginManager";
 import { ThemeDef, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
-import { FormSwitch } from "@components/FormSwitch";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { AddonCard, openPluginModal, QuickAction, QuickActionCard, SectionHeader, SettingsTab } from "@components/settings";
+import { Switch } from "@components/Switch";
 import type { UserThemeHeader } from "@main/themes";
 import ClientThemePlugin from "@plugins/clientTheme";
 import { classNameFactory } from "@utils/css";
@@ -262,10 +262,10 @@ function ThemesTab() {
             <section>
                 <Forms.FormTitle>Online Themes</Forms.FormTitle>
                 <Paragraph className={Margins.bottom16}>Load themes from URLs instead from your device. Online themes will automatically update when their source changes.</Paragraph>
-                <FormSwitch
-                    title="Enable Online Themes"
+                <Switch
+                    label="Enable Online Themes"
                     description="Toggle online themes. When disabled, all online themes will be turned off and you won't be able to add new ones."
-                    value={settings.themes.onlineThemesEnabled}
+                    checked={settings.themes.onlineThemesEnabled}
                     onChange={val => settings.themes.onlineThemesEnabled = val}
                 />
 

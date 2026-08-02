@@ -17,14 +17,14 @@
 */
 
 import { Card } from "@components/Card";
-import { FormSwitch } from "@components/FormSwitch";
 import { Grid } from "@components/Grid";
 import * as Icons from "@components/Icons";
 import { Margins } from "@components/margins";
 import { SectionHeader, SettingsTab } from "@components/settings";
+import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
 import { pluralise } from "@utils/misc";
-import { IconComponent } from "@utils/types";
+import type { IconComponent } from "@utils/types";
 import { Forms, Icons as WebpackIcons, SearchBar, Text, useState } from "@webpack/common";
 
 import { openIconInfoModal } from "./InfoModal";
@@ -41,10 +41,10 @@ function IconsTab() {
         ? { ...Icons, ...WebpackIcons }
         : Icons;
 
-
     const filteredIcons = Object.entries(source).filter(([name, value]) =>
         typeof value === "function" &&
-        value.prototype === undefined &&
+        name !== "createIcon" &&
+        name !== "Icon" &&
         name.toLowerCase().includes(filters.search.toLowerCase())
     ) as [string, IconComponent][];
 
@@ -60,12 +60,13 @@ function IconsTab() {
                 onChange={val => setFilter(prev => ({ ...prev, search: val }))}
                 autoFocus
             />
-            <FormSwitch
+            <Switch
                 className={Margins.top16}
-                title="Include Webpack Icons"
-                value={filters.includeWebpack}
+                label="Include Webpack Icons"
+                description="Include Discord's own icons"
+                checked={filters.includeWebpack}
                 onChange={v => setFilter(prev => ({ ...prev, includeWebpack: v }))}
-                hideBorder
+                gap={false}
             />
 
             <Forms.FormDivider gap={16} />
@@ -74,7 +75,6 @@ function IconsTab() {
 
             <Grid gap="16px" columns={5} style={{ padding: "8px 0" }}>
                 {filteredIcons.map(([name, IconComponent]) => {
-                    if (typeof IconComponent !== "function") return null;
 
                     return (
                         <Card

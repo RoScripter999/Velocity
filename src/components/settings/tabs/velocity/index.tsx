@@ -263,6 +263,7 @@ function SettingsList() {
                                     <Switch
                                         checked={Boolean(settings[key])}
                                         onChange={v => handleToggle(key, v)}
+                                        gap={false}
                                     />
                                 )}
                             </div>

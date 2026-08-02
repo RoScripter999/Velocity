@@ -239,6 +239,7 @@ function Section(props: {
                                 <span style={{ marginLeft: "auto" }}>
                                     <Switch
                                         checked={settings[name] !== false}
+                                        gap={false}
                                         onChange={v => {
                                             settings[name] = v;
                                         }}
@@ -321,13 +322,14 @@ function DraggableSection(props: {
                                         asset={<Icons.DenyIcon />}
                                     >
                                         <span style={{ marginLeft: "auto" }}>
-                                            <Switch checked disabled onChange={() => { }} />
+                                            <Switch gap={false} checked disabled onChange={() => { }} />
                                         </span>
                                     </RichTooltip>
                                 ) : (
                                     <span style={{ marginLeft: "auto" }}>
                                         <Switch
                                             checked={settings[name]?.enabled ?? true}
+                                            gap={false}
                                             onChange={v => {
                                                 settings[name] ??= {} as any;
                                                 settings[name].enabled = v;

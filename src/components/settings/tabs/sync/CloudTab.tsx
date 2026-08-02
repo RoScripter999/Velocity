@@ -20,11 +20,11 @@ import { useSettings } from "@api/Settings";
 import { authorizeCloud, deauthorizeCloud } from "@api/SettingsSync/cloudSetup";
 import { deleteCloudSettings, eraseAllCloudData, getCloudSettings, putCloudSettings } from "@api/SettingsSync/cloudSync";
 import { Flex } from "@components/Flex";
-import { FormSwitch } from "@components/FormSwitch";
 import { CloudUploadIcon } from "@components/Icons";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab } from "@components/settings/tabs/SectionSettings";
+import { Switch } from "@components/Switch";
 import { localStorage } from "@utils/localStorage";
 import { Buttons, ConfirmModal, Field, Forms, Icons, openModal, Select, TextInput, Tooltip, useState } from "@webpack/common";
 
@@ -46,10 +46,10 @@ function CloudSetupSection() {
             <Paragraph size="md" className={Margins.bottom20}>
                 Velocity comes with a cloud integration that adds goodies like settings sync across devices.
             </Paragraph>
-            <FormSwitch
-                title="Enable Cloud Integrations"
+            <Switch
+                label="Enable Cloud Integrations"
                 description="This will request authorization if you have not yet set up cloud integrations."
-                value={cloud.authenticated}
+                checked={cloud.authenticated}
                 onChange={v => {
                     if (v)
                         authorizeCloud();
@@ -97,13 +97,12 @@ function SettingsSyncSection() {
     return (
         <Forms.FormSection title="Settings Sync">
             <Flex flexDirection="column" gap="1em">
-                <FormSwitch
-                    title="Enable Settings Sync"
+                <Switch
+                    label="Enable Settings Sync"
                     description="Save your Velocity settings to the cloud so you can easily keep them the same on all your devices"
-                    value={cloud.settingsSync}
+                    checked={cloud.settingsSync}
                     onChange={v => { cloud.settingsSync = v; }}
                     disabled={!cloud.authenticated}
-                    hideBorder
                 />
 
                 <Select

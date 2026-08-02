@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { FormSwitch } from "@components/FormSwitch";
 import { Margins } from "@components/margins";
+import { Switch } from "@components/Switch";
 import type { ModalPropsRender } from "@velocity-types";
 import { Forms, Modal, SearchableSelect, useMemo } from "@webpack/common";
 
@@ -57,12 +57,12 @@ function AutoTranslateToggle() {
     const value = settings.use(["autoTranslate"]).autoTranslate;
 
     return (
-        <FormSwitch
-            title="Auto Translate"
+        <Switch
+            label="Auto Translate"
             description={settings.def.autoTranslate.description}
-            value={value}
+            checked={value}
             onChange={v => settings.store.autoTranslate = v}
-            hideBorder
+            gap={false}
         />
     );
 }

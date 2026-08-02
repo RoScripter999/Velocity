@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { FormSwitch } from "@components/FormSwitch";
+import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
 import { getCurrentChannel } from "@utils/discord";
 import { saveFile } from "@utils/web";
@@ -114,65 +114,68 @@ export function QuoteModal({ message, ...props }: ModalPropsRender & { message: 
 
             <div className={cl("controls")}>
                 <Forms.FormSection tag="h2" title="Image">
-                    <FormSwitch title="Grayscale" value={grayscale} onChange={v => settings.store.grayscale = v} />
-                    <FormSwitch
-                        title="Bold text"
+                    <Switch label="Grayscale" checked={grayscale} onChange={v => settings.store.grayscale = v} showBorder />
+                    <Switch
+                        label="Bold text"
                         description="Toggles between bold and light weight (use plugin settings for more options)"
-                        value={fontWeight === QuoteFontWeight.Bold}
+                        checked={fontWeight === QuoteFontWeight.Bold}
+                        showBorder
                         onChange={v => settings.store.fontWeight = v ? QuoteFontWeight.Bold : QuoteFontWeight.Light}
                     />
-                    <FormSwitch
-                        title="Decorative quotation marks"
-                        value={showQuotationMarks}
+                    <Switch
+                        label="Decorative quotation marks"
+                        checked={showQuotationMarks}
+                        showBorder
                         onChange={v => settings.store.showQuotationMarks = v}
                     />
                 </Forms.FormSection>
 
                 <Forms.FormSection tag="h2" title="Avatar">
-                    <FormSwitch
-                        title="Show avatar"
-                        value={showAvatar}
-                        hideBorder={showAvatar}
+                    <Switch
+                        label="Show avatar"
+                        checked={showAvatar}
+                        showBorder={!showAvatar}
                         onChange={v => settings.store.showAvatar = v}
                     />
                     {showAvatar && (<>
-                        <FormSwitch
-                            title="Avatar on right"
-                            value={avatarOnRight}
+                        <Switch
+                            label="Avatar on right"
+                            checked={avatarOnRight}
                             onChange={v => settings.store.avatarOnRight = v}
-                            hideBorder
                         />
-                        <Select
-                            label="Size"
-                            description="Size of the avatar horizontally"
-                            layout="horizontal"
-                            options={[
-                                { label: "Full", value: QuoteAvatarSize.Full },
-                                { label: "Large", value: QuoteAvatarSize.Large }
-                            ]}
-                            onSelectionChange={v => settings.store.avatarSize = v}
-                            fullWidth
-                            formatOption={option => ({
-                                ...option,
-                                id: option.value
-                            })}
-                            value={avatarSize}
-                        />
+                        <div style={{ marginBottom: 20 }}>
+                            <Select
+                                label="Size"
+                                description="Size of the avatar horizontally"
+                                layout="horizontal"
+                                options={[
+                                    { label: "Full", value: QuoteAvatarSize.Full },
+                                    { label: "Large", value: QuoteAvatarSize.Large }
+                                ]}
+                                onSelectionChange={v => settings.store.avatarSize = v}
+                                fullWidth
+                                formatOption={option => ({
+                                    ...option,
+                                    id: option.value
+                                })}
+                                value={avatarSize}
+                            />
+                        </div>
                     </>)}
                 </Forms.FormSection>
 
                 <Forms.FormSection tag="h2" title="Export">
-                    <FormSwitch
-                        title="Save as GIF"
+                    <Switch
+                        label="Save as GIF"
                         description="Saves and sends as GIF instead of PNG"
-                        value={saveAsGif}
+                        checked={saveAsGif}
                         onChange={v => settings.store.saveAsGif = v}
-                        hideBorder={!showWatermark}
+                        showBorder={!showWatermark}
                     />
-                    <FormSwitch
-                        title="Show watermark"
-                        value={showWatermark}
-                        hideBorder={showWatermark}
+                    <Switch
+                        label="Show watermark"
+                        checked={showWatermark}
+                        showBorder={showWatermark}
                         onChange={v => settings.store.showWatermark = v}
                     />
                     {showWatermark && (

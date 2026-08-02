@@ -42,7 +42,7 @@ export function BooleanSetting({ setting, pluginSettings, definedSettings, id, o
 
     return (
         <SettingsSection name={setting.displayName} id={id} description={setting.description} error={error} inlineSetting>
-            <Switch checked={state} onChange={handleChange} disabled={isSettingDisabled(definedSettings, setting)} />
+            <Switch checked={state} onChange={handleChange} disabled={isSettingDisabled(definedSettings, setting)} gap={false} />
         </SettingsSection>
     );
 }

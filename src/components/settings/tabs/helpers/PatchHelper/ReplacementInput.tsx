@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { FormSwitch } from "@components/FormSwitch";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
+import { Switch } from "@components/Switch";
 import { Forms, Parser, TextInput, useEffect, useState } from "@webpack/common";
 
 const RegexGuide = {
@@ -82,13 +82,12 @@ export function ReplacementInput({ replacement, setReplacement, replacementError
                 </div>
             )}
 
-            <FormSwitch
+            <Switch
                 className={Margins.top16}
-                value={isFunc}
+                checked={isFunc}
                 onChange={setIsFunc}
-                title={"Treat Replacement as function"}
+                label="Treat Replacement as function"
                 description='"Replacement" will be evaluated as a function if this is enabled'
-                hideBorder
             />
         </>
     );

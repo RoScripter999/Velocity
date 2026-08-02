@@ -122,13 +122,13 @@ export type LoadingIndicator = ComponentType<PropsWithChildren<{
     };
 };
 
-export type Field = ComponentType<PropsWithChildren<{
+export type Field = ComponentType<{
     label?: ReactNode;
     hideLabel?: boolean;
     /** Puts a asterisk in text-feedback-critical color on the right side of the {@link label} */
     required?: boolean;
     disabled?: boolean;
-    description?: string;
+    description?: ReactNode;
     /** Displayed below the control or label depending on {@link auxiliaryContentPosition} */
     helperText?: string;
     /**
@@ -172,7 +172,7 @@ export type Field = ComponentType<PropsWithChildren<{
         isLabelHovered: boolean;
         setIsLabelHovered: (hovered: boolean) => void;
     }) => ReactNode);
-}>>;
+}>;
 
 export type FieldSet = ComponentType<PropsWithChildren<Omit<HTMLAttributes<HTMLFieldSetElement>, "label" | "description" | "children"> & {
     label?: ReactNode;

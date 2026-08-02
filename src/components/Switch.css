@@ -55,3 +55,11 @@
         cursor: not-allowed
     }
 }
+
+.vc-switch-border {
+    margin-top: 20px;
+}
+
+.vc-switch-wrapper {
+    margin-bottom: 20px;
+}

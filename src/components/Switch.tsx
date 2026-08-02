@@ -21,9 +21,12 @@ import "./Switch.css";
 import { useSettings } from "@api/Settings";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
+import type { Field as FieldType } from "@velocity-types";
 import { findComponentByCodeLazy } from "@webpack";
-import { Field } from "@webpack/common";
-import type { ReactNode } from "react";
+import { Field, Forms } from "@webpack/common";
+import type { ComponentProps } from "react";
+
+import { Margins } from "./margins";
 
 const BaseSwitch = findComponentByCodeLazy("0,hasIcon:", ',layout:"horizontal",');
 
@@ -32,16 +35,18 @@ const switchCls = classNameFactory("vc-switch-");
 const SWITCH_ON = "var(--brand-500)";
 const SWITCH_OFF = "var(--primary-400)";
 
-export interface SwitchProps {
-    disabled?: boolean;
+export interface SwitchProps extends Omit<ComponentProps<FieldType>, "children"> {
     checked: boolean;
     onChange: (checked: boolean) => void;
-    title?: ReactNode;
-    description?: ReactNode;
+    hasIcon?: boolean;
+    gap?: boolean;
+    showBorder?: boolean;
+    className?: string;
+    labelledBy?: string;
 }
 
-const BuiltInSwitch = ({ checked, onChange, disabled }: SwitchProps) => (
-    <div>
+const BuiltInSwitch = ({ className, checked, onChange, disabled, hasIcon, id, "aria-describedby": describedBy, labelledBy }: SwitchProps) => (
+    <div className={className}>
         <div className={classes(switchCls("container"), "default-colors", switchCls({ checked, disabled }))}>
             <svg
                 className={switchCls("slider")}
@@ -53,21 +58,24 @@ const BuiltInSwitch = ({ checked, onChange, disabled }: SwitchProps) => (
                 }}
             >
                 <rect fill="white" x="4" y="0" height="20" width="20" rx="10" />
-                <svg viewBox="0 0 20 20" fill="none">
-                    {checked ? (
-                        <>
-                            <path fill={SWITCH_ON} d="M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z" />
-                            <path fill={SWITCH_ON} d="M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z" />
-                        </>
-                    ) : (
-                        <>
-                            <path fill={SWITCH_OFF} d="M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z" />
-                            <path fill={SWITCH_OFF} d="M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z" />
-                        </>
-                    )}
-                </svg>
+                {hasIcon && (
+                    <svg viewBox="0 0 20 20" fill="none">
+                        {checked ? (
+                            <>
+                                <path fill={SWITCH_ON} d="M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z" />
+                                <path fill={SWITCH_ON} d="M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z" />
+                            </>
+                        ) : (
+                            <>
+                                <path fill={SWITCH_OFF} d="M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z" />
+                                <path fill={SWITCH_OFF} d="M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z" />
+                            </>
+                        )}
+                    </svg>
+                )}
             </svg>
             <input
+                id={id}
                 disabled={disabled}
                 type="checkbox"
                 className={switchCls("input")}
@@ -75,20 +83,40 @@ const BuiltInSwitch = ({ checked, onChange, disabled }: SwitchProps) => (
                 checked={checked}
                 onChange={e => onChange(e.currentTarget.checked)}
                 aria-label="toggleSwitch"
+                aria-describedby={describedBy}
+                aria-labelledby={labelledBy}
             />
         </div>
     </div>
 );
 
-export function Switch({ checked, onChange, disabled, title, description }: SwitchProps) {
-    const { velocityStyles } = useSettings(["velocityStyles.switchRedesign"]);
+export function Switch({ className, checked, onChange, disabled, hasIcon, showBorder = false, gap = true, ...rest }: SwitchProps) {
+    const { velocityStyles } = useSettings(["velocityStyles.switchRedesign", "velocityStyles.showRedesignedIcon"]);
 
     if (velocityStyles.switchRedesign === "redesigned")
-        return <BaseSwitch label={title} description={description} checked={checked} onChange={onChange} disabled={disabled} />;
+        return (
+            <div className={classes(className, showBorder && switchCls("border"), gap && switchCls("wrapper"))}>
+                <BaseSwitch {...rest} checked={checked} onChange={onChange} disabled={disabled} hasIcon={hasIcon} />
+                {showBorder && <Forms.FormDivider className={Margins.top16} />}
+            </div>
+        );
 
     return (
-        <Field label={title} description={description as string} layout="horizontal">
-            <BuiltInSwitch checked={checked} onChange={onChange} disabled={disabled} />
-        </Field>
+        <div className={classes(className, showBorder && switchCls("border"), gap && switchCls("wrapper"))}>
+            <Field {...rest} layout="horizontal" interactiveLabel>
+                {({ controlId, describedById, labelId }) => (
+                    <BuiltInSwitch
+                        id={controlId}
+                        checked={checked}
+                        onChange={onChange}
+                        disabled={disabled}
+                        hasIcon={velocityStyles.showRedesignedIcon || hasIcon}
+                        aria-describedby={describedById}
+                        labelledBy={labelId}
+                    />
+                )}
+            </Field>
+            {showBorder && <Forms.FormDivider className={Margins.top16} />}
+        </div>
     );
 }
