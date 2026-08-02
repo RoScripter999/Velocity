@@ -56,16 +56,17 @@ function NotificationSettings() {
     return (
         <Flex flexDirection="column" gap="var(--space-24)">
 
-            <ErrorCard>
-                <SectionHeader
-                    tag="h2"
-                    title="Desktop notifications blocked"
-                    description="You have denied notification permissions. Desktop notifications will not work."
-                    layout="horizontal"
-                    icon={Icons.WarningIcon}
-                />
-            </ErrorCard>
-
+            {settings.useNative !== "never" && Notification?.permission === "denied" && (
+                <ErrorCard>
+                    <SectionHeader
+                        tag="h2"
+                        title="Desktop notifications blocked"
+                        description="You have denied notification permissions. Desktop notifications will not work."
+                        layout="horizontal"
+                        icon={Icons.WarningIcon}
+                    />
+                </ErrorCard>
+            )}
 
             <section>
                 <Select
