@@ -16,19 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { TextProps, TextVariant } from "@velocity-types";
+import type { HeadingTag, TextProps, TextVariant } from "@velocity-types";
 import { Text } from "@webpack/common";
 
-export type ParagraphProps = TextProps<"p"> & {
+export type ParagraphProps = TextProps<HeadingTag> & {
     weight?: "normal" | "medium" | "semibold" | "bold";
     size?: "md" | "xs" | "sm" | "lg" | "xl";
 };
 
+/** @deprecated Use {@link Text} instead. */
 export function Paragraph({ children, weight = "normal", size = "sm", ...restProps }: ParagraphProps) {
     const variant = `text-${size}/${weight}` as TextVariant;
 
     return (
-        <Text className="vc-text" tag="p" variant={variant} {...restProps}>
+        <Text scaleFontToUserSetting={true} tag="p" variant={variant} {...restProps}>
             {children}
         </Text>
     );

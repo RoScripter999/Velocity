@@ -80,14 +80,14 @@ function ReloadRequiredCard({ required }: { required: boolean; }) {
     return (
         <>
             {required ? (
-                <Card type={Card.Types.WARNING} className={classes(cl("info-card"), required && "vc-warning-card")}>
+                <Card type={Card.Types.WARNING}>
                     <Forms.FormTitle>Restart required!</Forms.FormTitle>
-                    <Paragraph style={{ marginBottom: 5 }}>
+                    <Paragraph style={{ marginBottom: 8 }}>
                         Restart now to apply new plugins and their settings
                     </Paragraph>
                     <Buttons.Button
                         icon={Icons.RefreshIcon}
-                        text="Restart Discord"
+                        text="Restart Discord (Ctrl + R)"
                         variant="secondary"
                         onClick={() => location.reload()}
                         fullWidth
@@ -456,10 +456,9 @@ export default function PluginSettings() {
 
                     <SectionHeader
                         tag="h2"
-                        className={Margins.top20}
                         title={`Velocity Plugins (${plugins.length})`}
                         description="Enhance Discord with powerful plugins!"
-                        margin="bottom8"
+                        gap={{ bottom: 8, top: 20 }}
                     />
                     {plugins.length
                         ? (
@@ -477,13 +476,11 @@ export default function PluginSettings() {
                 </>
             )}
 
-            <Forms.FormDivider className={Margins.top20} />
+            <Forms.FormDivider gap={20} />
             <SectionHeader
-                tag="h2"
-                className={Margins.top20}
                 title="Required Plugins"
                 description="These are required plugins for Velocity to function."
-                margin="bottom8"
+                gap={{ bottom: 8 }}
             />
             <div className={cl("grid")}>
                 {requiredPlugins.length

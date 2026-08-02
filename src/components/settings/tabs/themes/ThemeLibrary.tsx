@@ -269,7 +269,7 @@ function ThemeLibrary() {
                 tag="h2"
                 title={`Total Themes: ${totalThemes}`}
                 description="Customize your discord with amazing themes"
-                margin="bottom16"
+                gap={{ bottom: 16 }}
             />
             {paginatedThemes.length > 0
                 ? <div className={cl("grid")}>

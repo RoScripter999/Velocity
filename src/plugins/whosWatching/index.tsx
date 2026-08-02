@@ -36,7 +36,7 @@ function Watching({ userIds, guildId }: WatchingProps) {
 
     return (
         <React.Fragment>
-            <Text className={Margins.bottom16} variant="heading-sm/semibold">
+            <Text tag="p" className={Margins.bottom16} variant="heading-sm/semibold">
                 {getIntlMessage("SPECTATORS", { numViewers: userIds.length.toString() })}
             </Text>
 

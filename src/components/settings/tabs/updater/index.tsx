@@ -44,7 +44,7 @@ export default IS_UPDATER_DISABLED ? null : function Updater() {
                 titleVariant="heading-md/medium"
                 description="Control how Velocity keeps itself up to date. You can choose to update automatically in the background or be notified when new updates are available."
                 descriptionColor="text-default"
-                margin="bottom20"
+                gap={{ bottom: 20 }}
             />
             <FormSwitch
                 title="Automatically update"

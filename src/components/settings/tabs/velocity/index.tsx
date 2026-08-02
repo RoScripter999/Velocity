@@ -35,7 +35,7 @@ import { ChangeList } from "@utils/ChangeList";
 import { DONOR_ROLE_ID, IS_MAC, IS_WINDOWS, VELOCITY_GUILD_ID, VELOCITY_GUILD_INVITE } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
-import { classes, shouldShowContributorBadge } from "@utils/misc";
+import { shouldShowContributorBadge } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { useCleanupEffect } from "@utils/react";
 import type { SelectOption } from "@velocity-types";
@@ -224,27 +224,18 @@ function SettingsList() {
                         return (
                             <div
                                 key={key}
-                                className={classes(cl("row"))}
+                                className={cl("row")}
                                 onClick={setting.options ? undefined : () => handleToggle(key, !settings[key])}
                             >
                                 <SectionHeader
                                     layout="horizontal"
-                                    tag="h2"
-                                    icon={() => <Icon size="md" color="currentColor" />}
+                                    icon={Icon}
                                     iconWrapperClassName={cl("row-icon")}
                                     title={title}
                                     titleVariant="text-md/semibold"
-                                    titleColor="text-strong"
                                     description={
                                         <>
-                                            {description && (
-                                                <Text
-                                                    variant="text-sm/normal"
-                                                    color="text-muted"
-                                                >
-                                                    {description}
-                                                </Text>
-                                            )}
+                                            <Text variant="text-sm/normal" color="text-muted">{description}</Text>
                                             {restartRequired && (
                                                 <Flex alignItems="center" gap="4px" style={{ marginTop: 4 }}>
                                                     <Icons.RetryIcon size="xs" color="var(--text-brand)" />
@@ -300,12 +291,12 @@ export default function VelocitySettings() {
                         titleColor="chip-yellow-light-background"
                         description="Perks and contributions tied to your user ID"
                         descriptionColor="text-code"
-                        margin="bottom8"
+                        gap={{ bottom: 8 }}
                     />
                 </div>
             )}
             {!hasDonorBadge && !hasDevBadge && (
-                <div className={classes(Margins.bottom20, cl("no-badges"))}>
+                <div className={cl("no-badges")}>
                     <BrokenHeart size="lg" color="text-muted" />
 
                     <Text variant="text-sm/semibold" color="text-muted">No badges earned yet</Text>
@@ -341,7 +332,7 @@ export default function VelocitySettings() {
                     icon={Icons.TopicsIcon}
                     title="Quick Actions"
                     description="Quick tasks and utilities for accessibility"
-                    margin="bottom8"
+                    gap={{ bottom: 8 }}
                 />
 
                 <QuickActionCard>
@@ -385,7 +376,6 @@ export default function VelocitySettings() {
                     icon={Icons.SettingsIcon}
                     title="Velocity Settings"
                     description="Configure the native functionality of the client"
-                    tag="h2"
                 />
 
                 <SettingsList />

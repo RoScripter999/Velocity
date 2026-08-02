@@ -176,7 +176,7 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
 
             <div className={cl("content")}>
                 <Card className={cl("preview-card")}>
-                    <SectionHeader tag="h2" title="Preview" description={`${Math.round(size)}px`} margin="bottom16" />
+                    <SectionHeader title="Preview" description={`${Math.round(size)}px`} gap={{ bottom: 16 }} />
 
                     <Slider
                         minValue={12}
@@ -205,7 +205,7 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
                         <Component size="custom" width={size} height={size} color="currentColor" />
                     </div>
 
-                    <SectionHeader tag="h2" title="ContextMenu Preview" margin="bottom8" />
+                    <SectionHeader title="ContextMenu Preview" gap={{ bottom: 8 }} />
                     <Menu.Menu navId="vc-icons-preview" hideScroller>
                         <Menu.MenuItem id="menu-item" label="Test Item" leadingAccessory={{ type: "icon", icon: Icon }} icon={Icon} />
                         <Menu.MenuItem id="menu-item-disabled" label="Test Item That is disabled" disabled leadingAccessory={{ type: "icon", icon: Icon }} icon={Icon} />

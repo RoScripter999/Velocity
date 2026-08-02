@@ -29,10 +29,8 @@ export function NotificationSection() {
                 icon={Icons.BellIcon}
                 title="Velocity Notifications"
                 tooltip="This does not include Discord notifications (messages, etc)."
-                tooltipIcon={false}
                 description="Settings for Velocity notifications that is integrated into the client."
-                tag="h2"
-                margin="bottom8"
+                gap={{ bottom: 8 }}
             />
             <Buttons.Button icon={Icons.SettingsIcon} variant="secondary" size="sm" text="Notification Settings" onClick={openNotificationSettingsModal} />
         </section>
@@ -58,26 +56,22 @@ function NotificationSettings() {
     return (
         <Flex flexDirection="column" gap="var(--space-24)">
 
-            {settings.useNative !== "never" && Notification?.permission === "denied" && (
-                <ErrorCard>
-                    <SectionHeader
-                        tag="h5"
-                        title="Desktop notifications blocked"
-                        description="You have denied notification permissions. Desktop notifications will not work."
-                        icon={() => <Icons.WarningIcon color="currentColor" size="sm" />}
-                    />
-                </ErrorCard>
-            )}
+            <ErrorCard>
+                <SectionHeader
+                    tag="h2"
+                    title="Desktop notifications blocked"
+                    description="You have denied notification permissions. Desktop notifications will not work."
+                    layout="horizontal"
+                    icon={Icons.WarningIcon}
+                />
+            </ErrorCard>
+
 
             <section>
-                <SectionHeader
-                    icon={Icons.BellIcon}
-                    title="Notification Style"
-                    description="In-app Velocity notifications or native Desktop notifications — Desktop behave like Discord pings."
-                    margin="bottom8"
-                    tag="h2"
-                />
                 <Select
+                    label="Notification Style"
+                    description="In-app Velocity notifications or native Desktop notifications"
+                    helperText="Desktop behave like Discord pings."
                     placeholder="Notification Style"
                     options={[
                         { label: "Desktop only when Discord is unfocused", value: "not-focused" },
@@ -93,16 +87,11 @@ function NotificationSettings() {
             <Forms.FormDivider />
 
             <section>
-                <SectionHeader
-                    icon={Icons.LocationIcon}
-                    title="Position"
-                    tooltip={isDesktopDisabled ? "Position only applies to Velocity notifications" : undefined}
-                    tooltipIcon={false}
-                    description="Where Velocity notifications appear on screen"
-                    margin="bottom8"
-                    tag="h2"
-                />
                 <Select
+                    icon={Icons.LocationIcon}
+                    label="Position"
+                    helperText={isDesktopDisabled ? "Position only applies to Velocity notifications" : undefined}
+                    description="Where Velocity notifications appear on screen"
                     disabled={isDesktopDisabled}
                     placeholder="Notification Position"
                     options={[
@@ -118,14 +107,10 @@ function NotificationSettings() {
             <Forms.FormDivider />
 
             <section>
-                <SectionHeader
-                    icon={Icons.TimerIcon}
-                    title="Timeout"
-                    description="How long a Velocity notification stays visible before auto-dismissing"
-                    tag="h2"
-                    margin="bottom16"
-                />
                 <Slider
+                    label="Timeout"
+                    description="How long a Velocity notification stays visible before auto-dismissing"
+                    icon={Icons.TimerIcon}
                     disabled={isDesktopDisabled}
                     markers={[0, 1000, 2500, 5000, 10_000, 20_000]}
                     minValue={0}
@@ -141,14 +126,10 @@ function NotificationSettings() {
             <Forms.FormDivider />
 
             <section>
-                <SectionHeader
-                    icon={Icons.InboxIcon}
-                    title="Log Limit"
-                    description="Maximum number of notifications stored in the log, older ones are removed when the limit is reached"
-                    tag="h2"
-                    margin="bottom16"
-                />
                 <Slider
+                    label="Log Limit"
+                    description="Maximum number of notifications stored in the log, older ones are removed when the limit is reached"
+                    icon={Icons.InboxIcon}
                     markers={[0, 25, 50, 75, 100, 200]}
                     minValue={0}
                     maxValue={200}

@@ -50,7 +50,7 @@ export default function BackupAndRestoreTab() {
                     title="File"
                     description="Import your settings using a backup settings file"
                     descriptionColor="text-default"
-                    margin="bottom20"
+                    gap={{ bottom: 20 }}
                 />
 
                 <SectionHeader
@@ -58,7 +58,7 @@ export default function BackupAndRestoreTab() {
                     title="Import Settings"
                     description="Select a previously exported settings file to restore your configuration. This will replace all your current settings with the ones from the backup."
                     descriptionColor="text-default"
-                    margin="bottom16"
+                    gap={{ bottom: 16 }}
                 />
                 <Buttons.ButtonGroup direction="horizontal" className={Margins.bottom20}>
                     {BUTTONS.map(({ type, label }) => (
@@ -80,7 +80,7 @@ export default function BackupAndRestoreTab() {
                     title="Export Settings"
                     description="Download your current settings as a backup file. You can export everything at once, or choose to export only specific parts of your configuration."
                     descriptionColor="text-default"
-                    margin="bottom16"
+                    gap={{ bottom: 16 }}
                 />
                 <Buttons.ButtonGroup direction="horizontal">
                     {BUTTONS.map(({ type, label }) => (
@@ -102,7 +102,7 @@ export default function BackupAndRestoreTab() {
                     title="JSON"
                     description="Paste a settings JSON directly to import without a file"
                     descriptionColor="text-default"
-                    margin="bottom16"
+                    gap={{ bottom: 16 }}
                 />
 
                 <Select

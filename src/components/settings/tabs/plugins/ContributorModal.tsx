@@ -91,7 +91,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                                 titleColor="text-muted"
                                 titleVariant="text-sm/normal"
                                 tooltip={`${pluralise(totalPlugins, "Plugin")} authored`}
-                                tooltipIcon={false}
                                 icon={() => <Icons.ListViewIcon size="xs" color="var(--text-muted)" />}
                             />
                             {totalSettings > 0 && (
@@ -100,7 +99,6 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                                     titleColor="text-muted"
                                     titleVariant="text-sm/normal"
                                     tooltip="Total configurable settings across their plugins"
-                                    tooltipIcon={false}
                                     icon={() => <Icons.SettingsIcon size="xs" color="var(--text-muted)" />}
                                 />
                             )}

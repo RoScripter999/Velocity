@@ -52,7 +52,7 @@ export const LoadingIndicator = waitForComponent<t.LoadingIndicator>("LoadingInd
 export const Tooltip = waitForComponent<t.Tooltip>("Tooltip", filters.componentByCode("this.renderTooltip()]"));
 export const RichTooltip = waitForComponent<t.RichTooltip>("RichTooltip", filters.componentByCode("!0,richTooltipPadding:"));
 
-export const TextInput = waitForComponent<t.TextInput>("TextInput", filters.componentByCode('setHasValue?.(""!==', '="text",'));
+export const TextInput = waitForComponent<t.TextInput>("TextInput", filters.componentByCode('"data-mana-component":"text-input"'));
 export const SearchBar = waitForComponent<t.SearchBar>("SearchBar", filters.componentByCode("query:", "size:", "autoFocus"));
 export const TextArea = waitForComponent<t.TextArea>("TextArea", filters.componentByCode('"data-mana-component":"text-area"'));
 export const SearchableSelect = waitForComponent<t.SearchableSelect>("SearchableSelect", filters.componentByCode('??"single"==='));

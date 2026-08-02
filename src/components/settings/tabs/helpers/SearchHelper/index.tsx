@@ -157,7 +157,7 @@ function SearchHelper() {
                 description={searchType === SearchStatus.MODULE_ID
                     ? "Only the first input is used for module id search."
                     : "All non-empty filters are applied."}
-                margin="top8"
+                gap={{ top: 8 }}
             />
 
             {filters.map((query, index) => (

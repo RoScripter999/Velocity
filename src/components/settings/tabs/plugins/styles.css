@@ -49,14 +49,6 @@
     text-align: center;
 }
 
-.vc-plugins-info-card {
-    padding: 1em;
-    display: flex;
-    flex-direction: column;
-    border-radius: 6px;
-    gap: 0.25em;
-}
-
 .vc-plugins-info-icon:not(:hover, :focus) {
     color: var(--text-muted);
 }

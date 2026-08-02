@@ -86,7 +86,7 @@ export function CspErrorCard() {
             <SectionHeader
                 tag="h5"
                 title="Blocked Resources"
-                margin="bottom8"
+                gap={{ bottom: 8 }}
                 description={(
                     <>
                         Some images, styles, or fonts were blocked because they come from disallowed domains.

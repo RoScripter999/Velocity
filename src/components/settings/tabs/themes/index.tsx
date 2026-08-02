@@ -102,7 +102,7 @@ function ConfigureDialog({ fileName, onDelete, ref }: { fileName: string; onDele
 
     return (
         <Dialog className={PopoutClasses.container} ref={ref} style={{ width: "400px", padding: 12 }}>
-            <SectionHeader titleVariant="text-md/semibold" title={`Configure ${fileName}`} description="Modify this theme's settings" margin="bottom8" />
+            <SectionHeader titleVariant="text-md/semibold" title={`Configure ${fileName}`} description="Modify this theme's settings" gap={{ bottom: 8 }} />
 
             <Select
                 label="Activate theme on"
@@ -226,7 +226,7 @@ function ThemesTab() {
                 title="Themes"
                 description="Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Click on the cog wheel icon to customize a theme's settings."
                 descriptionColor="text-default"
-                margin="bottom20"
+                gap={{ bottom: 20 }}
             />
             <Field label="Quick Actions">
                 <QuickActionCard>

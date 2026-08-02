@@ -105,7 +105,7 @@ export function Newer(props: CommonProps) {
             <SectionHeader
                 title="Local Changes Detected"
                 description="Your local copy has more recent commits. Please stash or reset them."
-                margin="bottom16"
+                gap={{ bottom: 16 }}
             />
             <Changes {...props} updates={changes} />
         </div>
@@ -189,7 +189,7 @@ export function Updatable(props: CommonProps) {
                     <SectionHeader
                         title="Update Check Failed"
                         description="Failed to check for updates. Check the console for more info."
-                        margin="bottom8"
+                        gap={{ bottom: 8 }}
                     />
                     <ErrorCard className={Margins.bottom8}>
                         {updateError?.stderr || updateError?.stdout || "An unknown error occurred"}
@@ -199,7 +199,7 @@ export function Updatable(props: CommonProps) {
             ) : isOutdated ? (
                 <>
                     <SectionHeader
-                        margin="bottom16"
+                        gap={{ bottom: 16 }}
                         title="Updates Available"
                         description={`${pluralise(updates.length, "new commit")} ${updates.length === 1 ? "is" : "are"} waiting to be applied. Update now to get the latest fixes, features, and improvements.`}
                     />

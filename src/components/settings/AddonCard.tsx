@@ -92,8 +92,8 @@ export function AddonCard({ disabled, isNew, name, infoButton, infoButtonTooltip
                 )}
 
                 <Tooltip text={enabled ? (enabledTooltip ?? "Disable") : (disabledTooltip ?? "Enable")}>
-                    {props => (
-                        <div {...props}>
+                    {({ onMouseEnter, onMouseLeave }) => (
+                        <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
                             <Switch
                                 checked={enabled}
                                 onChange={setEnabled}

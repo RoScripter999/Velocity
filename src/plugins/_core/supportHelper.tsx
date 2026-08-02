@@ -552,7 +552,7 @@ export default definePlugin({
         if (RelationshipStore.isFriend(userId) || isPluginDev(UserStore.getCurrentUser()?.id)) return null;
 
         return (
-            <Card className={`vc-warning-card ${Margins.top8}`}>
+            <Card type="warning" className={Margins.top8}>
                 Please do not private message Velocity plugin developers for support!
                 <br />
                 Instead, use the Velocity support channel: {Parser.parse(`https://discord.com/channels/${VELOCITY_GUILD_ID}/${SUPPORT_CHANNEL_ID}`)}

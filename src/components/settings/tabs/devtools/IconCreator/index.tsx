@@ -123,7 +123,7 @@ function IconCreator() {
 
             <Forms.FormDivider gap={24} />
 
-            <SectionHeader tag="h4" title="SVG Elements" description="Define the shapes for your custom icon." margin="bottom8" />
+            <SectionHeader tag="h4" title="SVG Elements" description="Define the shapes for your custom icon." gap={{ bottom: 8 }} />
 
             <Flex flexDirection="column" gap={8}>
                 {svgs.map((svg, index) => (

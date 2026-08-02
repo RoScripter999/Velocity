@@ -16,161 +16,112 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Heading } from "@components/Heading";
-import { Margins } from "@components/margins";
+import { type MarginDirection, Margins, type MarginSize } from "@components/margins";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
-import type { HeadingTag, TextProps, TextVariant } from "@velocity-types";
-import { Icons, RichTooltip, Text, Tooltip } from "@webpack/common";
-import type { ComponentPropsWithoutRef, ComponentType, CSSProperties, ReactNode } from "react";
+import type { TextProps } from "@velocity-types";
+import { RichTooltip, Text, Tooltip } from "@webpack/common";
+import type { ComponentPropsWithoutRef, ComponentType, HTMLAttributes, JSX, ReactNode } from "react";
 
 const cl = classNameFactory("vc-settings-section-header-");
 
-export interface SectionHeaderProps {
-    icon?: ComponentType<any>;
+export interface SectionHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
     title: ReactNode;
-    tooltip?: string | ComponentPropsWithoutRef<typeof RichTooltip>;
-    /** Whether the question mark icon should show from {@link tooltip}. puts tooltip in {@link title} if false. @default true. Elseif its a component ? icon would be replaced. */
-    tooltipIcon?: boolean | ComponentType<any>;
     description?: ReactNode;
-    /** Uses heading component @default p */
-    tag?: HeadingTag | "p";
     /**
-     * @param vertical Puts the icon next to the title
-     * @param horizontal Puts the icon between description and title on the left side
+     * Icon that appears between the text on the left side,
+     * If {@link layout} set to `horizontal`, Icon will appear in-between text and description
+     */
+    icon?: ComponentType<any>;
+
+    /**
+     * Tooltip text appears when hovering on {@link title}
+     */
+    tooltip?: string | ComponentPropsWithoutRef<typeof RichTooltip>;
+    /** Element type of the {@link title} */
+    tag?: Extract<keyof JSX.IntrinsicElements, string>;
+    /**
+     * Layout of the field
+     *
      * @default vertical
      */
     layout?: "vertical" | "horizontal";
-    margin?: keyof typeof Margins;
-    className?: string;
+    gap?: {
+        [key in MarginDirection]?: MarginSize
+    };
     iconWrapperClassName?: string;
-    titleVariant?: TextVariant;
+    titleVariant?: TextProps["variant"];
     titleColor?: TextProps["color"];
     /** @default text-sm/normal */
-    descriptionVariant?: TextVariant;
+    descriptionVariant?: TextProps["variant"];
     /** @default text-muted */
     descriptionColor?: TextProps["color"];
-    style?: CSSProperties;
 }
 
 export function SectionHeader({
-    icon: Icon,
     title,
-    tooltip,
-    tooltipIcon = true,
     description,
-    tag: Tag = "p",
+    icon: Icon,
+    tooltip,
+    tag = "strong",
     layout = "vertical",
-    margin,
-    className,
+    gap,
     iconWrapperClassName,
     titleVariant,
     titleColor,
     descriptionVariant = "text-sm/normal",
     descriptionColor = "text-muted",
-    style
+    className,
+    ...rest
 }: SectionHeaderProps) {
     const tooltipText = typeof tooltip === "string" ? tooltip : undefined;
     const richTooltipProps = typeof tooltip === "object" ? tooltip : undefined;
 
-    const TooltipIcon =
-        tooltipIcon === false
-            ? null
-            : tooltipIcon === true || tooltipIcon === undefined
-                ? Icons.CircleQuestionIcon
-                : tooltipIcon;
+    const gapClasses = gap ? Object.entries(gap).map(([direction, size]) => Margins[`${direction}${size}`]) : [];
 
-    const titleNode = titleVariant
-        ? <Text variant={titleVariant} color={titleColor}>{title}</Text>
-        : titleColor
-            ? <Text tag={Tag} color={titleColor} className={cl("title")}>{title}</Text>
-            : <Heading tag={Tag as any} className={cl("title")}>{title}</Heading>;
-
-    const iconNode = Icon && layout === "vertical"
-        ? <Icon size="sm" color="var(--text-muted)" />
-        : null;
-
-    const titleRow = (
-        <div className={cl("title-row")}>
-            {tooltipText && !tooltipIcon
-                ? (
-                    <Tooltip text={tooltipText}>
-                        {({ onMouseEnter, onMouseLeave }) => (
-                            <span
-                                onMouseEnter={onMouseEnter}
-                                onMouseLeave={onMouseLeave}
-                                className={cl("title-row")}
-                            >
-                                {iconNode}
-                                {titleNode}
-                            </span>
-                        )}
-                    </Tooltip>
-                )
-                : richTooltipProps && !tooltipIcon
-                    ? (
-                        <RichTooltip {...richTooltipProps} asContainer>
-                            <span className={cl("title-row")}>
-                                {iconNode}
-                                {titleNode}
-                            </span>
-                        </RichTooltip>
-                    )
-                    : <>{iconNode}{titleNode}</>
-            }
-
-            {tooltipText && TooltipIcon && (
-                <Tooltip text={tooltipText}>
-                    {({ onMouseEnter, onMouseLeave }) => (
-                        <span
-                            onMouseEnter={onMouseEnter}
-                            onMouseLeave={onMouseLeave}
-                            className={cl("tooltip")}
-                        >
-                            <TooltipIcon size="xs" color="currentColor" />
-                        </span>
-                    )}
-                </Tooltip>
-            )}
-
-            {richTooltipProps && TooltipIcon && (
-                <RichTooltip {...richTooltipProps} asContainer>
-                    <span className={cl("tooltip")}>
-                        <TooltipIcon size="xs" color="currentColor" />
-                    </span>
-                </RichTooltip>
-            )}
-        </div>
+    // FIXME: make this use some tag based color at some point.
+    const titleNode = (
+        <Text tag={tag} variant={titleVariant} color={titleColor} scaleFontToUserSetting={true}>
+            {title}
+        </Text>
     );
 
-    const descriptionNode = description && (
-        typeof description === "string"
-            ? (
-                <Text variant={descriptionVariant} color={descriptionColor} className={cl("description")}>
-                    {description}
-                </Text>
-            )
-            : <div className={cl("description")}>{description}</div>
-    );
-
-    const content = <>{titleRow}{descriptionNode}</>;
-
-    if (layout === "horizontal") {
-        return (
-            <div className={classes(cl("wrapper"), cl("wrapper-horizontal"), margin && Margins[margin], className)} style={style}>
-                {Icon && (
-                    <span className={iconWrapperClassName}>
-                        <Icon size="md" color="currentColor" />
+    const titleWithTooltip = tooltipText
+        ? (
+            <Tooltip text={tooltipText}>
+                {({ onMouseEnter, onMouseLeave }) => (
+                    <span onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                        {titleNode}
                     </span>
                 )}
-                <div className={cl("content")}>{content}</div>
-            </div>
-        );
-    }
+            </Tooltip>
+        )
+        : richTooltipProps
+            ? <RichTooltip {...richTooltipProps} asContainer>{titleNode}</RichTooltip>
+            : titleNode;
+
+    const iconNode = Icon && (
+        layout === "horizontal"
+            ? <span className={iconWrapperClassName}><Icon size="md" color="currentColor" /></span>
+            : <Icon size="sm" color="currentColor" />
+    );
+
+    const descriptionNode = typeof description === "string" ? <Text variant={descriptionVariant} color={descriptionColor}>{description}</Text> : description;
 
     return (
-        <div className={classes(cl("wrapper"), margin && Margins[margin], className)} style={style}>
-            {content}
+        <div
+            className={classes(cl("container"), ...gapClasses, className)}
+            data-layout={layout}
+            {...rest}
+        >
+            {layout === "horizontal" && iconNode}
+            <div className={cl("content")}>
+                <div className={cl("title-container")}>
+                    {layout === "vertical" && iconNode}
+                    {titleWithTooltip}
+                </div>
+                {descriptionNode}
+            </div>
         </div>
     );
 }

@@ -258,7 +258,7 @@ export default definePlugin({
                     <ErrorCard
                         className={classes(Margins.top16, Margins.bottom16)}
                     >
-                        <SectionHeader tag="h2" title="Warning" description="Activity Sharing isn't enabled, people won't be able to see your custom rich presence!" margin="bottom8" />
+                        <SectionHeader tag="h2" title="Warning" description="Activity Sharing isn't enabled, people won't be able to see your custom rich presence!" gap={{ bottom: 8 }} />
                         <Buttons.Button
                             text="Enable Activity Sharing"
                             variant="secondary"

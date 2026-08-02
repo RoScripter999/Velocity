@@ -139,7 +139,7 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                 ) : (
                     grouped.map(([category, categoryActions]) => (
                         <Flex key={category} flexDirection="column" gap="8px">
-                            <SectionHeader margin="top8" tag="h2" titleColor="text-subtle" titleVariant="text-md/semibold" title={category} />
+                            <SectionHeader gap={{ top: 8 }} titleColor="text-subtle" titleVariant="text-md/semibold" title={category} />
                             <div className={cl("modal-grid")}>
                                 {categoryActions.map(action => {
                                     const isExpanded = expandedAction === action.id;
@@ -149,7 +149,7 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                                     return (
                                         <Card key={action.id} padding="sm" className={isExpanded && hasOptions ? cl("modal-grid-full") : undefined}>
                                             <Flex justifyContent="space-between" alignItems="center" gap="8px">
-                                                <SectionHeader tag="h2" title={action.label} description={action.description} descriptionColor="text-default" />
+                                                <SectionHeader title={action.label} description={action.description} descriptionColor="text-default" />
                                                 <Flex gap="4px" alignItems="center">
                                                     {hasOptions && (
                                                         <div className={cl("modal-chevron", isExpanded && "modal-chevron-expanded")}>

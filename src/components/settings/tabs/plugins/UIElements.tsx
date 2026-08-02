@@ -189,9 +189,8 @@ function Section(props: {
     icon: ComponentType<any>;
     buttonMap: Map<string, ContextMenuButtonData | HeaderBarButtonData>;
     tooltip?: SectionHeaderProps["tooltip"];
-    tooltipIcon?: SectionHeaderProps["tooltipIcon"];
 }) {
-    const { buttonMap, title, settings, icon, tooltip, tooltipIcon } = props;
+    const { buttonMap, title, settings, icon, tooltip } = props;
     const names = [...buttonMap.keys()];
 
     const visibleButtons = names.filter(name => {
@@ -216,8 +215,7 @@ function Section(props: {
                 titleVariant="text-sm/normal"
                 title={title}
                 titleColor="text-muted"
-                margin="bottom20"
-                tooltipIcon={tooltipIcon}
+                gap={{ bottom: 20 }}
                 icon={icon}
                 tooltip={tooltip}
             />
@@ -296,7 +294,7 @@ function DraggableSection(props: {
                 titleVariant="text-sm/normal"
                 title={title}
                 titleColor="text-muted"
-                margin="bottom20"
+                gap={{ bottom: 20 }}
                 icon={icon}
             />
             <ScrollerAuto fade className={cl("switches")}>
@@ -313,7 +311,7 @@ function DraggableSection(props: {
                             moveRow={moveRow}
                         >
                             <Paragraph size="md" weight="semibold" className={cl("switches-row")}>
-                                {Icon && <Icon size="refresh_sm" color="currentColor" height={20} width={20} />}
+                                {Icon && <Icon size="custom" color="currentColor" height={20} width={20} />}
                                 {name}
 
                                 {isRequired ? (
@@ -361,7 +359,6 @@ function UIElementsModal(props: ModalPropsRender) {
                     titleVariant="text-lg/bold"
                     titleColor="text-strong"
                     description="You can configure which buttons you want to hide or change positions, Buttons appear based on enabled plugins."
-                    margin="bottom8"
                 />
             }
         >
@@ -420,7 +417,6 @@ function UIElementsModal(props: ModalPropsRender) {
                         icon={Icons.MenuIcon}
                         buttonMap={ContextMenuButtonMap}
                         settings={uiElements.contextMenuButtons}
-                        tooltipIcon={() => <Icons.WarningIcon color="currentColor" size="refresh_sm" />}
                         tooltip={{
                             title: "Some Items are hidden!",
                             body: "Hidden items are required by enabled plugins to function."

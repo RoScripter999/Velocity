@@ -89,7 +89,7 @@ function CspPermissionModal({ url, directives, callerName, resolve, ...modalProp
                 title={`${domain} wants to allow connections`}
                 description="The following types of content will be allowed to load are:"
                 descriptionColor="text-default"
-                margin="bottom8"
+                gap={{ bottom: 8 }}
             />
             {contentTypes.length > 0 && <ul style={{ listStyleType: "disc", paddingLeft: "1.5em", margin: "4px 0 0" }}>
                 {contentTypes.map(type => (

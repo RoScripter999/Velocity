@@ -278,7 +278,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
         >
             <div>
                 <section>
-                    <SectionHeader title="Plugin Authors" titleVariant="text-md/semibold" tooltipIcon={false} tooltip="The authors of the plugin that contributed in its development" icon={() => <Icons.GroupIcon color="var(--interactive-icon-active)" size="sm" />} margin="bottom8" />
+                    <SectionHeader title="Plugin Authors" titleVariant="text-md/semibold" tooltip="The authors of the plugin that contributed in its development" icon={() => <Icons.GroupIcon color="var(--interactive-icon-active)" size="sm" />} gap={{ bottom: 8 }} />
                     <div className={cl("authors")}>
                         <ErrorBoundary noop>
                             {authors.length === 0 ? (

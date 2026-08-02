@@ -61,7 +61,7 @@ export default function ChangelogTab() {
                 title="What's New"
                 description="Commits and plugin changes since your last update."
                 descriptionColor="text-default"
-                margin="bottom8"
+                gap={{ bottom: 8 }}
             />
 
             {hasCurrentChanges && <Buttons.ButtonGroup className={Margins.bottom16} direction="horizontal" fullWidth>

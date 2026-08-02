@@ -62,7 +62,7 @@ export function VelocityThemesTab() {
                 tooltip="Themes that are premade and built into the client."
                 description="Configure your discord UI designs."
                 descriptionColor="text-default"
-                margin="bottom16"
+                gap={{ bottom: 16 }}
             />
 
             <div style={{ marginBottom: "1.5em" }}>
