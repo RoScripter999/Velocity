@@ -46,8 +46,8 @@ export default definePlugin({
         {
             find: ",PiggyBankIcon:()=>",
             replacement: {
-                match: /\(\s*(\w+)\s*,\s*\{[^}]*?\}\)\s*,/,
-                replace: (m, exportsVar) => `${m}$self.setIcons(${exportsVar}),`
+                match: /\i\.\i\((\i),\{[\s\S]*?\}\)/,
+                replace: "$&,$self.setIcons($1)"
             }
         },
         {
