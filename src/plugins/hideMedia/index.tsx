@@ -21,11 +21,10 @@ import "./styles.css";
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { get, set } from "@api/DataStore";
 import { updateMessage } from "@api/MessageUpdater";
-import { definePluginSettings } from "@api/Settings";
 import { ImageInvisible, ImageVisible } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
-import definePlugin, { OptionType } from "@utils/types";
+import definePlugin from "@utils/types";
 import type { Channel, Message } from "@velocity-types";
 import { Menu } from "@webpack/common";
 
@@ -38,18 +37,8 @@ const saveHiddenMessages = (ids: Set<string>) => set(KEY, ids);
 const hasMedia = (msg: Message) => msg.attachments.length > 0 || msg.embeds.length > 0 || msg.stickerItems.length > 0;
 const mediaIcon = (state: boolean) => state ? ImageVisible : ImageInvisible;
 
-const settings = definePluginSettings({
-    contextMenu: {
-        type: OptionType.BOOLEAN,
-        description: "Show context menu option to hide/show media",
-        default: true
-    }
-});
-
 const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { channel, message }: { channel: Channel; message: Message; }) => {
-    if (!settings.store.contextMenu) return;
     if (!hasMedia(message) && !message.messageSnapshots.some(s => hasMedia(s.message))) return;
-
     if (message.deleted) return;
 
     const isHidden = hiddenMessages.has(message.id);
@@ -96,7 +85,6 @@ export default definePlugin({
     authors: [Devs.Ven, Devs.RoScripter999],
     dependencies: ["MessageUpdaterAPI"],
     searchTerms: ["HideImages", "HideAttachments"],
-    settings,
 
     patches: [
         {
