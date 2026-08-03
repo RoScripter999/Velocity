@@ -19,14 +19,13 @@
 import { definePluginSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
-import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage, openUserProfile } from "@utils/discord";
 import { copyToClipboard } from "@utils/misc";
-import definePlugin, { OptionType } from "@utils/types";
+import definePlugin, { OptionType, type PluginSettingComponentProps } from "@utils/types";
 import type { Guild, ModalPropsRender, User } from "@velocity-types";
-import { Avatar, Buttons, Clickable, DateUtils, Forms, GuildActions, HelpMessage, Icons, Modal, Select, Text, TextInput, Tooltip, useState } from "@webpack/common";
+import { Avatar, Buttons, Clickable, DateUtils, Forms, GuildActions, HelpMessage, Icons, Modal, Select, Text, TextInput, Tooltip, useRef, useState } from "@webpack/common";
 
 const cl = classNameFactory("vc-bbr-");
 
@@ -41,71 +40,86 @@ interface BanReason {
     deleteSeconds?: number;
 }
 
-const normalize = (r: BanReason | string): BanReason => typeof r === "string" ? { text: r } : r;
 const toPlain = (r: BanReason): BanReason => r.deleteSeconds != null ? { text: r.text, deleteSeconds: r.deleteSeconds } : { text: r.text };
 
-function ReasonsComponent() {
-    const reasons = settings.use(["reasons"]).reasons.map(normalize);
+const makeEmptyReason: () => BanReason = () => ({
+    text: "",
+    deleteSeconds: 0
+});
+
+function ReasonsComponent({ setValue }: PluginSettingComponentProps) {
+    const [reasons, setReasons] = useState(settings.store.reasons);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const save = (list: BanReason[]) => {
-        settings.store.reasons = list.map(toPlain);
+        const l = list.map(toPlain);
+        setReasons(l);
+        setValue(l);
     };
-
-    const optionReasons = [
-        { id: "none", value: 0, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_NONE") },
-        { id: "1hour", value: 3600, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_1HR") },
-        { id: "6hours", value: 21600, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_6HR") },
-        { id: "12hours", value: 43200, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_12HR") },
-        { id: "1day", value: 86400, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_24HR") },
-        { id: "3days", value: 259200, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_3D") },
-        { id: "7days", value: 604800, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_7D") }
-    ];
 
     return (
         <div>
-            {reasons.map((r, i) => (
-                <div key={i}>
-                    <Flex className={Margins.bottom16} flexDirection="row" gap="0.5em">
-                        <TextInput
-                            placeholder={getIntlMessage("BAN_REASON")}
-                            value={r.text}
-                            onChange={v => {
-                                const list = reasons.map(toPlain);
-                                list[i] = { ...list[i], text: v };
-                                save(list);
-                            }}
-                            trailing={{
-                                type: "icon",
-                                tooltip: getIntlMessage("REMOVE"),
-                                disabled: settings.store.reasons.length <= 1,
-                                icon: () => {
-                                    const isLast = settings.store.reasons.length <= 1;
-                                    return <Icons.TrashIcon color={isLast ? "var(--icon-muted)" : "var(--icon-feedback-critical)"} size="sm" />;
-                                },
-                                onClick: () => {
+            {reasons.map((r, i) => {
+                const isLast = reasons.length <= 1;
+                return (
+                    <div key={i}>
+                        <Flex className={Margins.bottom16} flexDirection="row" gap="0.5em">
+                            <TextInput
+                                inputRef={i === reasons.length - 1 ? inputRef : undefined}
+                                placeholder={getIntlMessage("BAN_REASON")}
+                                value={r.text}
+                                onChange={v => {
                                     const list = reasons.map(toPlain);
-                                    list.splice(i, 1);
+                                    list[i] = { ...list[i], text: v };
                                     save(list);
-                                }
-                            }}
-                        />
-                        <Select
-                            options={optionReasons}
-                            onSelectionChange={v => {
-                                save(reasons.map((x, j) => j === i ? { ...toPlain(x), deleteSeconds: v ?? undefined } : toPlain(x)));
-                            }}
-                            value={r.deleteSeconds ?? null}
-                        />
-                    </Flex>
-                </div>
-            ))}
+                                }}
+                                trailing={{
+                                    type: "icon",
+                                    tooltip: i === 0 ? getIntlMessage("RESET") : getIntlMessage("REMOVE"),
+                                    disabled: i === 0 ? !r.text?.trim() : isLast,
+                                    icon: () => {
+                                        const Icon = i === 0 ? Icons.RetryIcon : Icons.TrashIcon;
+                                        return <Icon color={i === 0 ? "currentColor" : (isLast ? "var(--icon-muted)" : "var(--icon-feedback-critical)")} size="sm" />;
+                                    },
+                                    onClick: () => {
+                                        const list = reasons.map(toPlain);
+                                        i === 0 ? (list[0] = makeEmptyReason()) : list.splice(i, 1);
+                                        save(list);
+                                    }
+                                }}
+
+                            />
+                            <Select
+                                options={[
+                                    { id: "none", value: 0, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_NONE") },
+                                    { id: "1hour", value: 3600, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_1HR") },
+                                    { id: "6hours", value: 21600, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_6HR") },
+                                    { id: "12hours", value: 43200, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_12HR") },
+                                    { id: "1day", value: 86400, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_24HR") },
+                                    { id: "3days", value: 259200, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_3D") },
+                                    { id: "7days", value: 604800, label: getIntlMessage("DELETE_MESSAGE_HISTORY_OPTION_7D") }
+                                ]}
+                                onSelectionChange={v => {
+                                    save(reasons.map((x, j) => j === i ? { ...toPlain(x), deleteSeconds: v ?? undefined } : toPlain(x)));
+                                }}
+                                fullWidth
+                                value={r.deleteSeconds ?? null}
+                            />
+                        </Flex>
+                    </div>
+                );
+            })}
 
             <Buttons.Button
                 text="Add Reason"
                 variant="secondary"
                 size="sm"
+                disabled={!reasons[reasons.length - 1]?.text?.trim()}
                 icon={() => <Icons.PlusSmallIcon />}
-                onClick={() => save([...reasons.map(toPlain), { text: "" }])}
+                onClick={() => {
+                    save([...reasons.map(toPlain), makeEmptyReason()]);
+                    setTimeout(() => inputRef.current?.focus(), 0);
+                }}
             />
         </div>
     );
@@ -192,9 +206,9 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
                 </Forms.FormSection>
 
                 <Forms.FormSection className={Margins.top16} tag="h4" title="User Info">
-                    <Paragraph selectable variant="text-xs/normal" color="text-muted">User ID: {user.id}</Paragraph>
-                    {user.globalName && <Paragraph selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("DISPLAY_NAME")}: {user.globalName}</Paragraph>}
-                    <Paragraph selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("USER_PROFILE_DISCORD_MEMBER_SINCE")}: {DateUtils.calendarFormat(user.createdAt)}</Paragraph>
+                    <Text selectable variant="text-xs/normal" color="text-muted">User ID: {user.id}</Text>
+                    {user.globalName && <Text selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("DISPLAY_NAME")}: {user.globalName}</Text>}
+                    <Text selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("USER_PROFILE_DISCORD_MEMBER_SINCE")}: {DateUtils.calendarFormat(user.createdAt)}</Text>
 
                     {error && <HelpMessage className={Margins.top8} messageType="danger">{error}</HelpMessage>}
                 </Forms.FormSection>
@@ -205,10 +219,9 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
 
 const settings = definePluginSettings({
     reasons: {
-        description: "Racist, Gay etc..",
         type: OptionType.COMPONENT,
-        default: [] as BanReason[],
-        component: ReasonsComponent
+        default: [makeEmptyReason()],
+        component: props => <ReasonsComponent {...props} />
     },
     betterModal: {
         description: "Redesigns the user ban modal from the guild ban list",
@@ -266,7 +279,9 @@ export default definePlugin({
     },
 
     getReasons() {
-        const storedReasons = settings.store.reasons.map(normalize).filter(r => r.text.trim());
+        const storedReasons = settings.store.reasons
+            .map(r => typeof r === "string" ? { text: r } : r)
+            .filter(r => r.text.trim());
 
         const customReasons = storedReasons.map(r => ({ name: r.text, value: r.text }));
         const defaultReasons = [
