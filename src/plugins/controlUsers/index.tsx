@@ -429,8 +429,8 @@ export default definePlugin({
         {
             find: '"Skipping message send because send_fail_100 is enabled"',
             replacement: {
-                match: /\}\},(\i)\)/,
-                replace: "}},$1).then(e=>$self.onMessageCreate(e.body))"
+                match: /!0\},(\i)\)/,
+                replace: "$&.then(e=>$self.onMessageCreate(e.body))"
             }
         },
         {
