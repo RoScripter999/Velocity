@@ -162,7 +162,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
             <Flex flexDirection="column" gap="0.5em">
                 {rulesArray.map((rule, index) =>
                     <ExpandableCard
-                        key={`${rule.find}-${index}`}
+                        key={index}
                         buttons={[{
                             onClick: () => onClickRemove(index),
                             icon: Icons.TrashIcon
