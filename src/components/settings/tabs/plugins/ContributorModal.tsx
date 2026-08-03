@@ -19,7 +19,6 @@
 import "./ContributorModal.css";
 
 import { useSettings } from "@api/Settings";
-import { Paragraph } from "@components/Paragraph";
 import { DevsById } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { fetchUserProfile, openUserProfile } from "@utils/discord";
@@ -75,8 +74,8 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
             title={
                 <div className={cl("header")}>
                     <img
-                        className={cl("avatar", "avatar-wrap")}
-                        src={user.getAvatarURL(void 0, 512, true)}
+                        className={cl("avatar")}
+                        src={user.getAvatarURL(void 0, 512, false)}
                         onClick={() => openUserProfile(user.id)}
                         draggable={false}
                         alt=""
@@ -103,14 +102,12 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                                 />
                             )}
                         </div>
+
+                        {totalPlugins === 0 && <div>
+                            <Text variant="text-sm/normal" color="text-muted">This contributor hasn't authored any plugins.</Text>
+                        </div>}
                     </div>
-                </div>
-            }
-            subtitle={
-                totalPlugins > 0
-                    ? <Paragraph>This person has contributed to {pluralise(totalPlugins, "plugin")}!</Paragraph>
-                    : <Paragraph color="text-muted">This contributor hasn't authored any plugins.</Paragraph>
-            }
+                </div>}
         >
             <div className={cl("plugins")}>
                 {corePlugins.length > 0 && (

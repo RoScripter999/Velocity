@@ -158,7 +158,12 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 continue;
             }
 
-            if (current !== defaultValue) return true;
+            // Deep comparison for objects/arrays to prevent reference mismatch
+            if (typeof defaultValue === "object" && defaultValue !== null) {
+                if (JSON.stringify(current) !== JSON.stringify(defaultValue)) return true;
+            } else if (current !== defaultValue) {
+                return true;
+            }
         }
 
         return false;
@@ -177,26 +182,18 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 cancelText="Cancel"
                 onConfirm={() => {
                     for (const [key, option] of Object.entries(plugin.settings!.def)) {
-                        if (option.type === OptionType.CUSTOM) {
-                            const defaultValue = "default" in option && option.default !== undefined ? option.default : undefined;
-                            if (defaultValue !== undefined) {
-                                pluginSettings[key] = structuredClone(defaultValue);
-                                option.onChange?.(pluginSettings[key]);
-                            } else {
-                                delete pluginSettings[key];
-                            }
-                            continue;
+                        const defaultValue = "default" in option ? option.default : undefined;
+
+                        pluginSettings[key] = undefined;
+                        delete pluginSettings[key];
+
+                        if (option.type === OptionType.CUSTOM && "onChange" in option) {
+                            option.onChange?.(defaultValue);
                         }
 
-                        const defaultValue = "default" in option && option.default !== undefined ? option.default : undefined;
-
-                        if (defaultValue !== undefined) {
-                            pluginSettings[key] = defaultValue;
-                        } else {
-                            delete pluginSettings[key];
+                        if ("restartNeeded" in option && option.restartNeeded) {
+                            onRestartNeeded(key);
                         }
-
-                        if ("restartNeeded" in option && option.restartNeeded) onRestartNeeded(key);
                     }
                     forceUpdate();
                 }}

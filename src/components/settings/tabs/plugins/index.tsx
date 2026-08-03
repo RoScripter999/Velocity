@@ -28,6 +28,7 @@ import { Link } from "@components/Link";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { SectionHeader, SettingsTab } from "@components/settings";
+import { debounce } from "@shared/debounce";
 import { ChangeList } from "@utils/ChangeList";
 import { classNameFactory } from "@utils/css";
 import { isTruthy } from "@utils/guards";
@@ -161,22 +162,9 @@ function ExcludedPluginsList({ search }: { search: string; }) {
     );
 }
 
-function applySortMode(plugins: { plugin: typeof Plugins[keyof typeof Plugins]; isRequired: boolean; isNew: boolean; }[], sortBy: SortMode): typeof plugins {
-    return [...plugins].sort((a, b) => {
-        const aEnabled = isPluginEnabled(a.plugin.name);
-        const bEnabled = isPluginEnabled(b.plugin.name);
-        const aHasSettings = !!a.plugin.settings && Object.keys(a.plugin.settings).length > 0;
-        const bHasSettings = !!b.plugin.settings && Object.keys(b.plugin.settings).length > 0;
-
-        if (sortBy === SortMode.ENABLED && aEnabled !== bEnabled) return aEnabled ? -1 : 1;
-        if (sortBy === SortMode.DISABLED && aEnabled !== bEnabled) return aEnabled ? 1 : -1;
-        if (sortBy === SortMode.HAS_SETTINGS && aHasSettings !== bHasSettings) return aHasSettings ? -1 : 1;
-
-        return a.plugin.name.localeCompare(b.plugin.name);
-    });
-}
-
 export default function PluginSettings() {
+    const { changelog } = useSettings();
+
     const changeRef = useRef<ChangeList<string>>(null);
     const changes = changeRef.current ??= new ChangeList<string>();
 
@@ -199,7 +187,6 @@ export default function PluginSettings() {
         []
     );
 
-    const { changelog } = useSettings(["changelog.*"]);
     const newPlugins = useMemo(() => {
         const known = changelog.knownPlugins || {};
         const now = Math.floor(Date.now() / 1000);
@@ -233,6 +220,10 @@ export default function PluginSettings() {
     const deferredSearch = useDeferredValue(filters.value);
 
     const filtersReady = !filtersLoading || filters !== defaultFilters;
+
+    useEffect(() => {
+        void DataStore.set("Velocity_pluginFilters", filters);
+    }, [filters]);
 
     useEffect(() => {
         if (savedFilters != null) {
@@ -305,7 +296,21 @@ export default function PluginSettings() {
             (isRequired ? requiredPlugins : plugins).push(data);
         }
 
-        const sortedData = applySortMode(plugins, filters.sortBy);
+        const data = plugins.map(d => ({
+            data: d,
+            enabled: isPluginEnabled(d.plugin.name),
+            hasSettings: !!d.plugin.settings && Object.keys(d.plugin.settings).length > 0
+        }));
+
+        data.sort((a, b) => {
+            if (filters.sortBy === SortMode.ENABLED && a.enabled !== b.enabled) return a.enabled ? -1 : 1;
+            if (filters.sortBy === SortMode.DISABLED && a.enabled !== b.enabled) return a.enabled ? 1 : -1;
+            if (filters.sortBy === SortMode.HAS_SETTINGS && a.hasSettings !== b.hasSettings) return a.hasSettings ? -1 : 1;
+
+            return a.data.plugin.name.localeCompare(b.data.plugin.name);
+        });
+
+        const sortedData = data.map(m => m.data);
 
         return [sortedData, requiredPlugins];
     }, [filters, newPlugins, depMap, sortedPlugins, pluginFilter]);
@@ -320,6 +325,8 @@ export default function PluginSettings() {
         />
     )), [pluginsData, onRestartNeeded]);
 
+    const visiblePlugins = plugins.slice(0, visibleCount);
+
     const requiredPlugins = useMemo(() => requiredPluginsData.map(d => (
         <PluginCard
             onRestartNeeded={onRestartNeeded}
@@ -330,19 +337,21 @@ export default function PluginSettings() {
         />
     )), [requiredPluginsData, onRestartNeeded]);
 
+    const loadMore = useCallback(() => {
+        setVisibleCount(c => Math.min(c + 36, plugins.length));
+    }, [plugins.length]);
+
+    const dLoadMore = useMemo(() => debounce(loadMore, 100), [loadMore]);
+
     const [loaderRef, isIntersecting] = useIntersection();
 
     useEffect(() => {
-        if (isIntersecting) {
-            requestAnimationFrame(() => {
-                setVisibleCount(c => Math.min(c + 20, plugins.length));
-            });
+        if (isIntersecting && visibleCount < plugins.length) {
+            dLoadMore();
         }
-    }, [isIntersecting, plugins.length, filtersReady]);
+    }, [isIntersecting, visibleCount, plugins.length, dLoadMore]);
 
     useCleanupEffect(() => {
-        void DataStore.set("Velocity_pluginFilters", filtersRef.current);
-
         // Update known plugins map with current timestamps when the tab exits
         try {
             const currentPlugins = Object.keys(Plugins);
@@ -464,7 +473,7 @@ export default function PluginSettings() {
                         ? (
                             <>
                                 <div className={cl("grid")}>
-                                    {plugins.slice(0, visibleCount)}
+                                    {visiblePlugins}
                                 </div>
                                 {visibleCount < plugins.length && (
                                     <div ref={loaderRef} style={{ height: "10px", margin: "10px 0" }} />

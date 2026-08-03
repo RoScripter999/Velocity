@@ -29,9 +29,10 @@ import { openPluginModal, SectionHeader, type SectionHeaderProps } from "@compon
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
 import { useMaps } from "@utils/react";
+import type { Plugin } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
-import { Icons, Modal, openModal, React, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useRef, useState } from "@webpack/common";
+import { Icons, Modal, openModal, React, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 interface RowProps {
@@ -45,6 +46,10 @@ interface RowProps {
 interface DragItem {
     id: string;
     index: number;
+}
+
+interface UIElementsModalProps extends ModalPropsRender {
+    plugin?: Plugin;
 }
 
 const cl = classNameFactory("vc-plugin-ui-elements-");
@@ -129,11 +134,11 @@ export function getOrderedNames<T extends boolean = false>(buttonMap: Map<string
     ];
 }
 
-export function openUIElementsModal(): void {
-    return void openModal(modalProps => <UIElementsModal {...modalProps} />);
+export function openUIElementsModal(plugin?: Plugin): void {
+    void openModal(modalProps => <UIElementsModal plugin={plugin} {...modalProps} />);
 }
 
-export function hasUIElements() {
+export function hasUIElements(name?: string) {
     return (
         [
             [ChatBarButtonMap, Settings.uiElements.chatBarButtons],
@@ -142,11 +147,13 @@ export function hasUIElements() {
             [HeaderBarButtonMap, Settings.uiElements.headerBarButtons]
         ] as const
     ).some(([map, settings]) =>
-        getOrderedNames(map, settings).some(name => {
-            const item = map instanceof Map ? map.get(name) : map[name];
+        getOrderedNames(map, settings).some(itemName => {
+            if (name && itemName !== name) return false;
+            const item = map instanceof Map ? map.get(itemName) : map[itemName];
+            if (!item) return false;
             return Array.isArray(item)
-                ? item.some(i => typeof i === "object" && i !== null && !i.required)
-                : typeof item === "object" && item !== null && !((item as any).required);
+                ? item.some(i => !(i && typeof i === "object" && i.required === true))
+                : !(typeof item === "object" && item !== null && (item as any).required === true);
         })
     );
 }
@@ -173,11 +180,14 @@ export function UIElementsButton() {
     );
 }
 
-function EmptyOrder() {
+function EmptyOrder(buttonMap: Map<string, any>) {
+    const hasRequired = buttonMap.size > 0;
     return (
         <section>
             <Paragraph color="text-muted" className={cl("no-buttons")}>
-                You have no plugins enabled that control this section.
+                {hasRequired
+                    ? "All enabled plugins for this section are required and cannot be configured."
+                    : "You have no plugins enabled that control this section."}
             </Paragraph>
         </section>
     );
@@ -206,7 +216,7 @@ function Section(props: {
     });
 
     if (visibleButtons.length === 0) {
-        return EmptyOrder();
+        return EmptyOrder(buttonMap);
     }
 
     return (
@@ -269,7 +279,7 @@ function DraggableSection(props: {
     }, [buttonMap, settings]);
 
     if (order.length === 0) {
-        return EmptyOrder();
+        return EmptyOrder(buttonMap);
     }
 
     const moveRow = useCallback((from: number, to: number) => {
@@ -346,9 +356,37 @@ function DraggableSection(props: {
     );
 }
 
-function UIElementsModal(props: ModalPropsRender) {
+function UIElementsModal(props: UIElementsModalProps) {
     const { uiElements } = useSettings(["uiElements.*"]);
-    const [activeTab, setActiveTab] = useState<"chatbar" | "popover" | "context" | "headerbar">("chatbar");
+    const { plugin } = props;
+
+    const tabs = useMemo(() => {
+        const list = ["chatbar", "popover", "headerbar", "context"] as const;
+        if (!plugin) return list;
+
+        const active = list.filter(tab => {
+            const map = (() => {
+                switch (tab) {
+                    case "chatbar": return ChatBarButtonMap;
+                    case "popover": return MessagePopoverButtonMap;
+                    case "headerbar": return HeaderBarButtonMap;
+                    default: return ContextMenuButtonMap;
+                }
+            })();
+
+            const item = map.get(plugin.name);
+            if (!item) return false;
+
+            return Array.isArray(item)
+                ? item.some(i => !(i && typeof i === "object" && i.required === true))
+                : !(typeof item === "object" && item !== null && (item as any).required === true);
+        });
+
+        return active.length ? active : list;
+    }, [plugin]);
+
+    const [activeTab, setActiveTab] = useState<typeof tabs[number]>(tabs[0]);
+
 
     return (
         <Modal
@@ -357,10 +395,10 @@ function UIElementsModal(props: ModalPropsRender) {
             title={
                 <SectionHeader
                     layout="horizontal"
-                    title="UI Elements"
+                    title={`${plugin ? `${plugin.name} ` : ""}UI Elements`}
                     titleVariant="text-lg/bold"
                     titleColor="text-strong"
-                    description="You can configure which buttons you want to hide or change positions, Buttons appear based on enabled plugins."
+                    description={`You can configure which buttons you want to hide or change positions${plugin ? " for this plugin" : ", buttons appear based on enabled plugins"}.`}
                 />
             }
         >
@@ -372,18 +410,14 @@ function UIElementsModal(props: ModalPropsRender) {
                     selectedItem={activeTab}
                     onItemSelect={setActiveTab}
                 >
-                    <TabBar.Item id="chatbar">
-                        Chatbar Buttons
-                    </TabBar.Item>
-                    <TabBar.Item id="popover">
-                        Message Popover Buttons
-                    </TabBar.Item>
-                    <TabBar.Item id="headerbar">
-                        Header Buttons
-                    </TabBar.Item>
-                    <TabBar.Item id="context">
-                        Context Menu Buttons
-                    </TabBar.Item>
+                    {tabs.map((tab: typeof activeTab) => (
+                        <TabBar.Item key={tab} id={tab}>
+                            {tab === "chatbar" && "Chatbar Buttons"}
+                            {tab === "popover" && "Message Popover Buttons"}
+                            {tab === "headerbar" && "Header Buttons"}
+                            {tab === "context" && "Context Menu Buttons"}
+                        </TabBar.Item>
+                    ))}
                 </TabBar>
 
                 {activeTab === "chatbar" && (

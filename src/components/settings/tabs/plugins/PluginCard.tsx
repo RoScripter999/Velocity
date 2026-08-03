@@ -18,14 +18,16 @@
 
 import { showNotice } from "@api/Notices";
 import { hasAnyVisibleSettings, isPluginEnabled, pluginRequiresRestart, plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
-import { useSettings } from "@api/Settings";
-import { AddonCard, openPluginModal } from "@components/settings";
+import { Settings } from "@api/Settings";
+import { AddonCard } from "@components/settings/AddonCard";
 import { Span } from "@components/Span";
 import type { Plugin } from "@utils/types";
 import { Icons, showToast, Toasts } from "@webpack/common";
 import type { HTMLProps } from "react";
 
 import { cl, logger } from ".";
+import { openPluginModal } from "./PluginModal";
+import { hasUIElements, openUIElementsModal } from "./UIElements";
 
 interface PluginCardProps extends HTMLProps<HTMLDivElement> {
     plugin: Plugin;
@@ -35,7 +37,7 @@ interface PluginCardProps extends HTMLProps<HTMLDivElement> {
 }
 
 export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, onMouseLeave, isNew }: PluginCardProps) {
-    const settings = useSettings([`plugins.${plugin.name}.enabled`]).plugins[plugin.name];
+    const settings = Settings.plugins[plugin.name];
 
     // Since the changelog also renders the plugin card it might
     // have the chance that it's already been removed, causing the info button to crash.
@@ -87,6 +89,9 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
         settings.enabled = !wasEnabled;
     }
 
+    const hasSettings = hasAnyVisibleSettings(plugin);
+    const hasUi = !hasSettings && hasUIElements(plugin.name);
+
     return (
         <AddonCard
             name={plugin.name}
@@ -97,17 +102,17 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
             disabled={disabled || isRemoved}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            infoButtonTooltip={isRemoved ? undefined : (hasAnyVisibleSettings(plugin) ? "Open settings" : "Plugin info")}
+            infoButtonTooltip={isRemoved ? undefined : (hasSettings ? "Open settings" : hasUi ? "Manage UI Elements" : "Plugin info")}
             enabledTooltip="Disable plugin"
             disabledTooltip="Enable plugin"
             infoButton={isRemoved ? null : (
                 <button
                     role="switch"
                     aria-checked="false"
-                    onClick={() => openPluginModal(plugin, onRestartNeeded)}
+                    onClick={() => hasUi ? openUIElementsModal(plugin) : openPluginModal(plugin, onRestartNeeded)}
                     className={cl("info-button")}
                 >
-                    {hasAnyVisibleSettings(plugin)
+                    {hasSettings || hasUi
                         ? <Icons.SettingsIcon color="currentColor" className={cl("settings-button")} />
                         : <Icons.CircleInformationIcon color="currentColor" className={cl("info-icon")} />}
                 </button>
