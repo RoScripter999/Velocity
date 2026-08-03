@@ -199,9 +199,10 @@ function Section(props: {
     icon: ComponentType<any>;
     buttonMap: Map<string, ContextMenuButtonData | HeaderBarButtonData>;
     tooltip?: SectionHeaderProps["tooltip"];
+    plugin?: Plugin;
 }) {
-    const { buttonMap, title, settings, icon, tooltip } = props;
-    const names = [...buttonMap.keys()];
+    const { buttonMap, title, settings, icon, tooltip, plugin } = props;
+    const names = plugin ? [...buttonMap.keys()].filter(n => n === plugin.name) : [...buttonMap.keys()];
 
     const visibleButtons = names.filter(name => {
         const data = buttonMap.get(name);
@@ -269,14 +270,16 @@ function DraggableSection(props: {
     settings: SettingsPluginUiElements<true>;
     icon: ComponentType<any>;
     buttonMap: Map<string, ChatBarButtonData> | Map<string, MessagePopoverButtonData>;
+    plugin?: Plugin;
 }) {
-    const { buttonMap, title, settings, icon } = props;
+    const { buttonMap, title, settings, icon, plugin } = props;
 
-    const [order, setOrder] = useState(() => getOrderedNames(buttonMap, settings));
+    const names = getOrderedNames(buttonMap, settings);
+    const [order, setOrder] = useState(() => plugin ? names.filter(n => n === plugin.name) : names);
 
     useEffect(() => {
-        setOrder(getOrderedNames(buttonMap, settings));
-    }, [buttonMap, settings]);
+        setOrder(plugin ? names.filter(n => n === plugin.name) : names);
+    }, [buttonMap, settings, plugin]);
 
     if (order.length === 0) {
         return EmptyOrder(buttonMap);
@@ -426,6 +429,7 @@ function UIElementsModal(props: UIElementsModalProps) {
                         icon={Icons.ChatIcon}
                         buttonMap={ChatBarButtonMap}
                         settings={uiElements.chatBarButtons}
+                        plugin={plugin}
                     />
                 )}
 
@@ -435,6 +439,7 @@ function UIElementsModal(props: UIElementsModalProps) {
                         icon={Icons.PencilIcon}
                         buttonMap={MessagePopoverButtonMap}
                         settings={uiElements.messagePopoverButtons}
+                        plugin={plugin}
                     />
                 )}
 
@@ -444,6 +449,7 @@ function UIElementsModal(props: UIElementsModalProps) {
                         icon={Icons.WindowTopIcon}
                         buttonMap={HeaderBarButtonMap}
                         settings={uiElements.headerBarButtons}
+                        plugin={plugin}
                     />
                 )}
 
@@ -453,6 +459,7 @@ function UIElementsModal(props: UIElementsModalProps) {
                         icon={Icons.MenuIcon}
                         buttonMap={ContextMenuButtonMap}
                         settings={uiElements.contextMenuButtons}
+                        plugin={plugin}
                         tooltip={{
                             title: "Some Items are hidden!",
                             body: "Hidden items are required by enabled plugins to function."

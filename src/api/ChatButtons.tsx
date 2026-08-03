@@ -213,7 +213,7 @@ addContextMenuPatch("textarea-context", children => {
     if (idx === -1) return;
 
     group.splice(idx, 0,
-        <Menu.MenuItem id="vc-chat-buttons" key="velocity-chat-buttons" label="Velocity Chat Buttons" action={openUIElementsModal}>
+        <Menu.MenuItem id="vc-chat-buttons" key="velocity-chat-buttons" label="Velocity Chat Buttons" action={() => openUIElementsModal()}>
             {buttons.map(([id]) => (
                 <Menu.MenuCheckboxItem
                     label={id}

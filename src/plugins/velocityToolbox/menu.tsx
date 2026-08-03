@@ -488,7 +488,7 @@ export function renderPopout(onClose: () => void) {
             {hasUIElements() && <Menu.MenuItem
                 id="ui_elements"
                 label="Open UIElements Settings"
-                action={openUIElementsModal}
+                action={() => openUIElementsModal()}
             />}
 
             {buildThemeMenu()}
