@@ -71,7 +71,7 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
                     formatOption={(opt: any) => ({
                         ...opt,
                         id: opt.value,
-                        leading: opt.icon ? { type: "avatar", src: opt.icon } : undefined
+                        leading: opt.icon ? { type: "image", src: opt.icon } : undefined
                     })}
                     {...setting.componentProps}
                 />
