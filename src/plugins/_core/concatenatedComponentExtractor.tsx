@@ -39,8 +39,8 @@ export default definePlugin({
         {
             find: /="ltr",orientation:\i="vertical"[^}]+?customTheme:/,
             replacement: {
-                match: /(function (\i)\(\i,\i,\i\)\{.+?return \i\.forwardRef\()/,
-                replace: "$self.setCreateScroller($2);$1"
+                match: /(?=function (\i)\(\i,\i,\i\)\{.{0,20}?return \i\.forwardRef\(function\(\i,\i\)\{let\{[^}]+?="ltr",orientation:)/,
+                replace: "$self.setCreateScroller($1);"
             }
         },
         {
