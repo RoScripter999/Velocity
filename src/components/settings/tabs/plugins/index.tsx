@@ -315,7 +315,7 @@ export default function PluginSettings() {
         return [sortedData, requiredPlugins];
     }, [filters, newPlugins, depMap, sortedPlugins, pluginFilter]);
 
-    const plugins = useMemo(() => pluginsData.map(d => (
+    const makePluginCards = useCallback((data: typeof pluginsData) => data.map(d => (
         <PluginCard
             onRestartNeeded={onRestartNeeded}
             disabled={d.isRequired}
@@ -323,19 +323,12 @@ export default function PluginSettings() {
             isNew={d.isNew}
             key={d.plugin.name}
         />
-    )), [pluginsData, onRestartNeeded]);
+    )), [onRestartNeeded]);
+
+    const plugins = useMemo(() => makePluginCards(pluginsData), [makePluginCards, pluginsData]);
+    const requiredPlugins = useMemo(() => makePluginCards(requiredPluginsData), [makePluginCards, requiredPluginsData]);
 
     const visiblePlugins = plugins.slice(0, visibleCount);
-
-    const requiredPlugins = useMemo(() => requiredPluginsData.map(d => (
-        <PluginCard
-            onRestartNeeded={onRestartNeeded}
-            disabled={d.isRequired}
-            plugin={d.plugin}
-            isNew={d.isNew}
-            key={d.plugin.name}
-        />
-    )), [requiredPluginsData, onRestartNeeded]);
 
     const loadMore = useCallback(() => {
         setVisibleCount(c => Math.min(c + 36, plugins.length));
