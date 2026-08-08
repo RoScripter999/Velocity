@@ -17,15 +17,11 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
-import { Flex } from "@components/Flex";
-import { Margins } from "@components/margins";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
-import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
-import { ChannelStore, Forms, MessageActions, SnowflakeUtils, TagGroup, Text, TextInput, UserStore, useState } from "@webpack/common";
-import type { KeyboardEvent } from "react";
+import { MessageActions, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
     prefix: {
@@ -34,72 +30,18 @@ const settings = definePluginSettings({
         default: "!",
         componentProps: { maxLength: 1, helperText: "DO NOT use a generic character" }
     },
+    ignoreChannels: {
+        type: OptionType.STRING,
+        multiline: true,
+        default: "",
+        description: "Comma seperated channel IDs to ignore"
+    },
     ignoreServers: {
         type: OptionType.BOOLEAN,
         description: "Whether it shouldn't ghost message in guilds",
         default: false
-    },
-    ignoreChannels: {
-        type: OptionType.COMPONENT,
-        component: () => <ChannelsSettings />,
-        default: [] as string[]
     }
 });
-
-function ChannelsSettings() {
-    const [inputValue, setInputValue] = useState("");
-    const channels = settings.store.ignoreChannels ?? [];
-
-    const handleTag = (action: "add" | "remove", value?: string | Set<string>) => {
-        if (action === "add") {
-            if (!inputValue.trim()) return;
-
-            const current = settings.store.ignoreChannels ?? [];
-
-            if (!current.includes(inputValue)) {
-                settings.store.ignoreChannels = [...current, inputValue];
-                setInputValue("");
-            }
-        } else if (action === "remove" && value instanceof Set) {
-            settings.store.ignoreChannels = settings.store.ignoreChannels.filter(id => !value.has(id));
-        }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && SnowflakeUtils.isProbablyAValidSnowflake(inputValue)) {
-            e.preventDefault();
-            handleTag("add");
-        }
-    };
-
-    return (
-        <section>
-            <TextInput
-                placeholder="Add channel ID..."
-                value={inputValue}
-                label="Ignored Channels"
-                type="number"
-                helperText="Press Enter to add a channel"
-                error={inputValue && !SnowflakeUtils.isProbablyAValidSnowflake(inputValue) ? "Channel ID must be a valid Snowflake" : undefined}
-                onChange={setInputValue}
-                onKeyDown={handleKeyDown}
-            />
-
-            {channels.filter(id => id).length > 0 && (
-                <Forms.FormSection>
-                    <Text className={classes(Margins.bottom8, Margins.top8)} variant="heading-md/semibold">Ignored Channels</Text>
-                    <Flex gap="5px" alignItems="center" flexWrap="wrap">
-                        <TagGroup
-                            layout="inline"
-                            items={channels.filter(id => id).map(id => ({ id, label: id }))}
-                            onRemove={keys => handleTag("remove", keys)}
-                        />
-                    </Flex>
-                </Forms.FormSection>
-            )}
-        </section>
-    );
-}
 
 export default definePlugin({
     name: "GhostMessage",
@@ -110,19 +52,19 @@ export default definePlugin({
     settings,
 
     flux: {
-        async MESSAGE_CREATE(event) {
-            const { message } = event as { message: Message; };
-            const currentUser = UserStore.getCurrentUser();
+        async MESSAGE_CREATE(event: { message: Message, channelId: string, guildId: string | undefined; }) {
+            const { message, channelId, guildId } = event;
+            const me = UserStore.getCurrentUser();
 
-            if (message.author.id !== currentUser?.id) return;
-            if (ChannelStore.getChannel(message.channel_id).guild_id && settings.store.ignoreServers) return;
-            if (!message.content?.startsWith(settings.store.prefix)) return;
+            if (!message.content.startsWith(settings.store.prefix)) return;
+            if (message.author.id !== me?.id) return;
+            if (guildId && settings.store.ignoreServers) return;
 
-            if (settings.store.ignoreChannels.filter(id => id.length > 0).includes(message.channel_id)) return;
+            if (settings.store.ignoreChannels.split(",").includes(channelId)) return;
 
             try {
                 if (!message.deleted && message.content !== null) {
-                    await MessageActions.deleteMessage(message.channel_id, message.id);
+                    await MessageActions.deleteMessage(channelId, message.id);
                 }
             } catch (e) {
                 new Logger("GhostMessage").error("Failed to delete message", e);

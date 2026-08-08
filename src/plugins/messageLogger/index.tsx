@@ -128,11 +128,41 @@ function addDeleteStyle() {
 const REMOVE_HISTORY_ID = "ml-remove-history";
 const TOGGLE_DELETE_STYLE_ID = "ml-toggle-style";
 
+/**
+ * Clears a message's history (edit + attachments)
+ *
+ * if the message was deleted, it will be completely removed from the UI and MessageStore
+ */
+function clearMessageHistory(msg: MLMessage) {
+    if (msg.deleted) {
+        FluxDispatcher.dispatch({
+            type: "MESSAGE_DELETE",
+            channelId: msg.channel_id,
+            id: msg.id,
+            mlDeleted: true
+        });
+    } else {
+        const attachments = msg.attachments?.filter((a: MLAttachment) => !a.deleted);
+
+        updateMessage(msg.channel_id, msg.id, { editHistory: [], attachments });
+    }
+}
+
+/**
+ * checks if a message has any history (deleted or edited)
+ * @param message the message to check
+ *
+ * @returns true if the message has any history, false otherwise
+ */
+function doesMessageHaveHistory(message: MLMessage): boolean {
+    return message.deleted || !!message.editHistory?.length || message.attachments?.some((a: MLAttachment) => a.deleted);
+}
+
 const patchMessageContextMenu: NavContextMenuPatchCallback = (children, props) => {
     const { message } = props;
-    const { deleted, editHistory, id, channel_id } = message;
+    const { deleted, id, channel_id } = message;
 
-    if (!deleted && !editHistory?.length) return;
+    if (!doesMessageHaveHistory(message)) return;
 
     const group = findGroupChildrenByChildId("delete", children) ?? findGroupChildrenByChildId("copy-id", children) ?? children;
     const idx = group?.findIndex(i => i?.props?.id === "delete" || i?.props?.id === "copy-id");
@@ -179,7 +209,7 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (children, props) =
 
 const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channel }) => {
     const messages = MessageStore.getMessages(channel?.id)._array;
-    if (!messages?.some(msg => msg.deleted || (msg as MLMessage).editHistory?.length)) return;
+    if (!messages?.some(msg => doesMessageHaveHistory(msg))) return;
 
     const group = findGroupChildrenByChildId("mark-channel-read", children) ?? children;
     group.push(
@@ -193,17 +223,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
                 color="danger"
                 action={() => {
                     messages.forEach(msg => {
-                        if (msg.deleted)
-                            FluxDispatcher.dispatch({
-                                type: "MESSAGE_DELETE",
-                                channelId: channel.id,
-                                id: msg.id,
-                                mlDeleted: true
-                            });
-                        else
-                            updateMessage(channel.id, msg.id, {
-                                editHistory: []
-                            });
+                        clearMessageHistory(msg);
                     });
                 }}
             />
@@ -478,12 +498,19 @@ export default definePlugin({
         {
             // Updated message transformer
             find: ".PREMIUM_REFERRAL&&(",
-            replacement: {
-                // Pass through editHistory & deleted to the "edited message" transformer
-                match: /(?<=null!=\i\.edited_timestamp\)return )\i\(\i,\{reactions:(\i)\.reactions.{0,50}\}\)/,
-                replace:
-                    "Object.assign($&,{ deleted:$1.deleted, editHistory:$1.editHistory, firstEditTimestamp:$1.firstEditTimestamp })"
-            }
+            replacement: [
+                {
+                    // Pass through editHistory & deleted to the "edited message" transformer
+                    match: /(?<=null!=\i\.edited_timestamp\)return )\i\(\i,\{reactions:(\i)\.reactions.{0,50}\}\)/,
+                    replace:
+                        "Object.assign($&,{ deleted:$1.deleted, editHistory:$1.editHistory, firstEditTimestamp:$1.firstEditTimestamp })"
+                },
+                // just mark deleted attachments as deleted on MESSAGE_UPDATE
+                {
+                    match: /attachments:(\i)\.attachments\?\?\[\],/,
+                    replace: "attachments: $self.handleUpdateAttachments($1),"
+                }
+            ]
         },
 
         {
@@ -563,12 +590,10 @@ export default definePlugin({
         },
         {
             find: "#{intl::DELETE_MESSAGE}),action:",
-            replacement: [
-                {
-                    match: /(\i)\.state===\i\.\i\.SENDING\|\|!(\i)/,
-                    replace: "$1.state===$self.MessageFlags?.SENDING||!$2||$1.deleted"
-                }
-            ]
+            replacement: {
+                match: /(\i)\.state===\i\.\i\.SENDING\|\|!(\i)/,
+                replace: "$1.state===\"SENDING\"||!$2||$1.deleted"
+            }
         },
 
         // Remove chatbar buttons

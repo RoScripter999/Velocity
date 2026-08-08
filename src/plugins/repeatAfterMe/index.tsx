@@ -23,14 +23,16 @@ import { definePluginSettings } from "@api/Settings";
 import { Icon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
-import definePlugin, { type IconComponent, makeRange, OptionType } from "@utils/types";
+import definePlugin, { IconComponent, makeRange, OptionType } from "@utils/types";
+import type { Message } from "@velocity-types";
+import { ChannelType } from "@velocity-types/enums";
 import { ChannelStore, Menu, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
     isEnabled: {
         type: OptionType.BOOLEAN,
-        description: "Toggle RepeatAfterMe",
-        default: true
+        description: "Toggle functionality",
+        default: false
     },
     cooldown: {
         type: OptionType.SLIDER,
@@ -50,14 +52,11 @@ const settings = definePluginSettings({
 
 let lastRepeatTime = 0;
 
-const RepeatAfterMeIcon: IconComponent = ({ height = 20, width = 20, className, enabled }) => {
+const RepeatAfterMeIcon: IconComponent = ({ enabled, ...rest }) => {
     if (enabled) {
         return (
             <Icon
-                width={width}
-                height={height}
-                viewBox="0 0 24 24"
-                className={className}
+                {...rest}
                 style={{ scale: "1.2" }}
             >
                 <defs>
@@ -74,10 +73,7 @@ const RepeatAfterMeIcon: IconComponent = ({ height = 20, width = 20, className, 
 
     return (
         <Icon
-            width={width}
-            height={height}
-            viewBox="0 0 24 24"
-            className={className}
+            {...rest}
             style={{ scale: "1.2" }}
         >
             <path fill="currentColor" d="M10 8.26667V4L3 11.4667L10 18.9333V14.56C15 14.56 18.5 16.2667 21 20C20 14.6667 17 9.33333 10 8.26667Z" />
@@ -85,7 +81,7 @@ const RepeatAfterMeIcon: IconComponent = ({ height = 20, width = 20, className, 
     );
 };
 
-const DMEchoToggle: ChatBarButtonFactory = ({ isMainChat }) => {
+const RepeatAfterMeToggle: ChatBarButtonFactory = ({ isMainChat }) => {
     const { isEnabled } = settings.use(["isEnabled"]);
 
     if (!isMainChat) return null;
@@ -151,13 +147,13 @@ export default definePlugin({
     }],
 
     flux: {
-        MESSAGE_CREATE(event) {
+        MESSAGE_CREATE(event: { message: Message, channelId: string; }) {
             if (!settings.store.isEnabled) return;
 
             const { message } = event;
-            const channel = ChannelStore.getChannel(message.channel_id);
+            const channel = ChannelStore.getChannel(event.channelId);
 
-            if (channel?.type === 1 && message.author.id !== UserStore.getCurrentUser()?.id && !message.author.bot) {
+            if (channel.type === ChannelType.DM && message.author.id !== UserStore.getCurrentUser()?.id && !message.author.bot) {
                 const now = Date.now();
                 const cooldownMs = settings.store.cooldown * 1000;
                 const delayMs = settings.store.delayBeforeSend * 1000;
@@ -178,6 +174,6 @@ export default definePlugin({
 
     chatBarButton: {
         icon: () => RepeatAfterMeIcon,
-        render: DMEchoToggle
+        render: RepeatAfterMeToggle
     }
 });
