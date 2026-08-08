@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Heading } from "@components/Heading";
 import { type MarginDirection, Margins, type MarginSize } from "@components/margins";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
@@ -63,7 +64,7 @@ export function SectionHeader({
     description,
     icon: Icon,
     tooltip,
-    tag = "strong",
+    tag,
     layout = "vertical",
     gap,
     iconWrapperClassName,
@@ -79,12 +80,12 @@ export function SectionHeader({
 
     const gapClasses = gap ? Object.entries(gap).map(([direction, size]) => Margins[`${direction}${size}`]) : [];
 
-    // FIXME: make this use some tag based color at some point.
-    const titleNode = (
-        <Text tag={tag} variant={titleVariant} color={titleColor} scaleFontToUserSetting={true}>
-            {title}
-        </Text>
-    );
+    const titleNode = titleVariant
+        ? <Text variant={titleVariant} color={titleColor}>{title}</Text>
+        : titleColor
+            ? <Text tag={tag} color={titleColor}>{title}</Text>
+            : <Heading tag={tag as any} className={cl("title")}>{title}</Heading>;
+
 
     const titleWithTooltip = tooltipText
         ? (

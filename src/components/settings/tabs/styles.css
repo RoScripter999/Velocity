@@ -81,4 +81,9 @@
     color: var(--text-default);
 }
 
+.vc-settings-section-header-title {
+    color: currentcolor;
+    margin-bottom: 0 !important;
+}
+
 /* #endregion */
