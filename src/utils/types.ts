@@ -228,7 +228,6 @@ export function defineDefault<T = any>(value: T) {
 export const enum OptionType {
     STRING,
     NUMBER,
-    BIGINT,
     BOOLEAN,
     SELECT,
     SLIDER,
@@ -249,8 +248,7 @@ export type PluginSettingDef =
     | PluginSettingNumberDef
     | PluginSettingBooleanDef
     | PluginSettingSelectDef
-    | PluginSettingSliderDef
-    | PluginSettingBigIntDef;
+    | PluginSettingSliderDef;
 
 export interface PluginSettingDefCommon extends IsDisabledOrHidden, IsValid<unknown> {
     description: string;
@@ -295,10 +293,6 @@ export interface PluginSettingStringDef extends PluginSettingDefCommon {
 export interface PluginSettingNumberDef extends PluginSettingDefCommon {
     type: OptionType.NUMBER;
     default?: number;
-}
-export interface PluginSettingBigIntDef extends PluginSettingDefCommon {
-    type: OptionType.BIGINT;
-    default?: BigInt;
 }
 export interface PluginSettingBooleanDef extends PluginSettingDefCommon {
     type: OptionType.BOOLEAN;
@@ -363,7 +357,6 @@ type SelectValueType<O extends PluginSettingSelectDef> =
 
 export type PluginSettingType<O extends PluginSettingDef> = O extends PluginSettingStringDef ? string :
     O extends PluginSettingNumberDef ? number :
-    O extends PluginSettingBigIntDef ? BigInt :
     O extends PluginSettingBooleanDef ? boolean :
     O extends PluginSettingSelectDef ? O["default"] extends any[] ? SelectValueType<O>[] : SelectValueType<O> :
     O extends PluginSettingSliderDef ? number :

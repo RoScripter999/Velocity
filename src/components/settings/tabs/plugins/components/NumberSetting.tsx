@@ -17,41 +17,30 @@
 */
 
 import { isSettingDisabled } from "@api/PluginManager";
-import { OptionType, type PluginSettingBigIntDef, type PluginSettingNumberDef } from "@utils/types";
+import type { PluginSettingNumberDef } from "@utils/types";
 import { TextInput, useState } from "@webpack/common";
 
 import { resolveError, type SettingProps, SettingsSection } from "./Common";
 
-const MAX_SAFE_NUMBER = BigInt(Number.MAX_SAFE_INTEGER);
-
-export function NumberSetting({ setting, pluginSettings, definedSettings, id, onChange }: SettingProps<PluginSettingNumberDef | PluginSettingBigIntDef>) {
-    function serialize(value: any) {
-        if (setting.type === OptionType.BIGINT) return BigInt(value);
-        return Number(value);
-    }
-
-    const [state, setState] = useState<any>(`${pluginSettings[id] ?? setting.default ?? 0}`);
+export function NumberSetting({ setting, pluginSettings, definedSettings, id, onChange }: SettingProps<PluginSettingNumberDef>) {
+    const [state, setState] = useState(`${pluginSettings[id] ?? setting.default ?? 0}`);
     const [error, setError] = useState<string | null>(null);
 
-    function handleChange(newValue: any) {
+    function handleChange(newValue: string) {
         const isValid = setting.isValid?.call(definedSettings, newValue) ?? true;
 
+        setState(newValue);
         setError(resolveError(isValid));
 
         if (isValid === true) {
-            onChange(serialize(newValue));
-        }
-
-        if (setting.type === OptionType.NUMBER && BigInt(newValue) >= MAX_SAFE_NUMBER) {
-            setState(`${Number.MAX_SAFE_INTEGER}`);
-        } else {
-            setState(newValue);
+            onChange(newValue);
         }
     }
 
     return (
         <SettingsSection name={setting.displayName} id={id} description={setting.description} error={error}>
             <TextInput
+                id={id}
                 type="number"
                 placeholder={setting.placeholder ?? "Enter a number"}
                 value={state}

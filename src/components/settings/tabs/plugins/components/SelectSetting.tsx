@@ -49,6 +49,7 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
         <SettingsSection name={setting.displayName} id={id} description={setting.description} error={error}>
             {options.length > 10 ? (
                 <SearchableSelect
+                    id={id}
                     placeholder={setting.placeholder ?? "Select an option"}
                     options={options}
                     value={state}
@@ -61,6 +62,7 @@ export function SelectSetting({ setting, pluginSettings, definedSettings, onChan
                 />
             ) : (
                 <Select
+                    id={id}
                     placeholder={setting.placeholder ?? "Select an option"}
                     options={options}
                     value={state}

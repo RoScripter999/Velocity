@@ -63,6 +63,7 @@ export function SettingsSection({ name, id, description, error, inlineSetting, c
                 description={description}
                 errorMessage={error || undefined}
                 layout={inlineSetting ? "horizontal" : "vertical"}
+                id={id}
             >
                 {children}
             </Field>

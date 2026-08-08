@@ -30,7 +30,6 @@ import { TextSetting } from "./TextSetting";
 export const OptionComponentMap: Record<OptionType, ComponentType<SettingProps<any> | ComponentSettingProps<any>>> = {
     [OptionType.STRING]: TextSetting,
     [OptionType.NUMBER]: NumberSetting,
-    [OptionType.BIGINT]: NumberSetting,
     [OptionType.BOOLEAN]: BooleanSetting,
     [OptionType.SELECT]: SelectSetting,
     [OptionType.SLIDER]: SliderSetting,
