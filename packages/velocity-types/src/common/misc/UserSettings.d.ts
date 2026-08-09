@@ -1,5 +1,5 @@
-import { ButtonVariant, SelectOption, Select, RawCSSColor } from "../../components";
-import { ButtonsProps } from "../../components/Buttons";
+import { SelectOption, Select, RawCSSColor } from "../../components";
+import { ButtonsProps, ButtonVariant } from "../../components/Buttons";
 import { BadgeType, HeaderDecoratioButtonsButtonType, HeaderDecorationType, InlineNoticeType, LayoutType, NestedPanelLeadingDecorationType, NestedPanelTrailingDecorationType } from "../../../enums";
 import { ComponentType, JSX, ReactNode } from "react";
 
@@ -373,24 +373,20 @@ type BadgesNode = {
 type InlineNoticeNode =
     | {
         /** If no type provided nothing renders. */
-        type?: InlineNoticeType.TEXT;
+        type?: InlineNoticeType.INLINE_NOTICE;
         noticeType: "critical" | "warning" | "info" | "success";
-        useText(): ReactNode;
-        useTitle?(): ReactNode;
+        text: ReactNode;
+        title?: ReactNode;
         iconAlign?: "center";
-        /* Runs whenever the notice renders */
+        /** Runs whenever the notice renders */
         trackView?(): void;
-        /* onClick returns a promise. so it has "loading" set to true by default. */
-        button?: {
-            useText(): string;
-            onClick(): void | Promise<any>;
-        };
+        /** onClick returns a promise, so it has loading set to true by default */
+        button?: ButtonsProps["Button"];
     }
     | {
         type: InlineNoticeType.STRONGLY_DISCOURAGED_CUSTOM;
         notice: ComponentType<any>;
     };
-
 type DecorationNode = {
     component: ComponentType<any>;
     sticky?: boolean;

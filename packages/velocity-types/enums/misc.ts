@@ -197,7 +197,7 @@ export const enum LayoutType {
 
 export const enum InlineNoticeType {
     /** Renders a HelpMessage component with a button. */
-    TEXT = 0,
+    INLINE_NOTICE = 0,
     /** Renders any custom component. */
     STRONGLY_DISCOURAGED_CUSTOM = 1
 }
