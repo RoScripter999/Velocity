@@ -22,12 +22,13 @@ import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
+import { openUserProfile } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import type { Channel, Role } from "@velocity-types";
+import type { Channel, Role, User } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { ChannelStore, ChannelTypeSets, Icons, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
+import { Avatar, ChannelStore, ChannelTypeSets, Icons, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
 
 import HiddenChannelLockScreen, { setChannelBeginHeader } from "./components/HiddenChannelLockScreen";
 
@@ -339,6 +340,11 @@ export default definePlugin({
             find: '="interactive-text-default",overflowCountClassName:',
             replacement: [
                 {
+                    // Make the avatars use our own avatar wrapper for custom onClick function
+                    match: /\(0,\i\.jsx\)\(\i\.\i,{src:(\i)\.getAvatarURL\((\i),\(0,\i\.\i\)\(\i\)\),size:\i,"aria-hidden":!0}\)/,
+                    replace: "$self.Avatar($1,$2)()"
+                },
+                {
                     // Create a variable for the channel prop
                     match: /let{users:\i,maxUsers:\i,/,
                     replace: "let{shcChannel}=arguments[0];$&"
@@ -586,7 +592,17 @@ export default definePlugin({
         ];
     },
 
-    HiddenChannelLockScreen: (channel: any) => <HiddenChannelLockScreen channel={channel} />,
+    HiddenChannelLockScreen: (channel: Channel) => <HiddenChannelLockScreen channel={channel} />,
+
+    Avatar: (user: User, guildId: string) => ErrorBoundary.wrap(() => (
+        <div className={cl("avatar")} onClick={() => openUserProfile(user.id)}>
+            <Avatar
+                size="SIZE_24"
+                src={user.getAvatarURL(guildId, 24)}
+                aria-hidden
+            />
+        </div>
+    ), { noop: true }),
 
     LockIcon: ErrorBoundary.wrap(() => (
         <Icons.LockIcon className={ChannelListClasses.icon} size="refresh_sm" />
