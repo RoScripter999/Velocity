@@ -21,7 +21,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { SettingsSection } from "@components/settings/tabs/plugins/components/Common";
 import { Devs } from "@utils/constants";
 import definePlugin, { defineDefault, OptionType, StartAt } from "@utils/types";
-import { Checkbox } from "@webpack/common";
+import { CheckboxGroup } from "@webpack/common";
 
 const Noop = () => { };
 const NoopLogger = {
@@ -57,7 +57,7 @@ function AllowLevelSetting({ settingKey }: AllowLevelSettingProps) {
     const value = allowLevel[settingKey];
 
     return (
-        <Checkbox
+        <CheckboxGroup
             options={[{
                 value: settingKey,
                 label: settingKey[0].toUpperCase() + settingKey.slice(1)

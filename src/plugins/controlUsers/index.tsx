@@ -29,7 +29,7 @@ import {
     ChannelActionCreators,
     ChannelActions,
     ChannelStore,
-    Checkbox,
+    CheckboxGroup,
     Field,
     HelpMessage,
     MessageActions,
@@ -142,8 +142,7 @@ function AllowedUsersComponent() {
                                     <Text className={Margins.bottom8} variant="text-md/semibold">
                                         Permissions for {activeSelectedUser.label}
                                     </Text>
-                                    <Checkbox
-                                        type="default"
+                                    <CheckboxGroup
                                         options={
                                             actions.map(action => ({
                                                 value: action.id,

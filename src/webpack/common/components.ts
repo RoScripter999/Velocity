@@ -45,7 +45,7 @@ export const Buttons: t.Buttons = {
 
 export const Select = waitForComponent<t.Select>("Select", filters.componentByCode('"data-mana-component":"select"'));
 
-export const Checkbox = waitForComponent<t.Checkbox>("Checkbox", filters.componentByCode('"data-mana-component":"checkbox-group"'));
+export const CheckboxGroup = waitForComponent<t.CheckboxGroup>("Checkbox", filters.componentByCode('"data-mana-component":"checkbox-group"'));
 
 export const LoadingIndicator = waitForComponent<t.LoadingIndicator>("LoadingIndicator", filters.componentByCode("wanderingCubes", "spinningCircle"));
 

@@ -20,7 +20,7 @@ import { Margins } from "@components/margins";
 import { SectionHeader } from "@components/settings";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { ModalPropsRender } from "@velocity-types";
-import { Checkbox, HelpMessage, Modal, openModal, useState } from "@webpack/common";
+import { CheckboxGroup, HelpMessage, Modal, openModal, useState } from "@webpack/common";
 
 function getContentTypes(directives: string[]): string[] {
     return directives
@@ -57,7 +57,7 @@ function CspPermissionModal({ url, directives, callerName, resolve, ...modalProp
             onClose={() => { resolve("cancelled"); modalProps.onClose(); }}
             title="Velocity Host Permissions"
             preview={
-                <Checkbox
+                <CheckboxGroup
                     options={[{
                         value: "trust",
                         label: "I fully trust this domain and understand the risks of allowing connections to it."

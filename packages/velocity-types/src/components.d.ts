@@ -86,24 +86,17 @@ export interface Forms {
     }>;
 }
 
-export type Checkbox = ComponentType<PropsWithChildren<{
-    onChange(event: (string | number)[], value?: (string | number)[]): void;
-
-    disabled?: boolean;
-    reverse?: boolean;
-    type?: "default" | "inverted" | "ghost" | "row";
-    options?: Array<{
+export type CheckboxGroup = ComponentType<Omit<Field extends ComponentType<infer P> ? P : {}, "role"> & {
+    selectedValues: (string | number)[];
+    onChange?(value: (string | number)[]): void;
+    options: Array<{
         value: string | number;
         label: string;
         description?: string;
         disabled?: boolean;
         leadingIcon?: ComponentType<any>;
     }>;
-    selectedValues?: (string | number)[];
-    role?: string;
-    "data-mana-component"?: string;
-    isDisabled?: boolean;
-}>>;
+}>;
 
 export type LoadingIndicator = ComponentType<PropsWithChildren<{
     type?: "wanderingCubes" | "chasingDots" | "pulsingEllipsis" | "spinningCircle" | "spinningCircleSimple" | "lowMotion";
