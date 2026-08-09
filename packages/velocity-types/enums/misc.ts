@@ -1,6 +1,6 @@
 export const enum CloudUploadPlatform {
     REACT_NATIVE = 0,
-    WEB = 1,
+    WEB = 1
 }
 
 export const enum DraftType {
@@ -10,43 +10,43 @@ export const enum DraftType {
     ApplicationLauncherCommand = 3,
     Poll = 4,
     SlashCommand = 5,
-    ForwardContextMessage = 6,
+    ForwardContextMessage = 6
 }
 
 export const enum GuildScheduledEventStatus {
     SCHEDULED = 1,
     ACTIVE = 2,
     COMPLETED = 3,
-    CANCELED = 4,
+    CANCELED = 4
 }
 
 export const enum GuildScheduledEventEntityType {
     STAGE_INSTANCE = 1,
     VOICE = 2,
-    EXTERNAL = 3,
+    EXTERNAL = 3
 }
 
 export const enum GuildScheduledEventPrivacyLevel {
-    GUILD_ONLY = 2,
+    GUILD_ONLY = 2
 }
 
 export const enum ParticipantType {
     STREAM = 0,
     HIDDEN_STREAM = 1,
     USER = 2,
-    ACTIVITY = 3,
+    ACTIVITY = 3
 }
 
 export const enum RTCPlatform {
     DESKTOP = 0,
     MOBILE = 1,
     XBOX = 2,
-    PLAYSTATION = 3,
+    PLAYSTATION = 3
 }
 
 export const enum VideoSourceType {
     VIDEO = 0,
-    CAMERA_PREVIEW = 1,
+    CAMERA_PREVIEW = 1
 }
 
 export const enum EmojiIntention {
@@ -65,21 +65,21 @@ export const enum EmojiIntention {
     MESSAGE_CONFETTI = 12,
     GUILD_PROFILE = 13,
     CHANNEL_NAME = 14,
-    DEFAULT_REACT_EMOJI = 15,
+    DEFAULT_REACT_EMOJI = 15
 }
 
 export const enum LoadState {
     NOT_LOADED = 0,
     LOADING = 1,
     LOADED = 2,
-    ERROR = 3,
+    ERROR = 3
 }
 
 export const enum ConnectionStatsFlags {
     TRANSPORT = 1,
     OUTBOUND = 2,
     INBOUND = 4,
-    ALL = 7,
+    ALL = 7
 }
 
 export const enum SpeakingFlags {
@@ -87,54 +87,54 @@ export const enum SpeakingFlags {
     VOICE = 1,
     SOUNDSHARE = 2,
     PRIORITY = 4,
-    HIDDEN = 8,
+    HIDDEN = 8
 }
 
 export const enum GoLiveQualityMode {
     AUTO = 1,
-    FULL = 2,
+    FULL = 2
 }
 
 export const enum VoiceProcessingStateReason {
     CPU_OVERUSE = 1,
     FAILED = 2,
     VAD_CPU_OVERUSE = 3,
-    INITIALIZED = 4,
+    INITIALIZED = 4
 }
 
 
 export const enum AppealType {
     WEBFORM = 0,
     AGE_VERIFY = 1,
-    IN_APP = 2,
+    IN_APP = 2
 }
 
 export const enum AppealEligibility {
     DSA_ELIGIBLE = 1,
     IN_APP_ELIGIBLE = 2,
     AGE_VERIFY_ELIGIBLE = 3,
-    AGE_VERIFY_GLOBAL_ELIGIBLE = 4,
+    AGE_VERIFY_GLOBAL_ELIGIBLE = 4
 }
 
 export const enum AppealStatusType {
     REVIEW_PENDING = 1,
     CLASSIFICATION_UPHELD = 2,
-    CLASSIFICATION_INVALIDATED = 3,
+    CLASSIFICATION_INVALIDATED = 3
 }
 
 export const enum ClassificationRequestState {
     PENDING = 0,
     SUCCESS = 1,
-    FAILED = 2,
+    FAILED = 2
 }
 
 export const enum GuildMemberType {
     OWNER = 1,
-    MEMBER = 2,
+    MEMBER = 2
 }
 
 export const enum FlaggedContentType {
-    MESSAGE = "message",
+    MESSAGE = "message"
 }
 
 export const enum LayoutType {
@@ -192,7 +192,7 @@ export const enum LayoutType {
     /** Creates a button similar to {@link ACCORDION} That switches to a different {@link PANEL} key. */
     NAVIGATOR = 19,
     /** Creates a custom node that allows any component */
-    CUSTOM = 20,
+    CUSTOM = 20
 }
 
 export const enum InlineNoticeType {
@@ -202,9 +202,14 @@ export const enum InlineNoticeType {
     STRONGLY_DISCOURAGED_CUSTOM = 1
 }
 
-export const enum NestedPanelTrailingDecorationType {
+export const enum ButtonTrailingDecorationType {
     /** Renders a Text component decoration */
     TEXT = 0,
+    /** Renders any component */
+    STRONGLY_DISCOURAGED_CUSTOM = 1
+}
+
+export const enum NestedPanelTrailingDecorationType {
     /** Renders a Stacked Icons component decoration */
     STACKED_ICONS = 0
 }
@@ -212,13 +217,21 @@ export const enum NestedPanelTrailingDecorationType {
 
 export const enum NestedPanelLeadingDecorationType {
     /** Renders a Icon component decoration with background */
-    ICON = 0,
+    ICON = 0
+}
+
+
+export const enum IconShapeType {
+    /** Renders a round border wrapping the Icon */
+    ROUNDED = 0,
+    /** Renders a round border with a circle shape wrapping the Icon */
+    SQUIRCLE = 1
 }
 
 export const enum HeaderDecorationType {
     /** Renders a ButtonGroup component decoration */
     BUTTON_GROUP = 0,
-    /** Renders a ButtonGroup component decoration */
+    /** Renders some sort of stacking icons (bugged) */
     STACKED_ICONS = 1
 }
 

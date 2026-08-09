@@ -9,7 +9,7 @@ export const enum MessageActivityType {
     LISTEN = 3,
     WATCH = 4,
     JOIN_REQUEST = 5,
-    STREAM_REQUEST = 6,
+    STREAM_REQUEST = 6
 }
 
 export const enum StickerType {
@@ -601,7 +601,7 @@ export const enum MessageType {
      * Name: PREMIUM_GROUP_INVITE
      * Deletable: true
      */
-    PREMIUM_GROUP_INVITE = 64,
+    PREMIUM_GROUP_INVITE = 64
 }
 
 export const enum MessageFlags {
@@ -670,7 +670,7 @@ export const enum MessageFlags {
     /**
      * Message was triggered by the social layer integration
      */
-    SENT_BY_SOCIAL_LAYER_INTEGRATION = 1 << 16,
+    SENT_BY_SOCIAL_LAYER_INTEGRATION = 1 << 16
 }
 
 export const enum MessageReferenceType {
@@ -697,12 +697,12 @@ export const enum ReferencedMessageState {
     /**
     * Message that is currently deleted
     */
-    DELETED = 2,
+    DELETED = 2
 }
 
 export const enum MessageActivityType {
     Join = 1,
     Spectate,
     Listen,
-    JoinRequest = 5,
+    JoinRequest = 5
 }

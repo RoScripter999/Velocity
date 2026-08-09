@@ -1,6 +1,6 @@
 import { SelectOption, Select, RawCSSColor } from "../../components";
 import { ButtonsProps, ButtonVariant } from "../../components/Buttons";
-import { BadgeType, HeaderDecoratioButtonsButtonType, HeaderDecorationType, InlineNoticeType, LayoutType, NestedPanelLeadingDecorationType, NestedPanelTrailingDecorationType } from "../../../enums";
+import { BadgeType, HeaderDecoratioButtonsButtonType, HeaderDecorationType, InlineNoticeType, LayoutType, NestedPanelLeadingDecorationType, IconShapeType, ButtonTrailingDecorationType, NestedPanelTrailingDecorationType } from "../../../enums";
 import { ComponentType, JSX, ReactNode } from "react";
 
 // copy(Object.values(find(m => m?.X?.PROFILE_SETTING === "profile_setting").X).map(v => `"${v}"`).join("|"))
@@ -63,7 +63,7 @@ export interface SectionNode extends LayoutNode {
     buildLayout(): SidebarItemNode[];
 }
 
-export interface SidebarItemNode extends LayoutBuilderNode {
+export interface SidebarItemNode extends LayoutBuilderNode, BadgesNode {
     type: LayoutType.SIDEBAR_ITEM;
     useTitle(): ReactNode | string;
     buildLayout(): PanelNode[];
@@ -78,14 +78,17 @@ export interface SidebarItemNode extends LayoutBuilderNode {
 
 /**
  * Only renders if there is {@link CategoryNode} in {@link buildLayout}.
- * Any other {@link ContentNode node} will result in a "Panels must have a list of categories or a list of tabs" crash.
+ * Any other {@link ContentNode node} will result in a `Panels must have a list of categories or a list of tabs` crash.
  *
  * {@link buildLayout} Gets converted into "layout" at runtime, Using "layout" will be the same as {@link buildLayout}.
  */
 export interface PanelNode extends LayoutBuilderNode {
     type: LayoutType.PANEL;
     notice?: InlineNoticeNode;
-    decoration?: DecorationNode;
+    decoration?: {
+        component: ComponentType<any>;
+        sticky?: boolean;
+    };
     useTitle(): ReactNode;
     buildLayout(): (CategoryNode | TabItemNode)[];
     useInlineNotice?: () => InlineNoticeNode[];
@@ -130,8 +133,8 @@ export interface CategoryNode extends LayoutBuilderNode, BadgesNode {
 
     /**
      * @ignore Only use when rendering category inside a {@link TabItemNode}.
-     * Using a {@link layout} outside of a {@link TabItemNode} will result in a "{@link type 10} nodes should never be rendered directly" crash.
-     * Using {@link buildLayout} inside a {@link TabItemNode} will result in a "Cannot read properties of undefined (reading 'map')" crash.
+     * Using a {@link layout} outside of a {@link TabItemNode} will result in a `{@link type 10} nodes should never be rendered directly` crash.
+     * Using {@link buildLayout} inside a {@link TabItemNode} will result in a `Cannot read properties of undefined (reading 'map')` crash.
      */
     layout?: ContentNode[];
     icon?: ComponentType<any>;
@@ -210,8 +213,8 @@ export interface NestedPanelNode extends LayoutNode {
     buildLayout: () => PanelNode[];
     /**
      * @ignore Only use when rendering inside a {@link CardNode}.
-     * Using a {@link buildLayout} inside of a {@link CardNode} will result in a "Cannot read properties of undefined" crash.
-     * Using {@link layout} outside of a {@link CardNode} will cause a "Cannot read properties of undefined (reading 'every')" error.
+     * Using a {@link buildLayout} inside of a {@link CardNode} will result in a `Cannot read properties of undefined` crash.
+     * Using {@link layout} outside of a {@link CardNode} will cause a `Cannot read properties of undefined (reading 'every')` error.
      */
     layout?: ContentNode[];
     useTitle: () => string;
@@ -221,17 +224,10 @@ export interface NestedPanelNode extends LayoutNode {
         icon: ReactNode;
         /** Color of the {@link icon} @default currentColor */
         color?: RawCSSColor;
-        /** Discord expects it to use the color variables which return a table containing a property called "css". @default "var(--background-mod-muted)" */
+        /** Discord expects it to use the color variables which return a table containing a property called `css`. @default "var(--background-mod-muted)" */
         backgroundColor?: { css: RawCSSColor; };
     };
-    useTrailingDecoration?: () =>
-        | {
-            type: NestedPanelTrailingDecorationType.STACKED_ICONS;
-        } & UseIconsNode
-        | {
-            type: NestedPanelTrailingDecorationType.TEXT;
-            useText: () => string;
-        };
+    useTrailingDecoration?: () => { type: NestedPanelTrailingDecorationType.STACKED_ICONS; } & UseIconsNode;
     onClick?: () => void;
 }
 
@@ -248,6 +244,17 @@ export interface ButtonNode extends LayoutNode {
     useSubtitle?(): string;
     useVariant?(): ButtonVariant;
     useDisabled?(): boolean;
+    useAriaLabel?(): string;
+    useLoading?(): boolean;
+    useTrailingDecoration?: () =>
+        | {
+            type: ButtonTrailingDecorationType.TEXT;
+            text: string;
+        }
+        | {
+            type: ButtonTrailingDecorationType.STRONGLY_DISCOURAGED_CUSTOM;
+            StronglyDiscouragedCustomComponent(): ReactNode;
+        };
     onClick(): void | Promise<any>;
 }
 
@@ -340,9 +347,15 @@ type UseIconsNode = {
      * @param shape Renders the shape of the icon
      * @param icon Icon component to render
      */
-    useIcons: () => {
-        frontIcon: { shape: "ROUNDED" | "SQUIRCLE"; icon: ComponentType<any>; };
-        backIcon?: { shape: "ROUNDED" | "SQUIRCLE"; icon: ComponentType<any>; };
+    icons: {
+        frontIcon: {
+            shape: IconShapeType;
+            icon: JSX.Element;
+        };
+        backIcon?: {
+            shape: IconShapeType;
+            icon: JSX.Element;
+        };
     };
 };
 
@@ -387,10 +400,6 @@ type InlineNoticeNode =
         type: InlineNoticeType.STRONGLY_DISCOURAGED_CUSTOM;
         notice: ComponentType<any>;
     };
-type DecorationNode = {
-    component: ComponentType<any>;
-    sticky?: boolean;
-};
 
 export type ContentNode =
     | CustomNode

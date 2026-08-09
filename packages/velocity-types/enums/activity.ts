@@ -17,7 +17,7 @@ export const enum ActivityFlags {
     PARTY_PRIVACY_VOICE_CHANNEL = 128,
     EMBEDDED = 256,
     CONTEXTLESS = 512,
-    SUPPORTS_GATEWAY_ACTIVITY_ACTION_JOIN = 1024,
+    SUPPORTS_GATEWAY_ACTIVITY_ACTION_JOIN = 1024
 }
 
 export const enum ActivityStatusDisplayType {
@@ -29,22 +29,22 @@ export const enum ActivityStatusDisplayType {
 export const enum OrientationLockState {
     UNLOCKED = 1,
     PORTRAIT = 2,
-    LANDSCAPE = 3,
+    LANDSCAPE = 3
 }
 
 export const enum ActivityGameMode {
     PLAY = 0,
-    SPECTATE = 1,
+    SPECTATE = 1
 }
 
 export const enum ActivityLayout {
     FOCUSED = 0,
     PIP = 1,
-    GRID = 2,
+    GRID = 2
 }
 
 export const enum ActivityLabelType {
     NONE = 0,
     NEW = 1,
-    UPDATED = 2,
+    UPDATED = 2
 }

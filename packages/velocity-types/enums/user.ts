@@ -26,7 +26,7 @@ export enum RelationshipType {
     /**
      * The user is a friend suggestion for the current user
      */
-    SUGGESTION = 6,
+    SUGGESTION = 6
 
 }
 
@@ -34,7 +34,7 @@ export const enum PremiumType {
     NONE = 0,
     TIER_1 = 1,
     TIER_2 = 2,
-    TIER_0 = 3,
+    TIER_0 = 3
 }
 
 export const enum StandingState {
@@ -42,7 +42,7 @@ export const enum StandingState {
     LIMITED = 200,
     VERY_LIMITED = 300,
     AT_RISK = 400,
-    SUSPENDED = 500,
+    SUSPENDED = 500
 }
 
 export enum GiftIntentType {
@@ -55,7 +55,7 @@ export const enum ReadStateType {
     NOTIFICATION_CENTER = 2,
     GUILD_HOME = 3,
     GUILD_ONBOARDING_QUESTION = 4,
-    MESSAGE_REQUESTS = 5,
+    MESSAGE_REQUESTS = 5
 }
 
 export enum UserFlags {
@@ -163,7 +163,7 @@ export enum UserFlags {
      *
      * This value would be `1 << 51`, but bit shifting above `1 << 30` requires bigints
      */
-    RestrictedCollaborator = 2_251_799_813_685_248,
+    RestrictedCollaborator = 2_251_799_813_685_248
 }
 
 export enum TokenStatus {

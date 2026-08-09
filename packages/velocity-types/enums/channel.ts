@@ -11,27 +11,27 @@ export const enum PermissionOverwriteRowType {
     OWNER = 3,
     MEMBER = 4,
     USER = 5,
-    GUILD = 6,
+    GUILD = 6
 }
 
 export const enum PermissionOverwriteSectionType {
     ROLES = 0,
     MEMBERS = 1,
     USERS = 2,
-    GUILDS = 3,
+    GUILDS = 3
 }
 
 export const enum ForumLayout {
     DEFAULT = 0,
     LIST = 1,
-    GRID = 2,
+    GRID = 2
 }
 
 export const enum SafetyWarningType {
     STRANGER_DANGER = 1,
     INAPPROPRIATE_CONVERSATION_TIER_1 = 2,
     INAPPROPRIATE_CONVERSATION_TIER_2 = 3,
-    LIKELY_ATO = 4,
+    LIKELY_ATO = 4
 }
 
 export const enum ChannelFlags {
@@ -50,7 +50,7 @@ export const enum ChannelFlags {
     HIDE_MEDIA_DOWNLOAD_OPTIONS = 32768,
     IS_JOIN_REQUEST_INTERVIEW_CHANNEL = 65536,
     OBFUSCATED = 131072,
-    IS_MODERATOR_REPORT_CHANNEL = 524288,
+    IS_MODERATOR_REPORT_CHANNEL = 524288
 }
 
 export const enum ChannelType {
@@ -70,5 +70,5 @@ export const enum ChannelType {
     GUILD_MEDIA = 16,
     LOBBY = 17,
     DM_SDK = 18,
-    UNKNOWN = 10000,
+    UNKNOWN = 10000
 }

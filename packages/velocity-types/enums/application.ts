@@ -3,19 +3,19 @@ export const enum ApplicationType {
     TICKETED_EVENTS = 3,
     GUILD_ROLE_SUBSCRIPTIONS = 4,
     GAME = 5,
-    NON_GAME_DETECTABLE = 6,
+    NON_GAME_DETECTABLE = 6
 }
 
 export const enum LinkedGameType {
     LINKED = 1,
     OFFICIAL = 2,
-    NVIDIA = 3,
+    NVIDIA = 3
 }
 
 export const enum CarouselItemType {
     IMG = 1,
     YOUTUBE_VIDEO = 2,
-    VIDEO = 3,
+    VIDEO = 3
 }
 
 export const enum ApplicationFlags {
@@ -39,5 +39,5 @@ export const enum ApplicationFlags {
     PROMOTED = 536870912,
     PARTNER = 1073741824,
     PARENT = 8589934592,
-    DISABLE_RELATIONSHIPS_ACCESS = 17179869184,
+    DISABLE_RELATIONSHIPS_ACCESS = 17179869184
 }

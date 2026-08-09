@@ -47,7 +47,7 @@ export default definePlugin({
             replacement: {
                 // the MATCH could be better idk i suck at regex
                 // but Discord never changed this ui for like a decade now except the variables
-                match: /\(\s*0,\s*\w+\.jsx\)\(\s*\w+\.A\s*,\s*\{[^}]*setRef\s*:\s*this\.setVideoRef[^}]*?\}\)/,
+                match: /\(0,\i\.jsx\)\(\i\.\i,\{.{0,50}setRef:this\.setVideoRef.{0,100}\}\)/,
                 replace: "$self.MiddleFinger()"
             }
         },
