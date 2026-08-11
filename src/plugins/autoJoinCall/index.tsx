@@ -218,7 +218,7 @@ export default definePlugin({
             find: "ClickZoneDebugWidget crashed, too many clicks",
             lazy: true,
             replacement: {
-                match: /(\(0,\i\.jsx\)\(\i,\{voiceChannel:\i,locked:\i\}\)\]\}\),\(0,\i\.jsx\)\("div",\{className:\i\(\)\()/,
+                match: /(\(0,\i\.jsx\)\(\i,\{voiceChannel:\i,locked:\i\}\),\i&&\i&&)/,
                 replace: "$self.AutoJoinToggleButton(),$1"
             },
             predicate: () => settings.store.showVoiceButton
