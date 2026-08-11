@@ -45,6 +45,7 @@ export interface SoundData {
 export const settings = definePluginSettings({
     soundSettings: {
         type: OptionType.COMPONENT,
+        default: [],
         component: SoundSettings
     },
     preventOverlap: {

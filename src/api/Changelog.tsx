@@ -208,7 +208,7 @@ export function markAsSeen() {
     delete localStorage.Velocity_hasNewChangelog;
 }
 
-export function hasNewChangelog() {
+export function hasNewChangelog(): boolean {
     return localStorage.Velocity_hasNewChangelog;
 }
 

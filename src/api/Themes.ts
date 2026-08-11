@@ -18,7 +18,7 @@
 
 import { Settings, SettingsStore, type ThemeActivationMode } from "@api/Settings";
 import { createAndAppendStyle } from "@utils/css";
-import { ThemeStore } from "@velocity-types";
+import type { ThemeStore } from "@velocity-types";
 import { PopoutWindowStore } from "@webpack/common";
 
 import { coreStyleRootNode, managedStyleRootNode, userStyleRootNode, velocityRootNode } from "./Styles";

@@ -25,7 +25,7 @@ import type { ModalPropsRender } from "@velocity-types";
 import { Field, Icons, Modal, openModal, TextArea, TextInput, useState } from "@webpack/common";
 
 import { parseTagArguments, validateTagArguments } from ".";
-import { ManageTagsList } from "./ManageTagsList";
+import { cl, ManageTagsList } from "./ManageTagsList";
 import { addTag, removeTag, type Tag } from "./settings";
 
 function getTypeString(type: ApplicationCommandOptionType | "unknown"): string {
@@ -103,18 +103,14 @@ function CreateTagDialog({ initialValue, modalProps }: { initialValue: Tag; moda
             notice={argumentErrors.length > 0 ? { message: argumentErrors[0], type: "critical" } : undefined}
         >
             <Flex flexDirection="column" gap={12}>
-                <section>
-                    <TextInput label="Name" value={name} onChange={setName} placeholder="greet" />
-                </section>
+                <TextInput label="Name" value={name} onChange={setName} placeholder="greet" />
 
-                <section>
-                    <TextArea label="Response" value={message} onChange={setMessage} placeholder={EXAMPLE_RESPONSE} />
-                </section>
+                <TextArea label="Response" value={message} onChange={setMessage} placeholder={EXAMPLE_RESPONSE} />
 
                 {detectedArguments.length > 0 && (
                     <Field label="Detected Arguments">
                         {detectedArguments.map(arg => (
-                            <li key={arg.name}>
+                            <li className={cl("argument")} key={arg.name}>
                                 <b>{arg.name}</b> (type: {getTypeString(arg.type)}){arg.defaultValue ? ` (default: ${arg.defaultValue})` : ""}
                             </li>
                         ))}

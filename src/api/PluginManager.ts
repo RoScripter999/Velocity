@@ -410,7 +410,9 @@ export const initPluginManager = onlyOnce(function init() {
 
             for (const [key, def] of Object.entries(p.settings.def)) {
                 if (def.onChange)
-                    SettingsStore.addChangeListener(`plugins.${p.name}.${key}`, def.onChange);
+                    SettingsStore.addChangeListener(`plugins.${p.name}.${key}`, newVal => {
+                        if (newVal !== undefined) def.onChange!(newVal);
+                    });
             }
         }
 

@@ -26,7 +26,7 @@ import { ManageTagsList } from "./ManageTagsList";
 export const settings = definePluginSettings({
     tagsList: {
         type: OptionType.CUSTOM,
-        default: {} as Record<string, Tag>
+        default: {} as Record<string, string>
     },
     tagComponent: {
         type: OptionType.COMPONENT,
@@ -39,18 +39,19 @@ export interface Tag {
     message: string;
 }
 
-export function getTags() {
-    return Object.values(settings.store.tagsList);
+export function getTags(): Tag[] {
+    return Object.entries(settings.store.tagsList).map(([name, message]) => ({ name, message }));
 }
 
-export function getTag(name: string) {
-    return settings.store.tagsList[name];
+export function getTag(name: string): Tag | undefined {
+    const message = settings.store.tagsList[name];
+    return message != null ? { name, message } : undefined;
 }
 
 export function addTag(tag: Tag) {
     unregisterCommand(tag.name);
 
-    settings.store.tagsList[tag.name] = tag;
+    settings.store.tagsList[tag.name] = tag.message;
     registerTagCommand(tag);
 }
 

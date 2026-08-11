@@ -3,12 +3,6 @@
     flex-direction: column;
 }
 
-.vc-clientTheme-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
 .vc-clientTheme-labels {
     display: flex;
     flex-direction: column;

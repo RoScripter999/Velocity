@@ -3,8 +3,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 400px;
-    overflow-y: auto;
 }
 
 .vc-customCommands-row {
@@ -32,4 +30,8 @@
 .vc-customCommands-empty {
     padding: 24px;
     text-align: center;
+}
+
+.vc-customCommands-argument {
+    list-style-position: inside;
 }

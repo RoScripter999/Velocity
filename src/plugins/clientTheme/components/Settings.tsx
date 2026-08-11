@@ -19,12 +19,11 @@
 import { ErrorCard } from "@components/ErrorBoundary";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
-import { SectionHeader } from "@components/settings";
 import { relativeLuminance } from "@plugins/clientTheme/utils/colorUtils";
 import { createOrUpdateThemeColorVars } from "@plugins/clientTheme/utils/styleUtils";
 import { classNameFactory } from "@utils/css";
 import { findByCodeLazy } from "@webpack";
-import { Buttons, ClientThemesBackgroundStore, ColorPicker, Forms, ThemeStore, useStateFromStores } from "@webpack/common";
+import { Buttons, ClientThemesBackgroundStore, ColorPicker, Field, Forms, ThemeStore, useStateFromStores } from "@webpack/common";
 
 import { settings } from "..";
 
@@ -78,14 +77,19 @@ export function ThemeSettingsComponent() {
 
     return (
         <div className={cl("settings")}>
-            <div className={cl("container")}>
-                <SectionHeader tag="h3" title="Theme Color" description="Add a color to your Discord client theme" />
-                <ColorPicker
-                    color={parseInt(settings.store.color, 16)}
-                    onChange={onPickColor}
-                    showEyeDropper={false}
-                    suggestedColors={colorPresets}
-                />
+            <div>
+                <Field
+                    label="Theme Color"
+                    description="Add a color to your Discord client theme"
+                    layout="horizontal"
+                >
+                    <ColorPicker
+                        color={parseInt(settings.store.color, 16)}
+                        onChange={onPickColor}
+                        showEyeDropper={false}
+                        suggestedColors={colorPresets}
+                    />
+                </Field>
             </div>
             {(contrastWarning || nitroThemeEnabled) && (<>
                 <ErrorCard className={Margins.top8}>

@@ -183,6 +183,9 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 onConfirm={() => {
                     for (const [key, option] of Object.entries(plugin.settings!.def)) {
                         const defaultValue = "default" in option ? option.default : undefined;
+                        const currentValue = pluginSettings[key];
+
+                        option.onReset?.(currentValue);
 
                         pluginSettings[key] = undefined;
                         delete pluginSettings[key];
@@ -191,7 +194,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                             option.onChange?.(defaultValue);
                         }
 
-                        if ("restartNeeded" in option && option.restartNeeded) {
+                        if ("restartNeeded" in option && option.restartNeeded && currentValue !== defaultValue) {
                             onRestartNeeded(key);
                         }
                     }

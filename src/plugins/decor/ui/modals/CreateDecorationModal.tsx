@@ -26,7 +26,7 @@ import { cl, DecorationModalClasses, requireAvatarDecorationModal, requireCreate
 import { AvatarDecorationModalPreview } from "@plugins/decor/ui/components";
 import { openInviteModal } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
-import { Buttons, closeAllModals, FilePicker, FluxDispatcher, Forms, GuildStore, HelpMessage, Modal, NavigationRouter, openModal, TextInput, useEffect, useMemo, UserStore, useState } from "@webpack/common";
+import { closeAllModals, FilePicker, FluxDispatcher, Forms, GuildStore, HelpMessage, Modal, NavigationRouter, openModal, TextInput, useEffect, useMemo, UserStore, useState } from "@webpack/common";
 
 function useObjectURL(object: Blob | MediaSource | null) {
     const [url, setUrl] = useState<string | null>(null);
@@ -98,16 +98,13 @@ function CreateDecorationModal(props: ModalPropsRender) {
                         {error !== null && <Paragraph color="text-feedback-critical" variant="text-xs/normal">{error.message}</Paragraph>}
                         <section>
                             <Forms.FormTitle tag="h5">File</Forms.FormTitle>
-                            <div style={{ position: "relative" }}>
-                                <Buttons.Button text={file?.name ? `File: ${file.name}` : "Browse"} />
-                                <FilePicker
-                                    filters={[{ name: "Decoration file", extensions: ["png", "apng"] }]}
-                                    onChange={e => {
-                                        const f = e.target.files?.[0];
-                                        if (f) setFile(f);
-                                    }}
-                                />
-                            </div>
+                            <FilePicker
+                                filename={file?.name!}
+                                placeholder="Choose a file"
+                                buttonText="Browse"
+                                filters={[{ name: "Decoration file", extensions: ["png", "apng"] }]}
+                                onFileSelect={file => setFile(file ?? null)}
+                            />
                             <Paragraph className={Margins.top8}>
                                 File should be APNG or PNG.
                             </Paragraph>

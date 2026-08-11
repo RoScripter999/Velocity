@@ -17,11 +17,10 @@
 */
 
 import { Link } from "@components/Link";
-import { Paragraph } from "@components/Paragraph";
 import { settings } from "@plugins/decor/settings";
 import { DecorationModalClasses, requireAvatarDecorationModal } from "@plugins/decor/ui";
 import type { ModalPropsRender } from "@velocity-types";
-import { ConfirmModal, openModal } from "@webpack/common";
+import { ConfirmModal, openModal, Text } from "@webpack/common";
 
 import { openCreateDecorationModal } from "./CreateDecorationModal";
 
@@ -39,13 +38,13 @@ function GuidelinesModal(props: ModalPropsRender) {
             }}
         >
             <div className={DecorationModalClasses.modal}>
-                <Paragraph>
+                <Text>
                     By submitting a decoration, you agree to <Link
                         href="https://github.com/decor-discord/.github/blob/main/GUIDELINES.md"
                     >
                         the guidelines
                     </Link>. Not reading these guidelines may get your account suspended from creating more decorations in the future.
-                </Paragraph>
+                </Text>
             </div>
         </ConfirmModal>
     );

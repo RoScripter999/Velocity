@@ -39,3 +39,5 @@ export const getEntrySubtext = (entry: SoundEntry, isUserTab: boolean) => {
     }
     return entry.guildName ? `User ID: ${entry.guildId}` : "";
 };
+
+export const makeEmptyForm = () => ({ id: "", name: "", note: "", soundUrl: "", filename: "", volume: 0.5, displayNameMode: false, error: false });

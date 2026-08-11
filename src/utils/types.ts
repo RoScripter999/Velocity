@@ -255,6 +255,7 @@ export interface PluginSettingDefCommon extends IsDisabledOrHidden, IsValid<unkn
     displayName?: string;
     placeholder?: string;
     onChange?(newValue: any): void;
+    onReset?(oldValue: any): void;
     /**
      * Whether changing this setting requires a restart
      */
@@ -314,6 +315,7 @@ export interface PluginSettingCustomDef {
     type: OptionType.CUSTOM;
     default?: any;
     onChange?: PluginSettingDefCommon["onChange"];
+    onReset?: PluginSettingDefCommon["onReset"];
 }
 
 export interface PluginSettingSliderDef extends PluginSettingDefCommon {

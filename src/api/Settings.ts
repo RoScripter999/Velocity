@@ -224,7 +224,7 @@ export const SettingsStore = new SettingsStoreClass(settings, {
                 if (!setting) return v;
 
                 if ("default" in setting)
-                    return (target[key] = setting.default);
+                    return (target[key] = structuredClone(setting.default));
 
                 if (setting.type === OptionType.SELECT) {
                     if (Array.isArray(setting.options)) {

@@ -23,8 +23,7 @@ import { getIntlMessage } from "@utils/discord";
 import { Buttons, FilePicker, Icons, Slider, TabBar, Text, TextInput, Toasts, useRef, useState } from "@webpack/common";
 
 import { getSoundEntries, saveSoundEntries, type SoundEntry } from "../settings";
-import { convertFileToBase64, getEntryDisplay, getEntrySubtext } from "./utils";
-
+import { convertFileToBase64, getEntryDisplay, getEntrySubtext, makeEmptyForm } from "./utils";
 
 export function SoundSettings() {
     const [currentTab, setCurrentTab] = useState<"users" | "guilds">("users");
@@ -34,16 +33,32 @@ export function SoundSettings() {
     const [sliderKey, setSliderKey] = useState(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    const [form, setForm] = useState({ id: "", name: "", note: "", soundUrl: "", filename: "", volume: 0.5, displayNameMode: false, error: false });
+    const [form, setForm] = useState(makeEmptyForm());
+
+    const isUserTab = currentTab === "users";
+    const primaryId = form.displayNameMode ? form.name : form.id;
+    const filteredEntries = entries.filter(e => e.type === (isUserTab ? "user" : "guild"));
+    const userCount = entries.filter(e => e.type === "user").length;
+    const guildCount = entries.length - userCount;
 
     const saveEntries = (newEntries: SoundEntry[]) => {
         setEntries(newEntries);
         saveSoundEntries(newEntries);
     };
 
+    const handleDelete = (id: string) => {
+        saveEntries(entries.filter(entry => entry.id !== id));
+    };
+
+    const resetForm = () => {
+        setForm(makeEmptyForm());
+        setSliderKey(prev => prev + 1);
+        setEditingId(null);
+    };
+
     const playSound = (soundUrl: string, volume: number, entryId: string) => {
-        if (playingId === entryId && audioRef.current?.paused === false) {
-            audioRef.current.pause();
+        if (playingId === entryId && !audioRef.current?.paused) {
+            audioRef.current!.pause();
             setPlayingId(null);
             return;
         }
@@ -52,13 +67,14 @@ export function SoundSettings() {
         audioRef.current.src = soundUrl;
         audioRef.current.volume = volume;
         audioRef.current.play();
-        setPlayingId(entryId);
         audioRef.current.onended = () => setPlayingId(null);
+        setPlayingId(entryId);
     };
 
-    const handleFileUpload = async (file: File) => {
-        const validTypes = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"];
-        if (!validTypes.includes(file.type)) {
+    const handleFileUpload = async (file: File | undefined) => {
+        if (!file) return;
+
+        if (!["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"].includes(file.type)) {
             Toasts.show({ message: "Only audio files are allowed", type: Toasts.Type.FAILURE, id: Toasts.genId() });
             return;
         }
@@ -93,18 +109,13 @@ export function SoundSettings() {
     };
 
     const handleAddOrUpdate = () => {
-        const isUser = currentTab === "users";
-        const primaryId = form.displayNameMode ? form.name : form.id;
-
         if (!primaryId || !form.soundUrl) return;
 
         const isDuplicate = entries.some(entry => {
             if (editingId === entry.id) return false;
-            if (isUser) {
-                return form.displayNameMode
-                    ? entry.displayName === primaryId && entry.type === "user"
-                    : entry.userId === primaryId && entry.type === "user";
-            }
+            if (isUserTab) return form.displayNameMode
+                ? entry.displayName === primaryId && entry.type === "user"
+                : entry.userId === primaryId && entry.type === "user";
             return entry.guildId === primaryId && entry.type === "guild";
         });
 
@@ -113,66 +124,27 @@ export function SoundSettings() {
             return;
         }
 
-        const createUserEntry = (): SoundEntry => ({
-            id: `user_${Date.now()}`,
-            type: "user",
-            userId: form.displayNameMode ? "" : form.id.trim(),
-            displayName: form.displayNameMode ? form.name.trim() : "",
-            userLabel: form.note.trim(),
-            guildId: "",
-            guildName: "",
+        const sharedFields = {
             soundUrl: form.soundUrl.trim(),
             filename: form.filename,
             volume: form.volume
-        });
-
-        const createGuildEntry = (): SoundEntry => ({
-            id: `guild_${Date.now()}`,
-            type: "guild",
-            userId: "",
-            displayName: "",
-            userLabel: "",
-            guildId: form.id.trim(),
-            guildName: form.name.trim(),
-            soundUrl: form.soundUrl.trim(),
-            filename: form.filename,
-            volume: form.volume
-        });
+        };
 
         const newEntries = editingId
-            ? entries.map(entry => {
-                if (entry.id !== editingId) return entry;
-                return {
-                    ...entry,
-                    ...(isUser
-                        ? {
-                            userId: form.displayNameMode ? "" : form.id.trim(),
-                            displayName: form.displayNameMode ? form.name.trim() : "",
-                            userLabel: form.note.trim()
-                        }
-                        : {
-                            guildId: form.id.trim(),
-                            guildName: form.name.trim()
-                        }),
-                    soundUrl: form.soundUrl.trim(),
-                    filename: form.filename,
-                    volume: form.volume
-                };
+            ? entries.map(entry => entry.id !== editingId ? entry : {
+                ...entry,
+                ...(isUserTab
+                    ? { userId: form.displayNameMode ? "" : form.id.trim(), displayName: form.displayNameMode ? form.name.trim() : "", userLabel: form.note.trim() }
+                    : { guildId: form.id.trim(), guildName: form.name.trim() }),
+                ...sharedFields
             })
-            : [...entries, isUser ? createUserEntry() : createGuildEntry()];
+            : [...entries, isUserTab
+                ? { id: `user_${Date.now()}`, type: "user" as const, userId: form.displayNameMode ? "" : form.id.trim(), displayName: form.displayNameMode ? form.name.trim() : "", userLabel: form.note.trim(), guildId: "", guildName: "", ...sharedFields }
+                : { id: `guild_${Date.now()}`, type: "guild" as const, userId: "", displayName: "", userLabel: "", guildId: form.id.trim(), guildName: form.name.trim(), ...sharedFields }
+            ];
 
         saveEntries(newEntries);
         resetForm();
-    };
-
-    const resetForm = () => {
-        setForm({ id: "", name: "", note: "", soundUrl: "", filename: "", volume: 0.5, displayNameMode: false, error: false });
-        setSliderKey(prev => prev + 1);
-        setEditingId(null);
-    };
-
-    const handleDelete = (id: string) => {
-        saveEntries(entries.filter(entry => entry.id !== id));
     };
 
     const handleTabChange = (tab: "users" | "guilds") => {
@@ -180,24 +152,27 @@ export function SoundSettings() {
         resetForm();
     };
 
-    const isUserTab = currentTab === "users";
-    const filteredEntries = entries.filter(e => (isUserTab ? e.type === "user" : e.type === "guild"));
-    const isValidForm = (isUserTab && form.displayNameMode ? form.name : form.id) && form.soundUrl;
+    const getFileLabel = (entry: SoundEntry) => {
+        if (entry.filename) return entry.filename;
+        if (entry.soundUrl.startsWith("data:")) return "Uploaded file";
+        return entry.soundUrl.length > 40 ? `${entry.soundUrl.substring(0, 40)}...` : entry.soundUrl;
+    };
 
     return (
         <>
-            <TabBar type="top" look="brand" selectedItem={currentTab} onItemSelect={handleTabChange} >
-                <TabBar.Item id="users">{getIntlMessage("USERS")} ({entries.filter(e => e.type === "user").length})</TabBar.Item>
-                <TabBar.Item id="guilds">{getIntlMessage("SERVERS")} ({entries.filter(e => e.type === "guild").length})</TabBar.Item>
+            <TabBar type="top" look="brand" selectedItem={currentTab} onItemSelect={handleTabChange}>
+                <TabBar.Item id="users">{getIntlMessage("USERS")} ({userCount})</TabBar.Item>
+                <TabBar.Item id="guilds">{getIntlMessage("SERVERS")} ({guildCount})</TabBar.Item>
             </TabBar>
 
-            <Flex flexDirection="column" gap="12px" >
+            <Flex flexDirection="column" gap="12px">
                 <Flex flexDirection="column" gap="8px" className={Margins.bottom8}>
                     <TextInput
-                        placeholder={isUserTab ? "User ID (required)" : "Server ID (required)"}
-                        value={form.displayNameMode ? form.name : form.id}
-                        label={editingId ? `Edit ${isUserTab ? "User" : "Server"} Sound` : `Add ${isUserTab ? "User" : "Server"} Sound`}
-                        error={form.error ? `this ${isUserTab ? "user" : "guild"} already exists` : ""}
+                        required
+                        placeholder={isUserTab ? "User ID" : "Server ID"}
+                        value={primaryId}
+                        label={`${editingId ? "Edit" : "Add"} ${isUserTab ? "User" : "Server"} Sound`}
+                        error={form.error ? `This ${isUserTab ? "user" : "guild"} already exists` : ""}
                         onChange={val => {
                             const filtered = val.replace(/[^0-9]/g, "");
                             setForm(prev => form.displayNameMode
@@ -206,7 +181,6 @@ export function SoundSettings() {
                             );
                         }}
                     />
-
                     {isUserTab && (
                         <TextInput
                             placeholder="Note (optional, for display only)"
@@ -215,21 +189,20 @@ export function SoundSettings() {
                         />
                     )}
                 </Flex>
-                <div className={Margins.bottom8} style={{ position: "relative" }}>
-                    <Buttons.Button text={form.filename ? `File: ${form.filename}` : "Upload sound"} />
+
+                <Flex alignItems="center" gap="8px" className={Margins.bottom8}>
                     <FilePicker
+                        filename={form.filename}
+                        placeholder="Choose a sound"
+                        buttonText="Upload Sound"
                         filters={[{ name: "Sound file", extensions: ["mp3", "wav", "ogg", "m4a"] }]}
-                        onChange={e => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(file);
-                        }}
+                        onFileSelect={handleFileUpload}
                     />
-                </div>
+                </Flex>
+
                 <Flex flexDirection="column" gap="4px">
                     <Flex flexDirection="row" gap="8px">
-                        <Text variant="text-sm/normal" >
-                            Volume: {(form.volume * 100).toFixed(0)}%
-                        </Text>
+                        <Text variant="text-sm/normal">Volume: {(form.volume * 100).toFixed(0)}%</Text>
                         <Slider
                             key={sliderKey}
                             minValue={0}
@@ -239,11 +212,11 @@ export function SoundSettings() {
                             asValueChanges={val => setForm(prev => ({ ...prev, volume: val }))}
                         />
                     </Flex>
-                    <Buttons.ButtonGroup gap="8" direction="horizontal">
+                    <Buttons.ButtonGroup direction="horizontal">
                         <Buttons.Button
                             onClick={handleAddOrUpdate}
                             size="sm"
-                            disabled={!isValidForm}
+                            disabled={!primaryId || !form.soundUrl}
                             variant="primary"
                             text={editingId ? "Update Notification" : "Add Notification"}
                         />
@@ -259,27 +232,18 @@ export function SoundSettings() {
                 </Flex>
 
                 {filteredEntries.length === 0 ? (
-                    <Text variant="text-sm/bold" color="text-muted">
-                        {getIntlMessage("NO_SOUNDS")}
-                    </Text>
+                    <Text variant="text-sm/bold" color="text-muted">{getIntlMessage("NO_SOUNDS")}</Text>
                 ) : (
                     <Flex flexDirection="column" gap="8px" style={editingId ? { paddingLeft: "12px", opacity: 0.95 } : undefined}>
                         {filteredEntries.map(entry => (
                             <Flex justifyContent="space-between" alignItems="center" key={entry.id} style={editingId === entry.id ? { opacity: 0.5 } : undefined}>
                                 <section style={{ flex: 1, minWidth: 0 }}>
-                                    <Text variant="text-md/semibold">
-                                        {getEntryDisplay(entry, isUserTab)}
-                                    </Text>
-                                    <Paragraph color="text-muted">
-                                        {getEntrySubtext(entry, isUserTab)}
-                                    </Paragraph>
+                                    <Text variant="text-md/semibold">{getEntryDisplay(entry, isUserTab)}</Text>
+                                    <Paragraph color="text-muted">{getEntrySubtext(entry, isUserTab)}</Paragraph>
                                     <Paragraph color="text-muted" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        File: {entry.filename || (entry.soundUrl.startsWith("data:") ? "Uploaded file" : entry.soundUrl.substring(0, 40))}
-                                        {!entry.filename && entry.soundUrl.length > 40 && !entry.soundUrl.startsWith("data:") ? "..." : ""}
+                                        File: {getFileLabel(entry)}
                                     </Paragraph>
-                                    <Paragraph color="text-muted">
-                                        Volume: {(entry.volume * 100).toFixed(0)}%
-                                    </Paragraph>
+                                    <Paragraph color="text-muted">Volume: {(entry.volume * 100).toFixed(0)}%</Paragraph>
                                 </section>
 
                                 <Flex flexDirection="column" gap="8px">
@@ -290,7 +254,8 @@ export function SoundSettings() {
                                             <Buttons.Button
                                                 onClick={() => playSound(entry.soundUrl, entry.volume, entry.id)}
                                                 size="sm"
-                                                text={playingId === entry.id ? `⏸ ${getIntlMessage("STOP")}` : `▶ ${getIntlMessage("PLAY")}`} />
+                                                text={playingId === entry.id ? `⏸ ${getIntlMessage("STOP")}` : `▶ ${getIntlMessage("PLAY")}`}
+                                            />
                                             <Buttons.Button
                                                 onClick={() => handleEdit(entry)}
                                                 size="sm"

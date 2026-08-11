@@ -71,19 +71,27 @@ export default definePlugin({
             }
         },
         {
+            // Remove another weird feature discord is adding for popouts
+            find: '"--floating-ui-scrollbar-width"',
+            replacement: {
+                match: /\(0,\i\.\i\)\("div",\{ref:\i,\.\.\.\i,style:\{position:"fixed".{0,60}\}\}\)/,
+                replace: "null"
+            }
+        },
+        {
             find: '"scrim":"empty"',
             replacement: {
                 match: /let\s*\{\s*variant[^}]*onClick[^}]*\}\s*=\s*\w+/,
                 replace: "return null;"
             }
         },
-        // We prevent focus trapping by defaulting the target to null.
+        // We prevent focus trapping by removing the disable check
         // making modules not capture the focus, which makes this module completely unusable
         {
-            find: ".current?.ownerDocument??document,[",
+            find: ".attachTo??",
             replacement: {
-                match: /=(\w+)\.disable\?(\w+):\w+/,
-                replace: "=$2"
+                match: /(return \i\()\i\.disable\?(\i):\i,/,
+                replace: "$1$2,"
             }
         }
     ]

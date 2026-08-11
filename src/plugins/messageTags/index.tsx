@@ -19,7 +19,6 @@
 import "./styles.css";
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, registerCommand, sendBotMessage, unregisterCommand } from "@api/Commands";
-import { migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
@@ -177,7 +176,6 @@ export function registerTagCommand(tag: Tag) {
     }, "CustomCommands");
 }
 
-migratePluginSettings("CustomCommands", "MessageTags");
 export default definePlugin({
     name: "CustomCommands",
     description: "Allows you to create custom slash commands / tags",
@@ -188,6 +186,11 @@ export default definePlugin({
     settings,
 
     start() {
+        // TODO: remove this after enough time has passed.
+        Object.entries(settings.store.tagsList).forEach(([name, value]) => {
+            if (typeof value === "object") settings.store.tagsList[name] = (value as { message: string; }).message;
+        });
+
         getTags().forEach(registerTagCommand);
     },
 

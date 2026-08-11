@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { definePluginSettings, migratePluginSetting, migratePluginSettings } from "@api/Settings";
+import { definePluginSettings } from "@api/Settings";
 import { Card } from "@components/Card";
 import { Link } from "@components/Link";
 import { SectionHeader } from "@components/settings";
@@ -27,7 +27,7 @@ import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@velocit
 import { ApplicationAssetUtils, AuthenticationStore, FluxDispatcher, PresenceStore } from "@webpack/common";
 
 import { LastFMScrobbler } from "./lastfm";
-import { ListenBrainzScrobbler } from "./listenbrainz";
+import { invalidateListenBrainzCache, ListenBrainzScrobbler } from "./listenbrainz";
 
 export interface TrackData {
     name: string;
@@ -44,7 +44,7 @@ export interface ScrobblerBackend {
     name: string,
     id: string,
 
-    fetchTrackData(username: string, apiKey?: string): Promise<TrackData | null>;
+    fetchTrackData(): Promise<TrackData | null>;
     getUserURL(username: string): string;
 }
 
@@ -58,8 +58,6 @@ const enum NameFormat {
     ServiceName = "service-name"
 }
 
-// Last.fm API keys are essentially public information and have no access to your account, so including one here is fine.
-const LASTFM_API_KEY = "790c37d90400163a5a5fe00d6ca32ef0";
 const DISCORD_APP_ID = "1108588077900898414";
 const LASTFM_PLACEHOLDER_IMAGE_HASH = "2a96cbd8b46e442fc41c2b86b821562f";
 
@@ -67,15 +65,7 @@ async function getApplicationAsset(key: string): Promise<string> {
     return (await ApplicationAssetUtils.fetchAssetIds(DISCORD_APP_ID, [key]))[0];
 }
 
-function setActivity(activity: Activity | null) {
-    FluxDispatcher.dispatch({
-        type: "LOCAL_ACTIVITY_UPDATE",
-        activity,
-        socketId: "LastFM"
-    });
-}
-
-const settings = definePluginSettings({
+export const settings = definePluginSettings({
     scrobblerBackend: {
         description: "The scrobbler backend to use.",
         type: OptionType.SELECT,
@@ -88,12 +78,28 @@ const settings = definePluginSettings({
             {
                 "label": "ListenBrainz",
                 "value": "listenbrainz"
+            },
+            {
+                "label": "ListenBrainz Compatible (self-hosted)",
+                "value": "listenbrainz-compatible"
             }
         ] as const
     },
+    instanceBaseURL: {
+        description: "The base url of your ListenBrainz instance.",
+        type: OptionType.STRING,
+        placeholder: "https://example.org",
+        onChange: invalidateListenBrainzCache
+    },
+    instanceAPIBaseUrl: {
+        description: "The base url of your ListenBrainz API.",
+        type: OptionType.STRING,
+        placeholder: "https://api.example.org",
+        onChange: invalidateListenBrainzCache
+    },
     apiKey: {
         displayName: "API Key",
-        description: "Custom Last.fm API key. Not required but highly recommended to avoid rate limiting with our shared key",
+        description: "Last.fm API key. Not required but highly recommended to avoid rate limiting with our shared key",
         type: OptionType.STRING
     },
     username: {
@@ -210,10 +216,12 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: true
     }
+}, {
+    apiKey: { hidden() { return this.store.scrobblerBackend !== "lastfm"; } },
+    instanceBaseURL: { hidden() { return this.store.scrobblerBackend !== "listenbrainz-compatible"; } },
+    instanceAPIBaseUrl: { hidden() { return this.store.scrobblerBackend !== "listenbrainz-compatible"; } }
 });
 
-migratePluginSettings("MusicRichPresence", "LastFMRichPresence");
-migratePluginSetting("MusicRichPresence", "showLastFmLogo", "showLogo");
 export default definePlugin({
     name: "MusicRichPresence",
     description: "Rich Presence for Last.FM/Listenbrainz",
@@ -224,6 +232,8 @@ export default definePlugin({
     settings,
 
     settingsAboutComponent() {
+        if (settings.store.scrobblerBackend !== "lastfm") return null;
+
         return (
             <Card>
                 <SectionHeader tag="h3" title="How to get an API key" description={
@@ -251,7 +261,18 @@ export default definePlugin({
     },
 
     async updatePresence() {
-        setActivity(await this.getActivity());
+        const { username, scrobblerBackend, instanceAPIBaseUrl, instanceBaseURL } = settings.store;
+
+        if (!username) return;
+        if (scrobblerBackend === "listenbrainz-compatible" && (!instanceAPIBaseUrl || !instanceBaseURL)) return;
+
+        const activity = await this.getActivity();
+
+        FluxDispatcher.dispatch({
+            type: "LOCAL_ACTIVITY_UPDATE",
+            activity,
+            socketId: "LastFM"
+        });
     },
 
     getLargeImage(track: TrackData): string | undefined {
@@ -263,8 +284,6 @@ export default definePlugin({
     },
 
     async getActivity(): Promise<Activity | null> {
-        if (!settings.store.username) return null;
-
         if (settings.store.hideWithActivity) {
             if (PresenceStore.getActivities(AuthenticationStore.getId()).some(a => a.application_id !== DISCORD_APP_ID && a.type !== ActivityType.CUSTOM_STATUS)) {
                 return null;
@@ -280,7 +299,7 @@ export default definePlugin({
 
         const scrobbler = settings.store.scrobblerBackend === "lastfm" ? LastFMScrobbler : ListenBrainzScrobbler;
 
-        const trackData = await scrobbler.fetchTrackData(settings.store.username, settings.store.apiKey || LASTFM_API_KEY);
+        const trackData = await scrobbler.fetchTrackData();
         if (!trackData) return null;
 
         const largeImage = this.getLargeImage(trackData);
