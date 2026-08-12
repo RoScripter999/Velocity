@@ -16,34 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Logger } from "@utils/Logger";
 import type { ModuleFactory } from "@velocity-types/webpack";
-import { cache, filters, wreq } from "@webpack";
+import { filters, wreq } from "@webpack";
 
 export interface SearchResult {
-    id: PropertyKey;
+    id: string;
     factory: ModuleFactory;
 }
 
-const logger = new Logger("SearchHelper");
-
-export function findByModuleId(moduleId: string): SearchResult | null {
-    const factory = wreq.m[moduleId];
-    return factory != null ? { id: moduleId, factory } : null;
-}
-
-export function findByCode(queries: string[]): SearchResult[] {
-    if (!queries.length) return [];
-
-    const matches: SearchResult[] = [];
+function searchFactories(queries: string[]): SearchResult[] {
     const filterFns = queries.map(q => filters.byCode(q));
-
+    const matches: SearchResult[] = [];
     for (const id in wreq.m) {
-        const factory = wreq.m[id];
-
         try {
-            if (filterFns.every(fn => fn(factory))) {
-                matches.push({ id, factory });
+            if (filterFns.every(fn => fn(wreq.m[id]))) {
+                matches.push({ id, factory: wreq.m[id] });
             }
         } catch { }
     }
@@ -51,23 +38,8 @@ export function findByCode(queries: string[]): SearchResult[] {
     return matches;
 }
 
-export function findByProps(queries: string[]): SearchResult[] {
-    if (!queries.length) return [];
-
-    const filterFns = queries.map(q => filters.byProps(q));
-    return searchExports(filterFns);
-}
-
-export function findByComponentCode(queries: string[]): SearchResult[] {
-    if (!queries.length) return [];
-
-    const filterFns = queries.map(q => filters.componentByCode(q));
-    return searchExports(filterFns);
-}
-
 function searchExports(filterFns: ((mod: any) => boolean)[]): SearchResult[] {
-    if (!filterFns.length) return [];
-
+    const { c: cache } = wreq;
     const matches: SearchResult[] = [];
 
     for (const id in cache) {
@@ -75,19 +47,12 @@ function searchExports(filterFns: ((mod: any) => boolean)[]): SearchResult[] {
         if (!mod?.loaded || mod.exports == null) continue;
 
         try {
-            if (filterFns.every(fn => fn(mod.exports))) {
-                matches.push({ id, factory: wreq.m[id] });
-                continue;
-            }
-
+            if (filterFns.every(fn => fn(mod.exports))) { matches.push({ id, factory: wreq.m[id] }); continue; }
             if (typeof mod.exports !== "object") continue;
 
             for (const key in mod.exports) {
                 const nested = mod.exports[key];
-                if (nested && filterFns.every(fn => fn(nested))) {
-                    matches.push({ id, factory: wreq.m[id] });
-                    break;
-                }
+                if (nested && filterFns.every(fn => fn(nested))) { matches.push({ id, factory: wreq.m[id] }); break; }
             }
         } catch { }
     }
@@ -95,7 +60,14 @@ function searchExports(filterFns: ((mod: any) => boolean)[]): SearchResult[] {
     return matches;
 }
 
-export function logModules(matches: SearchResult[]) {
-    if (!matches.length) return;
-    logger.log(`Found ${matches.length} module(s):`, matches.map(m => m.factory));
-}
+export const searchMethods = {
+    findByCode: (queries: string[]) => searchFactories(queries),
+    findByProps: (queries: string[]) => searchExports(queries.map(q => filters.byProps(q))),
+    findComponentByCode: (queries: string[]) => searchExports(queries.map(q => filters.componentByCode(q))),
+    findByModuleId: (queries: string[]): SearchResult[] => {
+        const factory = wreq.m[queries[0]];
+        return factory != null ? [{ id: queries[0], factory }] : [];
+    }
+};
+
+export type SearchMethod = keyof typeof searchMethods;

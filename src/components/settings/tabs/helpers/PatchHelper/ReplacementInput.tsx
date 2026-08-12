@@ -17,9 +17,8 @@
 */
 
 import { Margins } from "@components/margins";
-import { Paragraph } from "@components/Paragraph";
 import { Switch } from "@components/Switch";
-import { Forms, Parser, TextInput, useEffect, useState } from "@webpack/common";
+import { Forms, Parser, Text, TextInput, useEffect, useState } from "@webpack/common";
 
 const RegexGuide = {
     "\\i": "Special regex escape sequence that matches identifiers (varnames, classnames, etc.)",
@@ -75,9 +74,9 @@ export function ReplacementInput({ replacement, setReplacement, replacementError
                     <Forms.FormTitle className={Margins.top8}>Cheat Sheet</Forms.FormTitle>
 
                     {Object.entries(RegexGuide).map(([placeholder, desc]) => (
-                        <Paragraph key={placeholder}>
+                        <Text key={placeholder}>
                             {Parser.parse("`" + placeholder + "`")}: {desc}
-                        </Paragraph>
+                        </Text>
                     ))}
                 </div>
             )}

@@ -16,9 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Paragraph } from "@components/Paragraph";
-import { Patch, ReplaceFn } from "@utils/types";
-import { TextArea, useEffect, useRef, useState } from "@webpack/common";
+import type { Patch, ReplaceFn } from "@utils/types";
+import { Text, TextArea, useEffect, useRef, useState } from "@webpack/common";
 
 export interface FullPatchInputProps {
     setFind(v: string): void;
@@ -94,7 +93,7 @@ export function FullPatchInput({ setFind, setParsedFind, setMatch, setReplacemen
                 onChange={setPatch}
                 onBlur={update}
             />
-            {error !== "" && <Paragraph style={{ color: "var(--text-feedback-critical, var(--text-danger))" }}>{error}</Paragraph>}
+            {error !== "" && <Text style={{ color: "var(--text-feedback-critical, var(--text-danger))" }}>{error}</Text>}
         </>
     );
 }

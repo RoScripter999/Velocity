@@ -17,11 +17,10 @@
 */
 
 import { Margins } from "@components/margins";
-import { Paragraph } from "@components/Paragraph";
 import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
 import { makeCodeblock } from "@utils/text";
-import { ReplaceFn } from "@utils/types";
-import { Buttons, Forms, Parser, useMemo, useState } from "@webpack/common";
+import type { ReplaceFn } from "@utils/types";
+import { Buttons, Forms, Parser, Text, useMemo, useState } from "@webpack/common";
 import type { Change } from "diff";
 
 // Do not include diff in non dev builds (side effects import)
@@ -155,9 +154,9 @@ export function PatchPreview({ module, match, replacement, setReplacementError }
             )}
 
             {compileResult && (
-                <Paragraph color={compileResult[0] ? "status-positive" : "text-feedback-critical"}>
+                <Text color={compileResult[0] ? "status-positive" : "text-feedback-critical"}>
                     {compileResult[1]}
-                </Paragraph>
+                </Text>
             )}
         </>
     );

@@ -24,7 +24,7 @@ import { SettingsTab } from "@components/settings/tabs/SectionSettings";
 import { debounce } from "@shared/debounce";
 import { copyWithToast } from "@utils/discord";
 import { stripIndent } from "@utils/text";
-import { ReplaceFn } from "@utils/types";
+import type { ReplaceFn } from "@utils/types";
 import { search } from "@webpack";
 import { Buttons, Forms, TextInput, useMemo, useState } from "@webpack/common";
 

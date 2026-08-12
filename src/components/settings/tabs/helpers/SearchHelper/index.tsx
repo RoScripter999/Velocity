@@ -18,243 +18,178 @@
 
 import { get, set } from "@api/DataStore";
 import { CodeBlock } from "@components/CodeBlock";
-import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
-import { SectionHeader } from "@components/settings/tabs/SectionHeader";
-import { SettingsTab } from "@components/settings/tabs/SectionSettings";
-import { copyWithToast } from "@utils/discord";
-import { classes } from "@utils/misc";
-import { Buttons, Forms, Icons, Select, Text, TextInput, Tooltip, useEffect, useMemo, useState } from "@webpack/common";
+import { SettingsTab } from "@components/settings";
+import { copyToClipboard } from "@utils/misc";
+import { Buttons, Field, Forms, Icons, Select, Text, TextInput, useEffect, useState } from "@webpack/common";
 
-import { findByCode, findByComponentCode, findByModuleId, findByProps, logModules, type SearchResult } from "./utils";
+import { type SearchMethod, searchMethods, type SearchResult } from "./utils";
 
-enum SearchStatus {
-    CODE,
-    PROPS,
-    COMPONENT_BY_CODE,
-    MODULE_ID
-}
+
+type SearchFilters = {
+    queries: string[];
+    type: SearchMethod;
+};
+
+const defaultFilters: SearchFilters = {
+    queries: [""],
+    type: "findByCode"
+};
 
 interface FindResult {
     error?: string;
     matches?: SearchResult[];
 }
 
-const searchTypeHelpText: Record<SearchStatus, string> = {
-    [SearchStatus.CODE]: "Find modules containing all snippets in their source code.",
-    [SearchStatus.PROPS]: "Find modules that expose all provided property names.",
-    [SearchStatus.COMPONENT_BY_CODE]: "Find React components by matching code fragments.",
-    [SearchStatus.MODULE_ID]: "Resolve an exact webpack module id."
-};
+function performSearch(queries: string[], method: SearchMethod): FindResult {
+    const clean = queries.map(q => q.trim()).filter(Boolean);
+    if (!clean.length) return {};
 
-function performSearch(filters: string[], searchType: SearchStatus): FindResult {
-    const cleanFilters = filters.map(q => q.trim()).filter(Boolean);
-    if (!cleanFilters.length) return {};
+    const matches = searchMethods[method](clean);
 
-    let matches: SearchResult[] = [];
-
-    switch (searchType) {
-        case SearchStatus.CODE:
-            matches = findByCode(cleanFilters);
-            break;
-        case SearchStatus.PROPS:
-            matches = findByProps(cleanFilters);
-            break;
-        case SearchStatus.COMPONENT_BY_CODE:
-            matches = findByComponentCode(cleanFilters);
-            break;
-        case SearchStatus.MODULE_ID:
-            const result = findByModuleId(cleanFilters[0]);
-            if (result) matches = [result];
-            break;
-    }
-
-    if (matches.length === 0) {
-        return { error: searchType === SearchStatus.MODULE_ID ? "Module ID not found" : "No modules found" };
-    }
-
-    if (matches.length > 1) {
-        return {
-            matches,
-            error: `Found ${matches.length} modules`
-        };
-    }
+    if (!matches.length)
+        return { error: method === "findByModuleId" ? "Module ID not found" : "No modules found" };
+    if (matches.length > 1)
+        return { matches, error: `Found ${matches.length} modules` };
 
     return { matches };
 }
 
 function SearchHelper() {
-    const [filters, setFilters] = useState<string[]>([""]);
-    const [searchType, setSearchType] = useState<SearchStatus>(SearchStatus.CODE);
+    const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
     const [result, setResult] = useState<FindResult>({});
-    const normalizedFilters = useMemo(() => filters.map(f => f.trim()).filter(Boolean), [filters]);
 
     useEffect(() => {
         get("SearchHelper").then(saved => {
-            if (saved?.filters) {
-                setFilters(saved.filters);
-                setSearchType(saved.searchType);
-                setResult(performSearch(saved.filters, saved.searchType));
-            }
+            if (!saved?.filters) return;
+            setFilters(saved.filters);
+            setResult(performSearch(saved.filters.queries, saved.filters.type));
         });
     }, []);
 
     useEffect(() => {
-        set("SearchHelper", { filters, searchType });
-    }, [filters, searchType]);
+        set("SearchHelper", { filters });
+    }, [filters]);
 
-    const updateFilter = (index: number, value: string | null) => {
-        const newFilters = value === null
-            ? filters.filter((_, i) => i !== index).concat([])
-            : filters.map((f, i) => i === index ? value : f);
-        if (newFilters.length < 1) newFilters.push("");
-
-        setFilters(newFilters);
-        setResult(performSearch(newFilters, searchType));
+    const update = (next: SearchFilters) => {
+        setFilters(next);
+        setResult(performSearch(next.queries, next.type));
     };
 
-    const changeSearchType = (type: SearchStatus) => {
-        setSearchType(type);
-        setResult(performSearch(filters, type));
-    };
-
-    const reset = () => {
-        const nextFilters = [""];
-        setFilters(nextFilters);
-        setSearchType(SearchStatus.CODE);
-        setResult({});
+    const updateQuery = (index: number, value: string | null) => {
+        const queries = value === null
+            ? filters.queries.filter((_, i) => i !== index)
+            : filters.queries.map((q, i) => i === index ? value : q);
+        update({ ...filters, queries: queries.length ? queries : [""] });
     };
 
     const singleMatch = result.matches?.length === 1 ? result.matches[0] : null;
-    const hasStatus = !!result.error || !!singleMatch;
-    const hasResultSet = (result.matches?.length ?? 0) > 0;
-    const canLog = hasResultSet && normalizedFilters.length > 0;
 
     return (
         <SettingsTab>
-            <SectionHeader
-                title="Search by"
-                tooltip={searchTypeHelpText[searchType]}
-                description="Choose a lookup strategy, then add one or more filters."
-            />
-            <Select
-                options={[
-                    { label: "findByCode", value: SearchStatus.CODE },
-                    { label: "findByProps", value: SearchStatus.PROPS },
-                    { label: "findComponentByCode", value: SearchStatus.COMPONENT_BY_CODE },
-                    { label: "findModuleId", value: SearchStatus.MODULE_ID }
-                ]}
-                value={searchType}
-                onSelectionChange={changeSearchType}
-                formatOption={option => ({ ...option, id: option.value })}
-            />
+            <section>
+                <Select
+                    label="Search Method"
+                    description="Search method of the module"
+                    options={Object.keys(searchMethods).map(key => ({ label: key, value: key }))}
+                    value={filters.type}
+                    onSelectionChange={val => update({ queries: [""], type: val })}
+                    formatOption={option => ({ ...option, id: option.value })}
+                />
+            </section>
 
             <Forms.FormDivider gap={20} />
 
-            <SectionHeader
-                title="Filters"
-                tooltip="Multiple filters are AND-matched together."
-                description={searchType === SearchStatus.MODULE_ID
-                    ? "Only the first input is used for module id search."
-                    : "All non-empty filters are applied."}
-                gap={{ top: 8 }}
-            />
+            <section>
+                <Field label="Search Params">
+                    {({ controlId }) => {
+                        switch (filters.type) {
+                            case "findByCode":
+                            case "findByProps":
+                            case "findComponentByCode":
+                                return filters.queries.map((query, index) => (
+                                    <TextInput
+                                        type="text"
+                                        key={index}
+                                        id={index === filters.queries.length - 1 ? controlId : undefined}
+                                        autoFocus
+                                        value={query}
+                                        onChange={v => updateQuery(index, v)}
+                                        placeholder="Param"
+                                        trailing={index > 0 ? { type: "icon", tooltip: "Remove", icon: () => <Icons.TrashIcon color="var(--icon-feedback-critical)" size="sm" />, onClick: () => updateQuery(index, null) } : undefined}
+                                    />
+                                ));
+                            case "findByModuleId":
+                                return (
+                                    <TextInput
+                                        type="number"
+                                        id={controlId}
+                                        autoFocus
+                                        value={filters.queries[0]}
+                                        onChange={v => updateQuery(0, v)}
+                                        placeholder="Param"
+                                    />
+                                );
+                            default:
+                                return <Text>No type found</Text>;
+                        }
+                    }}
+                </Field>
 
-            {filters.map((query, index) => (
-                <Flex gap="8px" className={Margins.bottom8} key={index}>
-                    <TextInput
-                        type="text"
-                        value={query}
-                        onChange={v => updateFilter(index, v)}
-                        placeholder="Filter"
+                <Buttons.ButtonGroup direction="horizontal" className={Margins.top8}>
+                    <Buttons.Button
+                        onClick={() => update({ ...filters, queries: [...filters.queries, ""] })}
+                        variant="secondary"
+                        size="sm"
+                        text="Add Filter"
+                        disabled={filters.type === "findByModuleId" || !filters.queries[filters.queries.length - 1].length}
                     />
-                    {index > 0 && (
+                    {result.matches && result.matches.length > 0 && (
                         <Buttons.Button
-                            icon={() => <Icons.TrashIcon color="currentColor" />}
-                            variant="critical-secondary"
-                            onClick={() => updateFilter(index, null)}
-                        />
-                    )}
-                </Flex>
-            ))}
-
-            <Flex gap="8px" flexWrap="wrap" alignItems="center" className={classes(Margins.bottom8, Margins.top8)}>
-                <Tooltip text="Append one more filter row">
-                    {tooltipProps => (
-                        <Buttons.Button
-                            {...tooltipProps}
-                            onClick={() => setFilters([...filters, ""])}
-                            icon={() => <Icons.PlusLargeIcon size="refresh_sm" color="currentColor" />}
-                            size="sm"
-                            text="Add Filter"
-                        />
-                    )}
-                </Tooltip>
-
-                <Tooltip text={canLog ? "Send matches to console" : "Run a search first"}>
-                    {tooltipProps => (
-                        <Buttons.Button
-                            {...tooltipProps}
                             variant="active"
-                            icon={() => <Icons.TopicsIcon size="refresh_sm" color="currentColor" />}
                             size="sm"
-                            disabled={!canLog}
-                            onClick={() => canLog && logModules(result.matches!)}
+                            onClick={() => console.log(result.matches?.map(m => m.factory))}
                             text={singleMatch ? "Print" : "Log All"}
                         />
                     )}
-                </Tooltip>
+                </Buttons.ButtonGroup>
 
-                <Buttons.Button
-                    variant="secondary"
-                    size="sm"
-                    text="Reset"
-                    onClick={reset}
-                />
-            </Flex>
+                {(!!result.error || !!singleMatch) && (
+                    <div className={Margins.top16} style={{ color: result.error ? "var(--text-feedback-critical)" : "var(--text-feedback-info)" }}>
+                        {(() => {
+                            const Icon = result.error ? Icons.CircleErrorIcon : Icons.TopicsIcon;
+                            return <Icon size="sm" color="currentColor" style={{ verticalAlign: "middle", marginRight: 6 }} />;
+                        })()}
+                        <Text color="currentColor" style={{ display: "inline" }}>
+                            {result.error || "Find: OK"}
+                        </Text>
+                    </div>
+                )}
+            </section>
 
-            {hasStatus && (
-                <div
-                    style={{
-                        color: result.error ? "var(--text-feedback-critical)" : "var(--text-feedback-info)"
-                    }}
-                >
-                    {(() => {
-                        const Icon = result.error ? Icons.CircleErrorIcon : Icons.TopicsIcon;
-                        return (
-                            <Icon
-                                size="sm"
-                                color="currentColor"
-                                style={{ verticalAlign: "middle", marginRight: 6 }}
-                            />
-                        );
-                    })()}
-                    <Text color="currentColor" style={{ display: "inline" }}>
-                        {result.error || "Find: OK"}
-                    </Text>
-                </div>
-            )}
+            {singleMatch && <Forms.FormDivider gap={8} />}
 
             {singleMatch && (
-                <>
-                    <Forms.FormDivider className={Margins.top16} />
-                    <SectionHeader
-                        title={`Module ${String(singleMatch.id)}`}
-                        tooltip="Single module result preview."
-                        className={Margins.top16}
-                    />
-                    <CodeBlock lang="js" content={String(singleMatch.factory)} />
-                    <Flex className={Margins.top8} flexWrap="wrap" gap="8px">
+                <section>
+                    <Text tag="h2">Quick Actions</Text>
+                    <Buttons.ButtonGroup direction="horizontal" className={Margins.top8}>
                         <Buttons.Button
                             text="Copy Module Code"
-                            onClick={() => copyWithToast(String(singleMatch.factory))}
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => copyToClipboard(singleMatch.factory.toString())}
                         />
                         <Buttons.Button
                             text="Copy Module ID"
-                            onClick={() => copyWithToast(String(singleMatch.id))}
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => copyToClipboard(singleMatch.id.toString())}
                         />
-                    </Flex>
-                </>
+                    </Buttons.ButtonGroup>
+                    <Text className={Margins.top8} tag="h2">Module</Text>
+
+                    <CodeBlock lang="js" content={String(singleMatch.factory)} />
+                </section>
             )}
         </SettingsTab>
     );
