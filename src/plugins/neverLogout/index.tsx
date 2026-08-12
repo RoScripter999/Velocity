@@ -221,7 +221,7 @@ export default definePlugin({
         },
 
         {
-            find: "UserSettingsRoot_buildLayout",
+            find: ".UTILITY_SECTION,{",
             lazy: true,
             replacement: {
                 match: /(\i\.\i\.UTILITY_SECTION,\{[\s\S]*?buildLayout:\(\)=>\[)(\i(?:,\i)*)(\])/,
