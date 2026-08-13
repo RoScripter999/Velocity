@@ -66,6 +66,7 @@ export interface SectionNode extends LayoutNode {
 export interface SidebarItemNode extends LayoutBuilderNode, BadgesNode {
     type: LayoutType.SIDEBAR_ITEM;
     useTitle(): ReactNode | string;
+    /** If any other {@link ContentNode node} is rendered, will result in a `[SettingsDirectory] key is not for a panel: ${KEY}` error. */
     buildLayout(): PanelNode[];
     usePredicate?(): boolean;
     icon: ComponentType<any>;
@@ -77,8 +78,8 @@ export interface SidebarItemNode extends LayoutBuilderNode, BadgesNode {
 }
 
 /**
- * Only renders if there is {@link CategoryNode} in {@link buildLayout}.
- * Any other {@link ContentNode node} will result in a `Panels must have a list of categories or a list of tabs` crash.
+ * Only renders if there is {@link CategoryNode} in {@link buildLayout} or {@link layout}.
+ * Any other {@link ContentNode node} will result in a `Panels must have a list of categories` crash.
  *
  * {@link buildLayout} Gets converted into "layout" at runtime, Using "layout" will be the same as {@link buildLayout}.
  */
@@ -89,8 +90,10 @@ export interface PanelNode extends LayoutBuilderNode {
         component: ComponentType<any>;
         sticky?: boolean;
     };
+    /** Using layout works the same as {@link buildLayout} */
+    layout?: CategoryNode[];
     useTitle(): ReactNode;
-    buildLayout(): (CategoryNode | TabItemNode)[];
+    buildLayout?(): CategoryNode[];
     useInlineNotice?: () => InlineNoticeNode[];
     useObscuredNotice?: () => ComponentType<any>;
 }
@@ -132,9 +135,8 @@ export interface CategoryNode extends LayoutBuilderNode, BadgesNode {
         } & UseIconsNode;
 
     /**
-     * @ignore Only use when rendering category inside a {@link TabItemNode}.
-     * Using a {@link layout} outside of a {@link TabItemNode} will result in a `{@link type 10} nodes should never be rendered directly` crash.
-     * Using {@link buildLayout} inside a {@link TabItemNode} will result in a `Cannot read properties of undefined (reading 'map')` crash.
+     * Using layout optionally works as {@link buildLayout}.
+     * However, if a {@link NestedPanelNode} is rendered within {@link layout} it will cause a crash.
      */
     layout?: ContentNode[];
     icon?: ComponentType<any>;
@@ -190,18 +192,6 @@ export interface FieldSetNode extends LayoutNode {
     layout: ContentNode[];
     variant?: "default" | "compact";
     isTitleHiddenVisually?: boolean;
-}
-
-/**
- * Nodes are rendered in the {@link layout} and **MUST** use "layout", NOT buildLayout.
- * If {@link TabItemNode} is rendered within a {@link CategoryNode} It would cause the {@link type 10} nodes error
- */
-export interface TabItemNode extends LayoutNode {
-    type: LayoutType.TAB_ITEM;
-    getTitle(): string;
-    onItemSelect?: () => void;
-    /** Does not require to have a {@link CategoryNode} on top level. Only {@link PanelNode panels} do. */
-    layout: ContentNode[];
 }
 
 /**
@@ -417,5 +407,4 @@ export type ContentNode =
     | RelatedNode
     | CardNode
     | FieldSetNode
-    | TabItemNode
     | SplitNode;

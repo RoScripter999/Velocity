@@ -236,8 +236,18 @@ export default definePlugin({
                 Component: BackupAndRestoreTab,
                 Icon: Icons.RefreshIcon
             }),
-            IS_DEV && DevTools?.(),
-            IS_DEV && HelpersTab?.(),
+            IS_DEV && DevTools && this.buildEntry({
+                key: "velocity_developer_tools",
+                title: "Developer Tools",
+                Component: DevTools,
+                Icon: Icons.ScienceIcon
+            }),
+            IS_DEV && HelpersTab && this.buildEntry({
+                key: "velocity_helpers",
+                title: "Helpers",
+                Component: HelpersTab,
+                Icon: Icons.WrenchIcon
+            }),
             ...this.customEntries
         ].filter(isTruthy);
 
