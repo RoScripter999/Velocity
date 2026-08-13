@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, ComponentType, CSSProperties, KeyboardEvent, MouseEvent, PropsWithChildren, Ref } from "react";
 import { TextVariant } from "../components";
 
-export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive";
+export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive" | "icon-only" | "color-mix";
 
 type Booleanish = boolean | "true" | "false";
 
@@ -17,7 +17,7 @@ interface ClickEvents {
 }
 
 export interface ButtonsProps {
-    Button: ClickEvents & {
+    Button: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "role" | "type" | "disabled" | "className" | "style"> & {
         /** @ignore You probably dont need to use this. @default button */
         role?: string;
         /** Background color variant of the button. @default primary */
@@ -48,7 +48,7 @@ export interface ButtonsProps {
         style?: CSSProperties;
         buttonRef?: Ref<HTMLButtonElement>;
     };
-    TextButton: ClickEvents & {
+    TextButton: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "role" | "type" | "className" | "style"> & {
         /** Limits how many downlines the text creates when too long. */
         lineClamp?: number;
         /** If not provided nothing renders. */
@@ -61,20 +61,8 @@ export interface ButtonsProps {
         disabled?: Booleanish;
         buttonRef?: Ref<HTMLButtonElement>;
     };
-    IconButton: ClickEvents & {
-        role?: ButtonHTMLAttributes;
-        /** Background color variant of the button. @default primary */
-        variant?: "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "icon-only";
-        /** Size of the button @default md */
-        size?: "xs" | "sm" | "md";
-        icon?: ComponentType<any>;
-        disabled?: Booleanish;
-        /** Creates a spinning animation on the button for loading animations */
-        loading?: Booleanish;
-        focusProps?: Record<string, any>;
-        buttonRef?: Ref<HTMLButtonElement>;
-    };
-    ButtonGroup: {
+    IconButton: Omit<ButtonsProps["Button"], "text" | "fullWidth">;
+    ButtonGroup: Omit<HTMLAttributes<HTMLElement>, "className" | "style"> & {
         /** Which HTML element the {@link ButtonGroup} is. @default div  */
         as?: "div" | "span" | "section";
         /** Gap between each element. Note: this is NOT {@link CSSProperties}. @default "8" */

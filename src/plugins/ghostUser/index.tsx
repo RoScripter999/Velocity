@@ -24,7 +24,7 @@ import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import type { ButtonVariant, Channel } from "@velocity-types";
 import { findComponentByCodeLazy } from "@webpack";
-import { Alerts, Menu, showToast, Toasts, UserStore } from "@webpack/common";
+import { ConfirmModal, Menu, openModal, showToast, Toasts, UserStore } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 import { openGhostModal } from "./ghostModal";
@@ -151,13 +151,11 @@ export default definePlugin({
                 subtitle="You might hate this person!"
                 onButtonClick={() => {
                     const userId = channel.recipients[0];
-                    Alerts.show({
-                        title: "Un-Ghost User",
-                        body: "Are you sure you want to un-ghost this user?",
-                        cancelText: "Cancel",
-                        confirmText: "Un-Ghost",
-                        onConfirm: () => unGhostUser(userId)
-                    });
+                    openModal(props => (
+                        <ConfirmModal {...props} title="Un-Ghost User" confirmText="Un-Ghost" onConfirm={() => unGhostUser(userId)}>
+                            Are you sure you want to un-ghost this user?
+                        </ConfirmModal>
+                    ));
                 }}
             />
         );

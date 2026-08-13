@@ -16,7 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { ConstEnumToRuntimeEnum } from "@utils/types";
 import type * as t from "@velocity-types";
+import type * as enums from "@velocity-types/enums";
 import { _resolveReady, filters, findByCodeLazy, findByPropsLazy, findLazy, mapMangledModuleLazy, waitFor } from "@webpack";
 import type * as TSPattern from "ts-pattern";
 
@@ -63,8 +65,9 @@ waitFor(["fromTimestamp", "extractTimestamp"], m => SnowflakeUtils = m);
 
 export let Parser: t.Parser;
 waitFor("parseTopic", m => Parser = m);
-export let Alerts: t.Alerts;
-waitFor(["show", "close"], m => Alerts = m);
+
+export let LayoutType: ConstEnumToRuntimeEnum<typeof enums.LayoutType>;
+waitFor(["ROOT", "CATEGORY"], m => LayoutType = m);
 
 const ToastType = {
     MESSAGE: "message",

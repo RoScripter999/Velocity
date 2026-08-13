@@ -20,7 +20,7 @@ import { requestCspOverride } from "@api/Csp";
 import * as DataStore from "@api/DataStore";
 import { showNotification } from "@api/Notifications";
 import { Settings } from "@api/Settings";
-import { Alerts, OAuth2AuthorizeModal, openModal, UserStore } from "@webpack/common";
+import { ConfirmModal, OAuth2AuthorizeModal, openModal, UserStore } from "@webpack/common";
 
 import { Logger } from "./Logger";
 import { relaunch } from "./native";
@@ -42,13 +42,17 @@ export async function checkCloudUrlCsp() {
 
     const res = await requestCspOverride(Settings.cloud.url, ["connect-src"], "Cloud Sync");
     if (res === "ok") {
-        Alerts.show({
-            title: "Cloud Integration enabled",
-            body: `${host} has been added to the whitelist. Please restart the app for the changes to take effect.`,
-            confirmText: "Restart now",
-            cancelText: "Later!",
-            onConfirm: relaunch
-        });
+        openModal(props => (
+            <ConfirmModal
+                {...props}
+                title="Cloud Integration enabled"
+                confirmText="Restart now"
+                cancelText="Later!"
+                onConfirm={relaunch}
+            >
+                {host} has been added to the whitelist. Please restart the app for the changes to take effect.
+            </ConfirmModal>
+        ));
     }
     return false;
 }

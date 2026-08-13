@@ -69,33 +69,6 @@ export type Parser = Record<
     defaultReactRuleOptions: Record<string, any>;
     combineAndInjectMentionRule(rules: Record<string, any>, mentionRule: Record<string, any>): Record<string, any>;
 };
-export interface Alerts {
-    show(alert: {
-        title: any;
-        body: ReactNode;
-        confirmVariant?: ButtonVariant;
-        /** Text of the cancel button, If not provided it wont render. */
-        cancelText?: string;
-        /** Text of the confirm button, If not provided it wont render. */
-        confirmText?: string;
-        onCancel?(): void;
-        onConfirm?(): void;
-        onCloseCallback?(): void;
-        contextKey?: string;
-    }): void;
-    confirm(alert: {
-        title: any;
-        body: ReactNode;
-        confirmVariant?: ButtonVariant;
-        cancelText?: string;
-        confirmText?: string;
-        onCancel?(): void;
-        onCloseCallback?(): void;
-        contextKey?: string;
-    }): Promise<boolean>;
-    /** This is a noop, it does nothing. */
-    close(): void;
-}
 
 export interface SnowflakeUtils {
     fromTimestamp(timestamp: number): string;

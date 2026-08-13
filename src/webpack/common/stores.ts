@@ -18,7 +18,7 @@
 
 import type { ConstEnumToRuntimeEnum } from "@utils/types";
 import type * as t from "@velocity-types";
-import * as enums from "@velocity-types/enums";
+import type * as enums from "@velocity-types/enums";
 import { findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import { waitForStore } from "./internal";

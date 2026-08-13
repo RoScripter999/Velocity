@@ -24,8 +24,8 @@ import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { OptionType } from "@utils/types";
 import type { LayoutNode, PanelNode, SectionNode, SidebarItemNode } from "@velocity-types";
-import { BadgeType, LayoutType, NestedPanelLeadingDecorationType } from "@velocity-types/enums";
-import { Icons } from "@webpack/common";
+import { BadgeType, NestedPanelLeadingDecorationType } from "@velocity-types/enums";
+import { Icons, LayoutType } from "@webpack/common";
 import type { ComponentType, PropsWithChildren } from "react";
 
 import gitHash from "~git-hash";
@@ -152,7 +152,7 @@ export default definePlugin({
                 key: "velocity_themes",
                 type: LayoutType.SIDEBAR_ITEM,
                 useTitle: () => "Themes",
-                icon: () => <Icons.PaintbrushThickIcon size="refresh_sm" color="currentColor" />,
+                icon: Icons.PaintbrushThickIcon,
                 buildLayout: () => [
                     {
                         key: "themes_panel",

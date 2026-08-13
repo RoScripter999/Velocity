@@ -24,7 +24,6 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { PluginsIcon } from "@components/Icons";
 import { Margins } from "@components/margins";
-import { Paragraph } from "@components/Paragraph";
 import { openPluginModal, openSettingsTabModal, UpdaterTab } from "@components/settings";
 import { Span } from "@components/Span";
 import SettingsPlugin from "@plugins/_core/settings";
@@ -41,7 +40,7 @@ import definePlugin from "@utils/types";
 import { checkForUpdates, isOutdated, update } from "@utils/updater";
 import type { Channel, Message, ModalPropsRender } from "@velocity-types";
 import { CloudUploadPlatform, MessageFlags } from "@velocity-types/enums";
-import { Alerts, Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, MessageStore, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Toasts, Tooltip, useEffect, UserStore } from "@webpack/common";
+import { Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, MessageStore, Modal, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Toasts, Tooltip, useEffect, UserStore } from "@webpack/common";
 import type { JSX } from "react";
 
 import gitHash from "~git-hash";
@@ -153,19 +152,20 @@ function generatePluginList(): PluginList {
     const user = UserStore.getCurrentUser();
 
     if (enabledPlugins.length > 100 && !isPluginDev(user.id)) {
-        Alerts.show({
-            title: "Warning: High Plugin Count",
-            body: <div>
-                <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
-                    <img src="https://media.tenor.com/QtGqjwBpRzwAAAAi/wumpus-dancing.gif" />
+        openModal(props => (
+            <Modal {...props} title="Warning: High Plugin Count">
+                <div>
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                        <img src="https://media.tenor.com/QtGqjwBpRzwAAAAi/wumpus-dancing.gif" />
+                    </div>
+                    <Text>You have more than 100 plugins enabled.</Text>
+                    <Text>Due to the sheer amount of plugins, you may not receive support.</Text>
+                    <Text>Your issue is likely caused by plugin conflicts.</Text>
+                    <Text>Please consider disabling some plugins to troubleshoot.</Text>
+                    <Text className={Margins.top8}>Your plugin list will be sent as a text file.</Text>
                 </div>
-                <Paragraph>You have more than 100 plugins enabled.</Paragraph>
-                <Paragraph>Due to the sheer amount of plugins, you may not receive support.</Paragraph>
-                <Paragraph>Your issue is likely caused by plugin conflicts.</Paragraph>
-                <Paragraph>Please consider disabling some plugins to troubleshoot.</Paragraph>
-                <Paragraph className={Margins.top8}>Your plugin list will be sent as a text file.</Paragraph>
-            </div>
-        });
+            </Modal>
+        ));
 
         const lines = [
             `Enabled Stock Plugins (${enabledStockPlugins.length}):`,
@@ -241,8 +241,8 @@ function DevBuildConfirmModal(props: ModalPropsRender) {
             }}
         >
             <div>
-                <Paragraph>You are using a custom build of Velocity, which we do not provide support for!</Paragraph>
-                <Paragraph className={Margins.top8}>We only provide support for official builds</Paragraph>
+                <Text>You are using a custom build of Velocity, which we do not provide support for!</Text>
+                <Text className={Margins.top8}>We only provide support for official builds</Text>
                 <Text variant="text-md/bold" className={Margins.top8}>You will be banned from receiving support if you ignore this rule.</Text>
             </div>
         </ConfirmModal>
@@ -333,9 +333,9 @@ export default definePlugin({
                             onConfirm={forceUpdate}
                         >
                             <div>
-                                <Paragraph>You are using an outdated version of Velocity! Chances are, your issue is already fixed.</Paragraph>
-                                <Paragraph className={Margins.top8}>Please first update before asking for support!</Paragraph>
-                                <Paragraph className={Margins.top8}>If you know what you're doing or cannot update, you can dismiss this prompt.</Paragraph>
+                                <Text>You are using an outdated version of Velocity! Chances are, your issue is already fixed.</Text>
+                                <Text className={Margins.top8}>Please first update before asking for support!</Text>
+                                <Text className={Margins.top8}>If you know what you're doing or cannot update, you can dismiss this prompt.</Text>
                             </div>
                         </ConfirmModal>
                     ));
@@ -350,10 +350,10 @@ export default definePlugin({
                 openModal(props => (
                     <ConfirmModal {...props} title="Hold on!" confirmText="OK" variant="primary">
                         <div>
-                            <Paragraph>You are using an externally updated Velocity version, which we do not provide support for!</Paragraph>
-                            <Paragraph className={Margins.top8}>
+                            <Text>You are using an externally updated Velocity version, which we do not provide support for!</Text>
+                            <Text className={Margins.top8}>
                                 Please either switch to an officially supported version of Velocity, or contact your package maintainer for support instead.
-                            </Paragraph>
+                            </Text>
                         </div>
                     </ConfirmModal>
                 ));

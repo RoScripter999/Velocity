@@ -38,14 +38,14 @@ export const Forms: t.Forms = {
 
 export const Buttons: t.Buttons = {
     Button: waitForComponent("Button", filters.componentByCode('"data-mana-component"', "lineClamp:1")),
-    IconButton: waitForComponent("IconButton", filters.componentByCode('"data-mana-component"', "iconOpticalOffsetMargin")),
+    IconButton: waitForComponent("IconButton", filters.componentByCode(/,{...\i\,text/, "fullWidth:!")),
     TextButton: waitForComponent("TextButton", filters.componentByCode('"data-mana-component":"text-button"', "variant:")),
     ButtonGroup: waitForComponent("ButtonGroup", filters.componentByCode('"data-align"', '"data-direction"'))
 };
 
 export const Select = waitForComponent<t.Select>("Select", filters.componentByCode('"data-mana-component":"select"'));
 
-export const CheckboxGroup = waitForComponent<t.CheckboxGroup>("Checkbox", filters.componentByCode('"data-mana-component":"checkbox-group"'));
+export const CheckboxGroup = waitForComponent<t.CheckboxGroup>("CheckboxGroup", filters.componentByCode('"data-mana-component":"checkbox-group"'));
 
 export const LoadingIndicator = waitForComponent<t.LoadingIndicator>("LoadingIndicator", filters.componentByCode("wanderingCubes", "spinningCircle"));
 

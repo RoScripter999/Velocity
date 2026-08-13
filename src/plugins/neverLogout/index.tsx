@@ -28,9 +28,8 @@ import { copyWithToast, getIntlMessage } from "@utils/discord";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
 import type { ModalPropsRender, SidebarItemNode } from "@velocity-types";
-import { LayoutType } from "@velocity-types/enums";
 import { findByPropsLazy } from "@webpack";
-import { Avatar, Buttons, ConfirmModal, Icons, IconUtils, Modal, openModal, TextInput, useEffect, UserStore, useState } from "@webpack/common";
+import { Avatar, Buttons, ConfirmModal, Icons, IconUtils, LayoutType, Modal, openModal, TextInput, useEffect, UserStore, useState } from "@webpack/common";
 
 import { autoLogin, getSavedTokens, loginToken, removeUser, saveToken } from "./utils";
 
