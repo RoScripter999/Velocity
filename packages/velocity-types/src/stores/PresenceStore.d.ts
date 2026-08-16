@@ -1,8 +1,10 @@
 import { FluxStore } from "..";
 import { ActivityFlags, ActivityType } from "../../enums";
-import { Status } from '../common';
+import { Activity, Status } from "../common";
 
 export type Platform = "desktop" | "mobile" | "web" | "embedded" | "vr";
+
+export type ClientStatusMap = Partial<Record<Platform, Status>>;
 
 export namespace PresenceStore {
     export interface Activity {
@@ -48,12 +50,6 @@ export namespace PresenceStore {
     export interface ActivityMetadata {
         [key: string]: any;
     }
-
-    export interface ClientStatusData {
-        desktop?: Status;
-        mobile?: Status;
-        web?: Status;
-    }
 }
 
 export class PresenceStore extends FluxStore {
@@ -94,15 +90,15 @@ export class PresenceStore extends FluxStore {
     isMobileOnline(userId: string): boolean;
 
     /** Get client status (desktop/mobile/web) for a user */
-    getClientStatus(userId: string): PresenceStore.ClientStatusData | undefined;
+    getClientStatus(userId: string): ClientStatusMap;
 
     getState(): {
-        presencesForGuilds: Record<string, Record<string, any>>;
-        statuses: Record<string, string>;
+        presencesForGuilds: Record<string, Record<string, { status: Status; activities: PresenceStore.Activity[]; clientStatus: ClientStatusMap; }>>;
+        statuses: Record<string, Status>;
         activities: Record<string, PresenceStore.Activity[]>;
         filteredActivities: Record<string, PresenceStore.Activity[]>;
         hiddenActivities: Record<string, PresenceStore.Activity[]>;
         activityMetadata: Record<string, PresenceStore.ActivityMetadata>;
-        clientStatuses: Record<string, PresenceStore.ClientStatusData>;
+        clientStatuses: Record<string, Status>;
     };
 }
