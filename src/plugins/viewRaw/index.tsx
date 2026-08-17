@@ -162,6 +162,7 @@ export default definePlugin({
         "channel-context": { render: MakeContextCallback("Channel"), required: true },
         "thread-context": { render: MakeContextCallback("Channel"), required: true },
         "message": { render: messageContextCallback, required: true },
+        "message-actions": { render: messageContextCallback, required: true },
         "user-profile-overflow-menu": MakeContextCallback("Profile", props => UserProfileStore.getGuildMemberProfile(props.user?.id, props.guildId) ?? UserProfileStore.getUserProfile(props.user?.id)),
         "gdm-context": { render: MakeContextCallback("Channel"), required: true },
         "user-context": { render: MakeContextCallback("User"), required: true },
