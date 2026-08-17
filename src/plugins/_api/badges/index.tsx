@@ -111,12 +111,12 @@ export default definePlugin({
             find: '"BadgeDirectoryStore"',
             replacement: [
                 {
-                    match: /(\i)\.get\((\i)\);return null!=\i\?Array\.from\(\i\.values\(\)\):\[\]/,
-                    replace: "$1.get($2);return Array.from($self.badgeMaps($1.get($2),$2).values())"
+                    match: /(\i)\.get\((\i)\);return null!=\i\?Array\.from\(\i\.badges\.values\(\)\):\[\]/,
+                    replace: "$1.get($2);return Array.from($self.badgeMaps($1.get($2)?.badges,$2).values())"
                 },
                 {
-                    match: /return null!=(\i)\?(\i)\.get\(\i\)\?\.get\((\i)\):void 0/,
-                    replace: "return null!=$1?$self.badgeMaps($2.get($1),$1)?.get($3):void 0"
+                    match: /return null!=(\i)\?(\i)\.get\(\1\)\?\.badges\.get\((\i)\):void 0/,
+                    replace: "return null!=$1?$self.badgeMaps($2.get($1)?.badges,$1).get($3):void 0"
                 }
             ]
         },
