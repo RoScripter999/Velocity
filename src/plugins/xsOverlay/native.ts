@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createSocket, Socket } from "dgram";
+import { createSocket, type Socket } from "dgram";
 
 let xsoSocket: Socket | null = null;
 

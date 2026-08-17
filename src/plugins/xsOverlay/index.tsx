@@ -18,7 +18,7 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
-import definePlugin, { makeRange, OptionType, PluginNative, ReporterTestable } from "@utils/types";
+import definePlugin, { makeRange, OptionType, type PluginNative, ReporterTestable } from "@utils/types";
 import type { Channel, Embed, GuildMember, MessageAttachment, User } from "@velocity-types";
 import { ChannelType } from "@velocity-types/enums";
 import { findByCodeLazy } from "@webpack";

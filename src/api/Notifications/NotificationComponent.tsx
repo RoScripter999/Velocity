@@ -23,7 +23,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { classes } from "@utils/misc";
 import { useEffect, useMemo, useState, useStateFromStores, WindowStore } from "@webpack/common";
 
-import { NotificationData } from "./Notifications";
+import type { NotificationData } from "./Notifications";
 
 export default ErrorBoundary.wrap(function NotificationComponent({
     title,

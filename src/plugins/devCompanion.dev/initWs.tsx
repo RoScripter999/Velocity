@@ -24,7 +24,7 @@ import { reporterData } from "@debug/reporterData";
 import { getIntlMessageFromHash } from "@utils/discord";
 import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
 import { filters, findAll, search, wreq } from "@webpack";
-import { React, Toasts, useState } from "@webpack/common";
+import { Toasts, useState } from "@webpack/common";
 
 import { CLIENT_VERSION, logger, PORT, settings } from ".";
 import type { Recieve } from "./types";

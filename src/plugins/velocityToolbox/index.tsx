@@ -21,7 +21,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Icon } from "@components/Icons";
 import { renderPopout } from "@plugins/velocityToolbox/menu";
 import { Devs } from "@utils/constants";
-import definePlugin, { IconComponent, OptionType } from "@utils/types";
+import definePlugin, { type IconComponent, OptionType } from "@utils/types";
 import { Popout, useRef, useState } from "@webpack/common";
 
 export const settings = definePluginSettings({

@@ -19,7 +19,7 @@
 import { proxyLazy } from "@utils/lazy";
 import { UserStore, zustandCreate } from "@webpack/common";
 
-import { Decoration, deleteDecoration, getUserDecoration, getUserDecorations, NewDecoration, setUserDecoration } from "../api";
+import { type Decoration, deleteDecoration, getUserDecoration, getUserDecorations, type NewDecoration, setUserDecoration } from "../api";
 import { decorationToAsset } from "../utils/decoration";
 import { useUsersDecorationsStore } from "./UsersDecorationsStore";
 

@@ -24,7 +24,7 @@ import { SYM_LAZY_CACHED, SYM_LAZY_GET } from "@utils/lazy";
 import { sleep } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { canonicalizeMatch, canonicalizeReplace, canonicalizeReplacement } from "@utils/patches";
-import definePlugin, { PluginNative, StartAt } from "@utils/types";
+import definePlugin, { type PluginNative, StartAt } from "@utils/types";
 import * as Webpack from "@webpack";
 import { extract, filters, findAll, findModuleId, search } from "@webpack";
 import * as Common from "@webpack/common";

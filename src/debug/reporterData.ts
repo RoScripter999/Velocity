@@ -19,8 +19,8 @@
 /**
  * this file is needed to avoid an import of plugins in ./runReporter.ts
  */
-import { Patch } from "@utils/types";
-import { TypeWebpackSearchHistory } from "@webpack";
+import type { Patch } from "@utils/types";
+import type { TypeWebpackSearchHistory } from "@webpack";
 
 interface EvaledPatch extends Patch {
     id: PropertyKey;

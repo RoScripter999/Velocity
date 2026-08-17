@@ -19,7 +19,7 @@
 import { ApplicationCommandInputType, ApplicationCommandOptionType } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
-import definePlugin, { PluginNative } from "@utils/types";
+import definePlugin, { type PluginNative } from "@utils/types";
 import { ButtonStyle, ComponentType, SeparatorSpacingSize } from "@velocity-types/enums";
 
 const Native = VelocityNative.pluginHelpers.UrbanDictionary as PluginNative<typeof import("./native")>;

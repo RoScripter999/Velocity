@@ -32,7 +32,7 @@ import { useMaps } from "@utils/react";
 import type { Plugin } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
-import { Icons, Modal, openModal, React, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
+import { Icons, Modal, openModal, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 interface RowProps {

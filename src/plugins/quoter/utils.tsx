@@ -20,7 +20,7 @@ import type { CustomEmoji, User } from "@velocity-types";
 import { IconUtils, UserStore } from "@webpack/common";
 import { applyPalette, GIFEncoder, quantize } from "gifenc";
 
-import { AVATAR_COLUMN_WIDTHS, CANVAS_CONFIG, CanvasConfig, FONT_SIZES, FontSizeCalculation, QuoteAlignment, QuoteAuthorFormat, QuoteAvatarSize, QuoteFont, QuoteFontWeight, QuoteImageOptions, QuoteTextColor, SPACING } from "./types";
+import { AVATAR_COLUMN_WIDTHS, CANVAS_CONFIG, type CanvasConfig, FONT_SIZES, type FontSizeCalculation, QuoteAlignment, QuoteAuthorFormat, type QuoteAvatarSize, type QuoteFont, type QuoteFontWeight, type QuoteImageOptions, type QuoteTextColor, SPACING } from "./types";
 
 const CUSTOM_EMOJI_REGEX = /<a?:(\w+):(\d+)>/g;
 const CUSTOM_EMOJI_PLACEHOLDER = "￼";

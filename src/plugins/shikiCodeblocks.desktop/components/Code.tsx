@@ -20,7 +20,7 @@ import { cl, hljs } from "@plugins/shikiCodeblocks.desktop/utils/misc";
 import type { IThemedToken } from "@vap/shiki";
 import type { JSX } from "react";
 
-import { ThemeBase } from "./Highlighter";
+import type { ThemeBase } from "./Highlighter";
 
 export interface CodeProps {
     theme: ThemeBase;

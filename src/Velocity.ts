@@ -41,7 +41,7 @@ import { SettingsRouter } from "@webpack/common";
 
 import { initChangelog } from "./api/Changelog";
 import { get as dsGet } from "./api/DataStore";
-import { NotificationData, showNotification } from "./api/Notifications";
+import { type NotificationData, showNotification } from "./api/Notifications";
 import { initPluginManager, PMLogger, startAllPlugins } from "./api/PluginManager";
 import { PlainSettings, Settings, SettingsStore } from "./api/Settings";
 import { getCloudSettings, putCloudSettings, shouldCloudSync } from "./api/SettingsSync/cloudSync";

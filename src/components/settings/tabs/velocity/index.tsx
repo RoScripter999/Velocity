@@ -39,7 +39,7 @@ import { shouldShowContributorBadge } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { useCleanupEffect } from "@utils/react";
 import type { SelectOption } from "@velocity-types";
-import { Buttons, ConfirmModal, Forms, GuildMemberStore, HelpMessage, Icons, openModal, Parser, React, Select, Text, useRef, UserStore } from "@webpack/common";
+import { Buttons, ConfirmModal, Forms, GuildMemberStore, HelpMessage, Icons, openModal, Parser, Select, Text, useRef, UserStore } from "@webpack/common";
 import type { ComponentType } from "react";
 
 import { MacOSVibrancySettings } from "./MacVibrancySettings";

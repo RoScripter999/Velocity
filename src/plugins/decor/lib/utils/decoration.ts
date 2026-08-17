@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { AvatarDecoration } from "../../";
-import { Decoration } from "../api";
+import type { AvatarDecoration } from "../../";
+import type { Decoration } from "../api";
 import { SKU_ID } from "../constants";
 
 export function decorationToAsset(decoration: Decoration) {

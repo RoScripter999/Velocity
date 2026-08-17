@@ -18,7 +18,7 @@
 
 import "./ExpandableCard.css";
 
-import { IconProps } from "@velocity-types/src";
+import type { IconProps } from "@velocity-types";
 import { Clickable, Icons, useState } from "@webpack/common";
 import type { ComponentType, PropsWithChildren, ReactNode } from "react";
 

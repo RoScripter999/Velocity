@@ -18,7 +18,7 @@
 
 import { isPluginEnabled } from "@api/PluginManager";
 import OpenInAppPlugin from "@plugins/openInApp";
-import { SpotifyStore as SpotifyStoreNamespace } from "@velocity-types";
+import type { SpotifyStore as SpotifyStoreNamespace } from "@velocity-types";
 import { findByPropsLazy, proxyLazyWebpack } from "@webpack";
 import { Flux, FluxDispatcher } from "@webpack/common";
 

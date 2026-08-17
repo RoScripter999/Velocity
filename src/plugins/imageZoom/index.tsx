@@ -26,7 +26,7 @@ import { createRoot, Menu } from "@webpack/common";
 import type { FunctionComponentElement, JSX, MouseEvent } from "react";
 import type { Root } from "react-dom/client";
 
-import { Magnifier, MagnifierProps } from "./components/Magnifier";
+import { Magnifier, type MagnifierProps } from "./components/Magnifier";
 import { ELEMENT_ID } from "./constants";
 import managedStyle from "./styles.css?managed";
 

@@ -18,7 +18,7 @@
 
 import { NativeSettings } from "@main/settings";
 import { IpcEvents } from "@shared/IpcEvents";
-import { ipcMain, IpcMainInvokeEvent } from "electron";
+import { ipcMain, type IpcMainInvokeEvent } from "electron";
 
 import { CspPolicies, ImageAndCssSrc } from ".";
 

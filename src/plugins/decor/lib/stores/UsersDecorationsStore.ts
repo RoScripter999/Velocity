@@ -21,7 +21,7 @@ import { proxyLazy } from "@utils/lazy";
 import type { User } from "@velocity-types";
 import { useEffect, useState, zustandCreate } from "@webpack/common";
 
-import { AvatarDecoration } from "../../";
+import type { AvatarDecoration } from "../../";
 import { getUsersDecorations } from "../api";
 import { DECORATION_FETCH_COOLDOWN, SKU_ID } from "../constants";
 

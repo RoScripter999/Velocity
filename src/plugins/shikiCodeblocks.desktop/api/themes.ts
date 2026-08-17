@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { IShikiTheme } from "@vap/shiki";
+import type { IShikiTheme } from "@vap/shiki";
 
 export const SHIKI_REPO = "shikijs/textmate-grammars-themes";
 export const SHIKI_REPO_COMMIT = "bc5436518111d87ea58eb56d97b3f9bec30e6b83";

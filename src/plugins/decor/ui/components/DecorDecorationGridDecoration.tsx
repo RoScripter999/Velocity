@@ -19,7 +19,7 @@
 import { ContextMenuApi } from "@webpack/common";
 import type { HTMLProps } from "react";
 
-import { Decoration } from "../../lib/api";
+import type { Decoration } from "../../lib/api";
 import { decorationToAvatarDecoration } from "../../lib/utils/decoration";
 import { DecorationGridDecoration } from ".";
 import DecorationContextMenu from "./DecorationContextMenu";

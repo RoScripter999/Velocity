@@ -26,7 +26,7 @@ import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Channel } from "@velocity-types";
-import { ActiveJoinedThreadsStore, Buttons, ChannelStore, ChannelTypeSets, FluxDispatcher, GuildChannelStore, GuildStore, Menu, Popout, React, ReadStateStore, useRef } from "@webpack/common";
+import { ActiveJoinedThreadsStore, Buttons, ChannelStore, ChannelTypeSets, FluxDispatcher, GuildChannelStore, GuildStore, Menu, Popout, ReadStateStore, useRef } from "@webpack/common";
 
 const cl = classNameFactory("vc-ranb-");
 

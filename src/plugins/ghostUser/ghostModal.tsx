@@ -21,7 +21,7 @@ import { Paragraph } from "@components/Paragraph";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage } from "@utils/discord";
 import { wordsToTitle } from "@utils/text";
-import { DefinedSettings } from "@utils/types";
+import type { DefinedSettings } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { Avatar, ChannelActionCreators, ChannelStore, Clickable, Icons, Modal, openModalLazy, showToast, Text, Toasts, UserStore } from "@webpack/common";
 import type { ReactNode } from "react";

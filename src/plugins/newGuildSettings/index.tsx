@@ -20,7 +20,7 @@ import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@a
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Guild } from "@velocity-types";
+import type { Guild } from "@velocity-types";
 import { findByCodeLazy, findByPropsLazy, mapMangledModuleLazy } from "@webpack";
 import { GuildStore, Icons, Menu } from "@webpack/common";
 

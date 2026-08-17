@@ -17,7 +17,7 @@
 */
 
 import { onceDefined } from "@shared/onceDefined";
-import electron, { app, BrowserWindowConstructorOptions, Menu } from "electron";
+import electron, { app, type BrowserWindowConstructorOptions, Menu } from "electron";
 import { dirname, join } from "path";
 
 import { RendererSettings } from "./settings";

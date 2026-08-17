@@ -25,7 +25,7 @@ import { Devs } from "@utils/constants";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { ConnectedAccountsStore, HiddenVisually, Icons, Menu, Popout, React, useId, useRef, useState, useStateFromStores } from "@webpack/common";
+import { ConnectedAccountsStore, HiddenVisually, Icons, Menu, Popout, useId, useRef, useState, useStateFromStores } from "@webpack/common";
 
 import managedStyle from "./style.css?managed";
 

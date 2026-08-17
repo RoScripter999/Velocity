@@ -18,7 +18,7 @@
 
 import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
-import { ModalPropsRender } from "@velocity-types/src";
+import type { ModalPropsRender } from "@velocity-types";
 import { Modal, Select, TextInput, useState } from "@webpack/common";
 
 import type { SvgElement, SvgRule } from "./types";

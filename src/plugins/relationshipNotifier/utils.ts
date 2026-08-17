@@ -24,7 +24,7 @@ import { ChannelType, RelationshipType } from "@velocity-types/enums";
 import { ChannelStore, GuildAvailabilityStore, GuildMemberStore, GuildStore, RelationshipStore, UserStore, UserUtils } from "@webpack/common";
 
 import settings from "./settings";
-import { SimpleGroupChannel, SimpleGuild } from "./types";
+import type { SimpleGroupChannel, SimpleGuild } from "./types";
 
 const guilds = new Map<string, SimpleGuild>();
 const groups = new Map<string, SimpleGroupChannel>();

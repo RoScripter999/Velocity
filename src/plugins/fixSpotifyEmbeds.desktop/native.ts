@@ -17,7 +17,7 @@
 */
 
 import { RendererSettings } from "@main/settings";
-import { app, WebFrameMain, webFrameMain } from "electron";
+import { app, type WebFrameMain, webFrameMain } from "electron";
 
 // TODO: routingID is deprecated and should be replaced with frameToken, but it's too new
 const ids = [] as Record<"routingId" | "processId", number>[];

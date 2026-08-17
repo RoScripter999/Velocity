@@ -19,7 +19,7 @@
 import "./styles.css";
 
 import { isPluginEnabled } from "@api/PluginManager";
-import { ThemeDef, useSettings } from "@api/Settings";
+import { type ThemeDef, useSettings } from "@api/Settings";
 import { Card } from "@components/Card";
 import { Link } from "@components/Link";
 import { Margins } from "@components/margins";

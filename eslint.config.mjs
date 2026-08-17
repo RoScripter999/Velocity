@@ -17,6 +17,7 @@
 */
 
 import stylistic from "@stylistic/eslint-plugin";
+import { defineConfig } from "eslint/config";
 import pathAlias from "eslint-plugin-path-alias";
 import react from "eslint-plugin-react";
 import header from "eslint-plugin-simple-header";
@@ -24,7 +25,10 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config(
+import importTypePlugin from "./scripts/eslint-plugins/importType.mjs";
+import restrictedImportsPlugin from "./scripts/eslint-plugins/restrictedImports.mjs";
+
+export default defineConfig(
     { ignores: ["dist", "browser"] },
     {
         files: ["src/**/*.{ts,tsx,js,jsx,mjs,mts}", "eslint.config.mjs"],
@@ -48,7 +52,10 @@ export default tseslint.config(
             "simple-header": header,
             "simple-import-sort": simpleImportSort,
             "unused-imports": unusedImports,
-            "path-alias": pathAlias
+            "path-alias": pathAlias,
+            // Custom plugins
+            "import-type": importTypePlugin,
+            "no-restricted-imports": restrictedImportsPlugin
         },
         settings: {
             "import/resolver": {
@@ -95,6 +102,10 @@ export default tseslint.config(
             "@stylistic/object-curly-spacing": ["error", "always"],
             "@stylistic/spaced-comment": ["error", "always", { markers: ["!"] }],
             "@stylistic/no-extra-semi": "error",
+
+            // Custom plugins
+            "import-type/no-value-type-imports": "error",
+            "no-restricted-imports/no-restricted-imports": "error",
 
             // Core ESLint
             "yoda": "error",

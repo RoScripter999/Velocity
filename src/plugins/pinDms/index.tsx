@@ -25,12 +25,12 @@ import { classes } from "@utils/misc";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
 import type { Channel } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { Clickable, ContextMenuApi, Icons, Menu, type React } from "@webpack/common";
+import { Clickable, ContextMenuApi, Icons, Menu } from "@webpack/common";
 
 import { contextMenus } from "./components/contextMenu";
 import { openCategoryModal } from "./components/CreateCategoryModal";
 import { DEFAULT_CHUNK_SIZE } from "./constants";
-import { canMoveCategory, canMoveCategoryInDirection, Category, categoryLen, collapseCategory, getAllUncollapsedChannels, getCategoryByIndex, getCategoryChannels, getSections, init, isPinned, moveCategory, removeCategory, usePinnedDms } from "./data";
+import { canMoveCategory, canMoveCategoryInDirection, type Category, categoryLen, collapseCategory, getAllUncollapsedChannels, getCategoryByIndex, getCategoryChannels, getSections, init, isPinned, moveCategory, removeCategory, usePinnedDms } from "./data";
 
 interface ChannelComponentProps {
     children: React.ReactNode,

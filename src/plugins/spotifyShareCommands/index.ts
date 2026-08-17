@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandInputType, OptionalMessageOption, VelocityCommand } from "@api/Commands";
+import { ApplicationCommandInputType, OptionalMessageOption, type VelocityCommand } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";

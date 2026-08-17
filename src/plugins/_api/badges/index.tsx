@@ -18,7 +18,7 @@
 
 import "./fixDiscordBadgePadding.css";
 
-import { _getBadges, BadgePosition, BadgeType, type BadgeUserArgs, ProfileBadge } from "@api/Badges";
+import { _getBadges, BadgePosition, BadgeType, type BadgeUserArgs, type ProfileBadge } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { openContributorModal } from "@components/settings/tabs";
 import { gitRemote } from "@shared/userAgent";

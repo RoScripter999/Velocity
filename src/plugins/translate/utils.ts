@@ -18,7 +18,7 @@
 
 import { classNameFactory } from "@utils/css";
 import { onlyOnce } from "@utils/onlyOnce";
-import { PluginNative } from "@utils/types";
+import type { PluginNative } from "@utils/types";
 import type { DiscordLocale } from "@velocity-types";
 import { showToast, Toasts } from "@webpack/common";
 

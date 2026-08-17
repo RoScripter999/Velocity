@@ -19,7 +19,7 @@
 import type { Message } from "@velocity-types";
 import { Icons, Parser, useEffect, useState } from "@webpack/common";
 
-import { cl, TranslationValue } from "./utils";
+import { cl, type TranslationValue } from "./utils";
 
 const TranslationSetters = new Map<string, (v: TranslationValue) => void>();
 

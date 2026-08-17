@@ -24,7 +24,7 @@ import { debounce } from "@shared/debounce";
 import { IpcEvents } from "@shared/IpcEvents";
 import { BrowserWindow, ipcMain, nativeTheme, shell, systemPreferences } from "electron";
 import monacoHtml from "file://monacoWin.html?minify&base64";
-import { FSWatcher, mkdirSync, readFileSync, unlinkSync, watch, writeFileSync } from "fs";
+import { type FSWatcher, mkdirSync, readFileSync, unlinkSync, watch, writeFileSync } from "fs";
 import { open, readdir, readFile } from "fs/promises";
 import { release } from "os";
 import { join } from "path";

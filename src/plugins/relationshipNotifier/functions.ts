@@ -21,7 +21,7 @@ import { ChannelType, RelationshipType } from "@velocity-types/enums";
 import { GuildAvailabilityStore, UserUtils } from "@webpack/common";
 
 import settings from "./settings";
-import { ChannelDelete, GuildDelete, RelationshipRemove } from "./types";
+import type { ChannelDelete, GuildDelete, RelationshipRemove } from "./types";
 import { deleteGroup, deleteGuild, getGroup, getGuild, notify } from "./utils";
 
 let manuallyRemovedFriend: string | undefined;

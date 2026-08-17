@@ -23,7 +23,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Icon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
-import definePlugin, { IconComponent, makeRange, OptionType } from "@utils/types";
+import definePlugin, { type IconComponent, makeRange, OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
 import { ChannelType } from "@velocity-types/enums";
 import { ChannelStore, Menu, UserStore } from "@webpack/common";

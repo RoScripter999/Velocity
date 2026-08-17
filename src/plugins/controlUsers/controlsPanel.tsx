@@ -27,7 +27,7 @@ import { OptionType, type PluginSettingDef } from "@utils/types";
 import type { ModalPropsRender, User } from "@velocity-types";
 import { Avatar, Buttons, Icons, IconUtils, Modal, SearchBar, Select, SelectedChannelStore, Text, useMemo, useState } from "@webpack/common";
 
-import { Categories, cl, encodeCommand } from "./utils";
+import { type Categories, cl, encodeCommand } from "./utils";
 
 export interface Action {
     id: string;
