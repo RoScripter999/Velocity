@@ -1,25 +1,13 @@
-import { ButtonHTMLAttributes, ComponentType, CSSProperties, KeyboardEvent, MouseEvent, PropsWithChildren, Ref } from "react";
+import { ButtonHTMLAttributes, ComponentType, CSSProperties, HTMLAttributes, PropsWithChildren, Ref } from "react";
 import { TextVariant } from "../components";
 
 export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive" | "icon-only" | "color-mix";
 
 type Booleanish = boolean | "true" | "false";
-
-interface ClickEvents {
-    onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onDoubleClick?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onMouseEnter?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onMouseLeave?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onMouseUp?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void;
-    onKeyDown?: (e: KeyboardEvent<HTMLButtonElement>) => void;
-    onContextMenu?: (e: MouseEvent<HTMLButtonElement>) => void;
-}
+type SpaceValue = 0 | 4 | 6 | 8 | 10 | 12 | 16 | 20 | 24 | 26 | 30 | 32 | 40 | 48 | 64 | 80 | 96 | 128 | 160 | 192;
 
 export interface ButtonsProps {
-    Button: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "role" | "type" | "disabled" | "className" | "style"> & {
-        /** @ignore You probably dont need to use this. @default button */
-        role?: string;
+    Button: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled" | "className"> & {
         /** Background color variant of the button. @default primary */
         variant?: ButtonVariant;
         /** Size of the button @default md */
@@ -32,41 +20,40 @@ export interface ButtonsProps {
         iconOpticalOffsetMargin?: number;
         /** Makes the button on its full size in a element. @default false */
         fullWidth?: Booleanish;
+        /** FocusRing props, look in button's wrapper component. */
         focusProps?: Record<string, any>;
         loading?: Booleanish;
         /** @ignore Only used when the user's device narrator settings is on. */
         loadingStartedLabel?: string;
         /** @ignore Only used when the user's device narrator settings is on. */
         loadingFinishedLabel?: string;
-        /** Rounds the button @default false */
+        /** Rounds the button even though it's already round..? @default false */
         rounded?: Booleanish;
-        /** type click. @default button */
-        type?: ButtonHTMLAttributes<any>["type"];
         disabled?: Booleanish;
-        /** Minimum size of the button. Note: numbers get converted into CSS automatically. */
+        /** Minimum size of the button's width. */
         minWidth?: CSSProperties["minWidth"];
-        style?: CSSProperties;
         buttonRef?: Ref<HTMLButtonElement>;
     };
-    TextButton: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "role" | "type" | "className" | "style"> & {
+    TextButton: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "role" | "className" | "style"> & {
         /** Limits how many downlines the text creates when too long. */
         lineClamp?: number;
         /** If not provided nothing renders. */
         text?: string;
         textVariant?: TextVariant;
-        /** type click. @default button */
-        type?: ButtonHTMLAttributes<any>["type"];
         /** Background color variant of the text. @default primary */
         variant?: "primary" | "secondary" | "always-white" | "critical";
         disabled?: Booleanish;
         buttonRef?: Ref<HTMLButtonElement>;
     };
     IconButton: Omit<ButtonsProps["Button"], "text" | "fullWidth">;
-    ButtonGroup: Omit<HTMLAttributes<HTMLElement>, "className" | "style"> & {
+    ButtonGroup: HTMLAttributes<HTMLElement> & {
         /** Which HTML element the {@link ButtonGroup} is. @default div  */
         as?: "div" | "span" | "section";
-        /** Gap between each element. Note: this is NOT {@link CSSProperties}. @default "8" */
-        gap?: string;
+        /**
+         * Gap between each element.
+         * Component uses var(--space-NUMBER) style variable, so unfortunately this cant just be any number/string.
+         */
+        gap?: SpaceValue | `${SpaceValue}`;
         /** The direction the children are gonna be placed on. @default vertical*/
         direction?: "horizontal" | "vertical";
         /** Where to align the items at. @default stretch */
@@ -76,16 +63,9 @@ export interface ButtonsProps {
         /** Keeps all children inside the {@link ButtonGroup} element */
         wrap?: Booleanish;
         /** Applies a standard {@link CSSProperties CSS} padding with a direction control */
-        padding?: number | {
-            top?: number;
-            right?: number;
-            bottom?: number;
-            left?: number;
-        };
+        padding?: SpaceValue | `${SpaceValue}` | Partial<Record<"top" | "right" | "bottom" | "left", SpaceValue | `${SpaceValue}`>>;
         /** Makes the {@link ButtonGroup} container on its full size in a element. @default true */
         fullWidth?: Booleanish;
-        className?: string;
-        style?: CSSProperties;
     };
 }
 

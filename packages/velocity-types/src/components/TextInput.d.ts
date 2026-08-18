@@ -1,7 +1,7 @@
-import { ComponentType, PropsWithChildren, CSSProperties, ReactNode } from "react";
-import { Field } from "../components";
+import { ComponentType, CSSProperties, FocusEvent, HTMLProps, KeyboardEvent, MouseEvent, PropsWithChildren, ReactNode, Ref } from "react";
+import { FieldProps } from "../components";
 
-export type TextInputProps = PropsWithChildren<(Field extends ComponentType<infer P> ? Omit<P, "errorMessage"> : {}) & {
+export interface TextInputProps extends PropsWithChildren, Omit<FieldProps, "errorMessage"> {
     name?: string;
     value?: string | number;
     defaultValue?: string;
@@ -82,6 +82,46 @@ export type TextInputProps = PropsWithChildren<(Field extends ComponentType<infe
         type: "image";
         src: string;
     } | ComponentType<{ size?: string; color?: string; }>;
-}>;
+}
+
+export interface SearchBarProps {
+    query: string;
+    onChange: (query: string) => void;
+    onClear?: () => void;
+    placeholder?: string;
+    autoFocus?: boolean;
+    size?: "sm" | "md" | "lg";
+    disabled?: boolean;
+    onKeyDown?: (e: KeyboardEvent) => void;
+    onBlur?: (e: FocusEvent) => void;
+    onFocus?: (e: FocusEvent) => void;
+    autoComplete?: string;
+    inputProps?: TextInputProps;
+    "aria-label"?: string;
+    ref?: Ref<HTMLInputElement>;
+}
+
+export interface FilePickerProps {
+    filename: string;
+    className?: string;
+    filters?: Array<{
+        name: string;
+        extensions: string[];
+    }>;
+    buttonText: string;
+    placeholder: string;
+    onFileSelect: (file: File | undefined) => void;
+}
+
+export interface TextAreaProps extends Omit<HTMLProps<HTMLTextAreaElement>, "onChange">, Omit<FieldProps, "errorMessage"> {
+    onChange(v: string): void;
+    inputRef?: Ref<HTMLTextAreaElement>;
+    error?: string;
+}
+
+// These are still considered a TextInput since it uses the same component/design.
+export type TextArea = ComponentType<TextAreaProps>;
+export type FilePicker = ComponentType<FilePickerProps>;
+export type SearchBar = ComponentType<SearchBarProps>;
 
 export type TextInput = ComponentType<TextInputProps>;

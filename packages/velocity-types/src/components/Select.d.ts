@@ -1,11 +1,11 @@
-import type { ChangeEvent, ComponentType, FocusEvent, KeyboardEvent, ReactElement, ReactNode } from "react";
-import type { Field, IconProps } from "../components";
-import type { IconProps as IconPropsVelocity } from "@components/Icons";
+import { IconProps as IconPropsVelocity } from "@components/Icons";
+import { ChangeEvent, ComponentType, FocusEvent, KeyboardEvent, ReactElement, ReactNode } from "react";
+import { FieldProps, IconProps } from "../";
 
 type SelectAccessory =
     | { type: "image"; src: string; }
     | { type: "avatar"; src: string; }
-    | { type: "badge"; badgeType: "new" | "beta" | "early_access" | "free_trial"; }
+    | { type: "badge"; badgeType: FieldProps["badge"]; }
     | ComponentType<IconProps> | ComponentType<IconPropsVelocity>;
 
 export interface SelectOption {
@@ -34,7 +34,7 @@ type StrictOptions<T, K extends string = never> = T extends SelectOptionGroup
     ? Exclude<keyof T, keyof SelectOptionGroup | K> extends never ? Omit<T, "options"> & { options: StrictOptions<T["options"][number], K>[]; } : SelectOptionGroup
     : T extends SelectOption ? T : SelectOption;
 
-export type SelectProps<Options extends SelectOption | SelectOptionGroup = SelectOption | SelectOptionGroup> = (Field extends ComponentType<infer P> ? P : {}) & {
+export type SelectProps<Options extends SelectOption | SelectOptionGroup = SelectOption | SelectOptionGroup> = FieldProps & {
     /**
      * Mode of option selection.
      * @default "single"

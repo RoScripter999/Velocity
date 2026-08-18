@@ -257,7 +257,7 @@ export default definePlugin({
                 {hasEnglishVoices && (
                     <>
                         <Forms.FormTitle className={Margins.top20} tag="h3">Play Example Sounds</Forms.FormTitle>
-                        <Buttons.ButtonGroup justify="space-between" direction="horizontal" gap="15">
+                        <Buttons.ButtonGroup justify="space-between" direction="horizontal" gap="16">
                             {types.map(t => (
                                 <Buttons.Button size="sm" text={wordsToTitle([t])} key={t} onClick={() => playSample(t)} />
                             ))}
