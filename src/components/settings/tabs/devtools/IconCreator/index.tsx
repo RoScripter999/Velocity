@@ -215,4 +215,4 @@ function IconCreator() {
     );
 }
 
-export default (IS_DEV ? IconCreator : null) as any;
+export default (!IS_STANDALONE ? IconCreator : null) as any;

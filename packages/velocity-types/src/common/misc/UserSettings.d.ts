@@ -1,4 +1,4 @@
-import { ButtonsProps, ButtonVariant, RawCSSColor, Select, SelectOption, SelectProps } from "../..";
+import { ButtonsProps, ButtonVariant, FieldProps, RawCSSColor, SelectOption, SelectProps } from "../..";
 import { BadgeType, ButtonTrailingDecorationType, HeaderDecoratioButtonsButtonType, HeaderDecorationType, IconShapeType, InlineNoticeType, LayoutType, NestedPanelLeadingDecorationType, NestedPanelTrailingDecorationType } from "../../../enums";
 import { ComponentType, JSX, ReactNode } from "react";
 
@@ -58,13 +58,13 @@ export interface SectionNode extends LayoutNode {
     type: LayoutType.SECTION;
     /* Moves the section above the Profile Customization button */
     hoisted?: boolean;
-    useTitle?(): ReactNode | string;
+    useTitle?(): ReactNode;
     buildLayout(): SidebarItemNode[];
 }
 
 export interface SidebarItemNode extends LayoutBuilderNode, BadgesNode {
     type: LayoutType.SIDEBAR_ITEM;
-    useTitle(): ReactNode | string;
+    useTitle(): ReactNode;
     /**
      * If any other {@link ContentNode node} is rendered, will result in a `[SettingsDirectory] key is not for a panel: ${KEY}` error.
      * This can simply return `[]` if the {@link SidebarItemNode button} is just for clicking
@@ -147,8 +147,8 @@ export interface CategoryNode extends LayoutBuilderNode, BadgesNode {
 export interface AccordionNode extends LayoutNode {
     type: LayoutType.ACCORDION;
     layout: ContentNode[];
-    useTitle: (isExpanded?: boolean) => string;
-    useCollapsedSubtitle?: () => string;
+    useTitle: (isExpanded?: boolean) => ReactNode;
+    useCollapsedSubtitle?: () => ReactNode;
     isExpanded?: boolean;
     onExpandedChange?: (expanded: boolean) => void;
     animate?: boolean;
@@ -189,8 +189,8 @@ export interface CardNode extends LayoutNode {
 
 export interface FieldSetNode extends LayoutNode {
     type: LayoutType.FIELD_SET;
-    useTitle(): string;
-    useSubtitle?(): string;
+    useTitle(): ReactNode;
+    useSubtitle?(): ReactNode;
     layout: ContentNode[];
     variant?: "default" | "compact";
     isTitleHiddenVisually?: boolean;
@@ -201,7 +201,7 @@ export interface FieldSetNode extends LayoutNode {
  * Any other {@link ContentNode node} will result in a Invariant Violation error.
  */
 export interface NestedPanelNode extends LayoutNode {
-    type: LayoutType.NESTED_PANEL;
+    type: LayoutType.NESTED_PANEL_NAVIGATOR;
     buildLayout: () => PanelNode[];
     /**
      * @ignore Only use when rendering inside a {@link CardNode}.
@@ -209,14 +209,14 @@ export interface NestedPanelNode extends LayoutNode {
      * Using {@link layout} outside of a {@link CardNode} will cause a `Cannot read properties of undefined (reading 'every')` error.
      */
     layout?: ContentNode[];
-    useTitle: () => string;
-    useSubtitle?: () => string;
+    useTitle: () => ReactNode;
+    useSubtitle?: () => ReactNode;
     useLeadingDecoration?: () => {
         type: NestedPanelLeadingDecorationType.ICON;
         icon: ReactNode;
         /** Color of the {@link icon} @default currentColor */
         color?: RawCSSColor;
-        /** Discord expects it to use the color variables which return a table containing a property called `css`. @default "var(--background-mod-muted)" */
+        /** Discord uses their own ColorMap, it uses color variables which return a table containing a property called `css`. @default "var(--background-mod-muted)" */
         backgroundColor?: { css: RawCSSColor; };
     };
     useTrailingDecoration?: () => { type: NestedPanelTrailingDecorationType.STACKED_ICONS; } & UseIconsNode;
@@ -231,9 +231,9 @@ export interface StaticNode extends LayoutNode {
 
 export interface ButtonNode extends LayoutNode {
     type: LayoutType.BUTTON;
-    useTitle(): string;
+    useTitle(): ReactNode;
     useLabel(): string;
-    useSubtitle?(): string;
+    useSubtitle?(): ReactNode;
     useVariant?(): ButtonVariant;
     useDisabled?(): boolean;
     useAriaLabel?(): string;
@@ -252,8 +252,8 @@ export interface ButtonNode extends LayoutNode {
 
 export interface ToggleNode extends LayoutNode, BadgesNode {
     type: LayoutType.TOGGLE;
-    useTitle(): string;
-    useSubtitle?(): string;
+    useTitle(): ReactNode;
+    useSubtitle?(): ReactNode;
     useValue?(): boolean;
     setValue(value: boolean): void;
     useDisabled?(): boolean;
@@ -265,14 +265,14 @@ export interface ToggleNode extends LayoutNode, BadgesNode {
 
 export interface SliderNode extends LayoutNode, BadgesNode {
     type: LayoutType.SLIDER;
-    setValue(value: number): void;
-    getInitialValue?(): number;
+    setValue?(value: number): void;
+    getInitialValue(): number;
     minValue?: number;
     maxValue?: number;
     useDefaultValue?(): number;
-    useTitle(): string;
-    useSubtitle?(): string;
-    useHintText?(): string;
+    useTitle(): ReactNode;
+    useHelperText?(): ReactNode;
+    useSubtitle?(): ReactNode;
     useDisabled?(): boolean;
     useExternalValue?(): number;
     onValueRender?(value: number): ReactNode;
@@ -280,11 +280,13 @@ export interface SliderNode extends LayoutNode, BadgesNode {
     markers?: number[];
     onMarkerRender?(marker: number): ReactNode;
     stickToMarkers?: boolean;
+    /** Layout direction of the slider's control */
+    fieldLayout?: FieldProps["layout"];
 }
 
 /**
  * Some props of Select components are used here
- * @see {@link Select} For more.
+ * @see {@link SelectProps} For more.
  */
 export interface SelectNode extends LayoutNode, BadgesNode {
     type: LayoutType.SELECT;

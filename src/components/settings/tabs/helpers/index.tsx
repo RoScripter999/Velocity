@@ -28,7 +28,7 @@ const enum Tabs {
     SEARCH_HELPER
 }
 
-export default IS_DEV ? function Helpers() {
+export default !IS_STANDALONE ? function Helpers() {
     const [currentTab, setCurrentTab] = useState(Tabs.PATCH_HELPER);
 
     return (
@@ -49,8 +49,8 @@ export default IS_DEV ? function Helpers() {
             </TabBar>
 
             <main>
-                {currentTab === Tabs.PATCH_HELPER && IS_DEV && <PatchHelper />}
-                {currentTab === Tabs.SEARCH_HELPER && IS_DEV && <SearchHelper />}
+                {currentTab === Tabs.PATCH_HELPER && <PatchHelper />}
+                {currentTab === Tabs.SEARCH_HELPER && <SearchHelper />}
             </main>
         </SettingsTab>
     );

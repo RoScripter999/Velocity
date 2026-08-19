@@ -31,7 +31,7 @@ async function runReporter() {
     try {
         ReporterLogger.log("Starting test...");
 
-        const { promise: loadLazyChunksDone, resolve: loadLazyChunksResolve } = Promise.withResolvers<void>();
+        const { promise: loadLazyChunksDone, resolve: loadLazyChunksDoneResolve } = Promise.withResolvers<void>();
 
         // The main patch for starting the reporter chunk loading
         addPatch({
@@ -42,11 +42,10 @@ async function runReporter() {
             }
         }, "Velocity Reporter");
 
+        // initReporter is called in the patched entry point of Discord
         // @ts-expect-error
         Velocity.Webpack._initReporter = function () {
-            // initReporter is called in the patched entry point of Discord
-            // setImmediate to only start searching for lazy chunks after Discord initialized the app
-            setTimeout(() => loadLazyChunks().then(loadLazyChunksResolve), 0);
+            loadLazyChunks().then(loadLazyChunksDoneResolve);
         };
 
         await loadLazyChunksDone;

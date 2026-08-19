@@ -220,7 +220,7 @@ export function initChangelog() {
     }
 
     try {
-        RegisterDismissibleContent({ content: "velocity_changelog_" + gitHash });
+        RegisterDismissibleContent({ content: "changelog_" + gitHash });
     } catch (err) {
         logger.error("Failed to register changelog dismissible content key", err);
     }

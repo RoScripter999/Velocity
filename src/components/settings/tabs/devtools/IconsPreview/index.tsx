@@ -94,4 +94,4 @@ function IconsTab() {
     );
 }
 
-export default (IS_DEV ? IconsTab : null) as any;
+export default (!IS_STANDALONE ? IconsTab : null) as any;

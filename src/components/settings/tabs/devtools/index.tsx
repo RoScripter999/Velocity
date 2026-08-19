@@ -32,7 +32,7 @@ const enum DevTab {
     GAY
 }
 
-export default IS_DEV ? function DevTools() {
+export default !IS_STANDALONE ? function DevTools() {
     const [currentTab, setCurrentTab] = useState(DevTab.ICONS);
 
     return (

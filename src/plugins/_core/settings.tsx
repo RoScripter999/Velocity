@@ -120,7 +120,7 @@ export default definePlugin({
 
         return {
             ...rest,
-            key,
+            key: key + "_sidebar_item",
             type: LayoutType.SIDEBAR_ITEM,
             useTitle: () => title,
             icon: () => <Icon size="refresh_sm" color="currentColor" />,
@@ -135,21 +135,21 @@ export default definePlugin({
 
         const velocityEntries: SidebarItemNode[] = [
             this.buildEntry({
-                key: "velocity_main",
+                key: "settings",
                 title: "Velocity",
                 panelTitle: "Velocity Settings",
                 Component: VelocityTab,
                 Icon: VelocityIcon
             }),
             this.buildEntry({
-                key: "velocity_plugins",
+                key: "plugins",
                 title: "Plugins",
                 Component: PluginsTab,
                 Icon: PluginsIcon
             }),
 
             {
-                key: "velocity_themes",
+                key: "themes_sidebar_item",
                 type: LayoutType.SIDEBAR_ITEM,
                 useTitle: () => "Themes",
                 icon: Icons.PaintbrushThickIcon,
@@ -165,7 +165,7 @@ export default definePlugin({
                                 useTitle: () => "Themes",
                                 buildLayout: () => [
                                     !IS_USERSCRIPT && {
-                                        key: "themes_lib_panel_nav",
+                                        key: "themes_libary_nested_panel",
                                         type: LayoutType.NESTED_PANEL_NAVIGATOR,
                                         useTitle: () => "Theme Library",
                                         useSubtitle: () => "Download online themes directly from Discord",
@@ -176,26 +176,26 @@ export default definePlugin({
 
                                         buildLayout: () => [
                                             {
-                                                key: "themes_lib_panel",
+                                                key: "themes_libary_panel",
                                                 type: LayoutType.PANEL,
                                                 useTitle: () => "Theme Library",
                                                 buildLayout: () => [
                                                     {
-                                                        key: "themes_lib_category",
+                                                        key: "themes_libary_category",
                                                         type: LayoutType.CATEGORY,
                                                         useTitle: () => "Theme Libary",
                                                         buildLayout: () => [{
+                                                            key: "themes_libary_custom",
                                                             type: LayoutType.CUSTOM,
                                                             Component: ThemeLibraryTab
                                                         }]
                                                     }
-
                                                 ]
                                             }
                                         ]
                                     },
                                     {
-                                        key: "themes_tab",
+                                        key: "themes_custom",
                                         type: LayoutType.CUSTOM,
                                         Component: ThemesTab
                                     }
@@ -206,44 +206,41 @@ export default definePlugin({
                 ]
             } as SidebarItemNode,
             !IS_UPDATER_DISABLED && UpdaterTab && this.buildEntry({
-                key: "velocity_updater",
+                key: "updater",
                 title: "Updater",
-                panelTitle: "Velocity Updater",
                 Component: UpdaterTab,
                 Icon: Icons.DownloadIcon
             }),
             this.buildEntry({
-                key: "velocity_changelog",
+                key: "changelog",
                 title: "Changelog",
-                panelTitle: "Velocity Changelog",
                 Component: ChangeLogTab,
                 Icon: Icons.TopicsIcon,
                 getDismissibleBadges: hasNewChangelog() ? () => [{
                     badgeType: BadgeType.NEW,
-                    dismissibleContent: "velocity_changelog_" + gitHash
+                    dismissibleContent: "changelog_" + gitHash
                 }] : undefined
             }),
             this.buildEntry({
-                key: "velocity_cloud",
+                key: "cloud",
                 title: "Cloud",
-                panelTitle: "Velocity Cloud",
                 Component: CloudTab,
                 Icon: Icons.CloudIcon
             }),
             this.buildEntry({
-                key: "velocity_backup_restore",
+                key: "backup_restore",
                 title: "Backup & Restore",
                 Component: BackupAndRestoreTab,
                 Icon: Icons.RefreshIcon
             }),
-            IS_DEV && DevTools && this.buildEntry({
-                key: "velocity_developer_tools",
+            !IS_STANDALONE && DevTools && this.buildEntry({
+                key: "developer_tools",
                 title: "Developer Tools",
                 Component: DevTools,
                 Icon: Icons.ScienceIcon
             }),
-            IS_DEV && HelpersTab && this.buildEntry({
-                key: "velocity_helpers",
+            !IS_STANDALONE && HelpersTab && this.buildEntry({
+                key: "helpers",
                 title: "Helpers",
                 Component: HelpersTab,
                 Icon: Icons.WrenchIcon

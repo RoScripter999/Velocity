@@ -179,4 +179,4 @@ function TestTab() {
     );
 }
 
-export default (IS_DEV ? TestTab : null) as any;
+export default (!IS_STANDALONE ? TestTab : null) as any;

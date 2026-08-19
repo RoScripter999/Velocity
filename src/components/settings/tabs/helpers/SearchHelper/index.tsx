@@ -195,4 +195,4 @@ function SearchHelper() {
     );
 }
 
-export default (IS_DEV ? SearchHelper : null) as any;
+export default (!IS_STANDALONE ? SearchHelper : null) as any;
