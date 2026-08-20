@@ -23,7 +23,7 @@ import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { createRoot, Menu } from "@webpack/common";
-import type { FunctionComponentElement, JSX, MouseEvent } from "react";
+import type { MouseEvent, ReactElement } from "react";
 import type { Root } from "react-dom/client";
 
 import { Magnifier, type MagnifierProps } from "./components/Magnifier";
@@ -89,7 +89,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
     const { square, nearestNeighbour } = settings.use(["square", "nearestNeighbour"]);
 
     children.push(
-        <Menu.MenuGroup id="image-zoom">
+        <Menu.MenuGroup>
             <Menu.MenuCheckboxItem
                 id="vc-square"
                 label="Square Lens"
@@ -213,7 +213,7 @@ export default definePlugin({
     },
 
     // to stop from rendering twice /shrug
-    currentMagnifierElement: null as FunctionComponentElement<MagnifierProps & JSX.IntrinsicAttributes> | null,
+    currentMagnifierElement: null as ReactElement<MagnifierProps> | null,
     element: null as HTMLDivElement | null,
 
     Magnifier,

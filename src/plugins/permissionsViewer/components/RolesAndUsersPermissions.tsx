@@ -233,9 +233,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                         src={headerIcon}
                         style={{ width: 46, height: 46, borderRadius: "50%", userSelect: "none", cursor: userId ? "pointer" : "default" }}
                         onContextMenu={userId ? e => {
-                            ContextMenuApi.openContextMenu(e, () => (
-                                <UserContextMenu guild={guild} userId={userId} />
-                            ));
+                            ContextMenuApi.openContextMenu(e, () => <UserContextMenu userId={userId} />);
                         } : undefined}
                     />
                 )}
@@ -282,7 +280,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                                         onContextMenu={e => {
                                                             if (permission.type === PermissionType.User && permission.id) {
                                                                 ContextMenuApi.openContextMenu(e, () => (
-                                                                    <UserContextMenu guild={guild} userId={permission.id!} />
+                                                                    <UserContextMenu userId={permission.id!} />
                                                                 ));
                                                             } else if (permission.type === PermissionType.Role && permission.id) {
                                                                 ContextMenuApi.openContextMenu(e, () => (
@@ -396,13 +394,13 @@ function RoleContextMenu({ guild, roleId, onClose }: { guild: Guild; roleId: str
             navId={cl("role-context-menu")}
             onClose={ContextMenuApi.closeContextMenu}
             aria-label="Role Options"
-            contextMenuAPIArguments={[{ guild, role }]}
         >
             {before}
             <Menu.MenuItem
                 id={cl("copy-role-id")}
                 label={getIntlMessage("COPY_ID_ROLE")}
                 icon={Icons.IdIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.IdIcon }}
                 action={() => copyToClipboard(roleId)}
             />
 
@@ -411,10 +409,9 @@ function RoleContextMenu({ guild, roleId, onClose }: { guild: Guild; roleId: str
             <Menu.MenuItem
                 id={cl("view-as-role")}
                 label={getIntlMessage("VIEW_AS_ROLE")}
-                icon={() => <Icons.ArrowLargeRightIcon size="sm" />}
+                icon={Icons.ArrowLargeRightIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.ArrowLargeRightIcon }}
                 action={() => {
-                    if (!role) return;
-
                     onClose();
                     FluxDispatcher.dispatch({
                         type: "IMPERSONATE_UPDATE",
@@ -432,20 +429,18 @@ function RoleContextMenu({ guild, roleId, onClose }: { guild: Guild; roleId: str
     );
 }
 
-function UserContextMenu({ guild, userId }: { guild: Guild; userId: string; }) {
-    const member = GuildMemberStore.getMember(guild.id, userId);
-
+function UserContextMenu({ userId }: { userId: string; }) {
     return (
         <Menu.Menu
-            navId={cl("user-context-menu")}
+            navId={cl("user-context")}
             onClose={ContextMenuApi.closeContextMenu}
             aria-label="User Options"
-            contextMenuAPIArguments={[{ guild, user: member }]}
         >
             <Menu.MenuItem
                 id={cl("copy-user-id")}
                 label={getIntlMessage("COPY_ID_USER")}
                 icon={Icons.IdIcon}
+                leadingAccessory={{ type: "icon", icon: Icons.IdIcon }}
                 action={() => {
                     copyToClipboard(userId);
                 }}

@@ -280,7 +280,6 @@ export default definePlugin({
                         <Menu.Menu
                             navId="vc-pindms-header-menu"
                             onClose={ContextMenuApi.closeContextMenu}
-                            color="danger"
                             aria-label="Pin DMs Category Menu"
                         >
                             <Menu.MenuItem

@@ -1,16 +1,17 @@
+import type { CSSColorToken, FieldProps, IconProps, PopoutAlign, PopoutPosition, RawCSSColor, Status, Theme } from "@velocity-types";
 import type { ComponentType, CSSProperties, ForwardRefRenderFunction, MouseEvent, PropsWithChildren, ReactNode, UIEvent } from "react";
 
-type RC<C> = ComponentType<PropsWithChildren<C & Record<string, any>>>;
+type RC<C> = ComponentType<PropsWithChildren<C>>;
 
 type MenuColor = "default" | "brand" | "danger" | "premium" | "premium-gradient" | "success";
 
-type MenuLeadingAccessory =
-    | { type: "icon"; icon: ComponentType<any>; color?: string; className?: string; }
+type LeadingAccessory =
+    | { type: "icon"; icon: ComponentType<any>; color?: CSSColorToken; className?: string; }
     | { type: "image"; src: string; }
     | { type: "emoji"; emojiId?: string; src?: string; animated?: boolean; }
     | { type: "avatar"; src: string; }
-    | { type: "roleDot"; variant: "dot" | string; color?: any; colors?: any; }
-    | { type: "status"; status: any; }
+    | { type: "roleDot"; variant?: "dot" | "circle"; color?: RawCSSColor; colors?: { primaryColor?: RawCSSColor; secondaryColor?: RawCSSColor; tertiaryColor?: RawCSSColor; }; }
+    | { type: "status"; status: Status; }
     | { type: "guildTag"; element: ReactNode; };
 
 export interface Menu {
@@ -26,11 +27,10 @@ export interface Menu {
         /** @default flexible */
         variant?: "fixed" | "flexible";
     }>;
-    MenuSeparator: ComponentType;
+    MenuSeparator: ComponentType<any>;
     MenuGroup: RC<{
         label?: string;
         className?: string;
-        color?: MenuColor;
     }>;
     MenuItem: RC<{
         id: string;
@@ -38,17 +38,13 @@ export interface Menu {
         void_label?: (props: any) => ReactNode;
         action?(e: MouseEvent): void;
         icon?: ComponentType<any>;
+        /** Icon on the left that is always visible regardless of the mana context experiment */
         iconLeft?: ComponentType<any>;
         /* Only renders when mana contextmenus experiement is enabled. */
-        leadingAccessory?: MenuLeadingAccessory;
-        trailingIndicator?: {
-            type: "icon";
-            icon: ComponentType<any>;
-            color?: string;
-            className?: string;
-        };
+        leadingAccessory?: LeadingAccessory;
+        trailingIndicator?: Extract<LeadingAccessory, { type: "icon"; }>;
         shortcut?: string;
-        badge?: string | ({ type: string; } & Record<string, any>);
+        badge?: FieldProps["badge"];
         loading?: boolean;
         subtext?: ReactNode;
         subtextLineClamp?: number;
@@ -68,7 +64,7 @@ export interface Menu {
         keepItemStyles?: boolean;
         dontCloseOnAction?: boolean;
         dontCloseOnActionIfHoldingShiftKey?: boolean;
-        iconProps?: Record<string, any>;
+        iconProps?: IconProps;
     }>;
     MenuCheckboxItem: RC<{
         id: string;
@@ -80,14 +76,14 @@ export interface Menu {
         color?: MenuColor;
         subtext?: ReactNode;
         subtextLineClamp?: number;
+        /** Icon on the left that is always visible regardless of the mana context experiment */
         leftIcon?: ComponentType<any>;
-        leadingAccessory?: MenuLeadingAccessory;
+        leadingAccessory?: LeadingAccessory;
         className?: string;
         focusedClassName?: string;
     }>;
     MenuRadioItem: RC<{
         id: string;
-        // Not read anywhere in this render function, unconfirmed. Send the radio group module if it matters.
         group: string;
         label?: ReactNode;
         void_label?: (props: any) => ReactNode;
@@ -97,8 +93,9 @@ export interface Menu {
         color?: MenuColor;
         subtext?: ReactNode;
         subtextLineClamp?: number;
+        /** Icon on the left that is always visible regardless of the mana context experiment */
         leftIcon?: ComponentType<any>;
-        leadingAccessory?: MenuLeadingAccessory;
+        leadingAccessory?: LeadingAccessory;
     }>;
     MenuSwitchItem: RC<{
         id: string;
@@ -109,6 +106,18 @@ export interface Menu {
         color?: MenuColor;
         subtext?: ReactNode;
         subtextLineClamp?: number;
+        className?: string;
+    }>;
+    MenuTextInputItem: RC<{
+        id: string;
+        label?: ReactNode;
+        value: string;
+        onChange(value: string): void;
+        placeholder?: string;
+        maxLength?: number;
+        disabled?: boolean;
+        color?: MenuColor;
+        "aria-label"?: string;
         className?: string;
     }>;
     MenuControlItem: RC<{
@@ -142,30 +151,52 @@ export interface Menu {
     MenuRadioGroup: RC<{
         label?: string;
     }>;
-    MenuCustomItem: RC<{
-        color?: string;
-        disabled?: boolean;
-        isFocused?: boolean;
-        keepItemStyles?: boolean;
-        menuItemProps?: Record<string, any>;
-        action?(e: MouseEvent): void;
-        dontCloseOnAction?: boolean;
-        dontCloseOnActionIfHoldingShiftKey?: boolean;
-        onClose?(): void;
-    }>;
+}
+
+export interface ContextMenuOptions {
+    /** Target alignment relative to placement */
+    align?: PopoutAlign;
+    /** Target placement position */
+    position?: PopoutPosition;
+    /** Analytics impression name */
+    impressionName?: string;
+    /** Analytics impression properties */
+    impressionProperties?: Record<string, string | number | boolean>;
+    /** Whether to disable the click trap overlay */
+    disableClickTrap?: boolean;
+    /** Automatically update position on content size changes */
+    repositionOnContentChange?: boolean;
+    /** Enable desktop spell checking for input context menus */
+    enableSpellCheck?: boolean;
+    /** Callback triggered when the context menu unmounts/closes */
+    onClose?(): void;
+}
+
+export interface ContextMenuProps {
+    position?: string;
+    /** Current app theme */
+    theme: Theme;
+    /** Triggers a layout update when context menu dimensions change */
+    onHeightUpdate?(): void;
+    /** Configuration options passed to the context menu */
+    config?: ContextMenuOptions;
+    /** Target element that triggered the context menu */
+    target?: Element;
+    /** Layer Context where the menu was opened from */
+    context: "APP" | "LAYER" | "POPOUT" | "CALL_TILE_POPOUT";
 }
 
 export interface ContextMenuApi {
     closeContextMenu(): void;
     openContextMenu(
         event: UIEvent,
-        render?: Menu["Menu"],
-        options?: { enableSpellCheck?: boolean; },
-        renderLazy?: () => Promise<Menu["Menu"]>
+        render?: ComponentType<ContextMenuProps> | ((props: ContextMenuProps) => ReactNode),
+        options?: ContextMenuOptions,
+        renderLazy?: () => Promise<ComponentType<ContextMenuProps> | ((props: ContextMenuProps) => ReactNode)>
     ): void;
     openContextMenuLazy(
         event: UIEvent,
-        renderLazy?: () => Promise<Menu["Menu"]>,
-        options?: { enableSpellCheck?: boolean; }
+        renderLazy?: () => Promise<ComponentType<ContextMenuProps> | ((props: ContextMenuProps) => ReactNode)>,
+        options?: ContextMenuOptions
     ): void;
 }

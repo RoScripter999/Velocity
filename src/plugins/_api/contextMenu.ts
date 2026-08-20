@@ -28,6 +28,9 @@ const nameMap = {
     checkbox: "MenuCheckboxItem",
     groupstart: "MenuGroup",
 
+    switch: "MenuSwitchItem",
+    textinput: "MenuTextInputItem",
+
     control: "MenuControlItem",
     compositecontrol: "MenuControlItem",
 
@@ -94,8 +97,8 @@ export default definePlugin({
                             }
                         }
 
-                        if (registerCalls.length < 6) {
-                            console.warn("[MenuItemDemanglerAPI] Expected to remap 6 items, only remapped", registerCalls.length);
+                        if (registerCalls.length < 7) {
+                            console.warn("[MenuItemDemanglerAPI] Expected to remap 7 items, only remapped", registerCalls.length);
                         }
 
                         return `${registerCalls.join(";")};}`;

@@ -1,4 +1,7 @@
 import { ComponentType, CSSProperties, ReactNode, Ref } from "react";
+import { TextVariant } from "../components";
+
+export type BadgeType = "new" | "beta" | "early_access" | "free_trial";
 
 export interface FieldProps {
     label?: ReactNode;
@@ -25,7 +28,7 @@ export interface FieldProps {
         /** CSS value for the control column width in horizontal layouts, e.g. `"200px"` */
         horizontalControlColumnWidth?: CSSProperties["width"];
     };
-    badge?: "new" | "beta" | "early_access" | "free_trial";
+    badge?: BadgeType | { type: BadgeType, variant?: TextVariant, icon?: ComponentType<any>; };
     /** Icon rendered to the left of the label text */
     icon?: ComponentType<any>;
     /** Makes the label element respond to hover/interaction states */
