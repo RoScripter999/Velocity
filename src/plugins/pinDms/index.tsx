@@ -297,7 +297,7 @@ export default definePlugin({
                                             canMoveCategoryInDirection(category.id, -1) && <Menu.MenuItem
                                                 id="vc-pindms-move-category-up"
                                                 label="Move Up"
-                                                icon={() => <Icons.ChevronLargeUpIcon color="currentColor" />}
+                                                icon={Icons.ChevronLargeUpIcon}
                                                 leadingAccessory={{ type: "icon", icon: Icons.ChevronLargeUpIcon }}
                                                 action={() => moveCategory(category.id, -1)}
                                             />
@@ -306,7 +306,7 @@ export default definePlugin({
                                             canMoveCategoryInDirection(category.id, 1) && <Menu.MenuItem
                                                 id="vc-pindms-move-category-down"
                                                 label="Move Down"
-                                                icon={() => <Icons.ChevronLargeDownIcon color="currentColor" />}
+                                                icon={Icons.ChevronLargeDownIcon}
                                                 leadingAccessory={{ type: "icon", icon: Icons.ChevronLargeDownIcon }}
                                                 action={() => moveCategory(category.id, 1)}
                                             />
@@ -321,7 +321,7 @@ export default definePlugin({
                                 id="vc-pindms-delete-category"
                                 color="danger"
                                 label="Delete Category"
-                                icon={() => <Icons.TrashIcon color="currentColor" />}
+                                icon={Icons.TrashIcon}
                                 leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                                 action={() => removeCategory(category.id)}
                             />

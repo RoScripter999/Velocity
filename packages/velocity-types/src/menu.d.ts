@@ -10,7 +10,7 @@ type LeadingAccessory =
     | { type: "image"; src: string; }
     | { type: "emoji"; emojiId?: string; src?: string; animated?: boolean; }
     | { type: "avatar"; src: string; }
-    | { type: "roleDot"; variant?: "dot" | "circle"; color?: RawCSSColor; colors?: { primaryColor?: RawCSSColor; secondaryColor?: RawCSSColor; tertiaryColor?: RawCSSColor; }; }
+    | { type: "roleDot"; variant?: "dot" | "circle"; color?: CSSProperties["backgroundColor"]; colors?: { primaryColor?: RawCSSColor; secondaryColor?: RawCSSColor; tertiaryColor?: RawCSSColor; }; }
     | { type: "status"; status: Status; }
     | { type: "guildTag"; element: ReactNode; };
 

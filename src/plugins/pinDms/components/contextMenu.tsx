@@ -37,8 +37,8 @@ function createPinMenuItem(channelId: string) {
                     <Menu.MenuItem
                         id="vc-add-category"
                         label="Add Category"
-                        icon={() => <Icons.PlusLargeIcon color="currentColor" />}
-                        leadingAccessory={{ type: "icon", icon: Icons.PlusLargeIcon }}
+                        icon={Icons.CirclePlusIcon}
+                        leadingAccessory={{ type: "icon", icon: Icons.CirclePlusIcon }}
                         color="brand"
                         action={() => openCategoryModal(null, channelId)}
                     />
@@ -47,6 +47,7 @@ function createPinMenuItem(channelId: string) {
                         <Menu.MenuItem
                             key={category.id}
                             id={`pin-category-${category.id}`}
+                            leadingAccessory={{ type: "roleDot", color: `#${category.color.toString(16).padStart(6, "0")}` }}
                             label={category.name}
                             action={() => addChannelToCategory(channelId, category.id)}
                         />
@@ -74,6 +75,7 @@ function createPinMenuItem(channelId: string) {
                                     <Menu.MenuItem
                                         key={category.id}
                                         id={`pin-category-${category.id}`}
+                                        leadingAccessory={{ type: "roleDot", color: `#${category.color.toString(16).padStart(6, "0")}` }}
                                         label={category.name}
                                         action={() => moveChannelToCategory(channelId, category.id)}
                                     />
@@ -87,7 +89,7 @@ function createPinMenuItem(channelId: string) {
                     <Menu.MenuItem
                         id="vc-unpin-dm"
                         label="Unpin DM"
-                        icon={() => <Icons.TrashIcon color="currentColor" />}
+                        icon={Icons.TrashIcon}
                         leadingAccessory={{ type: "icon", icon: Icons.TrashIcon }}
                         color="danger"
                         action={() => removeChannelFromCategory(channelId)}
