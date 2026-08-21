@@ -52,16 +52,17 @@ export const settings = definePluginSettings({
         description: "Enable auto join (can also be toggled via the voice tray button)",
         default: true
     },
-    channelId: {
-        type: OptionType.STRING,
-        displayName: "Channel IDs",
-        description: "Check for channel ids",
-        default: ""
-    },
     showVoiceButton: {
         type: OptionType.BOOLEAN,
         description: "Shows an button in the voice tray actions (only visible when in call)",
         default: true
+    },
+    channelId: {
+        type: OptionType.STRING,
+        multiline: true,
+        displayName: "Channel IDs",
+        description: "Comma seperated channel IDs to auto join",
+        default: ""
     },
     voiceSetting: {
         type: OptionType.SELECT,
