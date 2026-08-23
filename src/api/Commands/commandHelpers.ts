@@ -17,7 +17,7 @@
 */
 
 import { mergeDefaults } from "@utils/mergeDefaults";
-import type { EmbedJSON, Message } from "@velocity-types";
+import type { Message } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
 import { MessageActions, SnowflakeUtils } from "@webpack/common";
 import type { PartialDeep } from "type-fest";
@@ -36,7 +36,7 @@ export function generateId() {
  *
  * @deprecated Don't use this in plugins for command replies, use `interaction.reply` instead
  */
-export function sendBotMessage(channelId: string, message: PartialDeep<Omit<Message, "embeds"> & { embeds?: EmbedJSON[]; }>): Message {
+export function sendBotMessage(channelId: string, message: PartialDeep<Message>): Message {
     const botMessage = createBotMessage({ channelId, content: "", embeds: [] });
 
     MessageActions.receiveMessage(channelId, mergeDefaults(message, botMessage));

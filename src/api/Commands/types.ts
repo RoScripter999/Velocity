@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Command, CommandContext, CommandReturnValue, EmbedJSON } from "@velocity-types";
-import type { Promisable } from "type-fest";
+import type { Command, CommandContext, CommandReturnValue, Message } from "@velocity-types";
+import type { PartialDeep, Promisable } from "type-fest";
 
 export { ApplicationCommandInputType, ApplicationCommandOptionType, ApplicationCommandType } from "@velocity-types/enums";
 
@@ -40,7 +40,7 @@ export interface CommandInteractionOptions {
 export interface CommandInteraction {
     options: CommandInteractionOptions;
     getSubcommand(): string;
-    reply(data: { content?: string, embeds?: Array<EmbedJSON>, components?: any; }): void;
+    reply(data: PartialDeep<Message>): void;
 }
 
 export interface VelocityCommand extends Omit<Command, "execute"> {

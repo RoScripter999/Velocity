@@ -24,6 +24,7 @@ export enum CopyType {
     DESCRIPTION
 }
 
+// Discord has a simular function, but i couldn't find one that reverses the color
 function parseDiscordColor(colorValue: string | number): number | null {
     if (typeof colorValue === "number") return colorValue;
     if (typeof colorValue === "string") {
@@ -63,9 +64,9 @@ export function toEmbedJson(embed: Embed): EmbedJSON {
     if (embed.url) e.url = embed.url;
     if (embed.color) {
         const parsedColor = parseDiscordColor(embed.color);
-        if (parsedColor !== null) e.color = parsedColor;
+        if (parsedColor !== null) e.color = parsedColor.toString();
     }
-    if (embed.timestamp) e.timestamp = embed.timestamp;
+    if (embed.timestamp) e.timestamp = embed.timestamp.toString();
 
     if (embed.footer) {
         e.footer = {};
@@ -80,8 +81,8 @@ export function toEmbedJson(embed: Embed): EmbedJSON {
         if (embed.author.iconURL) e.author.icon_url = embed.author.iconURL;
     }
 
-    if (embed.thumbnail?.url) e.thumbnail = { url: embed.thumbnail.url };
-    if (embed.image?.url) e.image = { url: embed.image.url };
+    if (embed.thumbnail) e.thumbnail = { height: embed.thumbnail.height, width: embed.thumbnail.width, url: embed.thumbnail.url, proxy_url: embed.thumbnail.proxyURL };
+    if (embed.image) e.image = { height: embed.image.height, width: embed.image.width, url: embed.image.url, proxy_url: embed.image.proxyURL };
     if (embed.fields?.length) {
         e.fields = embed.fields.map(f => ({
             name: f.rawName,
