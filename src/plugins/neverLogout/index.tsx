@@ -27,7 +27,7 @@ import { classNameFactory } from "@utils/css";
 import { copyWithToast, getIntlMessage } from "@utils/discord";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
-import type { ModalPropsRender, SidebarItemNode } from "@velocity-types";
+import type { ButtonsProps, ModalPropsRender, SidebarItemNode } from "@velocity-types";
 import { findByPropsLazy } from "@webpack";
 import { Avatar, Buttons, ConfirmModal, Icons, IconUtils, LayoutType, Modal, openModal, TextInput, useEffect, UserStore, useState } from "@webpack/common";
 
@@ -131,19 +131,13 @@ function LoginModal(modalProps: ModalPropsRender) {
 function LoginButton(array?: boolean) {
     const handleClick = () => openModal(props => <LoginModal {...props} />);
 
-    return array
-        ? {
-            text: "Account Tokens",
-            variant: "secondary",
-            onClick: handleClick
-        }
+    const props: ButtonsProps["TextButton"] = {
+        text: "Account Tokens",
+        variant: "secondary",
+        onClick: handleClick
+    };
 
-        : <Buttons.TextButton
-            text="Use Account Tokens"
-            textVariant="text-sm/medium"
-            variant="secondary"
-            onClick={handleClick}
-        />;
+    return array ? props : <Buttons.TextButton {...props} textVariant="text-sm/medium" />;
 }
 
 const NeverLogoutSidebar = (): SidebarItemNode => ({
