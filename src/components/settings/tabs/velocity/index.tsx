@@ -213,7 +213,7 @@ function SettingsList() {
 
     return (
         <div className={Margins.top16}>
-            {Object.entries(Settings).map(([category, items]) => (
+            {Object.entries(Settings).map(([category, items]) => items.some(Boolean) && (
                 <div key={category}>
                     <Text variant="text-xs/semibold" color="text-muted" className={Margins.top16}>
                         {category}
