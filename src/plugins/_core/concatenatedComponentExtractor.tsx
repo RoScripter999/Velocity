@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Settings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { StartAt } from "@utils/types";
 import { setColorPicker, setCreateScroller, setFilePicker, setIcons, setRoleMemberPopout } from "@webpack/common";
@@ -83,7 +84,7 @@ export default definePlugin({
     ],
 
     get showRedesignedIcon() {
-        return Velocity.Settings.velocityStyles.showRedesignedIcon;
+        return Settings.velocityStyles.showRedesignedIcon;
     },
 
     setRoleMemberPopout,
