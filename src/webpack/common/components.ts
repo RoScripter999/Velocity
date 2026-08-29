@@ -83,7 +83,7 @@ export function setRoleMemberPopout(component: t.RoleMemberPopout) {
 }
 
 export const UserSummaryItem = waitForComponent("UserSummaryItem", filters.componentByCode("defaultRenderUser", "showDefaultAvatarsForNullUsers"));
-export const TagGroup = waitForComponent<t.TagGroup>("TagGroup", filters.componentByCode('"none",layout'));
+export const TagGroup = waitForComponent<t.TagGroup>("TagGroup", filters.componentByCode(".map(", ",disallowEmptySelection"));
 
 export let createScroller: ((scrollbarClassName: string, fadeClassName: string, customThemeClassName: string) => t.ScrollerThin) | undefined;
 export function setCreateScroller(cs: NonNullable<typeof createScroller>) {

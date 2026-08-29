@@ -138,6 +138,10 @@ function TestTab() {
                 <Buttons.Button fullWidth loading={loading} text={text} icon={icon} disabled={loading} onClick={handle} />
             </div>
 
+            <div className={Margins.bottom20}>
+                <Buttons.Button variant="togglebutton" icon={Icons.AccessibilityIcon} text={text} onClick={() => setPressed(!pressed)} aria-pressed={pressed} />
+            </div>
+
             <Buttons.ButtonGroup>
                 <Buttons.Button text="Open Multistep Modal" onClick={openMultiStepModal} />
 

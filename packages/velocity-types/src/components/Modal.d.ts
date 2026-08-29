@@ -1,5 +1,5 @@
-import type { ComponentType, PropsWithChildren, ReactNode, RefObject } from "react";
 import type { ButtonsProps, ButtonVariant } from "./Buttons";
+import type { ComponentType, Context, PropsWithChildren, ReactNode, Ref, RefObject } from "react";
 
 type RenderFunction = (props: ModalProps) => ReactNode | Promise<ReactNode>;
 
@@ -164,7 +164,7 @@ export interface LayerModalProps {
     returnRef?: Ref<HTMLElement>;
 }
 
-export interface MultiStepModalProps {
+export interface MultiStepModalProps extends Omit<ModalProps, "title" | "subtitle" | "notice" | "input" | "listProps" | "scrollerRef" | "onScroll" | "preview" | "actions" | "actionsFullWidth" | "actionBarInput" | "actionBarInputLayout"> {
     steps: {
         stepKey: string;
         modalProps: {
@@ -185,9 +185,9 @@ export interface MultiStepModalProps {
         onNext?: () => boolean | Promise<boolean>;
         /** hides back button */
         hideBackButton?: boolean;
-        backButtonProps?: ComponentProps<t.Buttons["TextButton"]>;
-        nextButtonProps?: ComponentProps<t.Buttons["Button"]>;
-        secondaryActionButtonProps?: ComponentProps<t.Buttons["Button"]>;
+        backButtonProps?: ButtonsProps["TextButton"];
+        nextButtonProps?: ButtonsProps["Button"];
+        secondaryActionButtonProps?: ButtonsProps["Button"];
     }[];
     /** Must be a valid key from {@link steps} defined on stepKey. If invalid a "Step with key {keyName} not found" crash will occur */
     currentStepKey: string;
@@ -195,15 +195,6 @@ export interface MultiStepModalProps {
     numberedSteps?: string[];
     onStepChange?: (nextStepKey: string, currentStepKey: string) => void;
     onComplete?: () => void | Promise<void>;
-    onClose?: () => void;
-    dismissable?: boolean;
-
-    size?: "sm" | "md" | "lg" | "xl" | "xxl";
-    paddingSize?: "sm" | "lg";
-    animationVariant?: ComponentProps<Modals["ModalRoot"]>["animation"];
-    fullScreenOnMobile?: boolean;
-    role?: ComponentProps<Modals["ModalRoot"]>["role"];
-    maxHeight?: "default" | "viewport";
 }
 
 export interface ModalAPI {

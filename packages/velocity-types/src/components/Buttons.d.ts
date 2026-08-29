@@ -1,13 +1,13 @@
-import { ButtonHTMLAttributes, ComponentType, CSSProperties, HTMLAttributes, PropsWithChildren, Ref } from "react";
+import { ButtonHTMLAttributes, AriaAttributes, ComponentType, CSSProperties, HTMLAttributes, PropsWithChildren, Ref } from "react";
 import { TextVariant } from "../components";
 
-export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive" | "icon-only" | "color-mix";
+export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive" | "togglebutton" | "icon-only" | "color-mix";
 
 type Booleanish = boolean | "true" | "false";
 type SpaceValue = 0 | 4 | 6 | 8 | 10 | 12 | 16 | 20 | 24 | 26 | 30 | 32 | 40 | 48 | 64 | 80 | 96 | 128 | 160 | 192;
 
 export interface ButtonsProps {
-    Button: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled" | "className"> & {
+    Button: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled" | "className", "aria-pressed"> & {
         /** Background color variant of the button. @default primary */
         variant?: ButtonVariant;
         /** Size of the button @default md */
@@ -33,6 +33,8 @@ export interface ButtonsProps {
         /** Minimum size of the button's width. */
         minWidth?: CSSProperties["minWidth"];
         buttonRef?: Ref<HTMLButtonElement>;
+        /** Indicates the current "pressed" state of buttons with togglebutton variant. */
+        "aria-pressed": AriaAttributes["aria-pressed"];
     };
     TextButton: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "role" | "className" | "style"> & {
         /** Limits how many downlines the text creates when too long. */
