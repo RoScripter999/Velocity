@@ -75,6 +75,11 @@ const settings = definePluginSettings({
         default: false,
         restartNeeded: true
     },
+    logEdits: {
+        type: OptionType.BOOLEAN,
+        description: "Whether to log edited messages",
+        default: true
+    },
     logDeletedAttachments: {
         type: OptionType.BOOLEAN,
         description: "Whether to log deleted attachments",
