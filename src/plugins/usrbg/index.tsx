@@ -69,6 +69,14 @@ export default definePlugin({
                     replace: "$1.style=$self.getVoiceBackgroundStyles($1);"
                 }
             ]
+        },
+        {
+            find: ".VIDEO_TILE_BACKGROUND,primaryColor:",
+            predicate: () => settings.store.voiceBackground,
+            replacement: {
+                match: /backgroundColor:.{0,25},\{style:(?=\i\?)/,
+                replace: "$&$self.userHasBackground(arguments[0]?.userId)?null:"
+            }
         }
     ],
 
