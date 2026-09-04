@@ -75,27 +75,25 @@ export type LoadingIndicator = ComponentType<PropsWithChildren<{
     };
 };
 
-export type FieldSet = ComponentType<PropsWithChildren<Omit<HTMLAttributes<HTMLFieldSetElement>, "label" | "description" | "children"> & {
+export type FieldSet = ComponentType<PropsWithChildren<Omit<HTMLAttributes<HTMLFieldSetElement>, "label" | "description"> & {
     label?: ReactNode;
     description?: ReactNode;
 }>>;
 
-export type HelpMessage = ComponentType<{
+export type HelpMessage = ComponentType<PropsWithChildren<{
     /** If not provided nothing renders. */
     messageType?: "warn" | "info" | "danger" | "positive" | "preview";
-    children?: ReactNode;
     action?: ReactNode;
     className?: string;
+    iconAlign?: "center";
+    /** @default text-default */
     textColor?: CSSColorToken;
+    /** @default text-sm/medium */
     textVariant?: TextVariant;
-    icon?: ComponentType<{
-        className?: string;
-        color?: string;
-    }>;
+    icon?: ComponentType<any>;
     /** Hides the {@link HelpMessage} component */
     hidden?: boolean;
-}>;
-
+}>>;
 
 export type HiddenVisually = ComponentType<PropsWithChildren<HTMLAttributes<HTMLElement> & {
     tag?: HTMLElementType;
