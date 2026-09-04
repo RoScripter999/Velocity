@@ -2,6 +2,7 @@ import { ButtonHTMLAttributes, AriaAttributes, ComponentType, CSSProperties, HTM
 import { TextVariant } from "../components";
 
 export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive" | "togglebutton" | "icon-only" | "color-mix";
+export type ButtonSize = "xs" | "sm" | "md";
 
 type Booleanish = boolean | "true" | "false";
 type SpaceValue = 0 | 4 | 6 | 8 | 10 | 12 | 16 | 20 | 24 | 26 | 30 | 32 | 40 | 48 | 64 | 80 | 96 | 128 | 160 | 192;
@@ -11,7 +12,7 @@ export interface ButtonsProps {
         /** Background color variant of the button. @default primary */
         variant?: ButtonVariant;
         /** Size of the button @default md */
-        size?: "xs" | "sm" | "md";
+        size?: ButtonSize;
         text?: string;
         icon?: ComponentType<any>;
         /** Positions where {@link icon} is positioned. @default start */
@@ -48,6 +49,24 @@ export interface ButtonsProps {
         buttonRef?: Ref<HTMLButtonElement>;
     };
     IconButton: Omit<ButtonsProps["Button"], "text" | "fullWidth">;
+    ToggleIconButton: ButtonHTMLAttributes<HTMLButtonElement> & {
+        /** @default md */
+        size?: ButtonSize;
+        /** @default default */
+        variant?: "default" | "critical" | "icon-only";
+        icon?: ComponentType<any>;
+        /** Replaces {@link icon} when {@link pressed} is true. */
+        selectedIcon?: ComponentType<any>;
+        /** @default 0 */
+        iconOpticalOffsetMargin?: number;
+        /** FocusRing props, look in button's wrapper component. */
+        focusProps?: Record<string, any>;
+        /** @default false */
+        pressed?: boolean;
+        "aria-label"?: string;
+        buttonRef?: Ref<HTMLButtonElement>;
+        disabled?: Booleanish;
+    };
     ButtonGroup: HTMLAttributes<HTMLElement> & {
         /** Which HTML element the {@link ButtonGroup} is. @default div  */
         as?: "div" | "span" | "section";
@@ -75,5 +94,6 @@ export type Buttons = {
     Button: ComponentType<ButtonsProps["Button"]>;
     TextButton: ComponentType<ButtonsProps["TextButton"]>;
     IconButton: ComponentType<PropsWithChildren<ButtonsProps["IconButton"]>>;
+    ToggleIconButton: ComponentType<ButtonsProps["ToggleIconButton"]>;
     ButtonGroup: ComponentType<PropsWithChildren<ButtonsProps["ButtonGroup"]>>;
 };

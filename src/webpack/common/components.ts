@@ -39,6 +39,7 @@ export const Forms: t.Forms = {
 export const Buttons: t.Buttons = {
     Button: waitForComponent("Button", filters.componentByCode('"data-mana-component"', "lineClamp:1")),
     IconButton: waitForComponent("IconButton", filters.componentByCode(/,{...\i\,text/, "fullWidth:!")),
+    ToggleIconButton: waitForComponent("ToggleIconButton", filters.componentByCode('"data-mana-component":"toggle-icon-button"')),
     TextButton: waitForComponent("TextButton", filters.componentByCode('"data-mana-component":"text-button"', "variant:")),
     ButtonGroup: waitForComponent("ButtonGroup", filters.componentByCode('"data-align"', '"data-direction"'))
 };
