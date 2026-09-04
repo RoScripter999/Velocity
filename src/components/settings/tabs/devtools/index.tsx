@@ -20,46 +20,53 @@ import "./styles.css";
 
 import { Margins } from "@components/margins";
 import { SettingsTab } from "@components/settings";
-import { TabBar, useState } from "@webpack/common";
+import { Tabs, useState } from "@webpack/common";
+import type { ComponentType } from "react";
 
 import TestTab from "./gay";
 import IconCreator from "./IconCreator";
 import IconsTab from "./IconsPreview";
 
-const enum DevTab {
+const enum PanelTabs {
     ICONS,
     CREATOR,
     GAY
 }
 
 export default !IS_STANDALONE ? function DevTools() {
-    const [currentTab, setCurrentTab] = useState(DevTab.ICONS);
+    const [currentTab, setCurrentTab] = useState(PanelTabs.ICONS);
+
+    function wrapTab(Tab: ComponentType<any>) {
+        return (
+            <main className={Margins.top20}>
+                <Tab />
+            </main>
+        );
+    }
 
     return (
         <SettingsTab>
-            <TabBar
-                type="top"
-                look="brand"
-                selectedItem={currentTab}
-                onItemSelect={setCurrentTab}
-                className={Margins.bottom20}
-            >
-                <TabBar.Item id={DevTab.ICONS}>
-                    Icons Preview
-                </TabBar.Item>
-                <TabBar.Item id={DevTab.CREATOR}>
-                    Icon Creator
-                </TabBar.Item>
-                <TabBar.Item id={DevTab.GAY}>
-                    GAY
-                </TabBar.Item>
-            </TabBar>
-
-            <main>
-                {currentTab === DevTab.ICONS && <IconsTab />}
-                {currentTab === DevTab.CREATOR && <IconCreator />}
-                {currentTab === DevTab.GAY && <TestTab />}
-            </main>
+            <Tabs
+                items={[
+                    {
+                        id: PanelTabs.ICONS,
+                        label: "Icons Preview",
+                        panel: () => wrapTab(IconsTab)
+                    },
+                    {
+                        id: PanelTabs.CREATOR,
+                        label: "Icon Creator",
+                        panel: () => wrapTab(IconCreator)
+                    },
+                    {
+                        id: PanelTabs.GAY,
+                        label: "GAY",
+                        panel: () => wrapTab(TestTab)
+                    }
+                ]}
+                selectedId={currentTab}
+                onChange={setCurrentTab}
+            />
         </SettingsTab>
     );
 } : null;

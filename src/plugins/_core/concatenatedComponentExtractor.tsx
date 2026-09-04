@@ -19,7 +19,7 @@
 import { Settings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { StartAt } from "@utils/types";
-import { setColorPicker, setCreateScroller, setFilePicker, setIcons, setRoleMemberPopout } from "@webpack/common";
+import { setColorPicker, setCreateScroller, setFilePicker, setIcons, setRoleMemberPopout, setTabs } from "@webpack/common";
 
 export default definePlugin({
     name: "ConcatenatedComponentExtractor",
@@ -80,6 +80,14 @@ export default definePlugin({
                 match: /actionsFullWidth:null==(\i)/,
                 replace: "actionsFullWidth:arguments[0].actionsFullWidth??null==$1"
             }
+        },
+        {
+            find: '"data-mana-component":"Tabs"',
+            lazy: true,
+            replacement: {
+                match: /(?=function (\i)\(\i\)\{let\{items:\i,selectedId:)/,
+                replace: "$self.setTabs($1);$&"
+            }
         }
     ],
 
@@ -91,5 +99,6 @@ export default definePlugin({
     setCreateScroller,
     setColorPicker,
     setFilePicker,
+    setTabs,
     setIcons
 });

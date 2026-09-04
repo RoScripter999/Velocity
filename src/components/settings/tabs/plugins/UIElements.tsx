@@ -32,7 +32,7 @@ import { useMaps } from "@utils/react";
 import type { Plugin } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { findByCodeLazy } from "@webpack";
-import { Icons, Modal, openModal, RichTooltip, ScrollerAuto, TabBar, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
+import { Icons, Modal, openModal, RichTooltip, ScrollerAuto, Tabs, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 interface RowProps {
@@ -183,8 +183,8 @@ export function UIElementsButton() {
 function EmptyOrder(buttonMap: Map<string, any>) {
     const hasRequired = buttonMap.size > 0;
     return (
-        <section>
-            <Paragraph color="text-muted" className={cl("no-buttons")}>
+        <section className={cl("empty-order")}>
+            <Paragraph color="text-muted" style={{ justifySelf: "center" }}>
                 {hasRequired
                     ? "All enabled plugins for this section are required and cannot be configured."
                     : "You have no plugins enabled that control this section."}
@@ -226,7 +226,7 @@ function Section(props: {
                 titleVariant="text-sm/normal"
                 title={title}
                 titleColor="text-muted"
-                gap={{ bottom: 20 }}
+                gap={{ bottom: 20, top: 16 }}
                 icon={icon}
                 tooltip={tooltip}
             />
@@ -308,7 +308,7 @@ function DraggableSection(props: {
                 titleVariant="text-sm/normal"
                 title={title}
                 titleColor="text-muted"
-                gap={{ bottom: 20 }}
+                gap={{ bottom: 20, top: 16 }}
                 icon={icon}
             />
             <ScrollerAuto fade className={cl("switches")}>
@@ -390,7 +390,6 @@ function UIElementsModal(props: UIElementsModalProps) {
 
     const [activeTab, setActiveTab] = useState<typeof tabs[number]>(tabs[0]);
 
-
     return (
         <Modal
             {...props}
@@ -406,66 +405,69 @@ function UIElementsModal(props: UIElementsModalProps) {
             }
         >
             <div className={cl("modal-content")}>
-                <TabBar
-                    type="top"
-                    look="brand"
-                    orientation="horizontal"
-                    selectedItem={activeTab}
-                    onItemSelect={setActiveTab}
-                >
-                    {tabs.map((tab: typeof activeTab) => (
-                        <TabBar.Item key={tab} id={tab}>
-                            {tab === "chatbar" && "Chatbar Buttons"}
-                            {tab === "popover" && "Message Popover Buttons"}
-                            {tab === "headerbar" && "Header Buttons"}
-                            {tab === "context" && "Context Menu Buttons"}
-                        </TabBar.Item>
-                    ))}
-                </TabBar>
-
-                {activeTab === "chatbar" && (
-                    <DraggableSection
-                        title="These are the buttons on the right side of the chat input bar"
-                        icon={Icons.ChatIcon}
-                        buttonMap={ChatBarButtonMap}
-                        settings={uiElements.chatBarButtons}
-                        plugin={plugin}
-                    />
-                )}
-
-                {activeTab === "popover" && (
-                    <DraggableSection
-                        title="These are the floating buttons on the right when you hover over a message"
-                        icon={Icons.PencilIcon}
-                        buttonMap={MessagePopoverButtonMap}
-                        settings={uiElements.messagePopoverButtons}
-                        plugin={plugin}
-                    />
-                )}
-
-                {activeTab === "headerbar" && (
-                    <Section
-                        title="These are the buttons in the header bar and channel toolbar"
-                        icon={Icons.WindowTopIcon}
-                        buttonMap={HeaderBarButtonMap}
-                        settings={uiElements.headerBarButtons}
-                        plugin={plugin}
-                    />
-                )}
-
-                {activeTab === "context" && (
-                    <Section
-                        title="These are buttons added to right-click context menus by plugins"
-                        icon={Icons.MenuIcon}
-                        buttonMap={ContextMenuButtonMap}
-                        settings={uiElements.contextMenuButtons}
-                        plugin={plugin}
-                        tooltip={{
-                            title: "Some Items are hidden!",
-                            body: "Hidden items are required by enabled plugins to function."
-                        }}
-                    />
-                )}
+                <Tabs
+                    items={[
+                        {
+                            id: "chatbar",
+                            label: "Chatbar Buttons",
+                            panel: () => (
+                                <DraggableSection
+                                    title="These are the buttons on the right side of the chat input bar"
+                                    icon={Icons.ChatIcon}
+                                    buttonMap={ChatBarButtonMap}
+                                    settings={uiElements.chatBarButtons}
+                                    plugin={plugin}
+                                />
+                            )
+                        },
+                        {
+                            id: "popover",
+                            label: "Message Popover Buttons",
+                            panel: () => (
+                                <DraggableSection
+                                    title="These are the floating buttons on the right when you hover over a message"
+                                    icon={Icons.PencilIcon}
+                                    buttonMap={MessagePopoverButtonMap}
+                                    settings={uiElements.messagePopoverButtons}
+                                    plugin={plugin}
+                                />
+                            )
+                        },
+                        {
+                            id: "headerbar",
+                            label: "Header Buttons",
+                            panel: () => (
+                                <Section
+                                    title="These are the buttons in the header bar and channel toolbar"
+                                    icon={Icons.WindowTopIcon}
+                                    buttonMap={HeaderBarButtonMap}
+                                    settings={uiElements.headerBarButtons}
+                                    plugin={plugin}
+                                />
+                            )
+                        },
+                        {
+                            id: "context",
+                            label: "Context Menu Buttons",
+                            panel: () => (
+                                <Section
+                                    title="These are buttons added to right-click context menus by plugins"
+                                    icon={Icons.MenuIcon}
+                                    buttonMap={ContextMenuButtonMap}
+                                    settings={uiElements.contextMenuButtons}
+                                    plugin={plugin}
+                                    tooltip={{
+                                        title: "Some Items are hidden!",
+                                        body: "Hidden items are required by enabled plugins to function."
+                                    }}
+                                />
+                            )
+                        }
+                    ]}
+                    selectedId={activeTab}
+                    onChange={setActiveTab}
+                    panelAnimation="fade"
+                />
             </div>
         </Modal>
     );

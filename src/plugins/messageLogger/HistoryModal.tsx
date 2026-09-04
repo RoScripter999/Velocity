@@ -18,18 +18,15 @@
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Margins } from "@components/margins";
-import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
 import type { ModalPropsRender } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { Modal, openModal, RichTooltip, TabBar, Timestamp, useState } from "@webpack/common";
+import { DateUtils, Modal, openModal, Tabs, useState } from "@webpack/common";
 
 import { parseEditContent } from ".";
 
 const CodeContainerClasses = findCssClassesLazy("markup", "codeContainer");
 const MiscClasses = findCssClassesLazy("messageContent", "markupRtl");
-
-const cl = classNameFactory("vc-ml-modal-");
 
 export function openHistoryModal(message: any) {
     openModal(props =>
@@ -53,48 +50,30 @@ export function HistoryModal({ modalProps, message }: { modalProps: ModalPropsRe
             size="lg"
             title="Message Edit History"
         >
-            <TabBar
-                type="top"
-                look="brand"
-                className={cl("tab-bar")}
-                selectedItem={currentTab}
-                onItemSelect={setCurrentTab}
-            >
-                {message.firstEditTimestamp.getTime() !== message.timestamp.getTime() && (
-                    <RichTooltip body="This edit state was not logged so it can't be displayed.">
-                        <TabBar.Item
-                            id={-1}
-                            disabled
-                        >
-                            <Timestamp
-                                className={cl("timestamp")}
-                                timestamp={message.timestamp}
-                                isEdited={true}
-                                isInline={false}
-                            />
-                        </TabBar.Item>
-                    </RichTooltip>
-                )}
-
-                {timestamps.map((timestamp, index) => (
-                    <TabBar.Item
-                        key={index}
-                        className="vc-settings-tab-bar-item"
-                        id={index}
-                    >
-                        <Timestamp
-                            className={cl("timestamp")}
-                            timestamp={timestamp}
-                            isEdited={true}
-                            isInline={false}
-                        />
-                    </TabBar.Item>
-                ))}
-            </TabBar>
-
-            <div className={classes(CodeContainerClasses.markup, MiscClasses.messageContent, Margins.top20)}>
-                {parseEditContent(contents[currentTab], message)}
-            </div>
+            <Tabs
+                items={[
+                    ...(message.firstEditTimestamp.getTime() !== message.timestamp.getTime() ? [{
+                        id: "-1",
+                        label: DateUtils.dateFormat(message.timestamp, "LT"),
+                        panel: () => (
+                            <div className={Margins.top20}>
+                                This edit state was not logged so it can't be displayed.
+                            </div>
+                        )
+                    }] : []),
+                    ...timestamps.map((timestamp, index) => ({
+                        id: index,
+                        label: DateUtils.dateFormat(timestamp, "LT"),
+                        panel: () => (
+                            <div className={classes(CodeContainerClasses.markup, MiscClasses.messageContent, Margins.top20)}>
+                                {parseEditContent(contents[currentTab], message)}
+                            </div>
+                        )
+                    }))
+                ]}
+                selectedId={currentTab}
+                onChange={item => setCurrentTab(item)}
+            />
         </Modal>
     );
 }

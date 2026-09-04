@@ -25,7 +25,7 @@ import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
 import type { Guild, GuildFeatures, ModalPropsRender, User } from "@velocity-types";
 import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { FluxDispatcher, Forms, GuildChannelStore, GuildMemberStore, GuildRoleStore, IconUtils, Modal, openModal, Parser, PresenceStore, RelationshipStore, ScrollerThin, SnowflakeUtils, TabBar, Text, Timestamp, useEffect, UserStore, UserUtils, useState, useStateFromStores } from "@webpack/common";
+import { FluxDispatcher, Forms, GuildChannelStore, GuildMemberStore, GuildRoleStore, IconUtils, Modal, openModal, Parser, PresenceStore, RelationshipStore, ScrollerThin, SnowflakeUtils, Tabs, Text, Timestamp, useEffect, UserStore, UserUtils, useState, useStateFromStores } from "@webpack/common";
 
 const IconClasses = findCssClassesLazy("icon", "acronym", "childWrapper");
 const FriendRow = findComponentByCodeLazy("discriminatorClass:", ".isMobileOnline", "avatarSrc:");
@@ -37,7 +37,7 @@ export function openGuildInfoModal(guild: Guild) {
     openModal(props => <GuildInfoModal guild={guild} modalProps={props} />);
 }
 
-const enum Tabs {
+const enum GuildInfoTab {
     ServerInfo,
     Friends,
     BlockedUsers,
@@ -69,7 +69,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
     const [blockedCount, setBlockedCount] = useState<number>();
     const [ignoredCount, setIgnoredCount] = useState<number>();
 
-    const [currentTab, setCurrentTab] = useState(Tabs.ServerInfo);
+    const [currentTab, setCurrentTab] = useState(GuildInfoTab.ServerInfo);
 
     const bannerUrl = guild.banner && IconUtils.getGuildBannerURL(guild, true)!.replace(/\?size=\d+$/, "?size=1024");
 
@@ -112,7 +112,7 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
             />
             }
         >
-            {bannerUrl && currentTab === Tabs.ServerInfo && (
+            {bannerUrl && currentTab === GuildInfoTab.ServerInfo && (
                 <img
                     className={cl("banner")}
                     src={bannerUrl}
@@ -124,39 +124,33 @@ function GuildInfoModal({ guild, modalProps }: GuildProps & { modalProps: ModalP
                 />
             )}
 
-            <TabBar
-                type="top"
-                look="brand"
-                className={cl("tab-bar")}
-                selectedItem={currentTab}
-                onItemSelect={setCurrentTab}
-            >
-                <TabBar.Item className={cl("tab", { selected: currentTab === Tabs.ServerInfo })} id={Tabs.ServerInfo}>
-                    Server Info
-                </TabBar.Item>
-                <TabBar.Item className={cl("tab", { selected: currentTab === Tabs.Friends })} id={Tabs.Friends} >
-                    Friends{friendCount !== undefined ? ` (${friendCount})` : ""}
-                </TabBar.Item>
-                <TabBar.Item
-                    className={cl("tab", { selected: currentTab === Tabs.BlockedUsers })}
-                    id={Tabs.BlockedUsers}
-                >
-                    Blocked Users{blockedCount !== undefined ? ` (${blockedCount})` : ""}
-                </TabBar.Item>
-                <TabBar.Item
-                    className={cl("tab", { selected: currentTab === Tabs.IgnoredUsers })}
-                    id={Tabs.IgnoredUsers}
-                >
-                    Ignored Users{ignoredCount !== undefined ? ` (${ignoredCount})` : ""}
-                </TabBar.Item>
-            </TabBar>
-
-            <div className={cl("tab-content")}>
-                {currentTab === Tabs.ServerInfo && <ServerInfoTab guild={guild} />}
-                {currentTab === Tabs.Friends && <FriendsTab guild={guild} setCount={setFriendCount} />}
-                {currentTab === Tabs.BlockedUsers && <BlockedUsersTab guild={guild} setCount={setBlockedCount} />}
-                {currentTab === Tabs.IgnoredUsers && <IgnoredUserTab guild={guild} setCount={setIgnoredCount} />}
-            </div>
+            <Tabs
+                items={[
+                    {
+                        id: GuildInfoTab.ServerInfo,
+                        label: "Server Info",
+                        panel: () => <ServerInfoTab guild={guild} />
+                    },
+                    {
+                        id: GuildInfoTab.Friends,
+                        label: `Friends${friendCount !== undefined ? ` (${friendCount})` : ""}`,
+                        panel: () => <FriendsTab guild={guild} setCount={setFriendCount} />
+                    },
+                    {
+                        id: GuildInfoTab.BlockedUsers,
+                        label: `Blocked Users${blockedCount !== undefined ? ` (${blockedCount})` : ""}`,
+                        panel: () => <BlockedUsersTab guild={guild} setCount={setBlockedCount} />
+                    },
+                    {
+                        id: GuildInfoTab.IgnoredUsers,
+                        label: `Ignored Users${ignoredCount !== undefined ? ` (${ignoredCount})` : ""}`,
+                        panel: () => <IgnoredUserTab guild={guild} setCount={setIgnoredCount} />
+                    }
+                ]}
+                selectedId={currentTab}
+                onChange={setCurrentTab}
+                panelAnimation="fade"
+            />
         </Modal>
     );
 }

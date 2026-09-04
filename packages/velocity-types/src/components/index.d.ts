@@ -4,5 +4,6 @@ export * from "./Forms";
 export * from "./Modal";
 export * from "./Popout";
 export * from "./Select";
+export * from "./Tabs";
 export * from "./TextInput";
 export * from "./Tooltip";

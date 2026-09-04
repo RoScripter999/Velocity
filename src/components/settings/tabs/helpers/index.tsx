@@ -18,40 +18,46 @@
 
 import { Margins } from "@components/margins";
 import { SettingsTab } from "@components/settings";
-import { TabBar, useState } from "@webpack/common";
+import { Tabs, useState } from "@webpack/common";
+import type { ComponentType } from "react";
 
 import PatchHelper from "./PatchHelper";
 import SearchHelper from "./SearchHelper";
 
-const enum Tabs {
+const enum PanelTabs {
     PATCH_HELPER,
     SEARCH_HELPER
 }
 
 export default !IS_STANDALONE ? function Helpers() {
-    const [currentTab, setCurrentTab] = useState(Tabs.PATCH_HELPER);
+    const [currentTab, setCurrentTab] = useState(PanelTabs.PATCH_HELPER);
+
+    function wrapTab(Tab: ComponentType<any>) {
+        return (
+            <main className={Margins.top20}>
+                <Tab />
+            </main>
+        );
+    }
 
     return (
         <SettingsTab>
-            <TabBar
-                type="top"
-                look="brand"
-                selectedItem={currentTab}
-                onItemSelect={setCurrentTab}
-                className={Margins.bottom20}
-            >
-                <TabBar.Item id={Tabs.PATCH_HELPER}>
-                    Patch Helper
-                </TabBar.Item>
-                <TabBar.Item id={Tabs.SEARCH_HELPER}>
-                    Search Helper
-                </TabBar.Item>
-            </TabBar>
-
-            <main>
-                {currentTab === Tabs.PATCH_HELPER && <PatchHelper />}
-                {currentTab === Tabs.SEARCH_HELPER && <SearchHelper />}
-            </main>
+            <Tabs
+                items={[
+                    {
+                        id: PanelTabs.PATCH_HELPER,
+                        label: "Patch Helper",
+                        panel: () => wrapTab(PatchHelper)
+                    },
+                    {
+                        id: PanelTabs.SEARCH_HELPER,
+                        label: "Search Helper",
+                        panel: () => wrapTab(SearchHelper)
+                    }
+                ]}
+                selectedId={currentTab}
+                onChange={setCurrentTab}
+            />
         </SettingsTab>
     );
 } : null;

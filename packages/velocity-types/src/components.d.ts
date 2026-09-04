@@ -1,4 +1,4 @@
-import type { ComponentClass, ComponentPropsWithRef, ComponentType, CSSProperties, ElementType, FC, HTMLAttributes, HTMLElementType, HTMLProps, JSX, MouseEvent, PropsWithChildren, ReactNode, Ref, SVGProps } from "react";
+import type { ComponentClass, ComponentPropsWithRef, ComponentType, CSSProperties, ElementType, FC, HTMLAttributes, HTMLElementType, JSX, PropsWithChildren, ReactNode, Ref, SVGProps } from "react";
 import type { FieldProps, Status } from "../";
 
 // copy(find(m => Array.isArray(m) && m.includes("heading-sm/normal")).map(JSON.stringify).join("|"))
@@ -46,7 +46,7 @@ export type IconProps = SVGProps<SVGSVGElement> & {
 
 export type Icons = Record<IconNames, FC<IconProps>>;
 
-export type CheckboxGroup = ComponentType<Omit<Field extends ComponentType<infer P> ? P : {}, "role"> & {
+export type CheckboxGroup = ComponentType<Omit<FieldProps, "role"> & {
     selectedValues: (string | number)[];
     onChange?(value: (string | number)[]): void;
     options: Array<{
@@ -171,44 +171,6 @@ export type useToken = (color: {
     css: string;
     resolve: Resolve;
 }) => ReturnType<Resolve>;
-
-export type TabBar = ComponentType<PropsWithChildren<{
-    className?: string;
-    type?: "side" | "top" | "top-pill";
-    style?: CSSProperties;
-    "aria-label"?: string;
-    orientation?: "horizontal" | "vertical";
-    selectedItem: string | number;
-    onItemSelect: ((id: string | number) => void) | Dispatch<SetStateAction<Tabs>>;
-    look?: "grey" | "brand" | "custom";
-}>> & {
-    Header: ComponentType<PropsWithChildren<{
-        className?: string;
-        onClick?: (e: MouseEvent) => void;
-        children: ReactNode;
-        "aria-expanded"?: boolean;
-        "aria-controls"?: string;
-    }>>;
-    Item: ComponentType<PropsWithChildren<{
-        id: string | number;
-        className?: string;
-        color?: string;
-        variant?: "destructive";
-        disabled?: boolean;
-        onContextMenu?: (e: MouseEvent) => void;
-        onClick?: (e: MouseEvent) => void;
-        "aria-label"?: string;
-        look?: "grey" | "brand" | "custom";
-        disableItemStyles?: boolean;
-        text?: string;
-    }>>;
-    Separator: ComponentType<{ className?: string; style?: CSSProperties; }>;
-    Panel: ComponentType<PropsWithChildren<{
-        id: string;
-        className?: string;
-        style?: CSSProperties;
-    }>>;
-};
 
 export interface ScrollerBaseProps {
     className?: string;

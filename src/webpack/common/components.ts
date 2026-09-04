@@ -64,7 +64,6 @@ export const Field = waitForComponent<t.Field>("Field", filters.componentByCode(
 export const FieldSet = waitForComponent<t.FieldSet>("FieldSet", filters.componentByCode('"fieldset",{...'));
 export const Popout = waitForComponent<t.Popout>("Popout", filters.componentByCode("ref:this.ref,", "renderPopout:this.renderPopout,"));
 export const Dialog = waitForComponent<t.Dialog>("Dialog", filters.componentByCode("inDialog:!0"));
-export const TabBar = waitForComponent<t.TabBar>("TabBar", filters.componentByCode("ref:this.tabBarRef,className:"));
 export const Clickable = waitForComponent<t.Clickable>("Clickable", filters.componentByCode("this.context?this.renderNonInteractive():"));
 export const Avatar = waitForComponent<t.Avatar>("Avatar", filters.componentByCode(".size-1.375*"));
 
@@ -81,6 +80,11 @@ export function setColorPicker(component: t.ColorPicker) {
 export let RoleMemberPopout: t.RoleMemberPopout = () => null;
 export function setRoleMemberPopout(component: t.RoleMemberPopout) {
     RoleMemberPopout = component;
+}
+
+export let Tabs: t.Tabs = () => null;
+export function setTabs(component: t.Tabs) {
+    Tabs = component;
 }
 
 export const UserSummaryItem = waitForComponent("UserSummaryItem", filters.componentByCode("defaultRenderUser", "showDefaultAvatarsForNullUsers"));

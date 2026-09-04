@@ -66,6 +66,6 @@
     opacity: 0.4;
 }
 
-.vc-plugin-ui-elements-no-buttons {
-    justify-self: center;
+.vc-plugin-ui-elements-empty-order {
+    margin-top: 16px;
 }

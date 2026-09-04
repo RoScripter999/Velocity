@@ -20,7 +20,7 @@ import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { getIntlMessage } from "@utils/discord";
-import { Buttons, FilePicker, Icons, Slider, TabBar, Text, TextInput, Toasts, useRef, useState } from "@webpack/common";
+import { Buttons, FilePicker, Icons, Slider, Tabs, Text, TextInput, Toasts, useRef, useState } from "@webpack/common";
 
 import { getSoundEntries, saveSoundEntries, type SoundEntry } from "../settings";
 import { convertFileToBase64, getEntryDisplay, getEntrySubtext, makeEmptyForm } from "./utils";
@@ -158,125 +158,138 @@ export function SoundSettings() {
         return entry.soundUrl.length > 40 ? `${entry.soundUrl.substring(0, 40)}...` : entry.soundUrl;
     };
 
-    return (
-        <>
-            <TabBar type="top" look="brand" selectedItem={currentTab} onItemSelect={handleTabChange}>
-                <TabBar.Item id="users">{getIntlMessage("USERS")} ({userCount})</TabBar.Item>
-                <TabBar.Item id="guilds">{getIntlMessage("SERVERS")} ({guildCount})</TabBar.Item>
-            </TabBar>
-
-            <Flex flexDirection="column" gap="12px">
-                <Flex flexDirection="column" gap="8px" className={Margins.bottom8}>
+    // FIXME: give this a better name
+    const renderPanelContent = () => (
+        <Flex flexDirection="column" gap="12px">
+            <Flex flexDirection="column" gap="8px" className={Margins.bottom8}>
+                <TextInput
+                    required
+                    placeholder={isUserTab ? "User ID" : "Server ID"}
+                    value={primaryId}
+                    label={`${editingId ? "Edit" : "Add"} ${isUserTab ? "User" : "Server"} Sound`}
+                    error={form.error ? `This ${isUserTab ? "user" : "guild"} already exists` : ""}
+                    onChange={val => {
+                        const filtered = val.replace(/[^0-9]/g, "");
+                        setForm(prev => form.displayNameMode
+                            ? { ...prev, name: filtered, error: false }
+                            : { ...prev, id: filtered, error: false }
+                        );
+                    }}
+                />
+                {isUserTab && (
                     <TextInput
-                        required
-                        placeholder={isUserTab ? "User ID" : "Server ID"}
-                        value={primaryId}
-                        label={`${editingId ? "Edit" : "Add"} ${isUserTab ? "User" : "Server"} Sound`}
-                        error={form.error ? `This ${isUserTab ? "user" : "guild"} already exists` : ""}
-                        onChange={val => {
-                            const filtered = val.replace(/[^0-9]/g, "");
-                            setForm(prev => form.displayNameMode
-                                ? { ...prev, name: filtered, error: false }
-                                : { ...prev, id: filtered, error: false }
-                            );
-                        }}
+                        placeholder="Note (optional, for display only)"
+                        value={form.note}
+                        onChange={val => setForm(prev => ({ ...prev, note: val }))}
                     />
-                    {isUserTab && (
-                        <TextInput
-                            placeholder="Note (optional, for display only)"
-                            value={form.note}
-                            onChange={val => setForm(prev => ({ ...prev, note: val }))}
-                        />
-                    )}
-                </Flex>
-
-                <Flex alignItems="center" gap="8px" className={Margins.bottom8}>
-                    <FilePicker
-                        filename={form.filename}
-                        placeholder="Choose a sound"
-                        buttonText="Upload Sound"
-                        filters={[{ name: "Sound file", extensions: ["mp3", "wav", "ogg", "m4a"] }]}
-                        onFileSelect={handleFileUpload}
-                    />
-                </Flex>
-
-                <Flex flexDirection="column" gap="4px">
-                    <Flex flexDirection="row" gap="8px">
-                        <Text variant="text-sm/normal">Volume: {(form.volume * 100).toFixed(0)}%</Text>
-                        <Slider
-                            key={sliderKey}
-                            minValue={0}
-                            maxValue={1}
-                            keyboardStep={0.05}
-                            initialValue={form.volume}
-                            asValueChanges={val => setForm(prev => ({ ...prev, volume: val }))}
-                        />
-                    </Flex>
-                    <Buttons.ButtonGroup direction="horizontal">
-                        <Buttons.Button
-                            onClick={handleAddOrUpdate}
-                            size="sm"
-                            disabled={!primaryId || !form.soundUrl}
-                            variant="primary"
-                            text={editingId ? "Update Notification" : "Add Notification"}
-                        />
-                        {editingId && (
-                            <Buttons.Button
-                                onClick={resetForm}
-                                size="sm"
-                                variant="secondary"
-                                text={getIntlMessage("CANCEL")}
-                            />
-                        )}
-                    </Buttons.ButtonGroup>
-                </Flex>
-
-                {filteredEntries.length === 0 ? (
-                    <Text variant="text-sm/bold" color="text-muted">{getIntlMessage("NO_SOUNDS")}</Text>
-                ) : (
-                    <Flex flexDirection="column" gap="8px" style={editingId ? { paddingLeft: "12px", opacity: 0.95 } : undefined}>
-                        {filteredEntries.map(entry => (
-                            <Flex justifyContent="space-between" alignItems="center" key={entry.id} style={editingId === entry.id ? { opacity: 0.5 } : undefined}>
-                                <section style={{ flex: 1, minWidth: 0 }}>
-                                    <Text variant="text-md/semibold">{getEntryDisplay(entry, isUserTab)}</Text>
-                                    <Paragraph color="text-muted">{getEntrySubtext(entry, isUserTab)}</Paragraph>
-                                    <Paragraph color="text-muted" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        File: {getFileLabel(entry)}
-                                    </Paragraph>
-                                    <Paragraph color="text-muted">Volume: {(entry.volume * 100).toFixed(0)}%</Paragraph>
-                                </section>
-
-                                <Flex flexDirection="column" gap="8px">
-                                    {editingId === entry.id ? (
-                                        <Paragraph>Currently Editing</Paragraph>
-                                    ) : (
-                                        <Buttons.ButtonGroup fullWidth direction="horizontal">
-                                            <Buttons.Button
-                                                onClick={() => playSound(entry.soundUrl, entry.volume, entry.id)}
-                                                size="sm"
-                                                text={playingId === entry.id ? `⏸ ${getIntlMessage("STOP")}` : `▶ ${getIntlMessage("PLAY")}`}
-                                            />
-                                            <Buttons.Button
-                                                onClick={() => handleEdit(entry)}
-                                                size="sm"
-                                                icon={Icons.PencilIcon}
-                                                text={getIntlMessage("EDIT")}
-                                            />
-                                            <Buttons.Button
-                                                onClick={() => handleDelete(entry.id)}
-                                                variant="critical-primary"
-                                                size="sm"
-                                                icon={Icons.TrashIcon}
-                                                text={getIntlMessage("DELETE")}
-                                            />
-                                        </Buttons.ButtonGroup>
-                                    )}
-                                </Flex>
-                            </Flex>
-                        ))}
-                    </Flex>
                 )}
             </Flex>
-        </>
+
+            <Flex alignItems="center" gap="8px" className={Margins.bottom8}>
+                <FilePicker
+                    filename={form.filename}
+                    placeholder="Choose a sound"
+                    buttonText="Upload Sound"
+                    filters={[{ name: "Sound file", extensions: ["mp3", "wav", "ogg", "m4a"] }]}
+                    onFileSelect={handleFileUpload}
+                />
+            </Flex>
+
+            <Flex flexDirection="column" gap="4px">
+                <Flex flexDirection="row" gap="8px">
+                    <Text variant="text-sm/normal">Volume: {(form.volume * 100).toFixed(0)}%</Text>
+                    <Slider
+                        key={sliderKey}
+                        minValue={0}
+                        maxValue={1}
+                        keyboardStep={0.05}
+                        initialValue={form.volume}
+                        asValueChanges={val => setForm(prev => ({ ...prev, volume: val }))}
+                    />
+                </Flex>
+                <Buttons.ButtonGroup direction="horizontal">
+                    <Buttons.Button
+                        onClick={handleAddOrUpdate}
+                        size="sm"
+                        disabled={!primaryId || !form.soundUrl}
+                        variant="primary"
+                        text={editingId ? "Update Notification" : "Add Notification"}
+                    />
+                    {editingId && (
+                        <Buttons.Button
+                            onClick={resetForm}
+                            size="sm"
+                            variant="secondary"
+                            text={getIntlMessage("CANCEL")}
+                        />
+                    )}
+                </Buttons.ButtonGroup>
+            </Flex>
+
+            {filteredEntries.length === 0 ? (
+                <Text variant="text-sm/bold" color="text-muted">{getIntlMessage("NO_SOUNDS")}</Text>
+            ) : (
+                <Flex flexDirection="column" gap="8px" style={editingId ? { paddingLeft: "12px", opacity: 0.95 } : undefined}>
+                    {filteredEntries.map(entry => (
+                        <Flex justifyContent="space-between" alignItems="center" key={entry.id} style={editingId === entry.id ? { opacity: 0.5 } : undefined}>
+                            <section style={{ flex: 1, minWidth: 0 }}>
+                                <Text variant="text-md/semibold">{getEntryDisplay(entry, isUserTab)}</Text>
+                                <Paragraph color="text-muted">{getEntrySubtext(entry, isUserTab)}</Paragraph>
+                                <Paragraph color="text-muted" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    File: {getFileLabel(entry)}
+                                </Paragraph>
+                                <Paragraph color="text-muted">Volume: {(entry.volume * 100).toFixed(0)}%</Paragraph>
+                            </section>
+
+                            <Flex flexDirection="column" gap="8px">
+                                {editingId === entry.id ? (
+                                    <Paragraph>Currently Editing</Paragraph>
+                                ) : (
+                                    <Buttons.ButtonGroup fullWidth direction="horizontal">
+                                        <Buttons.Button
+                                            onClick={() => playSound(entry.soundUrl, entry.volume, entry.id)}
+                                            size="sm"
+                                            text={playingId === entry.id ? `⏸ ${getIntlMessage("STOP")}` : `▶ ${getIntlMessage("PLAY")}`}
+                                        />
+                                        <Buttons.Button
+                                            onClick={() => handleEdit(entry)}
+                                            size="sm"
+                                            icon={Icons.PencilIcon}
+                                            text={getIntlMessage("EDIT")}
+                                        />
+                                        <Buttons.Button
+                                            onClick={() => handleDelete(entry.id)}
+                                            variant="critical-primary"
+                                            size="sm"
+                                            icon={Icons.TrashIcon}
+                                            text={getIntlMessage("DELETE")}
+                                        />
+                                    </Buttons.ButtonGroup>
+                                )}
+                            </Flex>
+                        </Flex>
+                    ))}
+                </Flex>
+            )}
+        </Flex>
+    );
+
+    return (
+        <Tabs
+            items={[
+                {
+                    id: "users",
+                    label: `${getIntlMessage("USERS")} (${userCount})`,
+                    panel: renderPanelContent
+                },
+                {
+                    id: "guilds",
+                    label: `${getIntlMessage("SERVERS")} (${guildCount})`,
+                    panel: renderPanelContent
+                }
+            ]}
+            selectedId={currentTab}
+            onChange={handleTabChange}
+        />
     );
 }
