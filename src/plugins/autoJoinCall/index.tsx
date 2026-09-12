@@ -227,8 +227,8 @@ export default definePlugin({
         {
             find: '"CenterControlTray: currentUser cannot be undefined"',
             replacement: {
-                match: /(exitFullScreen:\w+,canGoLive:\w+,hasPermission:\w+\}\))(?=,!\w+&&)/,
-                replace: "$1,$self.AutoJoinToggleButton()"
+                match: /(?<=videoBlocked:\i\}\)),/,
+                replace: "$&$self.AutoJoinToggleButton(),"
             },
             predicate: () => settings.store.showVoiceButton
         },
