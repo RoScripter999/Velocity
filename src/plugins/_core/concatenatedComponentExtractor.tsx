@@ -82,7 +82,7 @@ export default definePlugin({
             }
         },
         {
-            find: '"data-mana-component":"Tabs"',
+            find: '"data-mana-component":"tabs"',
             lazy: true,
             replacement: {
                 match: /(?=function (\i)\(\i\)\{let\{items:\i,selectedId:)/,

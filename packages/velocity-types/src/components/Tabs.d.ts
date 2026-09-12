@@ -13,11 +13,11 @@ export interface TabItem<T = PropertyKey> {
 export interface TabsProps<T = PropertyKey> {
     items: TabItem<T>[];
     selectedId: T;
+    defaultSelectedId?: T;
     onChange?: (id: T) => void;
-    /** @default false */
-    fullWidth?: boolean;
     /** Disables all the items @default false */
     disabled?: boolean;
+    variant?: "default" | "overlay";
     /** Arrow navigation @default manual */
     keyboardActivation?: "manual" | "automatic";
     /** @default none */
