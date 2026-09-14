@@ -57,6 +57,7 @@ export default definePlugin({
         },
         {
             find: 'placeholder:"Search experiments"',
+            lazy: true,
             replacement: [
                 {
                     match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
@@ -98,6 +99,7 @@ export default definePlugin({
         // dev://playground/nitro, dev://playground/mfa, dev://playground/cms, dev://playground/void
         {
             find: '"Open Playground',
+            lazy: true,
             replacement: {
                 match: "isStaff()||",
                 replace: "$& true||"
