@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
-import definePlugin from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
 
 const EmojiRe = /<a?:[a-zA-Z0-9_]+:\d{17,20}>/g;
 const SkipRe = /(https?:\/\/[^\s]+|www\.[^\s]+|@everyone|@here)/gi;
@@ -70,18 +71,26 @@ function transformMessage(text: string): string {
     return parts.join("");
 }
 
+const settings = definePluginSettings({
+    dms: {
+        type: OptionType.BOOLEAN,
+        description: "Allow automod bypass in DMs",
+        default: false
+    }
+});
 
 export default definePlugin({
     name: "AutoModBypass",
     description: "Bypasses the Discord automod with cool injection stuff.",
     authors: [Devs.RoScripter999],
     tags: ["Chat", "Fun", "Servers"],
+    settings,
 
     onBeforeMessageSend(_, message, _options, props) {
         if (!message.content) return;
 
         const channel = props.channel;
-        if (channel.isDM() || channel.isGroupDM()) return;
+        if (!settings.store.dms && channel.isDM() || channel.isGroupDM()) return;
 
         const content = message.content;
         if (/^`[^`]/.test(content) || content.startsWith("```")) return;
