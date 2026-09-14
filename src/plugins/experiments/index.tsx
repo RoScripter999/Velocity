@@ -16,31 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { definePluginSettings } from "@api/Settings";
-import { disableStyle, enableStyle } from "@api/Styles";
 import ErrorBoundary, { ErrorCard } from "@components/ErrorBoundary";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_MAC } from "@utils/constants";
-import definePlugin, { OptionType } from "@utils/types";
+import definePlugin from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { ExperimentStore, Forms } from "@webpack/common";
-
-import hideBugReport from "./hideBugReport.css?managed";
+import { Forms } from "@webpack/common";
 
 const KbdStyles = findByPropsLazy("key", "combo");
-
 const modKey = IS_MAC ? "cmd" : "ctrl";
 const altKey = IS_MAC ? "opt" : "alt";
-
-const settings = definePluginSettings({
-    toolbarDevMenu: {
-        type: OptionType.BOOLEAN,
-        description: "Change the Help (?) toolbar button (top right in chat) to Discord's developer menu",
-        default: false,
-        restartNeeded: true
-    }
-});
 
 export default definePlugin({
     name: "Experiments",
@@ -53,8 +39,6 @@ export default definePlugin({
         Devs.BanTheNons,
         Devs.Nuckyz
     ],
-
-    settings,
 
     patches: [
         {
@@ -73,7 +57,6 @@ export default definePlugin({
         },
         {
             find: 'placeholder:"Search experiments"',
-            lazy: true,
             replacement: [
                 {
                     match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
@@ -86,23 +69,6 @@ export default definePlugin({
                     replace: ',flexDirection:"row",alignItems:"center"'
                 }
             ]
-        },
-        // Change top right toolbar button from the help one to the dev one
-        {
-            find: '?"BACK_FORWARD_NAVIGATION":',
-            replacement: {
-                match: /hasBugReporterAccess:(\i)/,
-                replace: "_hasBugReporterAccess:$1=true"
-            },
-            predicate: () => settings.store.toolbarDevMenu
-        },
-        // Disable opening the bug report menu when clicking the top right toolbar dev button
-        {
-            find: 'navId:"staff-help-popout"',
-            replacement: {
-                match: /(isShown.+?)onClick:\i/,
-                replace: (_, rest) => `${rest}onClick:()=>{}`
-            }
         },
         // Enable experiment embed on sent experiment links
         {
@@ -126,11 +92,27 @@ export default definePlugin({
                 match: /}getServerAssignment\((\i),\i,\i\){/,
                 replace: "$&if($1==null)return;"
             }
+        },
+        // Enable playground embed on sent playground links
+        // dev://playground/mana, dev://playground/payments, dev://playground/virtual-currency,
+        // dev://playground/nitro, dev://playground/mfa, dev://playground/cms, dev://playground/void
+        {
+            find: '"Open Playground',
+            replacement: {
+                match: "isStaff()||",
+                replace: "$& true||"
+            }
+        },
+        {
+            // Expands the experiment uri regex to allow negative numbers, e.g. dev://experiment/2026-02-mana-playground-access/-1
+            // -1 is "Not Eligible"
+            find: '"^dev://experiment/',
+            replacement: {
+                match: /(?<=dev:\/\/experiment.{0,20}?)\[0-9\]\+/,
+                replace: "[0-9-]+"
+            }
         }
     ],
-
-    start: () => ExperimentStore.getUserExperimentBucket("2026-01-bug-reporter") > 0 && enableStyle(hideBugReport),
-    stop: () => disableStyle(hideBugReport),
 
     settingsAboutComponent: () => {
         return (
