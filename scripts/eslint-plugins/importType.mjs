@@ -19,9 +19,14 @@ export default {
                     if (!variable || !variable.references.length) return "unused";
 
                     const usedAsValue = variable.references.some(ref => {
-                        const parent = ref.identifier.parent;
+                        let parent = ref.identifier.parent;
                         if (!parent) return false;
                         if (parent.type.startsWith("Import")) return false;
+
+                        while (parent.type === "TSQualifiedName") {
+                            parent = parent.parent;
+                        }
+
                         if (parent.type.startsWith("TS") && parent.type.includes("Type")) return false;
                         return true;
                     });

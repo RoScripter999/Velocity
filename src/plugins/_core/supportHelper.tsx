@@ -366,6 +366,8 @@ export default definePlugin({
     },
 
     renderMessageAccessory(props) {
+        if (props.message.velocityEmbeddedBy) return null;
+
         const match = props.message.content.match(PluginLinkRe);
         const hasDebugCommand = props.message.content.includes("/velocity-debug") || props.message.content.includes("/velocity-plugins");
         const shouldAddUpdateButton =
