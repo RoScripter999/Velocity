@@ -28,7 +28,7 @@ import type { ComponentProps } from "react";
 
 import { Margins } from "./margins";
 
-const BaseSwitch = findComponentByCodeLazy("0,hasIcon:", ',layout:"horizontal",');
+const BaseSwitch = findComponentByCodeLazy(",hasIcon:", "...");
 
 const switchCls = classNameFactory("vc-switch-");
 

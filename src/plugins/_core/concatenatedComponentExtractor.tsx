@@ -70,8 +70,8 @@ export default definePlugin({
         {
             find: "interactiveLabel:!0,",
             replacement: {
-                match: /(onChange:\s*\w+,?\s*)hasIcon:\s*(\w+)/,
-                replace: "$1hasIcon:$self.showRedesignedIcon||$2"
+                match: /hasIcon:(\i)(?=,describedBy:)/,
+                replace: "hasIcon:$self.showRedesignedIcon"
             }
         },
         {
