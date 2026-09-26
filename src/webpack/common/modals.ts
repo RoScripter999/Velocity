@@ -17,10 +17,10 @@
 */
 
 import type * as t from "@velocity-types";
-import { filters, findByCodeLazy, findComponentByCodeLazy, findExportedComponentLazy, mapMangledModuleLazy, proxyLazyWebpack } from "@webpack";
+import { filters, findByCodeLazy, findComponentByCodeLazy, mapMangledModuleLazy, proxyLazyWebpack } from "@webpack";
 
-export const Modal: t.Modal = findExportedComponentLazy("Modal");
-export const ConfirmModal: t.ConfirmModal = findExportedComponentLazy("ConfirmModal");
+export const Modal: t.Modal = findByCodeLazy("leadingLayout:", "actions:", ".message");
+export const ConfirmModal: t.ConfirmModal = findByCodeLazy("actionBarInput:", '"critical"', '"secondary');
 
 // Modal key: "Media Viewer Modal"
 export const openMediaModal: (props: t.MediaModalProps) => void = findByCodeLazy("hasMediaOptions", "shouldHideMediaOptions");
