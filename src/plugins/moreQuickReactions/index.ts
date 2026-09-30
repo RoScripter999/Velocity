@@ -1,6 +1,6 @@
 /*
  * Velocity, a modification for Discord's desktop app
- * Copyright (c) 2025 RoScripter999 and contributors
+ * Copyright (c) 2026 RoScripter999 and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
-import definePlugin from "@utils/types";
+import definePlugin, { OptionType } from "@utils/types";
+
+const settings = definePluginSettings({
+    reactionCount: {
+        description: "Number of reactions (0-42)",
+        type: OptionType.NUMBER,
+        default: 5
+    }
+});
 
 export default definePlugin({
-    name: "MessagePopoverAPI",
-    description: "API to add buttons to message popovers.",
-    authors: [Devs.KingFish, Devs.Ven, Devs.Nuckyz],
+    name: "MoreQuickReactions",
+    description: "Increases the number of reactions available in the Quick React hover menu",
+    authors: [Devs.RoScripter999],
+    tags: ["Emotes", "Reactions", "Customisation", "Shortcuts"],
+    settings,
+
+    get reactionCount() {
+        return settings.store.reactionCount;
+    },
+
     patches: [
         {
             find: "#{intl::MESSAGE_UTILITIES_A11Y_LABEL}),children",
             replacement: {
-                // TODO: (\i\.\i|\i) is for stable compat
-                match: /(?<=\]\}\)),(.{0,40}togglePopout:.+?\}\))\]\}\):null,(?<=\((\i\.\i|\i),\{label:.+?:null,(\i)\?\(0,\i\.jsxs?\)\(\i\.Fragment.+?message:(\i).+?)/,
-                replace: (_, ReactButton, ButtonComponent, showReactButton, message) => "" +
-                    `]}):null,Velocity.Api.MessagePopover._buildPopoverElements(${ButtonComponent},${message}),${showReactButton}?${ReactButton}:null,`
+                match: /(?<=length>=3\?.{0,40})\.slice\(0,3\)/,
+                replace: ".slice(0,$self.reactionCount)"
             }
         }
     ]
