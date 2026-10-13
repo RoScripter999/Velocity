@@ -75,7 +75,6 @@ export interface Settings {
     };
     eagerPatches: boolean;
     enableReactDevtools: boolean;
-    frameless: boolean;
     transparent: boolean;
     winCtrlQ: boolean;
     macosVibrancyStyle:
@@ -94,7 +93,7 @@ export interface Settings {
     | undefined;
     windowsMaterial: "none" | "mica" | "tabbed" | "acrylic";
     disableMinSize: boolean;
-    winNativeTitleBar: boolean;
+    nativeTitleBar: boolean;
     rendererPerformanceBoost: boolean;
     plugins: {
         [plugin: string]: {
@@ -150,14 +149,13 @@ const DefaultSettings: Settings = {
         localThemes: []
     },
     enableReactDevtools: false,
-    frameless: false,
     windowMoveable: true,
     transparent: false,
     winCtrlQ: false,
     macosVibrancyStyle: undefined,
     windowsMaterial: "none",
     disableMinSize: false,
-    winNativeTitleBar: false,
+    nativeTitleBar: false,
     rendererPerformanceBoost: false,
     plugins: {},
 

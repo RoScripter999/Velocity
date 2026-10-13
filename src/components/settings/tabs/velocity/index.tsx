@@ -53,7 +53,7 @@ const isDonor = (userId: string) => !!(
 );
 
 function SettingsList() {
-    const settings = useSettings(["useQuickCss", "enableReactDevtools", "frameless", "windowMoveable", "winNativeTitleBar", "windowsMaterial", "transparent", "winCtrlQ", "disableMinSize", "rendererPerformanceBoost"]);
+    const settings = useSettings(["useQuickCss", "enableReactDevtools", "nativeTitleBar", "transparent", "winCtrlQ", "disableMinSize"]);
     const changes = useRef(new ChangeList<keyof typeof settings>()).current;
 
     type SettingItem = false | {
@@ -105,19 +105,13 @@ function SettingsList() {
                 icon: Icons.PaintPaletteIcon,
                 restartRequired: true
             },
-            !IS_WEB && (!IS_DISCORD_DESKTOP || !IS_WINDOWS ? {
-                key: "frameless",
-                title: "Frameless Window",
-                description: "Remove the native window frame",
-                icon: Icons.FullscreenExitIcon,
-                restartRequired: true
-            } : {
-                key: "winNativeTitleBar",
-                title: "Native Title Bar",
-                description: "Use Windows' native title bar instead of Discord's",
+            IS_DISCORD_DESKTOP && {
+                key: "nativeTitleBar",
+                title: "Enable the system's title bar in addition to Discord's custom one",
                 icon: Icons.WindowTopIcon,
+                description: "Use Windows' native title bar instead of Discord's",
                 restartRequired: true
-            }),
+            },
             IS_DISCORD_DESKTOP && {
                 key: "disableMinSize",
                 title: "Minimum Size",

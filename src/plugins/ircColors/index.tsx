@@ -20,7 +20,7 @@ import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@a
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Menu, Toasts } from "@webpack/common";
+import { Menu, showToast } from "@webpack/common";
 
 import { CustomUserColorsSettings } from "./settings";
 
@@ -111,11 +111,7 @@ function addCustomUserColor(userId: string, color: string) {
         rules.push(makeEmptyUserColorRule());
     }
 
-    Toasts.show({
-        message: "Added custom color for user",
-        id: Toasts.genId(),
-        type: Toasts.Type.SUCCESS
-    });
+    showToast("Added custom color for user", "success");
 }
 
 function removeCustomUserColor(userId: string) {
@@ -125,11 +121,7 @@ function removeCustomUserColor(userId: string) {
     if (index !== -1 && index !== rules.length - 1) {
         rules.splice(index, 1);
 
-        Toasts.show({
-            message: "Removed custom color for user",
-            id: Toasts.genId(),
-            type: Toasts.Type.SUCCESS
-        });
+        showToast("Removed custom color for user", "success");
     }
 }
 

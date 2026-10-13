@@ -24,6 +24,7 @@ type PolicyMap = Record<string, string[]>;
 export const ConnectSrc = ["connect-src"];
 export const ImageSrc = [...ConnectSrc, "img-src", "media-src"];
 export const CssSrc = ["style-src", "font-src"];
+export const ImageAndMediaSrc = [...ImageSrc, "media-src"];
 export const ImageAndCssSrc = [...ImageSrc, ...CssSrc];
 export const ImageScriptsAndCssSrc = [...ImageAndCssSrc, "script-src", "worker-src"];
 
@@ -56,7 +57,6 @@ export const CspPolicies: PolicyMap = {
     "i.imgur.com": ImageSrc, // Imgur, used by some themes
     "i.ibb.co": ImageSrc, // ImgBB, used by some themes
     "i.pinimg.com": ImageSrc, // Pinterest, used by some themes
-    "*.tenor.com": ImageSrc, // Tenor, used by some themes
     "files.catbox.moe": ImageAndCssSrc, // Catbox, used by some themes
 
     "cdn.discordapp.com": ImageAndCssSrc, // Discord CDN, used by Velocity and some themes to load media
@@ -84,7 +84,12 @@ export const CspPolicies: PolicyMap = {
     "sponsor.ajay.app": ConnectSrc, // Dearrow API
     "dearrow-thumb.ajay.app": ImageSrc, // Dearrow Thumbnail CDN
     "usrbg.is-hardly.online": ImageSrc, // USRBG API
-    "icons.duckduckgo.com": ImageSrc // DuckDuckGo Favicon API (Reverse Image Search)
+    "icons.duckduckgo.com": ImageSrc, // DuckDuckGo Favicon API (Reverse Image Search)
+
+    // Tenor & Giphy, used by GifProviderSwitcher plugin and some themes
+    "*.tenor.com": ImageAndMediaSrc,
+    "*.tenor.co": ImageAndMediaSrc,
+    "*.giphy.com": ImageAndMediaSrc
 };
 
 const findHeader = (headers: PolicyMap, headerName: Lowercase<string>) => {

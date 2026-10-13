@@ -77,7 +77,7 @@ if (!IS_VANILLA) {
                 return;
             }
 
-            const { frameless, winNativeTitleBar, disableMinSize, transparent, macosVibrancyStyle, windowsMaterial } = settings;
+            const { nativeTitleBar, disableMinSize, transparent, macosVibrancyStyle, windowsMaterial } = settings;
 
             const original = options.webPreferences.preload;
             options.webPreferences.preload = join(__dirname, "preload.js");
@@ -88,9 +88,7 @@ if (!IS_VANILLA) {
             if (settings.rendererPerformanceBoost)
                 options.webPreferences.v8CacheOptions = "bypassHeatCheck";
 
-            if (frameless) {
-                options.frame = false;
-            } else if (process.platform === "win32" && winNativeTitleBar) {
+            if (nativeTitleBar) {
                 delete options.frame;
             }
 

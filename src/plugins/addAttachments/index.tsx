@@ -21,12 +21,12 @@ import { getCurrentChannel } from "@utils/discord";
 import definePlugin from "@utils/types";
 import { MessageFlags } from "@velocity-types/enums";
 import { findLazy } from "@webpack";
-import { Constants, Icons, PermissionsBits, PermissionStore, RestAPI, showToast, Toasts, UserStore } from "@webpack/common";
+import { Constants, Icons, PermissionsBits, PermissionStore, RestAPI, showToast, UserStore } from "@webpack/common";
 
 const uniqueIdProp = findLazy(m => typeof m.uniqueId === "function");
 
 const addAttachments = async (channelId: string, messageId: string, files: FileList, attachments: any[]) => {
-    showToast("Uploading, this can take a while...", Toasts.Type.CLOCK);
+    showToast("Uploading, this can take a while...", "clock");
 
     const fileArray = Array.from(files).map(file => ({
         filename: file.name,
@@ -63,7 +63,7 @@ const addAttachments = async (channelId: string, messageId: string, files: FileL
         }
     });
 
-    showToast("Attachments added successfully!", Toasts.Type.SUCCESS);
+    showToast("Attachments added successfully!", "success");
 };
 
 export default definePlugin({
@@ -113,7 +113,7 @@ export default definePlugin({
                         }
                     });
 
-                    showToast("Attachment removed!", Toasts.Type.SUCCESS);
+                    showToast("Attachment removed!", "success");
                 }
             };
         }

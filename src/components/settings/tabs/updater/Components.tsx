@@ -28,7 +28,8 @@ import { classNameFactory } from "@utils/css";
 import { pluralise } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { changes, checkForUpdates, update, updateError } from "@utils/updater";
-import { Buttons, ConfirmModal, Forms, Icons, LoadingIndicator, openModal, Text, Toasts, useState } from "@webpack/common";
+import { ToastPosition } from "@velocity-types/enums";
+import { Buttons, ConfirmModal, Forms, Icons, LoadingIndicator, openModal, showToast, Text, useState } from "@webpack/common";
 import type { Dispatch, SetStateAction } from "react";
 
 import { SectionHeader } from "../SectionHeader";
@@ -168,13 +169,8 @@ export function Updatable(props: CommonProps) {
                         setUpdates(changes);
                     } else {
                         setUpdates([]);
-                        Toasts.show({
-                            message: "No updates found!",
-                            id: Toasts.genId(),
-                            type: Toasts.Type.MESSAGE,
-                            options: {
-                                position: Toasts.Position.BOTTOM
-                            }
+                        showToast("No updates found!", "message", {
+                            position: ToastPosition.BOTTOM
                         });
                     }
                 })}

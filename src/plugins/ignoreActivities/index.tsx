@@ -24,7 +24,7 @@ import { Flex } from "@components/Flex";
 import CustomRpcPlugin from "@plugins/customRPC";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Buttons, FluxDispatcher, Menu, RunningGameStore, showToast, Text, TextInput, Toasts, Tooltip, useEffect, useState } from "@webpack/common";
+import { Buttons, FluxDispatcher, Menu, RunningGameStore, showToast, Text, TextInput, Tooltip, useEffect, useState } from "@webpack/common";
 
 const enum ActivitiesTypes {
     Game,
@@ -100,12 +100,12 @@ function ImportCustomRPCComponent() {
                     onClick={() => {
                         const id = CustomRpcPlugin.settings.store.appID;
                         if (!id) {
-                            return showToast("CustomRPC application ID is not set.", Toasts.Type.FAILURE);
+                            return showToast("CustomRPC application ID is not set.", "failure");
                         }
 
                         const isAlreadyAdded = idsListPushID?.(id);
                         if (isAlreadyAdded) {
-                            showToast("CustomRPC application ID is already added.", Toasts.Type.FAILURE);
+                            showToast("CustomRPC application ID is already added.", "failure");
                         }
                     }}
                 />
@@ -303,8 +303,8 @@ export default definePlugin({
             find: '"LocalActivityStore"',
             replacement: [
                 {
-                    match: /\.LISTENING.+?(?=!?\i\(\)\(\i,\i\))(?<=(\i)\.push.+?)/,
-                    replace: (m, activities) => `${m}${activities}=${activities}.filter($self.isActivityNotIgnored);`
+                    match: /\.LISTENING.+?([,:])(?=!?\i\(\)\(\i,\i\))(?<=(\i)\.push.+?)/,
+                    replace: (m, commaOrSemiColon, activities) => `${m}${activities}=${activities}.filter($self.isActivityNotIgnored)${commaOrSemiColon}`
                 }
             ]
         },

@@ -20,9 +20,10 @@ import { showNotice } from "@api/Notices";
 import { plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
 import { canonicalizeMatch } from "@utils/patches";
+import { ToastPosition } from "@velocity-types/enums";
 import type { Module } from "@velocity-types/webpack";
 import { type CodeFilter, type FilterFn, stringMatches, wreq } from "@webpack";
-import { Toasts } from "@webpack/common";
+import { showToast } from "@webpack/common";
 
 import { WebpackPatcher } from "../../Velocity";
 import { logger, settings as companionSettings } from ".";
@@ -117,17 +118,6 @@ export function mkRegexFind(idOrSearch: string): RegExp[] {
     const flags = idOrSearch.substring(idOrSearch.lastIndexOf("/") + 1);
     return [canonicalizeMatch(RegExp(regex, flags))];
 }
-// the next two functions are copied from components/pluginSettings
-function showErrorToast(message: string) {
-    Toasts.show({
-        message,
-        type: Toasts.Type.FAILURE,
-        id: Toasts.genId(),
-        options: {
-            position: Toasts.Position.BOTTOM
-        }
-    });
-}
 
 export function toggleEnabled(name: string, beforeReload: (error?: string) => void) {
     let restartNeeded = false;
@@ -140,15 +130,7 @@ export function toggleEnabled(name: string, beforeReload: (error?: string) => vo
                 beforeReload();
                 window.location.reload();
             }
-            Toasts.show({
-                id: Toasts.genId(),
-                message: "Reload Needed",
-                type: Toasts.Type.MESSAGE,
-                options: {
-                    duration: 5000,
-                    position: Toasts.Position.TOP
-                }
-            });
+            showToast("Reload Needed", "message", { position: ToastPosition.TOP, duration: 5000 });
         }
     }
     const plugin = plugins[name];
@@ -198,7 +180,7 @@ export function toggleEnabled(name: string, beforeReload: (error?: string) => vo
 
         const msg = `Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`;
         console.error(msg);
-        showErrorToast(msg);
+        showToast(msg, "failure", { position: ToastPosition.BOTTOM });
         beforeReturn();
         return;
     }

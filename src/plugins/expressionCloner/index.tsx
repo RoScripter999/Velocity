@@ -26,7 +26,7 @@ import definePlugin from "@utils/types";
 import type { Guild, GuildSticker, Message } from "@velocity-types";
 import { PremiumType, StickerFormatType } from "@velocity-types/enums";
 import { findByCodeLazy } from "@webpack";
-import { Constants, EmojiStore, FluxDispatcher, GuildStore, Icons, IconUtils, Menu, Modal, openModalLazy, PermissionsBits, PermissionStore, type React, RestAPI, StickersStore, TextInput, Toasts, Tooltip, useMemo, useReducer, UserStore, useState } from "@webpack/common";
+import { Constants, EmojiStore, FluxDispatcher, GuildStore, Icons, IconUtils, Menu, Modal, openModalLazy, PermissionsBits, PermissionStore, type React, RestAPI, showToast, StickersStore, TextInput, Tooltip, useMemo, useReducer, UserStore, useState } from "@webpack/common";
 import type { Promisable } from "type-fest";
 
 const uploadEmoji = findByCodeLazy(".GUILD_EMOJIS(", "EMOJI_UPLOAD_START");
@@ -193,11 +193,7 @@ async function doClone(guildId: string, data: Data) {
         else
             await cloneEmoji(guildId, data);
 
-        Toasts.show({
-            message: `Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`,
-            type: Toasts.Type.SUCCESS,
-            id: Toasts.genId()
-        });
+        showToast(`Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`, "success");
     } catch (e: any) {
         let message = "Something went wrong (check console!)";
         try {
@@ -205,11 +201,7 @@ async function doClone(guildId: string, data: Data) {
         } catch { }
 
         new Logger("ExpressionCloner").error("Failed to clone", data.name, "to", guildId, e);
-        Toasts.show({
-            message: "Failed to clone: " + message,
-            type: Toasts.Type.FAILURE,
-            id: Toasts.genId()
-        });
+        showToast("Failed to clone: " + message, "failure");
     }
 }
 

@@ -19,7 +19,7 @@
 import type { MessageObject } from "@api/MessageEvents";
 import type { Channel, CloudUpload, Guild, GuildFeatures, IntlKeys, MediaModalItem, MediaModalProps, Message, User } from "@velocity-types";
 import { Theme } from "@velocity-types/enums";
-import { ChannelActionCreators, ChannelStore, ComponentDispatch, Constants, FluxDispatcher, GuildStore, i18n, InviteActions, MessageActions, openMediaModal, RestAPI, SelectedChannelStore, SelectedGuildStore, SettingsActionCreators, Toasts, UserProfileActions, UserProfileStore, UserUtils } from "@webpack/common";
+import { ChannelActionCreators, ChannelStore, ComponentDispatch, Constants, FluxDispatcher, GuildStore, i18n, InviteActions, MessageActions, openMediaModal, openUserProfileModal, RestAPI, SelectedChannelStore, SelectedGuildStore, SettingsActionCreators, showToast, UserProfileStore, UserUtils } from "@webpack/common";
 import type { Except, LiteralUnion } from "type-fest";
 
 import { runtimeHashMessageKey } from "./intlHash";
@@ -85,11 +85,7 @@ export async function openInviteModal(code: string) {
 
 export async function copyWithToast(text: string, toastMessage = "Copied to clipboard!") {
     await copyToClipboard(text);
-    Toasts.show({
-        message: toastMessage,
-        id: Toasts.genId(),
-        type: Toasts.Type.SUCCESS
-    });
+    showToast(toastMessage, "success");
 }
 
 export function getCurrentChannel(): Channel | undefined {
@@ -178,14 +174,14 @@ export async function openUserProfile(id: string) {
     if (!user) throw new Error("No such user: " + id);
 
     const guildId = SelectedGuildStore.getGuildId();
-    UserProfileActions.openUserProfileModal({
+    openUserProfileModal({
         userId: id,
         guildId,
         channelId: SelectedChannelStore.getChannelId(),
-        analyticsLocation: {
-            page: guildId ? "Guild Channel" : "DM Channel",
-            section: "Profile Popout"
-        }
+        sourceAnalyticsLocations: [
+            "username",
+            "user profile popout"
+        ]
     });
 }
 

@@ -23,7 +23,7 @@ import { getIntlMessage } from "@utils/discord";
 import { wordsToTitle } from "@utils/text";
 import type { DefinedSettings } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
-import { Avatar, ChannelActionCreators, ChannelStore, Clickable, Icons, Modal, openModalLazy, showToast, Text, Toasts, UserStore } from "@webpack/common";
+import { Avatar, ChannelActionCreators, ChannelStore, Clickable, Icons, Modal, openModalLazy, showToast, Text, UserStore } from "@webpack/common";
 import type { ReactNode } from "react";
 
 interface GhostModalProps {
@@ -69,7 +69,7 @@ function GhostModal({ userId, settings, ModalProps }: GhostModalProps) {
 
         settings.store.users = users;
         ModalProps.onClose?.();
-        showToast(`${user.globalName || user.username} ghosted`, Toasts.Type.SUCCESS);
+        showToast(`${user.globalName || user.username} ghosted`, "success");
     }
 
     function closeDm() {

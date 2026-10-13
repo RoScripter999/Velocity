@@ -183,7 +183,6 @@ export interface Locale {
 }
 
 export interface SettingsRouter {
-    get USER_SETTINGS_MODAL_KEY(): "USER_SETTINGS_MODAL_MODAL_KEY";
     openUserSettings(target?: UserSettingsKeys | LiteralUnion<`velocity_${string}`, never>): Promise<void>;
 }
 
@@ -455,3 +454,26 @@ export interface MessageActionCreators {
     crosspostMessage(channelId: string, messageId: string): Promise<any>;
     trackInvite(inviteData: any): void;
 }
+
+export interface OpenUserProfileModalOptions {
+    userId: string;
+    guildId?: string | null;
+    originGuildId?: string | null;
+    channelId?: string | null;
+    messageId?: string | null;
+    roleId?: string | null;
+    sessionId?: unknown | null;
+    joinRequestId?: unknown;
+    tabSection?: unknown;
+    scrollTarget?: unknown;
+    hideRestrictedProfile?: boolean;
+    sourceAnalyticsLocations?: string[];
+    appContext?: unknown;
+    /**
+     * defaults to null
+     */
+    customStatusPrompt?: unknown;
+    onModalOpen?: unknown;
+}
+
+export type OpenUserProfileModal = (opts: OpenUserProfileModalOptions) => Promise<void>;

@@ -30,7 +30,7 @@ import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
-import { FluxDispatcher, Forms, Icons, Menu, TagGroup, TextInput, Toasts, Tooltip, UserStore, useState } from "@webpack/common";
+import { FluxDispatcher, Forms, Icons, Menu, showToast, TagGroup, TextInput, Tooltip, UserStore, useState } from "@webpack/common";
 import type { KeyboardEvent } from "react";
 
 type Rule = Record<"word", string>;
@@ -146,10 +146,10 @@ const toggleWord = (word: string) => {
 
     if (index !== -1) {
         rules.splice(index, 1);
-        Toasts.show({ message: `Removed "${word}" from message filter`, id: Toasts.genId(), type: Toasts.Type.SUCCESS });
+        showToast(`Removed "${word}" from message filter`, "success");
     } else {
         rules.push({ word });
-        Toasts.show({ message: `Added "${word}" to message filter`, id: Toasts.genId(), type: Toasts.Type.SUCCESS });
+        showToast(`Added "${word}" to message filter`, "success");
     }
 };
 

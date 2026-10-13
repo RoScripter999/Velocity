@@ -23,8 +23,9 @@ import { loadLazyChunks } from "@debug/loadLazyChunks";
 import { reporterData } from "@debug/reporterData";
 import { getIntlMessageFromHash } from "@utils/discord";
 import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
+import { ToastPosition } from "@velocity-types/enums";
 import { filters, findAll, search, wreq } from "@webpack";
-import { Toasts, useState } from "@webpack/common";
+import { showToast, useState } from "@webpack/common";
 
 import { CLIENT_VERSION, logger, PORT, settings } from ".";
 import type { Recieve } from "./types";
@@ -77,14 +78,7 @@ export function initWs(isManual = false) {
 
         try {
             if (settings.store.notifyOnAutoConnect || isManual) {
-                Toasts.show({
-                    message: "Connected to WebSocket",
-                    id: Toasts.genId(),
-                    type: Toasts.Type.SUCCESS,
-                    options: {
-                        position: Toasts.Position.TOP
-                    }
-                });
+                showToast("Connected to WebSocket", "success", { position: ToastPosition.TOP });
             }
         }
         catch (e) {
@@ -98,30 +92,14 @@ export function initWs(isManual = false) {
         hasErrored = true;
 
         logger.error("Dev Companion Error:", e);
-
-        Toasts.show({
-            message: "Dev Companion Error",
-            id: Toasts.genId(),
-            type: Toasts.Type.FAILURE,
-            options: {
-                position: Toasts.Position.TOP
-            }
-        });
+        showToast("Dev Companion Error", "failure", { position: ToastPosition.TOP });
     });
 
     ws.addEventListener("close", e => {
         if (!wasConnected || hasErrored) return;
 
         logger.info("Dev Companion Disconnected:", e.code, e.reason);
-
-        Toasts.show({
-            message: "Dev Companion Disconnected",
-            id: Toasts.genId(),
-            type: Toasts.Type.FAILURE,
-            options: {
-                position: Toasts.Position.TOP
-            }
-        });
+        showToast("Dev Companion Disconnected", "failure", { position: ToastPosition.TOP });
     });
 
     ws.addEventListener("message", e => {

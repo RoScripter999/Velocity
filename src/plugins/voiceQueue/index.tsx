@@ -20,7 +20,7 @@ import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@a
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import type { Channel } from "@velocity-types";
-import { ChannelActions, ChannelStore, ConfirmModal, Menu, openModal, PermissionsBits, PermissionStore, showToast, Toasts, UserStore, VoiceStateStore } from "@webpack/common";
+import { ChannelActions, ChannelStore, ConfirmModal, Menu, openModal, PermissionsBits, PermissionStore, showToast, UserStore, VoiceStateStore } from "@webpack/common";
 
 interface VoiceStateChangeEvent {
     userId: string;
@@ -43,7 +43,7 @@ function openQueueModal(channel: Channel) {
             cancelText="Cancel"
             onConfirm={() => {
                 queuedChannelId = channel.id;
-                showToast(`Queued for ${channel.name}`, Toasts.Type.MESSAGE);
+                showToast(`Queued for ${channel.name}`, "message");
             }}
         />
     ));
@@ -66,7 +66,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
             action={() => {
                 if (queuedChannelId === channel.id) {
                     queuedChannelId = null;
-                    showToast("Voice queue cancelled", Toasts.Type.MESSAGE);
+                    showToast("Voice queue cancelled", "message");
                     return;
                 }
 
@@ -135,7 +135,7 @@ export default definePlugin({
             const id = queuedChannelId;
             queuedChannelId = null;
             ChannelActions.selectVoiceChannel(id);
-            showToast(`Joining ${channel.name}`, Toasts.Type.SUCCESS);
+            showToast(`Joining ${channel.name}`, "success");
         }
     },
 

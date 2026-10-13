@@ -24,7 +24,7 @@ import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import type { ButtonVariant, Channel } from "@velocity-types";
 import { findComponentByCodeLazy } from "@webpack";
-import { ConfirmModal, Menu, openModal, showToast, Toasts, UserStore } from "@webpack/common";
+import { ConfirmModal, Menu, openModal, showToast, UserStore } from "@webpack/common";
 import type { ComponentType, ReactNode } from "react";
 
 import { openGhostModal } from "./ghostModal";
@@ -64,7 +64,7 @@ function unGhostUser(userId: string) {
     const users = settings.store.users ?? [];
     settings.store.users = users.filter((id: string) => id !== userId);
     const user = UserStore.getUser(userId);
-    showToast(`${user.globalName || user.username} unghosted`, Toasts.Type.SUCCESS);
+    showToast(`${user.globalName || user.username} unghosted`, "success");
 }
 
 const ghostUserPatch: NavContextMenuPatchCallback = (children, { user }) => {

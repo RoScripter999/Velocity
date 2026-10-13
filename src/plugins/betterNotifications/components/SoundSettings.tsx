@@ -20,7 +20,7 @@ import { Flex } from "@components/Flex";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { getIntlMessage } from "@utils/discord";
-import { Buttons, FilePicker, Icons, Slider, TabBar, Text, TextInput, Toasts, useRef, useState } from "@webpack/common";
+import { Buttons, FilePicker, Icons, showToast, Slider, TabBar, Text, TextInput, useRef, useState } from "@webpack/common";
 
 import { getSoundEntries, saveSoundEntries, type SoundEntry } from "../settings";
 import { convertFileToBase64, getEntryDisplay, getEntrySubtext, makeEmptyForm } from "./utils";
@@ -75,12 +75,12 @@ export function SoundSettings() {
         if (!file) return;
 
         if (!["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"].includes(file.type)) {
-            Toasts.show({ message: "Only audio files are allowed", type: Toasts.Type.FAILURE, id: Toasts.genId() });
+            showToast("Only audio files are allowed", "failure");
             return;
         }
 
         if (file.size > 10 * 1024 * 1024) {
-            Toasts.show({ message: "File size too large! Maximum 10MB", type: Toasts.Type.FAILURE, id: Toasts.genId() });
+            showToast("File size too large! Maximum 10MB", "failure");
             return;
         }
 
@@ -88,7 +88,7 @@ export function SoundSettings() {
             const base64 = await convertFileToBase64(file);
             setForm(prev => ({ ...prev, soundUrl: base64, filename: file.name }));
         } catch {
-            Toasts.show({ message: "Error reading file", type: Toasts.Type.FAILURE, id: Toasts.genId() });
+            showToast("Error reading file", "failure");
         }
     };
 

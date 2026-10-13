@@ -120,6 +120,7 @@ export * from "./FriendsStore";
 export * from "./GameConsoleStore";
 export * from "./QuickSwitcherStore";
 export * from "./GatedChannelStore";
+export * from "./GIFPickerViewStore";
 export * from "./GameLibraryViewStore";
 export * from "./GameMentionSettingsStore";
 export * from "./GamePartyStore";

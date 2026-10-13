@@ -20,7 +20,7 @@ import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@a
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
-import { Constants, Menu, PermissionsBits, PermissionStore, RestAPI, showToast, Toasts, VoiceStateStore } from "@webpack/common";
+import { Constants, Menu, PermissionsBits, PermissionStore, RestAPI, showToast, VoiceStateStore } from "@webpack/common";
 
 const disconnectAllPatch: NavContextMenuPatchCallback = (children, props) => {
     if (!props.channel.isGuildVoice()) return;
@@ -52,7 +52,7 @@ const disconnectAllPatch: NavContextMenuPatchCallback = (children, props) => {
                         }
                     }
                     if (disconnectedCount > 0) {
-                        showToast(`Disconnected ${disconnectedCount} users`, Toasts.Type.SUCCESS);
+                        showToast(`Disconnected ${disconnectedCount} users`, "success");
                     }
                 }}
             />

@@ -257,3 +257,8 @@ export enum BadgeRarity {
     LEGENDARY = 4,
     MYTHIC = 5
 }
+
+export const enum ToastPosition {
+    TOP = 0,
+    BOTTOM = 1,
+}

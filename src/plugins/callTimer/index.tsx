@@ -23,7 +23,8 @@ import { Devs } from "@utils/constants";
 import { useTimer } from "@utils/react";
 import { formatDurationVerbose } from "@utils/text";
 import definePlugin, { OptionType } from "@utils/types";
-import { SelectedChannelStore, Toasts, useEffect, useRef, UserStore, useState } from "@webpack/common";
+import { ToastPosition } from "@velocity-types/enums";
+import { SelectedChannelStore, showToast, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
 import alignedChatInputFix from "./alignedChatInputFix.css?managed";
 
@@ -42,14 +43,11 @@ const settings = definePluginSettings({
         default: false,
         onChange(newValue: boolean) {
             if (!SelectedChannelStore.getVoiceChannelId?.()) return;
-            Toasts.show({
-                message: newValue
-                    ? "Rejoin the call for timer saving to take effect"
-                    : "Timer saving disabled",
-                id: Toasts.genId(),
-                type: Toasts.Type.MESSAGE,
-                options: { duration: 5000, position: Toasts.Position.BOTTOM }
-            });
+            showToast(newValue
+                ? "Rejoin the call for timer saving to take effect"
+                : "Timer saving disabled", "message",
+                { duration: 5000, position: ToastPosition.TOP }
+            );
         }
     }
 });
@@ -78,7 +76,7 @@ export default definePlugin({
         {
             find: '"RTCConnectionMenu"',
             replacement: {
-                match: /("RTCConnectionMenu".{0,200}?lineClamp:1,children:)(\i)(?=,|}\))/,
+                match: /("RTCConnectionMenu".{0,300}?lineClamp:1,children:)(\i)(?=,|}\))/,
                 replace: "$1[$2,$self.renderTimer({ channelId: this?.props?.channel?.id })]"
             }
         }

@@ -29,7 +29,7 @@ import { shouldShowContributorBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import type { DiscordBadge } from "@velocity-types";
 import { BadgeRarity } from "@velocity-types/enums";
-import { ContextMenuApi, Icons, Menu, Toasts, UserStore } from "@webpack/common";
+import { ContextMenuApi, Icons, Menu, showToast, UserStore } from "@webpack/common";
 
 export const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1487853399901995119.webp?size=64";
 
@@ -136,11 +136,7 @@ export default definePlugin({
     toolboxActions: {
         async "Refetch Badges"() {
             await loadBadges(true);
-            Toasts.show({
-                id: Toasts.genId(),
-                message: "Successfully refetched badges!",
-                type: Toasts.Type.SUCCESS
-            });
+            showToast("Successfully refetched badges!", "success");
         }
     },
 

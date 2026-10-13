@@ -20,6 +20,8 @@
 import "~plugins";
 import "./fixWeirdCssBugs.css";
 
+import nativeTitleBarStyles from "./nativeTitleBar.css?managed";
+
 export * as Api from "./api";
 export * as Plugins from "./api/PluginManager";
 export * as Components from "./components";
@@ -30,11 +32,10 @@ export * as WebpackPatcher from "./webpack/patchWebpack";
 export { PlainSettings, Settings };
 
 import { popNotice, showNotice } from "@api/Notices";
-import { coreStyleRootNode, initStyles } from "@api/Styles";
+import { enableStyle, initStyles } from "@api/Styles";
 import { openSettingsTabModal, UpdaterTab } from "@components/settings";
 import { debounce } from "@shared/debounce";
-import { IS_WINDOWS, VELOCITY_GUILD_INVITE } from "@utils/constants";
-import { createAndAppendStyle } from "@utils/css";
+import { VELOCITY_GUILD_INVITE } from "@utils/constants";
 import { openInviteModal } from "@utils/discord";
 import { StartAt } from "@utils/types";
 import { SettingsRouter } from "@webpack/common";
@@ -229,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startAllPlugins(StartAt.DOMContentLoaded);
 
     // FIXME
-    if (IS_DISCORD_DESKTOP && Settings.winNativeTitleBar && IS_WINDOWS) {
-        createAndAppendStyle("velocity-native-titlebar-style", coreStyleRootNode).textContent = "[class*=titleBar]{display: none!important}";
+    if (IS_DISCORD_DESKTOP && Settings.nativeTitleBar) {
+        enableStyle(nativeTitleBarStyles);
     }
 }, { once: true });

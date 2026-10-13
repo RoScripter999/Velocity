@@ -3,6 +3,7 @@ export * from "./components";
 export * from "./components/";
 export * from "./flux";
 export * from "./fluxEvents";
+export * from "./toasts";
 export * from "./intlKeys";
 export * from "./menu";
 export * from "./modules";
