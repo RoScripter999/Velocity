@@ -34,6 +34,11 @@ const settings = definePluginSettings({
         description: "Toggle functionality",
         default: false
     },
+    wrapInQuotes: {
+        type: OptionType.BOOLEAN,
+        description: "Wrap the repeated message in quotes",
+        default: false
+    },
     cooldown: {
         type: OptionType.SLIDER,
         description: "Cooldown between repeats (seconds)",
@@ -163,7 +168,7 @@ export default definePlugin({
                 const { content } = message;
                 if (content) {
                     setTimeout(() => {
-                        sendMessage(message.channel_id, { content });
+                        sendMessage(message.channel_id, { content: settings.store.wrapInQuotes ? `"${content}"` : content });
                     }, delayMs);
 
                     lastRepeatTime = now;

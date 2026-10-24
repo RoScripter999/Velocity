@@ -18,6 +18,7 @@
 
 import "./styles.css";
 
+import { ChannelToolbarButton } from "@api/HeaderBar";
 import { definePluginSettings } from "@api/Settings";
 import { Margins } from "@components/margins";
 import { Devs, IS_MAC } from "@utils/constants";
@@ -32,6 +33,7 @@ import {
     CheckboxGroup,
     Field,
     HelpMessage,
+    Icons,
     MessageActions,
     NavigationRouter,
     openModal,
@@ -412,6 +414,15 @@ const getActions = (target: User, channelId?: string): Action[] => {
     ];
 };
 
+function openMenu() {
+    const recipientId = getCurrentChannel()?.recipients?.find(id => id !== UserStore.getCurrentUser()?.id);
+    if (!recipientId) return;
+
+    const target = UserStore.getUser(recipientId);
+    if (!target) return;
+    void openModal(({ actions: _, ...props }) => <ControlsPanel actions={getActions(target)} target={target} {...props} />);
+}
+
 export default definePlugin({
     name: "ControlUsers",
     description: "Allows you to make other users do specific prebuilt actions when sending message. (requires other user to have this plugin enabled)",
@@ -420,8 +431,23 @@ export default definePlugin({
 
     settingsAboutComponent: () => {
         return (
-            <HelpMessage messageType="info">Press Ctrl + F9 to open the control menu.</HelpMessage>
+            <HelpMessage messageType="info">Press Ctrl + F9 to open the control menu. Or press the Controller icon in the Channel Bar</HelpMessage>
         );
+    },
+
+    headerBarButton: {
+        location: "channeltoolbar",
+        required: true,
+        icon: () => Icons.ExperimentalGameControllerLinkIcon,
+        render: () => {
+            return (
+                <ChannelToolbarButton
+                    tooltip="Control Users Panel"
+                    icon={Icons.ExperimentalGameControllerLinkIcon}
+                    onClick={openMenu}
+                />
+            );
+        }
     },
 
     patches: [
@@ -451,12 +477,7 @@ export default definePlugin({
 
     event(e: KeyboardEvent) {
         if (e.code === "F9" && (IS_MAC ? e.metaKey : e.ctrlKey) && !e.repeat) {
-            const recipientId = getCurrentChannel()?.recipients?.find(id => id !== UserStore.getCurrentUser()?.id);
-            if (!recipientId) return;
-
-            const target = UserStore.getUser(recipientId);
-            if (!target) return;
-            void openModal(({ actions: _, ...props }) => <ControlsPanel actions={getActions(target)} target={target} {...props} />);
+            openMenu();
         }
     },
 
