@@ -103,7 +103,7 @@ export function BuildPluginSettings(settings: DefinedSettings, showOpenSettings?
                         action={() => {
                             s[key] = !s[key];
                             if ("restartNeeded" in option && option.restartNeeded) {
-                                showToast("Restart to apply the change");
+                                showToast({ text: "Restart to apply the change" });
                             }
                         }}
                     />
@@ -181,7 +181,7 @@ export function BuildPluginSettings(settings: DefinedSettings, showOpenSettings?
                                                 ? cur.filter(v => v !== opt.value)
                                                 : [...cur, opt.value];
                                             if ("restartNeeded" in option && option.restartNeeded) {
-                                                showToast("Restart to apply the change");
+                                                showToast({ text: "Restart to apply the change" });
                                             }
                                         }}
                                     />
@@ -197,7 +197,7 @@ export function BuildPluginSettings(settings: DefinedSettings, showOpenSettings?
                                     action={() => {
                                         s[key] = opt.value;
                                         if ("restartNeeded" in option && option.restartNeeded) {
-                                            showToast("Restart to apply the change");
+                                            showToast({ text: "Restart to apply the change" });
                                         }
                                     }}
                                 />

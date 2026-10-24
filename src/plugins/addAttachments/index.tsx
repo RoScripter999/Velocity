@@ -26,7 +26,7 @@ import { Constants, Icons, PermissionsBits, PermissionStore, RestAPI, showToast,
 const uniqueIdProp = findLazy(m => typeof m.uniqueId === "function");
 
 const addAttachments = async (channelId: string, messageId: string, files: FileList, attachments: any[]) => {
-    showToast("Uploading, this can take a while...", "clock");
+    showToast({ text: "Uploading, this can take a while..." });
 
     const fileArray = Array.from(files).map(file => ({
         filename: file.name,
@@ -63,7 +63,7 @@ const addAttachments = async (channelId: string, messageId: string, files: FileL
         }
     });
 
-    showToast("Attachments added successfully!", "success");
+    showToast({ text: "Attachments added successfully!", variant: "success" });
 };
 
 export default definePlugin({
@@ -113,7 +113,7 @@ export default definePlugin({
                         }
                     });
 
-                    showToast("Attachment removed!", "success");
+                    showToast({ text: "Attachment removed!", variant: "success" });
                 }
             };
         }

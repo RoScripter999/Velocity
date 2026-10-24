@@ -22,7 +22,6 @@ import { Settings } from "@api/Settings";
 import { AddonCard } from "@components/settings/AddonCard";
 import { Span } from "@components/Span";
 import type { Plugin } from "@utils/types";
-import { ToastPosition } from "@velocity-types/enums";
 import { Icons, showToast } from "@webpack/common";
 import type { HTMLProps } from "react";
 
@@ -81,7 +80,7 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
 
         if (!result) {
             settings.enabled = false;
-            showToast(`Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`, "failure", { position: ToastPosition.BOTTOM });
+            showToast({ text: `Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`, variant: "critical", position: "bottom" });
             return;
         }
 

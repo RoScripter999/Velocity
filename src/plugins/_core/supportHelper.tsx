@@ -39,7 +39,7 @@ import { makeCodeblock } from "@utils/text";
 import definePlugin from "@utils/types";
 import { checkForUpdates, isOutdated, update } from "@utils/updater";
 import type { Channel, Message, ModalPropsRender } from "@velocity-types";
-import { CloudUploadPlatform, MessageFlags, ToastPosition } from "@velocity-types/enums";
+import { CloudUploadPlatform, MessageFlags } from "@velocity-types/enums";
 import { Buttons, ChannelStore, CloudUploader, ConfirmModal, Constants, GuildMemberStore, Icons, MessageStore, Modal, openModal, Parser, PermissionsBits, PermissionStore, RelationshipStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Text, Tooltip, useEffect, UserStore } from "@webpack/common";
 import type { JSX } from "react";
 
@@ -203,10 +203,10 @@ async function sendPluginList(channelId: string) {
 
     try {
         await uploadPluginListFile(channelId, pluginList.fileContent, pluginList.filename);
-        showToast("Plugin list uploaded successfully!", "success");
+        showToast({ text: "Plugin list uploaded successfully!", variant: "success" });
     } catch (e) {
         logger.error("Failed to upload plugin list:", e);
-        showToast("Failed to upload plugin list", "failure");
+        showToast({ text: "Failed to upload plugin list", variant: "critical" });
     }
 }
 
@@ -394,19 +394,19 @@ export default definePlugin({
             if (!wasEnabled) {
                 const { restartNeeded, failures } = startDependenciesRecursive(plugin);
                 if (failures.length) {
-                    showToast(`Failed to start dependencies: ${failures.join(", ")}`, "failure", { position: ToastPosition.BOTTOM });
+                    showToast({ text: `Failed to start dependencies: ${failures.join(", ")}`, variant: "critical", position: "bottom" });
                     return;
                 }
                 if (restartNeeded) {
                     Settings.plugins[plugin.name].enabled = true;
-                    showToast("Restart to apply changes");
+                    showToast({ text: "Restart to apply changes" });
                     return;
                 }
             }
 
             if (pluginRequiresRestart(plugin)) {
                 Settings.plugins[plugin.name].enabled = !wasEnabled;
-                showToast("Restart to apply changes");
+                showToast({ text: "Restart to apply changes" });
                 return;
             }
 
@@ -418,7 +418,7 @@ export default definePlugin({
             const result = wasEnabled ? stopPlugin(plugin) : startPlugin(plugin);
             if (!result) {
                 Settings.plugins[plugin.name].enabled = false;
-                showToast(`Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`, "failure", { position: ToastPosition.BOTTOM });
+                showToast({ text: `Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`, variant: "critical", position: "bottom" });
                 return;
             }
 
@@ -437,12 +437,12 @@ export default definePlugin({
                     onClick={async () => {
                         try {
                             if (await forceUpdate())
-                                showToast("Success! Restarting...", "success");
+                                showToast({ text: "Success! Restarting...", variant: "success" });
                             else
-                                showToast("Already up to date!");
+                                showToast({ text: "Already up to date!" });
                         } catch (e) {
                             logger.error("Error while updating:", e);
-                            showToast("Failed to update :(", "failure");
+                            showToast({ text: "Failed to update :(", variant: "critical" });
                         }
                     }}
                 />
@@ -460,10 +460,10 @@ export default definePlugin({
                         onClick={async () => {
                             try {
                                 await AsyncFunction(match[1])();
-                                showToast("Success!", "success");
+                                showToast({ text: "Success!", variant: "success" });
                             } catch (e) {
                                 new Logger(this.name).error("Error while running snippet:", e);
-                                showToast("Failed to run snippet :(", "failure");
+                                showToast({ text: "Failed to run snippet :(", variant: "critical" });
                             }
                         }}
                     />

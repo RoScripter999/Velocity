@@ -193,7 +193,7 @@ async function doClone(guildId: string, data: Data) {
         else
             await cloneEmoji(guildId, data);
 
-        showToast(`Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`, "success");
+        showToast({ text: `Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`, variant: "success" });
     } catch (e: any) {
         let message = "Something went wrong (check console!)";
         try {
@@ -201,7 +201,7 @@ async function doClone(guildId: string, data: Data) {
         } catch { }
 
         new Logger("ExpressionCloner").error("Failed to clone", data.name, "to", guildId, e);
-        showToast("Failed to clone: " + message, "failure");
+        showToast({ text: "Failed to clone: " + message, variant: "critical" });
     }
 }
 

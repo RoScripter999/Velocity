@@ -64,7 +64,7 @@ function unGhostUser(userId: string) {
     const users = settings.store.users ?? [];
     settings.store.users = users.filter((id: string) => id !== userId);
     const user = UserStore.getUser(userId);
-    showToast(`${user.globalName || user.username} unghosted`, "success");
+    showToast({ text: `${user.globalName || user.username} unghosted`, variant: "success" });
 }
 
 const ghostUserPatch: NavContextMenuPatchCallback = (children, { user }) => {

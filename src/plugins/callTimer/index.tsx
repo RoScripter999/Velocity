@@ -23,7 +23,6 @@ import { Devs } from "@utils/constants";
 import { useTimer } from "@utils/react";
 import { formatDurationVerbose } from "@utils/text";
 import definePlugin, { OptionType } from "@utils/types";
-import { ToastPosition } from "@velocity-types/enums";
 import { SelectedChannelStore, showToast, useEffect, useRef, UserStore, useState } from "@webpack/common";
 
 import alignedChatInputFix from "./alignedChatInputFix.css?managed";
@@ -43,10 +42,12 @@ const settings = definePluginSettings({
         default: false,
         onChange(newValue: boolean) {
             if (!SelectedChannelStore.getVoiceChannelId?.()) return;
-            showToast(newValue
-                ? "Rejoin the call for timer saving to take effect"
-                : "Timer saving disabled", "message",
-                { duration: 5000, position: ToastPosition.TOP }
+            showToast({
+                text: newValue
+                    ? "Rejoin the call for timer saving to take effect"
+                    : "Timer saving disabled",
+                duration: 5000, position: "top"
+            }
             );
         }
     }

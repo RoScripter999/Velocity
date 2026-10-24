@@ -146,7 +146,7 @@ export default definePlugin({
             }
 
             if (rule.match.test(url)) {
-                showToast("Opened link in native app", "success");
+                showToast({ text: "Opened link in native app", variant: "success" });
 
                 const newUrl = url.replace(rule.match, rule.replace);
                 VelocityNative.native.openExternal(newUrl);

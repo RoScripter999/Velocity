@@ -75,12 +75,12 @@ export function SoundSettings() {
         if (!file) return;
 
         if (!["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"].includes(file.type)) {
-            showToast("Only audio files are allowed", "failure");
+            showToast({ text: "Only audio files are allowed", variant: "critical" });
             return;
         }
 
         if (file.size > 10 * 1024 * 1024) {
-            showToast("File size too large! Maximum 10MB", "failure");
+            showToast({ text: "File size too large! Maximum 10MB", variant: "critical" });
             return;
         }
 
@@ -88,7 +88,7 @@ export function SoundSettings() {
             const base64 = await convertFileToBase64(file);
             setForm(prev => ({ ...prev, soundUrl: base64, filename: file.name }));
         } catch {
-            showToast("Error reading file", "failure");
+            showToast({ text: "Error reading file", variant: "critical" });
         }
     };
 

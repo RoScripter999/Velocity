@@ -20,21 +20,27 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { getOrderedNames } from "@components/settings/tabs/plugins/UIElements";
 import { Logger } from "@utils/Logger";
 import type { IconComponent } from "@utils/types";
-import type { Channel, Message } from "@velocity-types";
-import type { ComponentType, MouseEventHandler } from "react";
+import type { IconProps, Message } from "@velocity-types";
+import type { ComponentType, HTMLProps, ReactElement } from "react";
 
 import { useSettings } from "./Settings";
 
 const logger = new Logger("MessagePopover");
 
-export interface MessagePopoverButtonItem {
+export interface MessagePopoverButtonItem extends HTMLProps<HTMLDivElement> {
     key?: string,
     label: string,
     icon: ComponentType<any>,
-    message?: Message,
-    channel?: Channel,
-    onClick?: MouseEventHandler<HTMLButtonElement>,
-    onContextMenu?: MouseEventHandler<HTMLButtonElement>;
+    ariaLabel?: string,
+    buttonClassName?: string;
+    /** Red icon */
+    dangerous?: boolean,
+    disabled?: boolean,
+    iconProps?: IconProps,
+    onTooltipShow?: () => void,
+    onTooltipHide?: () => void,
+    separator?: boolean,
+    tooltipText?: ReactElement,
 }
 
 export type MessagePopoverButtonFactory = (message: Message) => MessagePopoverButtonItem | null;

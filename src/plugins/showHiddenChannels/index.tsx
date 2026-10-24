@@ -22,13 +22,11 @@ import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
-import { openUserProfile } from "@utils/discord";
-import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import type { Channel, Role, User } from "@velocity-types";
+import type { Channel, Role } from "@velocity-types";
 import { findCssClassesLazy } from "@webpack";
-import { Avatar, ChannelStore, ChannelTypeSets, Icons, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
+import { ChannelStore, ChannelTypeSets, Icons, PermissionsBits, PermissionStore, Tooltip } from "@webpack/common";
 
 import HiddenChannelLockScreen, { setChannelBeginHeader } from "./components/HiddenChannelLockScreen";
 
@@ -92,7 +90,6 @@ export default definePlugin({
     tags: ["Servers", "Utility"],
     authors: [Devs.BigDuck, Devs.AverageReactEnjoyer, Devs.D3SOX, Devs.Ven, Devs.Nuckyz, Devs.Nickyux],
     settings,
-
 
     patches: [
         {
@@ -340,11 +337,6 @@ export default definePlugin({
             find: '="interactive-text-default",overflowCountClassName:',
             replacement: [
                 {
-                    // Make the avatars use our own avatar wrapper for custom onClick function
-                    match: /\(0,\i\.jsx\)\(\i\.\i,{src:(\i)\.getAvatarURL\((\i),\(0,\i\.\i\)\(\i\)\),size:\i,"aria-hidden":!0}\)/,
-                    replace: "$self.Avatar($1,$2)()"
-                },
-                {
                     // Create a variable for the channel prop
                     match: /let{users:\i,maxUsers:\i,/,
                     replace: "let{shcChannel}=arguments[0];$&"
@@ -399,7 +391,7 @@ export default definePlugin({
             ]
         },
         {
-            find: '"HasBeenInStageChannel"',
+            find: "audience-header-",
             replacement: [
                 {
                     // Render our HiddenChannelLockScreen component instead of the main stage channel component
@@ -420,12 +412,7 @@ export default definePlugin({
                     // Disable strange styles applied to the header for the HiddenChannelLockScreen of stage channels
                     match: /"124px".+?style:(?<=let \i,{channel:(\i).+?)/,
                     replace: (m, channel) => `${m}$self.isHiddenChannel(${channel})?void 0:`
-                }
-            ]
-        },
-        {
-            find: "#{intl::STAGE_FULL_MODERATOR_TITLE}",
-            replacement: [
+                },
                 {
                     // Remove the divider and amount of users in stage channel components for the HiddenChannelLockScreen
                     match: /\(0,\i\.jsx\)\(\i\.\i\.Divider.+?}\)]}\)(?=.+?:(\i)\.guild_id)/,
@@ -541,8 +528,7 @@ export default definePlugin({
 
             return !PermissionStore.can(PermissionsBits.VIEW_CHANNEL, channel) || checkConnect && !PermissionStore.can(PermissionsBits.CONNECT, channel);
         } catch (e) {
-            new Logger("ShowHiddenChannels#isHiddenChannel").error("Failed to check hidden channel type:", e);
-
+            console.error("[ViewHiddenChannels#isHiddenChannel]: ", e);
             return false;
         }
     },
@@ -561,10 +547,11 @@ export default definePlugin({
                     return true;
             }
         } catch (e) {
-            new Logger("ShowHiddenChannels").error("Failed to check hidden channel type:", e);
+            console.error("[ShowHiddenChannels#shouldShowHiddenChannel]", e);
             return true;
         }
     },
+
     resolveGuildChannels(channels: Record<string | number, Array<{ channel: Channel; comparator: number; }> | string | number>, shouldIncludeHidden: boolean) {
         if (shouldIncludeHidden) return channels;
 
@@ -599,17 +586,7 @@ export default definePlugin({
         ];
     },
 
-    HiddenChannelLockScreen: (channel: Channel) => <HiddenChannelLockScreen channel={channel} />,
-
-    Avatar: (user: User, guildId: string) => ErrorBoundary.wrap(() => (
-        <div className={cl("avatar")} onClick={() => openUserProfile(user.id)}>
-            <Avatar
-                size="SIZE_24"
-                src={user.getAvatarURL(guildId, 24)}
-                aria-hidden
-            />
-        </div>
-    ), { noop: true }),
+    HiddenChannelLockScreen: (channel: any) => <HiddenChannelLockScreen channel={channel} />,
 
     LockIcon: ErrorBoundary.wrap(() => (
         <Icons.LockIcon className={ChannelListClasses.icon} size="refresh_sm" />

@@ -77,7 +77,7 @@ function PluginChanges({ added, removed, fixed, improved }: PluginChangesProps) 
                                 key={name}
                                 plugin={plugin}
                                 disabled={id === "removed"}
-                                onRestartNeeded={() => showToast("Restart to apply changes!")}
+                                onRestartNeeded={() => showToast({ text: "Restart to apply changes!" })}
                                 isNew={id === "added"}
                             />
                         );

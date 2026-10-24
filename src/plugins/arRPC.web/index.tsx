@@ -21,7 +21,6 @@ import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import definePlugin, { ReporterTestable } from "@utils/types";
-import { ToastPosition } from "@velocity-types/enums";
 import { findByCodeLazy } from "@webpack";
 import { ApplicationAssetUtils, FluxDispatcher, Forms, showToast } from "@webpack/common";
 
@@ -90,7 +89,7 @@ export default definePlugin({
             });
             return;
         }
-        showToast("Connected to arRPC", "success", { duration: 1000, position: ToastPosition.TOP });
+        showToast({ text: "Connected to arRPC", variant: "success", duration: 1000 });
     },
 
     stop() {

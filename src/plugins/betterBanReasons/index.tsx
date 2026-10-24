@@ -159,7 +159,7 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
                 {
                     variant: "critical-primary",
                     text: getIntlMessage("REVOKE_BAN"),
-                    icon: () => <Icons.HammerIcon color="currentColor" size="refresh_sm" />,
+                    icon: Icons.HammerIcon,
                     onClick: handleUnban,
                     loading: loading
                 }
@@ -264,11 +264,11 @@ export default definePlugin({
             ]
         },
         {
-            find: "#{intl::REVOKE_BAN})",
+            find: "#{intl::REVOKE_BAN}),",
             lazy: true,
             replacement: {
-                match: /return\(0,(\w+)\.jsx\)\((\w+)\.Modal,/,
-                replace: "return(0,$1.jsx)($self.renderBanModal,{...arguments[0]},"
+                match: /\(0,(\i)\.jsx\)\(\i\.\i,{title:.{0,80}transitionState:\i,children:/,
+                replace: "(0,$1.jsx)($self.renderBanModal,{...arguments[0],children:"
             },
             predicate: () => settings.store.betterModal
         }

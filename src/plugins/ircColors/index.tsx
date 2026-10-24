@@ -111,7 +111,7 @@ function addCustomUserColor(userId: string, color: string) {
         rules.push(makeEmptyUserColorRule());
     }
 
-    showToast("Added custom color for user", "success");
+    showToast({ text: "Added custom color for user", variant: "success" });
 }
 
 function removeCustomUserColor(userId: string) {
@@ -121,7 +121,7 @@ function removeCustomUserColor(userId: string) {
     if (index !== -1 && index !== rules.length - 1) {
         rules.splice(index, 1);
 
-        showToast("Removed custom color for user", "success");
+        showToast({ text: "Removed custom color for user", variant: "success" });
     }
 }
 

@@ -20,7 +20,6 @@ import { showNotice } from "@api/Notices";
 import { plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
 import { canonicalizeMatch } from "@utils/patches";
-import { ToastPosition } from "@velocity-types/enums";
 import type { Module } from "@velocity-types/webpack";
 import { type CodeFilter, type FilterFn, stringMatches, wreq } from "@webpack";
 import { showToast } from "@webpack/common";
@@ -130,7 +129,7 @@ export function toggleEnabled(name: string, beforeReload: (error?: string) => vo
                 beforeReload();
                 window.location.reload();
             }
-            showToast("Reload Needed", "message", { position: ToastPosition.TOP, duration: 5000 });
+            showToast({ text: "Reload Needed", duration: 5000 });
         }
     }
     const plugin = plugins[name];
@@ -180,7 +179,7 @@ export function toggleEnabled(name: string, beforeReload: (error?: string) => vo
 
         const msg = `Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`;
         console.error(msg);
-        showToast(msg, "failure", { position: ToastPosition.BOTTOM });
+        showToast({ text: msg, variant: "critical", position: "bottom" });
         beforeReturn();
         return;
     }

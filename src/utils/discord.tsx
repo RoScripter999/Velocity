@@ -85,7 +85,7 @@ export async function openInviteModal(code: string) {
 
 export async function copyWithToast(text: string, toastMessage = "Copied to clipboard!") {
     await copyToClipboard(text);
-    showToast(toastMessage, "success");
+    showToast({ text: toastMessage, variant: "success" });
 }
 
 export function getCurrentChannel(): Channel | undefined {

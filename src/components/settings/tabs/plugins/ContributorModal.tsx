@@ -119,7 +119,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                             icon={() => <Icons.ShieldIcon size="xs" color="var(--text-muted)" />}
                         />
                         {corePlugins.map(p =>
-                            <PluginCard key={p.name} plugin={p} disabled={true} onRestartNeeded={() => showToast("Restart to apply changes!")} />
+                            <PluginCard key={p.name} plugin={p} disabled={true} onRestartNeeded={() => showToast({ text: "Restart to apply changes!" })} />
                         )}
                     </div>
                 )}
@@ -132,7 +132,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                             icon={() => <Icons.WrenchIcon size="xs" color="var(--text-muted)" />}
                         />
                         {apiPlugins.map(p =>
-                            <PluginCard key={p.name} plugin={p} disabled={true} onRestartNeeded={() => showToast("Restart to apply changes!")} />
+                            <PluginCard key={p.name} plugin={p} disabled={true} onRestartNeeded={() => showToast({ text: "Restart to apply changes!" })} />
                         )}
                     </div>
                 )}
@@ -145,7 +145,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                             icon={() => <Icons.ListViewIcon size="xs" color="var(--text-muted)" />}
                         />
                         {plugins.map(p =>
-                            <PluginCard key={p.name} plugin={p} disabled={false} onRestartNeeded={() => showToast("Restart to apply changes!")} />
+                            <PluginCard key={p.name} plugin={p} disabled={false} onRestartNeeded={() => showToast({ text: "Restart to apply changes!" })} />
                         )}
                     </div>
                 )}

@@ -93,21 +93,23 @@ const makeContextMenuPatch: (shouldAddIcon: boolean) => NavContextMenuPatchCallb
 
 function applyDefaultSettings(guildId: string | null) {
     if (guildId === "@me" || guildId === "null" || guildId == null) return;
-
-    const notifSettings: Record<string, any> = {
-        muted: settings.store.guild,
-        suppress_everyone: settings.store.everyone,
-        suppress_roles: settings.store.role,
-        mute_scheduled_events: settings.store.events,
-        notify_highlights: settings.store.highlights ? 1 : 0
-    };
-    if (settings.store.messages !== 3)
-        notifSettings.message_notifications = settings.store.messages;
-
-    if (settings.store.showAllChannels && isOptInEnabledForGuild(guildId))
+    updateGuildNotificationSettings(guildId,
+        {
+            muted: settings.store.guild,
+            suppress_everyone: settings.store.everyone,
+            suppress_roles: settings.store.role,
+            mute_scheduled_events: settings.store.events,
+            notify_highlights: settings.store.highlights ? 1 : 0
+        });
+    if (settings.store.messages !== 3) {
+        updateGuildNotificationSettings(guildId,
+            {
+                message_notifications: settings.store.messages
+            });
+    }
+    if (settings.store.showAllChannels && isOptInEnabledForGuild(guildId)) {
         toggleShowAllChannels(guildId);
-    // toggleShowAllChannels does a full state write based on current settings and can overwrite notification settings when run simultaneously (Apply NewGuildSettings Button)
-    setTimeout(() => updateGuildNotificationSettings(guildId, notifSettings), 1000);
+    }
 }
 
 export default definePlugin({
@@ -124,15 +126,15 @@ export default definePlugin({
         {
             find: ",acceptInvite(",
             replacement: {
-                match: /null!=(\i)&&\i\.new_member&&!\i\.show_verification_form\)\{/,
-                replace: "$&$self.applyDefaultSettings($1);"
+                match: /INVITE_ACCEPT_SUCCESS.+?,(\i)=null!=.+?;/,
+                replace: (m, guildId) => `${m}$self.applyDefaultSettings(${guildId});`
             }
         },
         {
             find: "{joinGuild:",
             replacement: {
-                match: /guildId:(\i),lurker:(\i).{0,20}}\)\);/,
-                replace: "$&if(!$2)$self.applyDefaultSettings($1);"
+                match: /guildId:(\i),lurker:(\i).{0,20}}\);/,
+                replace: (m, guildId, lurker) => `${m}if(!${lurker})$self.applyDefaultSettings(${guildId});`
             }
         }
     ],

@@ -69,7 +69,7 @@ function GhostModal({ userId, settings, ModalProps }: GhostModalProps) {
 
         settings.store.users = users;
         ModalProps.onClose?.();
-        showToast(`${user.globalName || user.username} ghosted`, "success");
+        showToast({ text: `${user.globalName || user.username} ghosted`, variant: "success" });
     }
 
     function closeDm() {

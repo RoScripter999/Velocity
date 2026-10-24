@@ -43,7 +43,7 @@ function openQueueModal(channel: Channel) {
             cancelText="Cancel"
             onConfirm={() => {
                 queuedChannelId = channel.id;
-                showToast(`Queued for ${channel.name}`, "message");
+                showToast({ text: `Queued for ${channel.name}` });
             }}
         />
     ));
@@ -66,7 +66,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
             action={() => {
                 if (queuedChannelId === channel.id) {
                     queuedChannelId = null;
-                    showToast("Voice queue cancelled", "message");
+                    showToast({ text: "Voice queue cancelled" });
                     return;
                 }
 
@@ -135,7 +135,7 @@ export default definePlugin({
             const id = queuedChannelId;
             queuedChannelId = null;
             ChannelActions.selectVoiceChannel(id);
-            showToast(`Joining ${channel.name}`, "success");
+            showToast({ text: `Joining ${channel.name}`, variant: "success" });
         }
     },
 

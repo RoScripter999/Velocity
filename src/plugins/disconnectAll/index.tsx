@@ -52,7 +52,7 @@ const disconnectAllPatch: NavContextMenuPatchCallback = (children, props) => {
                         }
                     }
                     if (disconnectedCount > 0) {
-                        showToast(`Disconnected ${disconnectedCount} users`, "success");
+                        showToast({ text: `Disconnected ${disconnectedCount} users`, variant: "success" });
                     }
                 }}
             />

@@ -146,10 +146,10 @@ const toggleWord = (word: string) => {
 
     if (index !== -1) {
         rules.splice(index, 1);
-        showToast(`Removed "${word}" from message filter`, "success");
+        showToast({ text: `Removed "${word}" from message filter`, variant: "success" });
     } else {
         rules.push({ word });
-        showToast(`Added "${word}" to message filter`, "success");
+        showToast({ text: `Added "${word}" to message filter`, variant: "success" });
     }
 };
 
