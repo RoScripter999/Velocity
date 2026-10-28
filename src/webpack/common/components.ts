@@ -58,7 +58,7 @@ export const SearchBar = waitForComponent<t.SearchBar>("SearchBar", filters.comp
 export const TextArea = waitForComponent<t.TextArea>("TextArea", filters.componentByCode('"data-mana-component":"text-area"'));
 export const SearchableSelect = waitForComponent<t.SearchableSelect>("SearchableSelect", filters.componentByCode('??"single"==='));
 export const Slider = waitForComponent<t.Slider>("Slider", filters.componentByCode("markDash", "this.renderMark("));
-export const HelpMessage = waitForComponent<t.HelpMessage>("HelpMessage", filters.componentByCode("messageType:", "textColor:", "children:"));
+export const InlineNotice = waitForComponent<t.InlineNotice>("InlineNotice", filters.componentByCode(",messageList:", "onDismiss:"));
 export const HiddenVisually = waitForComponent<t.HiddenVisually>("HiddenVisually", filters.componentByCode('="span",showOnFocus'));
 export const Field = waitForComponent<t.Field>("Field", filters.componentByCode('"fieldset":"div"'));
 export const FieldSet = waitForComponent<t.FieldSet>("FieldSet", filters.componentByCode('"fieldset",{...'));

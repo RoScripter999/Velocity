@@ -25,7 +25,7 @@ import { getIntlMessage, openUserProfile } from "@utils/discord";
 import { copyToClipboard } from "@utils/misc";
 import definePlugin, { OptionType, type PluginSettingComponentProps } from "@utils/types";
 import type { Guild, ModalPropsRender, User } from "@velocity-types";
-import { Avatar, Buttons, Clickable, DateUtils, Forms, GuildActions, HelpMessage, Icons, Modal, Select, Text, TextInput, Tooltip, useRef, useState } from "@webpack/common";
+import { Avatar, Buttons, Clickable, DateUtils, Forms, GuildActions, Icons, InlineNotice, Modal, Select, Text, TextInput, Tooltip, useRef, useState } from "@webpack/common";
 
 const cl = classNameFactory("vc-bbr-");
 
@@ -210,7 +210,7 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
                     {user.globalName && <Text selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("DISPLAY_NAME")}: {user.globalName}</Text>}
                     <Text selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("USER_PROFILE_DISCORD_MEMBER_SINCE")}: {DateUtils.calendarFormat(user.createdAt)}</Text>
 
-                    {error && <HelpMessage className={Margins.top8} messageType="danger">{error}</HelpMessage>}
+                    {error && <div className={Margins.top8}> <InlineNotice type="critical" message={error} /> </div>}
                 </Forms.FormSection>
             </div>
         </Modal>

@@ -32,8 +32,8 @@ import {
     ChannelStore,
     CheckboxGroup,
     Field,
-    HelpMessage,
     Icons,
+    InlineNotice,
     MessageActions,
     NavigationRouter,
     openModal,
@@ -431,7 +431,7 @@ export default definePlugin({
 
     settingsAboutComponent: () => {
         return (
-            <HelpMessage messageType="info">Press Ctrl + F9 to open the control menu. Or press the Controller icon in the Channel Bar</HelpMessage>
+            <InlineNotice type="info" message={"Press Ctrl + F9 to open the control menu. Or press the Controller icon in the Channel Bar"} />
         );
     },
 

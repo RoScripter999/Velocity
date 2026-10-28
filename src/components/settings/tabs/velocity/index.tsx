@@ -29,6 +29,7 @@ import { SectionHeader } from "@components/settings/tabs/SectionHeader";
 import { SettingsTab } from "@components/settings/tabs/SectionSettings";
 import { Switch } from "@components/Switch";
 import BadgeAPI from "@plugins/_api/badges";
+import NoTrack from "@plugins/_core/noTrack";
 import SettingsPlugin from "@plugins/_core/settings";
 import { gitRemote } from "@shared/userAgent";
 import { ChangeList } from "@utils/ChangeList";
@@ -39,7 +40,7 @@ import { shouldShowContributorBadge } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { useCleanupEffect } from "@utils/react";
 import type { SelectOption } from "@velocity-types";
-import { Buttons, ConfirmModal, Forms, GuildMemberStore, HelpMessage, Icons, openModal, Parser, Select, Text, useRef, UserStore } from "@webpack/common";
+import { Buttons, ConfirmModal, Forms, GuildMemberStore, Icons, InlineNotice, openModal, Parser, Select, Text, useRef, UserStore } from "@webpack/common";
 import type { ComponentType } from "react";
 
 import { MacOSVibrancySettings } from "./MacVibrancySettings";
@@ -53,7 +54,19 @@ const isDonor = (userId: string) => !!(
 );
 
 function SettingsList() {
-    const settings = useSettings(["useQuickCss", "enableReactDevtools", "nativeTitleBar", "transparent", "winCtrlQ", "disableMinSize"]);
+    const settings = useSettings([
+        "useQuickCss",
+        "enableReactDevtools",
+        "nativeTitleBar",
+        "transparent",
+        "winCtrlQ",
+        "disableMinSize",
+        "rendererPerformanceBoost",
+        "windowsMaterial",
+        "windowMoveable"
+    ]);
+    const { disableAnalytics } = NoTrack.settings.use(["disableAnalytics"]);
+
     const changes = useRef(new ChangeList<keyof typeof settings>()).current;
 
     type SettingItem = false | {
@@ -63,6 +76,8 @@ function SettingsList() {
         icon: ComponentType<any>;
         restartRequired?: boolean;
         options?: SelectOption[];
+        updateSetting?(newValue: boolean): void;
+        value?: boolean;
     };
 
     const Settings: Record<string, SettingItem[]> = {
@@ -72,6 +87,17 @@ function SettingsList() {
                 title: "Custom CSS",
                 description: "Enable the QuickCSS editor and custom styles",
                 icon: Icons.PaintbrushThickIcon
+            },
+            {
+                value: disableAnalytics,
+                updateSetting(newValue) {
+                    NoTrack.settings.store.disableAnalytics = newValue;
+                },
+                key: null!,
+                title: "Disable Analytics",
+                description: NoTrack.settings.def.disableAnalytics.description,
+                restartRequired: NoTrack.settings.def.disableAnalytics.restartNeeded,
+                icon: Icons.AnalyticsIcon
             },
             !IS_WEB && {
                 key: "rendererPerformanceBoost",
@@ -153,12 +179,16 @@ function SettingsList() {
     };
 
     const handleToggle = (key: keyof typeof settings, value: any) => {
-        if (settings[key] === value) return;
-
-        settings[key] = value as never;
-
         const allItems = Object.values(Settings).flat();
         const setting = allItems.find((s): s is Exclude<SettingItem, false> => !!s && s.key === key);
+
+        if (setting?.updateSetting) {
+            setting.updateSetting(value);
+        } else {
+            if (settings[key] === value) return;
+            settings[key] = value as never;
+        }
+
         if (!setting?.restartRequired) return;
 
         changes.handleChange(key);
@@ -219,7 +249,7 @@ function SettingsList() {
                             <div
                                 key={key}
                                 className={cl("row")}
-                                onClick={setting.options ? undefined : () => handleToggle(key, !settings[key])}
+                                onClick={setting.options ? undefined : () => handleToggle(key, !(setting.value ?? settings[key]))}
                             >
                                 <SectionHeader
                                     layout="horizontal"
@@ -229,7 +259,7 @@ function SettingsList() {
                                     titleVariant="text-md/semibold"
                                     description={
                                         <>
-                                            <Text variant="text-sm/normal" color="text-muted">{description}</Text>
+                                            <Text variant="text-sm/normal" color="text-subtle">{description}</Text>
                                             {restartRequired && (
                                                 <Flex alignItems="center" gap="4px" style={{ marginTop: 4 }}>
                                                     <Icons.RetryIcon size="xs" color="var(--text-brand)" />
@@ -255,7 +285,7 @@ function SettingsList() {
                                     </div>
                                 ) : (
                                     <Switch
-                                        checked={Boolean(settings[key])}
+                                        checked={setting.value ?? Boolean(settings[key])}
                                         onChange={v => handleToggle(key, v)}
                                         gap={false}
                                     />
@@ -348,18 +378,21 @@ export default function VelocitySettings() {
                 </QuickActionCard>
             </section>
 
-            <HelpMessage
-                icon={() => <Icons.TopicsIcon size="sm" color="var(--icon-muted)" />}
-                className={cl("hint")}
-            >
-                Hint: You can change the position of this section in the{" "}
-                <Buttons.TextButton
-                    onClick={() => openPluginModal(SettingsPlugin)}
-                    variant="primary"
-                    textVariant="text-sm/semibold"
-                    text="Settings plugin"
+            <div className={Margins.top16}>
+                <InlineNotice
+                    type="info"
+                    message={
+                        <>
+                            Hint: You can change the position of this section in the{" "}
+                            <Buttons.TextButton
+                                onClick={() => openPluginModal(SettingsPlugin)}
+                                variant="primary"
+                                textVariant="text-sm/semibold"
+                                text="Settings plugin"
+                            />
+                        </>}
                 />
-            </HelpMessage>
+            </div>
 
             <Forms.FormDivider gap={20} />
 

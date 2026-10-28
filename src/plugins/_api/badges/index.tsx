@@ -31,7 +31,7 @@ import type { DiscordBadge } from "@velocity-types";
 import { BadgeRarity } from "@velocity-types/enums";
 import { ContextMenuApi, Icons, Menu, showToast, UserStore } from "@webpack/common";
 
-export const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1487853399901995119.webp?size=64";
+export const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1487853399901995119.webp?size=240";
 
 let DonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 

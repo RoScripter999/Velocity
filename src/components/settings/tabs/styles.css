@@ -36,13 +36,6 @@
     flex-shrink: 0;
 }
 
-.vc-settings-velocity-hint {
-    padding: 10px 12px;
-    margin-top: var(--space-16);
-    background: var(--background-mod-subtle);
-    border: 1px solid var(--border-subtle);
-}
-
 .vc-settings-velocity-no-badges {
     display: flex;
     flex-direction: column;

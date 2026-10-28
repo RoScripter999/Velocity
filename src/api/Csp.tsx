@@ -16,11 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Margins } from "@components/margins";
 import { SectionHeader } from "@components/settings";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { ModalPropsRender } from "@velocity-types";
-import { CheckboxGroup, HelpMessage, Modal, openModal, useState } from "@webpack/common";
+import { CheckboxGroup, InlineNotice, Modal, openModal, useState } from "@webpack/common";
 
 function getContentTypes(directives: string[]): string[] {
     return directives
@@ -91,15 +90,13 @@ function CspPermissionModal({ url, directives, callerName, resolve, ...modalProp
                 descriptionColor="text-default"
                 gap={{ bottom: 8 }}
             />
-            {contentTypes.length > 0 && <ul style={{ listStyleType: "disc", paddingLeft: "1.5em", margin: "4px 0 0" }}>
+            {contentTypes.length > 0 && <ul style={{ listStyleType: "disc", paddingLeft: "1.5em", margin: "4px 0 0", marginBottom: "16px" }}>
                 {contentTypes.map(type => (
                     <li key={type}>{type}</li>
                 ))}
             </ul>}
 
-            <HelpMessage messageType="warn" className={Margins.top16}>
-                Unless you recognise and fully trust <strong>{domain}</strong>, you should cancel this request!
-            </HelpMessage>
+            <InlineNotice type="warning" message={<>Unless you recognise and fully trust <strong>{domain}</strong>, you should cancel this request!</>} />
         </Modal>
     );
 }

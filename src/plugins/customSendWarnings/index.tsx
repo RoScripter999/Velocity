@@ -26,7 +26,7 @@ import { SectionHeader } from "@components/settings";
 import { Span } from "@components/Span";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Buttons, HelpMessage, Icons, RichTooltip, TextInput, useState } from "@webpack/common";
+import { Buttons, Icons, InlineNotice, RichTooltip, TextInput, useState } from "@webpack/common";
 
 type WarningRule = { id: string; match: string; message: string; };
 
@@ -103,7 +103,7 @@ function renderRegexError(match: string) {
         new RegExp(regexMatch[1], regexMatch[2]);
         return null;
     } catch (e) {
-        return <HelpMessage messageType="danger">{String(e)}</HelpMessage>;
+        return <InlineNotice type="critical" message={String(e)} />;
     }
 }
 

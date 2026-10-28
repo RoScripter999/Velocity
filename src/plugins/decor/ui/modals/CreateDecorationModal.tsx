@@ -26,7 +26,7 @@ import { cl, DecorationModalClasses, requireAvatarDecorationModal, requireCreate
 import { AvatarDecorationModalPreview } from "@plugins/decor/ui/components";
 import { openInviteModal } from "@utils/discord";
 import type { ModalPropsRender } from "@velocity-types";
-import { closeAllModals, FilePicker, FluxDispatcher, Forms, GuildStore, HelpMessage, Modal, NavigationRouter, openModal, TextInput, useEffect, useMemo, UserStore, useState } from "@webpack/common";
+import { closeAllModals, FilePicker, FluxDispatcher, Forms, GuildStore, InlineNotice, Modal, NavigationRouter, openModal, TextInput, useEffect, useMemo, UserStore, useState } from "@webpack/common";
 
 function useObjectURL(object: Blob | MediaSource | null) {
     const [url, setUrl] = useState<string | null>(null);
@@ -86,13 +86,16 @@ function CreateDecorationModal(props: ModalPropsRender) {
     >
         <div className={cl("create-decoration-modal-content", DecorationModalClasses.modal)}>
             <ErrorBoundary>
-                <HelpMessage messageType="warn">
-                    Make sure your decoration does not violate <Link
-                        href="https://github.com/decor-discord/.github/blob/main/GUIDELINES.md"
-                    >
-                        the guidelines
-                    </Link> before submitting it.
-                </HelpMessage>
+                <InlineNotice
+                    type="warning"
+                    message={<>
+                        Make sure your decoration does not violate <Link
+                            href="https://github.com/decor-discord/.github/blob/main/GUIDELINES.md"
+                        >
+                            the guidelines
+                        </Link> before submitting it.
+                    </>}
+                />
                 <div className={cl("create-decoration-modal-form-preview-container")}>
                     <div className={cl("create-decoration-modal-form")}>
                         {error !== null && <Paragraph color="text-feedback-critical" variant="text-xs/normal">{error.message}</Paragraph>}
@@ -128,27 +131,32 @@ function CreateDecorationModal(props: ModalPropsRender) {
                         />
                     </div>
                 </div>
-                <HelpMessage messageType="info" className={Margins.bottom8}>
-                    To receive updates on your decoration's review, join <Link
-                        href={`https://discord.gg/${INVITE_KEY}`}
-                        onClick={async e => {
-                            e.preventDefault();
-                            if (!GuildStore.getGuild(GUILD_ID)) {
-                                const inviteAccepted = await openInviteModal(INVITE_KEY);
-                                if (inviteAccepted) {
-                                    closeAllModals();
-                                    FluxDispatcher.dispatch({ type: "LAYER_POP_ALL" });
-                                }
-                            } else {
-                                closeAllModals();
-                                FluxDispatcher.dispatch({ type: "LAYER_POP_ALL" });
-                                NavigationRouter.transitionToGuild(GUILD_ID);
-                            }
-                        }}
-                    >
-                        Decor's Discord server
-                    </Link> and allow direct messages.
-                </HelpMessage>
+                <div className={Margins.bottom8}>
+                    <InlineNotice
+                        type="info"
+                        message={<>
+                            To receive updates on your decoration's review, join <Link
+                                href={`https://discord.gg/${INVITE_KEY}`}
+                                onClick={async e => {
+                                    e.preventDefault();
+                                    if (!GuildStore.getGuild(GUILD_ID)) {
+                                        const inviteAccepted = await openInviteModal(INVITE_KEY);
+                                        if (inviteAccepted) {
+                                            closeAllModals();
+                                            FluxDispatcher.dispatch({ type: "LAYER_POP_ALL" });
+                                        }
+                                    } else {
+                                        closeAllModals();
+                                        FluxDispatcher.dispatch({ type: "LAYER_POP_ALL" });
+                                        NavigationRouter.transitionToGuild(GUILD_ID);
+                                    }
+                                }}
+                            >
+                                Decor's Discord server
+                            </Link> and allow direct messages.
+                        </>}
+                    />
+                </div>
             </ErrorBoundary>
         </div>
     </Modal>;

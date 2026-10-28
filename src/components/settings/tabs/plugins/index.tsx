@@ -36,7 +36,7 @@ import { Logger } from "@utils/Logger";
 import { classes, isPluginDev } from "@utils/misc";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { type PluginTag, PluginTags } from "@utils/types";
-import { Buttons, ConfirmModal, Field, Forms, HelpMessage, Icons, LoadingIndicator, openModal, Parser, SearchableSelect, SearchBar, Select, Text, useCallback, useDeferredValue, useEffect, useMemo, useRef, UserStore, useState } from "@webpack/common";
+import { Buttons, ConfirmModal, Field, Forms, Icons, InlineNotice, LoadingIndicator, openModal, Parser, SearchableSelect, SearchBar, Select, Text, useCallback, useDeferredValue, useEffect, useMemo, useRef, UserStore, useState } from "@webpack/common";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
@@ -119,12 +119,16 @@ function DevNotice() {
     return (
         <>
             {isDev && (
-                <HelpMessage messageType="info" className={cl("dev-notice")}>
-                    See what plugins you've contributed to{" "}
-                    <Link onClick={() => openContributorModal(user)} style={{ textDecoration: "underline" }}>
-                        here
-                    </Link>.
-                </HelpMessage>
+                <div className={cl("dev-notice")}>
+                    <InlineNotice
+                        type="info"
+                        message={<>See what plugins you've contributed to{" "}
+                            <Link onClick={() => openContributorModal(user)} style={{ textDecoration: "underline" }}>
+                                here
+                            </Link>.
+                        </>}
+                    />
+                </div>
             )}
         </>
     );
@@ -145,8 +149,8 @@ function ExcludedPluginsList({ search }: { search: string; }) {
     return (
         <>
             {matchingExcludedPlugins.length ? (
-                <Paragraph className={Margins.top16}>
-                    <Paragraph>Are you looking for:</Paragraph>
+                <Text className={Margins.top16}>
+                    <Text>Are you looking for:</Text>
                     <ul>
                         {matchingExcludedPlugins.map(([name, reason]) => (
                             <li key={name}>
@@ -154,7 +158,7 @@ function ExcludedPluginsList({ search }: { search: string; }) {
                             </li>
                         ))}
                     </ul>
-                </Paragraph>
+                </Text>
             ) : (
                 <Text variant="eyebrow" className={Margins.top16}>No plugins meet the search criteria</Text>
             )}

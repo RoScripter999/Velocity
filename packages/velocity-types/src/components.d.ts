@@ -80,20 +80,23 @@ export type FieldSet = ComponentType<PropsWithChildren<Omit<HTMLAttributes<HTMLF
     description?: ReactNode;
 }>>;
 
-export type HelpMessage = ComponentType<PropsWithChildren<{
-    /** If not provided nothing renders. */
-    messageType?: "warn" | "info" | "danger" | "positive" | "preview";
-    action?: ReactNode;
-    className?: string;
-    iconAlign?: "center";
-    /** @default text-default */
-    textColor?: CSSColorToken;
-    /** @default text-sm/medium */
-    textVariant?: TextVariant;
-    icon?: ComponentType<any>;
-    /** Hides the {@link HelpMessage} component */
+export type InlineNotice = ComponentType<{
+    /** If not provided, nothing renders. */
+    type?: "success" | "critical" | "info" | "warning";
+    title?: ReactNode;
+    message?: ReactNode;
+    messageList?: ReactNode[];
+    /** Shown as a secondary button next to the message. */
+    action?: {
+        text: string;
+        onClick: () => void;
+        loading?: boolean;
+    };
+    onDismiss?: () => void;
+    role?: "alert" | "status";
+    /** Hides the {@link InlineNotice} component */
     hidden?: boolean;
-}>>;
+}>;
 
 export type HiddenVisually = ComponentType<PropsWithChildren<HTMLAttributes<HTMLElement> & {
     tag?: HTMLElementType;
