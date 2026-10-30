@@ -218,7 +218,7 @@ export default definePlugin({
             // when the flux event fires
             find: "_handleVideo",
             replacement: {
-                match: /if\(\i\.\i\.supports\(\i\.\i\.VIDEO\)&&null!=this\._connection&&this\.userId!==\i\)\{/,
+                match: /if\(!\(!\i\.\i\.supports\(\i\.\i\.VIDEO\)\|\|this\._shouldDropMediaEventForUser\(\i,"VIDEO"\)\)&&null!=this\._connection&&this\.userId!==\i\)\{/,
                 replace: 'if($self.isSettingEnabled&&this.context==="Stream")return;$&'
             }
         },

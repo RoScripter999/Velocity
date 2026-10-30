@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes, AriaAttributes, ComponentType, CSSProperties, HTMLAttributes, PropsWithChildren, Ref } from "react";
-import { TextVariant } from "../components";
+import { TextVariant } from "../";
 
 export type ButtonVariant = "primary" | "secondary" | "critical-primary" | "critical-secondary" | "active" | "overlay-primary" | "overlay-secondary" | "expressive" | "togglebutton" | "icon-only" | "color-mix";
 export type ButtonSize = "xs" | "sm" | "md";

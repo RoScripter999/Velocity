@@ -1,6 +1,12 @@
 import { StickerFormatType, StickerType } from "../../../enums";
 
-interface BaseSticker {
+export interface StickerItem {
+    format_type: StickerFormatType;
+    id: string;
+    name: string;
+}
+
+interface BaseSticker extends StickerItem {
     asset?: string;
     available: boolean;
     description: string;

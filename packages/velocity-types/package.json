@@ -3,15 +3,15 @@
     "author": "RoScripter999",
     "private": false,
     "description": "Typescript definitions for the webpack modules of the Velocity discord mod",
-    "version": "1.1.0",
+    "version": "1.15.12",
     "license": "LGPL-3.0-or-later",
     "types": "src/index.d.ts",
     "type": "module",
     "dependencies": {
-        "moment": "2.22.2",
-        "type-fest": "^5.7.0"
+        "moment": "catalog:",
+        "type-fest": "catalog:"
     },
     "peerDependencies": {
-        "@types/react": "19.1.0"
+        "@types/react": "catalog:"
     }
 }

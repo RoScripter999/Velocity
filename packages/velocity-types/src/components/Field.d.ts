@@ -1,5 +1,5 @@
 import { ComponentType, CSSProperties, ReactNode, Ref } from "react";
-import { TextVariant } from "../components";
+import { TextVariant } from "../";
 
 export type BadgeType = "new" | "beta" | "early_access" | "free_trial";
 

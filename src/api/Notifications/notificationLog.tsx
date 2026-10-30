@@ -25,7 +25,6 @@ import { isObjectEmpty } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
 import type { ModalPropsRender } from "@velocity-types";
 import { ConfirmModal, ListScrollerThin, Modal, openModal, Timestamp, useEffect, useReducer, useState } from "@webpack/common";
-import { nanoid } from "nanoid";
 import type { DispatchWithoutAction } from "react";
 
 import NotificationComponent from "./NotificationComponent";
@@ -64,7 +63,7 @@ export async function persistNotification(notification: NotificationData) {
         log.unshift({
             ...pureNotification,
             timestamp: Date.now(),
-            id: nanoid()
+            id: crypto.randomUUID()
         });
 
         if (log.length > limit && limit !== 200)

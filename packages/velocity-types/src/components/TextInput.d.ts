@@ -1,5 +1,5 @@
 import { ComponentType, CSSProperties, FocusEvent, HTMLProps, KeyboardEvent, MouseEvent, PropsWithChildren, ReactNode, Ref } from "react";
-import { FieldProps } from "../components";
+import { FieldProps } from "../";
 
 export interface TextInputProps extends PropsWithChildren, Omit<FieldProps, "errorMessage"> {
     name?: string;

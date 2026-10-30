@@ -1,6 +1,6 @@
 
 import { ComponentType, Context, KeyboardEvent, MouseEvent, ReactNode, RefObject } from "react";
-import { LoadingIndicator } from "../components";
+import { LoadingIndicator } from "../";
 
 declare enum PopoutAnimation {
     NONE = "1",
