@@ -20,19 +20,24 @@ import "./styles.css";
 
 import { ChatBarButton, type ChatBarButtonFactory } from "@api/ChatButtons";
 import { definePluginSettings } from "@api/Settings";
-import { Margins } from "@components/margins";
-import { Paragraph } from "@components/Paragraph";
+import { InlineCode } from "@components/CodeBlock";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getTheme, insertTextIntoChatInputBox } from "@utils/discord";
+import { copyToClipboard } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
 import type { ModalPropsRender } from "@velocity-types";
 import { Theme } from "@velocity-types/enums";
-import { Forms, Icons, Modal, openModal, Parser, Select, useMemo, useState } from "@webpack/common";
+import { Buttons, Forms, Icons, Modal, openModal, Parser, Text, useMemo, useState } from "@webpack/common";
 
 const settings = definePluginSettings({
     replaceMessageContents: {
         description: "Replace timestamps in message contents",
+        type: OptionType.BOOLEAN,
+        default: true
+    },
+    insertClosesModal: {
+        description: "Closes the modal if `Insert` is pressed",
         type: OptionType.BOOLEAN,
         default: true
     }
@@ -50,19 +55,19 @@ function parseTime(time: string) {
     return `<t:${Math.round(date.getTime() / 1000)}:t>`;
 }
 
-const Formats = ["", "t", "T", "d", "D", "f", "F", "s", "S", "R"] as const;
+const Formats = ["R", "t", "T", "d", "s", "S", "D", "f", "F"] as const;
 type Format = typeof Formats[number];
 
 const cl = classNameFactory("vc-st-");
 
 function PickerModal(props: ModalPropsRender) {
     const [value, setValue] = useState<string>();
-    const [format, setFormat] = useState<Format>("");
+    const [format, setFormat] = useState<Format>("f");
     const time = Math.round((new Date(value!).getTime() || Date.now()) / 1000);
 
     const formatTimestamp = (time: number, format: Format) => `<t:${time}${format && `:${format}`}>`;
 
-    const [formatted, rendered] = useMemo(() => {
+    const [formatted, _rendered] = useMemo(() => {
         const formatted = formatTimestamp(time, format);
         return [formatted, Parser.parse(formatted)];
     }, [time, format]);
@@ -71,59 +76,70 @@ function PickerModal(props: ModalPropsRender) {
         <Modal
             {...props}
             title="Timestamp Picker"
+            size="lg"
             actions={[{
                 text: "Insert",
                 variant: "primary",
                 onClick() {
                     insertTextIntoChatInputBox(formatted + " ");
+                    if (settings.store.insertClosesModal) props.onClose();
+                }
+            }, {
+                text: "Copy",
+                variant: "secondary",
+                onClick() {
+                    copyToClipboard(formatted);
                     props.onClose();
                 }
             }]}
         >
-            <input
-                className={cl("date-picker")}
-                type="datetime-local"
-                value={value}
-                onChange={e => setValue(e.currentTarget.value)}
-                style={{
-                    colorScheme: getTheme() === Theme.LIGHT ? "light" : "dark"
-                }}
-            />
-
-            <div className={cl("format-select")}>
-                <Select
-                    label="Timestamp Format"
-                    options={
-                        Formats.map(m => ({
-                            label: m,
-                            value: m,
-                            id: m
-                        }))
-                    }
-                    value={format}
-                    onSelectionChange={setFormat}
-                    formatOption={options => ({
-                        ...options,
-                        label: Parser.parse(formatTimestamp(time, options.value))
-                    })}
+            <Forms.FormSection title="Time">
+                <input
+                    className={cl("date-picker")}
+                    type="datetime-local"
+                    value={value}
+                    onChange={e => setValue(e.currentTarget.value)}
+                    style={{
+                        colorScheme: getTheme() === Theme.LIGHT ? "light" : "dark"
+                    }}
                 />
-            </div>
+            </Forms.FormSection>
 
-            <Forms.FormTitle className={Margins.bottom8}>Preview</Forms.FormTitle>
-            <Paragraph className={cl("preview-text")}>
-                {rendered} ({formatted})
-            </Paragraph>
+            <Forms.FormSection title="Format">
+                <div className={cl("format-grid")}>
+                    {Formats.map(m =>
+                        <Buttons.Button
+                            variant={format === m ? "primary" : "secondary"}
+                            onClick={() => setFormat(m)}
+                            size="sm"
+                            key={m}
+                            text={Parser.parse(formatTimestamp(time, m), true)}
+                            fullWidth
+                        />
+                    )}
+                </div>
+            </Forms.FormSection>
+
+            <Forms.FormTitle>
+                Raw Markdown:
+                <InlineCode className={cl("raw-code")}>{formatted}</InlineCode>
+            </Forms.FormTitle>
         </Modal>
     );
 }
 
 const SendTimestampButton: ChatBarButtonFactory = ({ isAnyChat }) => {
+    const [key, setKey] = useState<string>();
     if (!isAnyChat) return null;
 
     return (
         <ChatBarButton
             tooltip="Insert Timestamp"
-            onClick={() => openModal(props => <PickerModal {...props} />)}
+            onClick={() => {
+                if (key) return;
+
+                setKey(openModal(props => <PickerModal {...props} />, { onCloseCallback: () => setKey(undefined) }));
+            }}
             buttonProps={{ "aria-haspopup": "dialog" }}
         >
             <Icons.CalendarIcon color="currentColor" />
@@ -161,23 +177,24 @@ export default definePlugin({
 
         return (
             <>
-                <Paragraph>
-                    To quickly send send time only timestamps, include timestamps formatted as `HH:MM` (including the backticks!) in your message
-                </Paragraph>
-                <Paragraph>
+                <Text>
+                    To quickly send time only timestamps, include timestamps formatted as `HH:MM` (including the backticks!) in your message.
+                </Text>
+                <Text>
                     See below for examples.
                     If you need anything more specific, use the Date button in the chat bar!
-                </Paragraph>
-                <Paragraph>
-                    Examples:
+                </Text>
+                <Forms.FormDivider gap={8} />
+                <Text>
+                    <Forms.FormTitle>Examples</Forms.FormTitle>
                     <ul>
                         {samples.map(s => (
                             <li key={s}>
-                                <code>{s}</code> {"->"} {Parser.parse(parseTime(s))}
+                                <InlineCode className={cl("desc-code")}>{s}</InlineCode> → {Parser.parse(parseTime(s))}
                             </li>
                         ))}
                     </ul>
-                </Paragraph>
+                </Text>
             </>
         );
     }

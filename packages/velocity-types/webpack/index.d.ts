@@ -7,8 +7,8 @@
 export type ModuleExports = any;
 
 export type Module = {
-    id: PropertyKey;
-    loaded: boolean;
+    id?: PropertyKey;
+    loaded?: boolean;
     exports: ModuleExports;
 };
 
@@ -133,21 +133,26 @@ export type WebpackRequire = ((moduleId: PropertyKey) => ModuleExports) & {
      */
     t: (this: WebpackRequire, value: any, mode: number) => any;
     /**
-     * Define getter functions for harmony exports. For every prop in "definiton" (the module exports), set a getter in "exports" for the getter function in the "definition", like this:
+     * Define harmony exports on exports. For every prop in getters, define a getter in exports, and for every prop in values, define a plain value, like this:
      * @example
      * const exports = {};
-     * const definition = { exportName: () => someExportedValue };
-     * for (const key in definition) {
-     *     if (Object.hasOwn(definition, key) && !Object.hasOwn(exports, key)) {
-     *         Object.defineProperty(exports, key, {
-     *             get: definition[key],
-     *             enumerable: true
-     *         });
+     * const getters = { exportName: () => someExportedValue };
+     * const values = { otherExportName: someOtherValue };
+     * for (const key in getters) {
+     *     if (Object.hasOwn(getters, key) && !Object.hasOwn(exports, key)) {
+     *         Object.defineProperty(exports, key, { enumerable: true, get: getters[key] });
      *     }
      * }
-     * // exports is now { exportName: someExportedValue } (but each value is actually a getter)
+     * for (const key in values) {
+     *     if (Object.hasOwn(values, key) && !Object.hasOwn(exports, key)) {
+     *         Object.defineProperty(exports, key, { enumerable: true, value: values[key] });
+     *     }
+     * }
+     * // exports is now { exportName: someExportedValue, otherExportName: someOtherValue } (but exportName is actually a getter)
+     *
+     * Older Webpack versions only take the first two arguments.
      */
-    d: (this: WebpackRequire, exports: Record<PropertyKey, any>, definiton: Record<PropertyKey, () => ModuleExports>) => void;
+    d: (this: WebpackRequire, exports: Record<PropertyKey, any>, getters?: Record<PropertyKey, () => ModuleExports>, values?: Record<PropertyKey, ModuleExports>) => void;
     /** The ensure chunk handlers, which are used to ensure the files of the chunks are loaded, or load if necessary */
     f: EnsureChunkHandlers;
     /**
@@ -170,8 +175,8 @@ export type WebpackRequire = ((moduleId: PropertyKey) => ModuleExports) & {
     g: typeof globalThis;
     /** Harmony module decorator. Decorates a module as an ES Module, and prevents Node.js "module.exports" from being set */
     hmd: (this: WebpackRequire, module: Module) => any;
-    /** Shorthand for Object.prototype.hasOwnProperty.call */
-    o: typeof Object.prototype.hasOwnProperty.call;
+    /** Shorthand for Object.prototype.hasOwnProperty */
+    o: typeof Object.prototype.hasOwnProperty;
     /**
      * Function to load a script tag. "done" is called when the loading has finished or a timeout has occurred.
      * "done" will be attached to existing scripts loading if src === url or data-webpack === `${uniqueName}:${key}`,

@@ -34,7 +34,7 @@ import { cl, translate } from "./utils";
 const iconGetter = findLazy(m => typeof m === "function" && typeof m.resolve === "function" && typeof m.keys === "function" && m.keys()?.includes("./en-US.png"));
 
 const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
-    const content = getMessageContent(message);
+    const content = document.getSelection()?.toString() || getMessageContent(message);
     if (!content) return;
 
     const group = findGroupChildrenByChildId("copy-text", children);

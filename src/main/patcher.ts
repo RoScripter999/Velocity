@@ -77,13 +77,15 @@ if (!IS_VANILLA) {
                 return;
             }
 
-            const { nativeTitleBar, disableMinSize, transparent, macosVibrancyStyle, windowsMaterial } = settings;
+            const { nativeTitleBar, disableMinSize, transparent, macosVibrancyStyle, windowsMaterial, windowMoveable: windowLock } = settings;
 
             const original = options.webPreferences.preload;
             options.webPreferences.preload = join(__dirname, "preload.js");
             options.webPreferences.sandbox = false;
-            // work around discord unloading when in background
-            options.webPreferences.backgroundThrottling = false;
+
+            if (windowLock) {
+                options.movable = false;
+            }
 
             if (settings.rendererPerformanceBoost)
                 options.webPreferences.v8CacheOptions = "bypassHeatCheck";
@@ -134,13 +136,6 @@ if (!IS_VANILLA) {
         BrowserWindow
     };
 
-    // Patch appSettings to force enable devtools
-    onceDefined(global, "appSettings", s => {
-        s.set("DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING", true);
-    });
-
-    process.env.DATA_DIR = join(app.getPath("userData"), "..", "Velocity");
-
     if (settings.rendererPerformanceBoost) {
         app.commandLine.appendSwitch("num-raster-threads", "4");
         app.commandLine.appendSwitch("enable-accelerated-2d-canvas");
@@ -159,6 +154,13 @@ if (!IS_VANILLA) {
             app.commandLine.appendSwitch("use-angle", "metal");
         }
     }
+
+    // Patch appSettings to force enable devtools
+    onceDefined(global, "appSettings", s => {
+        s.set("DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING", true);
+    });
+
+    process.env.DATA_DIR = join(app.getPath("userData"), "..", "Velocity");
 } else {
     console.log("[Velocity] Running in vanilla mode. Not loading Velocity");
 }

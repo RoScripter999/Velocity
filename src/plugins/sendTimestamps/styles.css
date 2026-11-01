@@ -1,21 +1,37 @@
-.vc-st-format-label {
-    --border-subtle: transparent;
-}
-
-.vc-st-picker {
-    width: 100%;
-    max-width: 400px;
-    margin: 5px auto;
-}
-
-.vc-st-modal-title {
-    margin: 0;
-}
-
-.vc-st-modal-close-button {
-    padding: 0;
-}
-
-.vc-st-preview-text {
+.vc-st-date-picker {
+    background-color: var(--input-background-default);
+    border: 1px solid var(--input-border-default);
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+    color: var(--input-text-default);
+    width: 98%;
+    padding: 8px 8px 8px 12px;
     margin-bottom: 1em;
+    font-weight: 500;
+    font-style: inherit;
+    font-size: 100%;
+}
+
+.vc-st-format-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 1em;
+    gap: 0.5em;
+}
+
+.vc-st-raw-code {
+    display: inline-block;
+    margin-left: 0.33rem;
+}
+
+.vc-st-raw-code code {
+    display: block;
+    position: relative;
+    top: 0.1em;
+}
+
+.vc-st-desc-code code {
+    position: relative;
+    top: 0.2em;
+    padding-bottom: 0.1em !important;
 }
