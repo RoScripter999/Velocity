@@ -306,7 +306,7 @@ function ChannelMessageEmbedAccessory({ message, channel }: MessageEmbedProps): 
                 rawDescription: "",
                 color: "var(--background-base-lower)",
                 author: {
-                    name: <Text variant="text-xs/medium" tag="span">
+                    name: <Text variant="body-xs/medium" tag="span">
                         <span>{channelLabel} - </span>
                         {Parser.parse(channel.isDM() ? `<@${dmReceiver.id}>` : `<#${channel.id}>`)}
                     </Text>,
@@ -344,7 +344,7 @@ function AutomodEmbedAccessory(props: MessageEmbedProps): JSX.Element | null {
     return <AutoModEmbed
         channel={channel}
         childrenAccessories={
-            <Text color="text-muted" variant="text-xs/medium" tag="span" className={`${EmbedClasses.embedAuthor} ${EmbedClasses.embedMargin}`}>
+            <Text color="text-muted" variant="body-xs/medium" tag="span" className={`${EmbedClasses.embedAuthor} ${EmbedClasses.embedMargin}`}>
                 {iconUrl && <img src={iconUrl} className={EmbedClasses.embedAuthorIcon} alt="" />}
                 <span>
                     <span>{channelLabel} - </span>

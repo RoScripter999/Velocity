@@ -84,7 +84,7 @@ export default definePlugin({
             {!isNaN(since.getTime()) && (
                 <Tooltip text={DateUtils.dateFormat(since, "LLLL")} tooltipClassName={cl("tooltip")}>
                     {props => (
-                        <Text variant="text-xs/normal" className={cl("date")} {...props}>{formatter.format(since)}</Text>
+                        <Text variant="body-xs/normal" className={cl("date")} {...props}>{formatter.format(since)}</Text>
                     )}
                 </Tooltip>
             )}

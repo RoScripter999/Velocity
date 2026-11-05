@@ -49,7 +49,7 @@ export default function CrashMenu({ error }: { error: { stack: string; message?:
                 <div className={cl("crash-content")}>
                     <div className={Classes.image} />
                     <div className={Classes.text}>
-                        <Paragraph tag="h2" variant="text-lg/semibold" color="text-strong" className={Classes.title}>
+                        <Paragraph tag="h2" variant="body-lg/semibold" color="text-strong" className={Classes.title}>
                             {getIntlMessage("UNSUPPORTED_BROWSER_TITLE") || "Well, this is awkward"}
                         </Paragraph>
 
@@ -90,7 +90,7 @@ export default function CrashMenu({ error }: { error: { stack: string; message?:
 
                     </Buttons.ButtonGroup>
 
-                    <Text variant="text-xs/normal" color="text-muted" className={cl("crash-footer")}>
+                    <Text variant="body-xs/normal" color="text-muted" className={cl("crash-footer")}>
                         {gitRemote} • {gitHash}
                     </Text>
                 </div>

@@ -87,7 +87,7 @@ function LoadFailed() {
                 draggable={false}
                 src="https://cdn.discordapp.com/assets/content/01fad351459d7599c15e3503bc14fadd01f8d18ffb2c66e064370504bd59ee82.svg"
             />
-            <Text variant="text-sm/medium" color="text-subtle">{getIntlMessage("IMAGE_ERROR")}</Text>
+            <Text variant="body-sm/medium" color="text-subtle">{getIntlMessage("IMAGE_ERROR")}</Text>
         </div>
     );
 }
@@ -146,7 +146,7 @@ function ThemeCard({ theme, selectedTags, onTagSelect, ownedThemes, onOwnershipC
                 </div>
             </Flex>
             <div className={cl("content")}>
-                <SectionHeader tag="h6" titleVariant="text-md/semibold" title={theme.name} description={theme.description} />
+                <SectionHeader tag="h6" titleVariant="body-md/semibold" title={theme.name} description={theme.description} />
                 {theme?.tags && theme.tags.length > 0 && (
                     <Flex gap="8px" flexWrap="wrap">
                         {theme.tags.map(tag => (
@@ -242,7 +242,7 @@ function ThemeLibrary() {
     return (
         <SettingsTab>
             <div className={cl("heading")}>
-                <Text variant="heading-md/bold" tag="h2">Search Filters</Text>
+                <Text variant="heading-md/semibold" tag="h2">Search Filters</Text>
                 <div className={cl("filters")}>
                     <SearchBar
                         query={filters.search}
@@ -297,7 +297,7 @@ function ThemeLibrary() {
                         />
                         <Flex justifyContent="center" alignItems="center" flexDirection="column" style={{ width: "100%", margin: "auto" }}>
                             <Text
-                                variant="text-lg/normal"
+                                variant="body-lg/normal"
                                 color={loadFailed ? "control-critical-secondary-text-default" : "text-muted"}
                             >
                                 <p style={{ textAlign: "center", whiteSpace: "pre-line" }}>

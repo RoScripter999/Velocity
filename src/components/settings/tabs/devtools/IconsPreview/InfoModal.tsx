@@ -74,7 +74,7 @@ function PathCard({ path, index }: { path: PathInfo; index: number; }) {
     return (
         <Card className={cl("path-card")}>
             <Flex alignItems="center" className={Margins.bottom8}>
-                <Text variant="text-sm/semibold" color="text-muted" style={{ flex: 1 }}>
+                <Text variant="body-sm/semibold" color="text-muted" style={{ flex: 1 }}>
                     Path {index + 1}
                 </Text>
                 <Icon
@@ -88,24 +88,24 @@ function PathCard({ path, index }: { path: PathInfo; index: number; }) {
             </Flex>
 
             <div className={cl("path-data")}>
-                <Text variant="text-xs/normal" color="text-muted">
+                <Text variant="body-xs/normal" color="text-muted">
                     {path.d}
                 </Text>
             </div>
 
             <Flex flexWrap="wrap" gap={8} className={classes(Margins.top8, Margins.bottom8)}>
                 {path.fill && (
-                    <Text variant="text-xs/normal" color="text-subtle" className={cl("path-attr")}>
+                    <Text variant="body-xs/semibold" color="text-subtle" className={cl("path-attr")}>
                         fill: <code>{path.fill}</code>
                     </Text>
                 )}
                 {path.fillRule && (
-                    <Text variant="text-xs/normal" color="text-subtle" className={cl("path-attr")}>
+                    <Text variant="body-xs/semibold" color="text-subtle" className={cl("path-attr")}>
                         fill-rule: <code>{path.fillRule}</code>
                     </Text>
                 )}
                 {path.clipRule && (
-                    <Text variant="text-xs/normal" color="text-subtle" className={cl("path-attr")}>
+                    <Text variant="body-xs/semibold" color="text-subtle" className={cl("path-attr")}>
                         clip-rule: <code>{path.clipRule}</code>
                     </Text>
                 )}
@@ -151,7 +151,7 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
         <Modal size="lg" title={
             <SectionHeader
                 title={name}
-                titleVariant="text-lg/semibold"
+                titleVariant="body-lg/semibold"
                 icon={() => <Component className={cl("header-icon")} />}
                 iconWrapperClassName={cl("header-icon-wrapper")}
                 layout="horizontal"
@@ -218,7 +218,7 @@ export function IconInfoModal({ name, Component, modalProps }: Props) {
 
                 <Flex flexDirection="column" gap={8}>
                     {paths.length === 0
-                        ? <Text variant="text-sm/normal" color="text-muted">No paths found.</Text>
+                        ? <Text variant="body-sm/normal" color="text-muted">No paths found.</Text>
                         : paths.map((path, i) => <PathCard key={i} path={path} index={i} />)
                     }
                 </Flex>

@@ -33,7 +33,7 @@ export default function DecorationGridCreate(props: DecorationGridCreateProps) {
     >
         <Icons.PlusLargeIcon />
         <Text
-            variant="text-xs/normal"
+            variant="body-xs/normal"
             color="text-default"
         >
             {getIntlMessage("CREATE")}

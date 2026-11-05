@@ -39,7 +39,7 @@ function UserFlag({ id }: { id: string; }) {
     if (!flag) return null;
 
     return (
-        <Text variant="text-md/bold" style={{ color: flag.color, marginLeft: "4px" }}>
+        <Text variant="body-md/semibold" style={{ color: flag.color, marginLeft: "4px" }}>
             {Parser.parse(flag.text)}
         </Text>
     );

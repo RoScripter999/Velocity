@@ -46,7 +46,7 @@ function DetailSection({ title, description, icon }: DetailSectionProps) {
             <div className={cl("section-row")}>
                 {icon}
                 <Flex flexDirection="column" gap="2px">
-                    <Text variant="text-md/semibold">{title}</Text>
+                    <Text variant="body-md/semibold">{title}</Text>
                     <Paragraph color="text-subtle">{description}</Paragraph>
                 </Flex>
             </div>
@@ -82,7 +82,7 @@ function GhostModal({ userId, settings, ModalProps }: GhostModalProps) {
             <div className={cl("header")}>
                 <Avatar className={cl("avatar-container")} size="SIZE_80" src={user.getAvatarURL()} />
                 <div>
-                    <Text color="text-strong" tag="h3" variant="heading-xl/bold">{wordsToTitle(["Ghost", user.globalName || user.username, "?"])}</Text>
+                    <Text color="text-strong" tag="h3" variant="heading-xl/semibold">{wordsToTitle(["Ghost", user.globalName || user.username, "?"])}</Text>
                     <Paragraph size="md" color="text-subtle">Ignore this user in a rude way</Paragraph>
                 </div>
             </div>

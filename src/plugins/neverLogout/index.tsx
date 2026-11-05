@@ -113,7 +113,7 @@ function LoginModal(modalProps: ModalPropsRender) {
                         }}
                     >
                         <Avatar src={u.avatar.src} avatarDecoration={u.avatar.decoration} size="SIZE_40" />
-                        <SectionHeader className={cl("user-info")} title={u.name} description={u.id} titleVariant="text-md/semibold" />
+                        <SectionHeader className={cl("user-info")} title={u.name} description={u.id} titleVariant="body-md/semibold" />
                         <Buttons.IconButton
                             icon={Icons.XLargeIcon}
                             variant="critical-secondary"
@@ -137,7 +137,7 @@ function LoginButton(array?: boolean) {
         onClick: handleClick
     };
 
-    return array ? props : <Buttons.TextButton {...props} textVariant="text-sm/medium" />;
+    return array ? props : <Buttons.TextButton {...props} textVariant="body-sm/medium" />;
 }
 
 const NeverLogoutSidebar = (): SidebarItemNode => ({

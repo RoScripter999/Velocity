@@ -124,7 +124,7 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
     return (
         <Modal title={modalTitle} size="lg" {...modalProps}>
             <div>
-                <Text variant="text-md/semibold">Search Filters</Text>
+                <Text variant="body-md/semibold">Search Filters</Text>
                 <div className={cl("modal-top")}>
                     <SearchBar placeholder="Search for an action..." query={searchQuery} onChange={setsSearchQuery} autoFocus />
                     <Select
@@ -135,11 +135,11 @@ export function ControlsPanel({ actions, target, ...modalProps }: PanelProps) {
                 </div>
 
                 {filteredActions.length === 0 ? (
-                    <Text className={cl("modal-no-search")} variant="text-md/medium" color="text-muted">No actions found for "{searchQuery}"</Text>
+                    <Text className={cl("modal-no-search")} variant="body-md/medium" color="text-muted">No actions found for "{searchQuery}"</Text>
                 ) : (
                     grouped.map(([category, categoryActions]) => (
                         <Flex key={category} flexDirection="column" gap="8px">
-                            <SectionHeader gap={{ top: 8 }} titleColor="text-subtle" titleVariant="text-md/semibold" title={category} />
+                            <SectionHeader gap={{ top: 8 }} titleColor="text-subtle" titleVariant="body-md/semibold" title={category} />
                             <div className={cl("modal-grid")}>
                                 {categoryActions.map(action => {
                                     const isExpanded = expandedAction === action.id;

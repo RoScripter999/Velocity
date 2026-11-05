@@ -98,7 +98,7 @@ function CreateDecorationModal(props: ModalPropsRender) {
                 />
                 <div className={cl("create-decoration-modal-form-preview-container")}>
                     <div className={cl("create-decoration-modal-form")}>
-                        {error !== null && <Paragraph color="text-feedback-critical" variant="text-xs/normal">{error.message}</Paragraph>}
+                        {error !== null && <Paragraph color="text-feedback-critical" variant="body-xs/normal">{error.message}</Paragraph>}
                         <section>
                             <Forms.FormTitle tag="h5">File</Forms.FormTitle>
                             <FilePicker

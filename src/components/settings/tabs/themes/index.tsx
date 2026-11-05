@@ -102,7 +102,7 @@ function ConfigureDialog({ fileName, onDelete, ref }: { fileName: string; onDele
 
     return (
         <Dialog className={PopoutClasses.container} ref={ref} style={{ width: "400px", padding: 12 }}>
-            <SectionHeader titleVariant="text-md/semibold" title={`Configure ${fileName}`} description="Modify this theme's settings" gap={{ bottom: 8 }} />
+            <SectionHeader titleVariant="body-md/semibold" title={`Configure ${fileName}`} description="Modify this theme's settings" gap={{ bottom: 8 }} />
 
             <Select
                 label="Activate theme on"
@@ -328,7 +328,7 @@ function ThemesTab() {
                 {userThemes === null ? (
                     <Paragraph>Loading themes...</Paragraph>
                 ) : filteredLocal.length === 0 && filteredOnline.length === 0 ? (
-                    <Text variant="eyebrow">No themes match your search.</Text>
+                    <Text variant="mono-md/normal">No themes match your search.</Text>
                 ) : (
                     <div className={cl("grid")}>
                         {[

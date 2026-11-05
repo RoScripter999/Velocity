@@ -239,7 +239,7 @@ function SettingsList() {
         <div className={Margins.top16}>
             {Object.entries(Settings).map(([category, items]) => items.some(Boolean) && (
                 <div key={category}>
-                    <Text variant="text-xs/semibold" color="text-muted" className={Margins.top16}>
+                    <Text variant="body-xs/semibold" color="text-muted" className={Margins.top16}>
                         {category}
                     </Text>
                     {items.map(setting => {
@@ -256,14 +256,14 @@ function SettingsList() {
                                     icon={Icon}
                                     iconWrapperClassName={cl("row-icon")}
                                     title={title}
-                                    titleVariant="text-md/semibold"
+                                    titleVariant="body-md/semibold"
                                     description={
                                         <>
-                                            <Text variant="text-sm/normal" color="text-subtle">{description}</Text>
+                                            <Text variant="body-sm/normal" color="text-subtle">{description}</Text>
                                             {restartRequired && (
                                                 <Flex alignItems="center" gap="4px" style={{ marginTop: 4 }}>
                                                     <Icons.RetryIcon size="xs" color="var(--text-brand)" />
-                                                    <Text variant="text-xs/bold" color="text-brand">
+                                                    <Text variant="body-xs/semibold" color="text-brand">
                                                         Restart Required
                                                     </Text>
                                                 </Flex>
@@ -324,8 +324,8 @@ export default function VelocitySettings() {
                 <div className={cl("no-badges")}>
                     <BrokenHeart size="lg" color="text-muted" />
 
-                    <Text variant="text-sm/semibold" color="text-muted">No badges earned yet</Text>
-                    <Text variant="text-xs/normal" color="text-muted">
+                    <Text variant="body-sm/semibold" color="text-muted">No badges earned yet</Text>
+                    <Text variant="body-xs/normal" color="text-muted">
                         Badges will appear here when you do special stuff like contributing to a plugin!
                     </Text>
                 </div>
@@ -387,7 +387,7 @@ export default function VelocitySettings() {
                             <Buttons.TextButton
                                 onClick={() => openPluginModal(SettingsPlugin)}
                                 variant="primary"
-                                textVariant="text-sm/semibold"
+                                textVariant="body-sm/semibold"
                                 text="Settings plugin"
                             />
                         </>}

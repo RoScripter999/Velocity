@@ -183,7 +183,7 @@ function AutoResponder({ title, description, rulesArray, isRegex = false }: Auto
                                 </>
                             )}
                         >
-                            <Paragraph variant="text-md/medium">
+                            <Paragraph variant="body-md/medium">
                                 {empty ? `Empty ${isRegex ? "Regex" : ""} Rule ${index + 1}` : `Rule ${index + 1} - ${rule.trigger}`}
                             </Paragraph>
                         </ExpandableCard>

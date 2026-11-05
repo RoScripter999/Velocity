@@ -201,20 +201,20 @@ function ServerInfoTab({ guild }: GuildProps) {
     const nsfwLevel = ["Default", "Explicit", "Safe", "Age Restricted"][guild.nsfwLevel] ?? "?";
 
     const Fields: Record<string, React.ReactNode> = {
-        "Owner": owner ? Owner(guild.id, owner) : <Text variant="text-sm/normal">Loading...</Text>,
+        "Owner": owner ? Owner(guild.id, owner) : <Text variant="body-sm/normal">Loading...</Text>,
         "Created At": renderTimestamp(SnowflakeUtils.extractTimestamp(guild.id)),
-        "Joined At": guild.joinedAt ? renderTimestamp(guild.joinedAt.getTime()) : <Text variant="text-sm/normal">-</Text>,
-        "Max Members": <Text variant="text-sm/normal">{guild.maxMembers?.toLocaleString() ?? "?"}</Text>,
-        "Channels": <Text variant="text-sm/normal">{GuildChannelStore.getChannels(guild.id)?.count - 1 || "?"}</Text>,
-        "Roles": <Text variant="text-sm/normal">{GuildRoleStore.getSortedRoles(guild.id).length - 1}</Text>,
-        "Boosts": <Text variant="text-sm/normal">{guild.premiumSubscriberCount ?? 0} (Level {guild.premiumTier ?? 0})</Text>,
-        "Verification": <Text variant="text-sm/normal">{verificationLevel}</Text>,
-        "Explicit Filter": <Text variant="text-sm/normal">{explicitFilter}</Text>,
-        "NSFW Level": <Text variant="text-sm/normal">{nsfwLevel}</Text>,
-        "Locale": <Text variant="text-sm/normal">{guild.preferredLocale || "-"}</Text>,
+        "Joined At": guild.joinedAt ? renderTimestamp(guild.joinedAt.getTime()) : <Text variant="body-sm/normal">-</Text>,
+        "Max Members": <Text variant="body-sm/normal">{guild.maxMembers?.toLocaleString() ?? "?"}</Text>,
+        "Channels": <Text variant="body-sm/normal">{GuildChannelStore.getChannels(guild.id)?.count - 1 || "?"}</Text>,
+        "Roles": <Text variant="body-sm/normal">{GuildRoleStore.getSortedRoles(guild.id).length - 1}</Text>,
+        "Boosts": <Text variant="body-sm/normal">{guild.premiumSubscriberCount ?? 0} (Level {guild.premiumTier ?? 0})</Text>,
+        "Verification": <Text variant="body-sm/normal">{verificationLevel}</Text>,
+        "Explicit Filter": <Text variant="body-sm/normal">{explicitFilter}</Text>,
+        "NSFW Level": <Text variant="body-sm/normal">{nsfwLevel}</Text>,
+        "Locale": <Text variant="body-sm/normal">{guild.preferredLocale || "-"}</Text>,
         "Vanity URL": guild.vanityURLCode
             ? <MaskedLink href={`https://discord.gg/${guild.vanityURLCode}`}>discord.gg/{guild.vanityURLCode}</MaskedLink>
-            : <Text variant="text-sm/normal">-</Text>
+            : <Text variant="body-sm/normal">-</Text>
     };
 
     const Features: Partial<Record<GuildFeatures, string>> = {
@@ -252,7 +252,7 @@ function ServerInfoTab({ guild }: GuildProps) {
                     <Forms.FormTitle tag="h5">Features</Forms.FormTitle>
                     <div className={cl("features-list")}>
                         {features.map(f => (
-                            <Text key={f} className={cl("feature-badge")} color="text-muted" variant="text-xs/normal">
+                            <Text key={f} className={cl("feature-badge")} color="text-muted" variant="body-xs/normal">
                                 {Features[f]}
                             </Text>
                         ))}

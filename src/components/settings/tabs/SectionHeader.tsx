@@ -53,7 +53,7 @@ export interface SectionHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>,
     iconWrapperClassName?: string;
     titleVariant?: TextProps["variant"];
     titleColor?: TextProps["color"];
-    /** @default text-sm/normal */
+    /** @default body-sm/normal */
     descriptionVariant?: TextProps["variant"];
     /** @default text-muted */
     descriptionColor?: TextProps["color"];
@@ -70,7 +70,7 @@ export function SectionHeader({
     iconWrapperClassName,
     titleVariant,
     titleColor,
-    descriptionVariant = "text-sm/normal",
+    descriptionVariant = "body-sm/normal",
     descriptionColor = "text-muted",
     className,
     ...rest

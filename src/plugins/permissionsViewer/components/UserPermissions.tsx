@@ -57,7 +57,7 @@ function FakeRole({ text, color, ...props }: FakeRoleProps) {
             <div className={RoleClasses.roleName}>
                 <Text
                     className={RoleClasses.roleNameOverflow}
-                    variant="text-xs/medium"
+                    variant="body-xs/medium"
                 >
                     {text}
                 </Text>
@@ -74,7 +74,7 @@ interface GrantedByTooltipProps {
 function GrantedByTooltip({ roleName, roleColor }: GrantedByTooltipProps) {
     return (
         <>
-            <Text variant="text-sm/medium">Granted By</Text>
+            <Text variant="body-sm/medium">Granted By</Text>
             <FakeRole text={roleName} color={roleColor} />
         </>
     );

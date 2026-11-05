@@ -58,7 +58,7 @@ export function AddonCard({ disabled, isNew, name, infoButton, infoButtonTooltip
         >
             <div className={cl("header")}>
                 <div className={cl("name-author")}>
-                    <Text variant="text-md/semibold" className={cl("name")}>
+                    <Text variant="body-md/semibold" className={cl("name")}>
                         <div ref={titleContainerRef} className={cl("title-container")}>
                             <div
                                 ref={titleRef}
@@ -79,7 +79,7 @@ export function AddonCard({ disabled, isNew, name, infoButton, infoButtonTooltip
                     </Text>
 
                     {!!author && (
-                        <Text variant="text-sm/normal" className={cl("author")}>
+                        <Text variant="body-sm/normal" className={cl("author")}>
                             {author}
                         </Text>
                     )}
@@ -107,7 +107,7 @@ export function AddonCard({ disabled, isNew, name, infoButton, infoButtonTooltip
 
             <Tooltip text={description} shouldShow={String(description)?.length > 80}>
                 {props => (
-                    <Text {...props} className={cl("note")} variant="text-sm/normal">
+                    <Text {...props} className={cl("note")} variant="body-sm/normal">
                         {description}
                     </Text>
                 )}

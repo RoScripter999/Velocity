@@ -33,7 +33,7 @@ export default function DecorationGridNone(props: DecorationGridNoneProps) {
     >
         <Icons.DenyIcon />
         <Text
-            variant="text-xs/normal"
+            variant="body-xs/normal"
             color="text-default"
         >
             {getIntlMessage("NONE")}

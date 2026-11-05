@@ -253,7 +253,7 @@ function ChangeDecorationModal(props: ModalPropsRender) {
                 {isActiveDecorationPreset && <Forms.FormTitle>Part of the {activeDecorationPreset.name} Preset</Forms.FormTitle>}
                 {typeof activeSelectedDecoration === "object" &&
                     <Text
-                        variant="text-sm/semibold"
+                        variant="body-sm/semibold"
                         color="text-strong"
                     >
                         {activeSelectedDecoration?.alt}

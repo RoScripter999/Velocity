@@ -34,8 +34,8 @@ export function ManageTagsList({ isModal = false }: Partial<PluginSettingCompone
             {tags.length > 0 ? tags.map(([name, message]) => (
                 <div key={name} className={cl("row")}>
                     <div className={cl("rowContent")}>
-                        <Text variant="text-md/semibold">{name}</Text>
-                        <Text variant="text-sm/normal" color="text-muted">{message}</Text>
+                        <Text variant="body-md/semibold">{name}</Text>
+                        <Text variant="body-sm/normal" color="text-muted">{message}</Text>
                     </div>
 
                     <div className={cl("rowActions")}>

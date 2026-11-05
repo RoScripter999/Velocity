@@ -115,7 +115,7 @@ const ReadAllButton = () => {
                         onContextMenu={openPopout}
                         text="Read All"
                         variant="secondary"
-                        textVariant="text-xs/medium"
+                        textVariant="body-xs/medium"
                     />
                 )}
             </Popout>

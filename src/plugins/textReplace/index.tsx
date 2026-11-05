@@ -193,7 +193,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                             </>
                         )}
                     >
-                        <Paragraph variant="text-md/medium">
+                        <Paragraph variant="body-md/medium">
                             {isEmptyRule(rule) ? `Empty Rule ${index + 1}` : `Rule ${index + 1} - ${rule.find}`}
                         </Paragraph>
                     </ExpandableCard>

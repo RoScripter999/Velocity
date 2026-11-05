@@ -243,7 +243,7 @@ function DevBuildConfirmModal(props: ModalPropsRender) {
             <div>
                 <Text>You are using a custom build of Velocity, which we do not provide support for!</Text>
                 <Text className={Margins.top8}>We only provide support for official builds</Text>
-                <Text variant="text-md/bold" className={Margins.top8}>You will be banned from receiving support if you ignore this rule.</Text>
+                <Text variant="body-md/semibold" className={Margins.top8}>You will be banned from receiving support if you ignore this rule.</Text>
             </div>
         </ConfirmModal>
     );
@@ -503,10 +503,10 @@ export default definePlugin({
                                 <PluginsIcon color="control-icon-only-icon-default" />
                             </div>
                             <Flex flexDirection="column" gap="4px">
-                                <Text variant="text-md/semibold">
+                                <Text variant="body-md/semibold">
                                     {plugin.name}{plugin.required && <Span color="text-feedback-critical" selectable={false}> *</Span>}
                                 </Text>
-                                <Text lineClamp={2} variant="text-sm/normal" color="text-muted">
+                                <Text lineClamp={2} variant="body-sm/normal" color="text-muted">
                                     {plugin.description}
                                 </Text>
                             </Flex>

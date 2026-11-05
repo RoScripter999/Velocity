@@ -101,8 +101,8 @@ function ReloadRequiredCard({ required }: { required: boolean; }) {
                         description="Click the Gear icon to modify a plugin's settings."
                     />
                     <div className={cl("tip-message")}>
-                        <Text variant="text-sm/bold" color="text-brand">TIP</Text>
-                        <Text variant="text-sm/semibold">You can share plugins with people by typing:</Text>
+                        <Text variant="body-sm/semibold" color="text-brand">TIP</Text>
+                        <Text variant="body-sm/semibold">You can share plugins with people by typing:</Text>
                         <code>velocity://plugins/PLUGIN_NAME</code>
                     </div>
                     <Forms.FormDivider className={Margins.top8} />
@@ -160,7 +160,7 @@ function ExcludedPluginsList({ search }: { search: string; }) {
                     </ul>
                 </Text>
             ) : (
-                <Text variant="eyebrow" className={Margins.top16}>No plugins meet the search criteria</Text>
+                <Text variant="mono-md/normal" className={Margins.top16}>No plugins meet the search criteria</Text>
             )}
         </>
     );
@@ -491,7 +491,7 @@ export default function PluginSettings() {
             <div className={cl("grid")}>
                 {requiredPlugins.length
                     ? requiredPlugins
-                    : <Text variant="eyebrow">No plugins meet the search criteria</Text>
+                    : <Text variant="mono-md/normal">No plugins meet the search criteria</Text>
                 }
             </div>
         </SettingsTab>

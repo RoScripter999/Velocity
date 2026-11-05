@@ -75,7 +75,7 @@ function renderClickableGDMs(mutualDms: Channel[], onClose?: () => void) {
             </Avatar>
             <div className={MutualsListClasses.details}>
                 <div className={MutualsListClasses.name}>{getGroupDMName(c)}</div>
-                <Text variant="text-xs/medium">{c.recipients.length + 1} Members</Text>
+                <Text variant="body-xs/medium">{c.recipients.length + 1} Members</Text>
             </div>
         </Clickable>
     ));
@@ -194,7 +194,7 @@ export default definePlugin({
                     : (
                         <div className={ProfileListClasses.empty}>
                             <div className={ProfileListClasses.textContainer}>
-                                <Text color="text-strong" tag="h3" variant="text-md/medium" >You don't have any group chats in common</Text>
+                                <Text color="text-strong" tag="h3" variant="body-md/medium" >You don't have any group chats in common</Text>
                             </div>
                         </div>
                     )

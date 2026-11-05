@@ -58,7 +58,6 @@ export function VelocityThemesTab() {
         <SettingsTab>
             <SectionHeader
                 title="Velocity Themes"
-                titleVariant="heading-md/normal"
                 tooltip="Themes that are premade and built into the client."
                 description="Configure your discord UI designs."
                 descriptionColor="text-default"

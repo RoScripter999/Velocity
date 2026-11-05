@@ -84,7 +84,7 @@ function PluginKeywords({ plugin }: { plugin: SetRequired<Plugin, "searchTerms">
     return (
         <div className={classes(Margins.top8, Margins.bottom8)}>
             <Text className={Margins.bottom8}>Keywords</Text>
-            <Text variant="text-sm/normal" color="text-muted" lineClamp={1} selectable>
+            <Text variant="body-sm/normal" color="text-muted" lineClamp={1} selectable>
                 {humanFriendlyJoin(plugin.searchTerms)}
             </Text>
         </div>
@@ -210,7 +210,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
         const { settings } = plugin;
         if (!hasSettings || !settings)
             return (
-                <Text variant="text-sm/semibold" color="currentColor">This plugin doesn't have any settings yet. If any are added in the future, they'll show up here.</Text>
+                <Text variant="body-sm/semibold" color="currentColor">This plugin doesn't have any settings yet. If any are added in the future, they'll show up here.</Text>
             );
 
         const options = Object.entries(settings.def).map(([key, setting]) => {
@@ -278,7 +278,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
         >
             <div>
                 <section>
-                    <SectionHeader title="Plugin Authors" titleVariant="text-md/semibold" tooltip="The authors of the plugin that contributed in its development" icon={() => <Icons.GroupIcon color="var(--interactive-icon-active)" size="sm" />} gap={{ bottom: 8 }} />
+                    <SectionHeader title="Plugin Authors" titleVariant="body-md/semibold" tooltip="The authors of the plugin that contributed in its development" icon={() => <Icons.GroupIcon color="var(--interactive-icon-active)" size="sm" />} gap={{ bottom: 8 }} />
                     <div className={cl("authors")}>
                         <ErrorBoundary noop>
                             {authors.length === 0 ? (
@@ -334,7 +334,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
                 )}
 
                 <section>
-                    <SectionHeader title="Settings" titleVariant="text-md/semibold" icon={() => <Icons.SettingsIcon color="var(--interactive-icon-active)" size="sm" />} className={classes(Margins.bottom16, Margins.top16)} />
+                    <SectionHeader title="Settings" titleVariant="body-md/semibold" icon={() => <Icons.SettingsIcon color="var(--interactive-icon-active)" size="sm" />} className={classes(Margins.bottom16, Margins.top16)} />
                     {renderSettings()}
                 </section>
             </div>

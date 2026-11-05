@@ -202,7 +202,7 @@ export function SoundSettings() {
 
                 <Flex flexDirection="column" gap="4px">
                     <Flex flexDirection="row" gap="8px">
-                        <Text variant="text-sm/normal">Volume: {(form.volume * 100).toFixed(0)}%</Text>
+                        <Text variant="body-sm/normal">Volume: {(form.volume * 100).toFixed(0)}%</Text>
                         <Slider
                             key={sliderKey}
                             minValue={0}
@@ -232,13 +232,13 @@ export function SoundSettings() {
                 </Flex>
 
                 {filteredEntries.length === 0 ? (
-                    <Text variant="text-sm/bold" color="text-muted">{getIntlMessage("NO_SOUNDS")}</Text>
+                    <Text variant="body-sm/semibold" color="text-muted">{getIntlMessage("NO_SOUNDS")}</Text>
                 ) : (
                     <Flex flexDirection="column" gap="8px" style={editingId ? { paddingLeft: "12px", opacity: 0.95 } : undefined}>
                         {filteredEntries.map(entry => (
                             <Flex justifyContent="space-between" alignItems="center" key={entry.id} style={editingId === entry.id ? { opacity: 0.5 } : undefined}>
                                 <section style={{ flex: 1, minWidth: 0 }}>
-                                    <Text variant="text-md/semibold">{getEntryDisplay(entry, isUserTab)}</Text>
+                                    <Text variant="body-md/semibold">{getEntryDisplay(entry, isUserTab)}</Text>
                                     <Paragraph color="text-muted">{getEntrySubtext(entry, isUserTab)}</Paragraph>
                                     <Paragraph color="text-muted" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                         File: {getFileLabel(entry)}

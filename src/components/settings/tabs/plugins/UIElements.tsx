@@ -165,10 +165,10 @@ export function UIElementsButton() {
         <div className={cl("button")} onClick={() => hasAny && openUIElementsModal()}>
             <SectionHeader
                 title={hasAny ? "Manage UI Elements" : "No UI Elements Available"}
-                titleVariant="text-md/semibold"
+                titleVariant="body-md/semibold"
                 titleColor="text-strong"
                 descriptionColor="text-muted"
-                descriptionVariant="text-sm/normal"
+                descriptionVariant="body-sm/normal"
                 description={hasAny ? "Reorder and toggle plugin buttons and popover actions" : "No plugins with UI elements are enabled"}
                 icon={() => <Icons.SettingsIcon size="md" color="currentColor" />}
                 iconWrapperClassName={cl("button-icon")}
@@ -223,7 +223,7 @@ function Section(props: {
     return (
         <section>
             <SectionHeader
-                titleVariant="text-sm/normal"
+                titleVariant="body-sm/normal"
                 title={title}
                 titleColor="text-muted"
                 gap={{ bottom: 20 }}
@@ -305,7 +305,7 @@ function DraggableSection(props: {
     return (
         <section>
             <SectionHeader
-                titleVariant="text-sm/normal"
+                titleVariant="body-sm/normal"
                 title={title}
                 titleColor="text-muted"
                 gap={{ bottom: 20 }}
@@ -399,7 +399,7 @@ function UIElementsModal(props: UIElementsModalProps) {
                 <SectionHeader
                     layout="horizontal"
                     title={`${plugin ? `${plugin.name} ` : ""}UI Elements`}
-                    titleVariant="text-lg/bold"
+                    titleVariant="body-lg/semibold"
                     titleColor="text-strong"
                     description={`You can configure which buttons you want to hide or change positions${plugin ? " for this plugin" : ", buttons appear based on enabled plugins"}.`}
                 />

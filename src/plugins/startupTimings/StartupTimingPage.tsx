@@ -95,7 +95,7 @@ function TimingSection({ title, logs, traceEnd }: TimingSectionProps) {
         <SettingsTab>
             <code>
                 {traceEnd && (
-                    <Text variant="heading-md/extrabold">Trace ended at: {(new Date(traceEnd)).toTimeString()}</Text>
+                    <Text variant="heading-md/semibold">Trace ended at: {(new Date(traceEnd)).toTimeString()}</Text>
                 )}
                 <Grid columns={3} gap="2px 10px" style={{ gridTemplateColumns: "repeat(3, auto) 1fr", userSelect: "text" }}>
                     <Span>Start</Span>

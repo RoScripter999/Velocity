@@ -244,8 +244,8 @@ function PresetCard({ preset, isActive, onDelete }: { preset: RPCPreset; isActiv
             )}
         >
             <div>
-                <Text variant="text-md/semibold">{preset.name}</Text>
-                {preset.appName && <Text variant="text-sm/normal" color="text-muted">{preset.appName}</Text>}
+                <Text variant="body-md/semibold">{preset.name}</Text>
+                {preset.appName && <Text variant="body-sm/normal" color="text-muted">{preset.appName}</Text>}
             </div>
         </ExpandableCard>
     );
@@ -303,7 +303,7 @@ export function RPCSettings() {
             </div>
 
             {presets.length === 0 ? (
-                <Text variant="text-sm/normal" className={cl("empty")}>
+                <Text variant="body-sm/normal" className={cl("empty")}>
                     No presets yet. Create one above to get started.
                 </Text>
             ) : (

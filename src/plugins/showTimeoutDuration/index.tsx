@@ -103,7 +103,7 @@ export default definePlugin({
         return (
             <div className="vc-std-wrapper">
                 <RichTooltip body={text}>{children}</RichTooltip>
-                <Text variant="text-md/normal" color="status-danger">
+                <Text variant="body-md/normal" color="status-danger">
                     {renderTimeout(message, true)} timeout remaining
                 </Text>
             </div>

@@ -82,13 +82,13 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                     />
 
                     <div className={cl("info")}>
-                        <Text variant="text-md/bold">{user.username}</Text>
+                        <Text variant="body-md/semibold">{user.username}</Text>
 
                         <div className={cl("stats")}>
                             <SectionHeader
                                 title={pluralise(totalPlugins, "Plugin")}
                                 titleColor="text-muted"
-                                titleVariant="text-sm/normal"
+                                titleVariant="body-sm/normal"
                                 tooltip={`${pluralise(totalPlugins, "Plugin")} authored`}
                                 icon={() => <Icons.ListViewIcon size="xs" color="var(--text-muted)" />}
                             />
@@ -96,7 +96,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                                 <SectionHeader
                                     title={pluralise(totalSettings, "Setting")}
                                     titleColor="text-muted"
-                                    titleVariant="text-sm/normal"
+                                    titleVariant="body-sm/normal"
                                     tooltip="Total configurable settings across their plugins"
                                     icon={() => <Icons.SettingsIcon size="xs" color="var(--text-muted)" />}
                                 />
@@ -104,7 +104,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                         </div>
 
                         {totalPlugins === 0 && <div>
-                            <Text variant="text-sm/normal" color="text-muted">This contributor hasn't authored any plugins.</Text>
+                            <Text variant="body-sm/normal" color="text-muted">This contributor hasn't authored any plugins.</Text>
                         </div>}
                     </div>
                 </div>}
@@ -115,7 +115,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                         <SectionHeader
                             title="Core"
                             titleColor="text-muted"
-                            titleVariant="text-sm/normal"
+                            titleVariant="body-sm/normal"
                             icon={() => <Icons.ShieldIcon size="xs" color="var(--text-muted)" />}
                         />
                         {corePlugins.map(p =>
@@ -128,7 +128,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                         <SectionHeader
                             title="Api"
                             titleColor="text-muted"
-                            titleVariant="text-sm/normal"
+                            titleVariant="body-sm/normal"
                             icon={() => <Icons.WrenchIcon size="xs" color="var(--text-muted)" />}
                         />
                         {apiPlugins.map(p =>
@@ -141,7 +141,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: ModalP
                         <SectionHeader
                             title="Plugins"
                             titleColor="text-muted"
-                            titleVariant="text-sm/normal"
+                            titleVariant="body-sm/normal"
                             icon={() => <Icons.ListViewIcon size="xs" color="var(--text-muted)" />}
                         />
                         {plugins.map(p =>

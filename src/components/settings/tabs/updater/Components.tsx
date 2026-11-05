@@ -85,11 +85,11 @@ export function Changes({ updates, repo, repoPending }: { updates: typeof change
                     <Card key={hash} style={{ padding: "0.75rem", background: "var(--background-accent)" }}>
                         <Flex>
                             <HashLink {...{ repo, hash }} disabled={repoPending} />
-                            <Text variant="text-xs/normal" color="text-muted">
+                            <Text variant="body-xs/normal" color="text-muted">
                                 by {author}
                             </Text>
                         </Flex>
-                        <Text variant="text-sm/normal">
+                        <Text variant="body-sm/normal">
                             {message}
                         </Text>
                     </Card>

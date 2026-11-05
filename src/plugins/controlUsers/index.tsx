@@ -141,7 +141,7 @@ function AllowedUsersComponent() {
                         <div className={cl("perms-right")}>
                             {activeUserId && activeSelectedUser ? (
                                 <ScrollerThin className={cl("perms-scroller")}>
-                                    <Text className={Margins.bottom8} variant="text-md/semibold">
+                                    <Text className={Margins.bottom8} variant="body-md/semibold">
                                         Permissions for {activeSelectedUser.label}
                                     </Text>
                                     <CheckboxGroup

@@ -66,7 +66,7 @@ function PluginChanges({ added, removed, fixed, improved }: PluginChangesProps) 
             <Flex flexDirection="column" gap="0.3em" key={id}>
                 <div className={cl("plugins-title")}>
                     <IconComponent className={cl(id)} size="xs" color="currentColor" />
-                    <Text variant="text-xs/semibold" className={cl(id)}>{pluralise(pluginNames.length, `${label} Plugin`)}</Text>
+                    <Text variant="body-xs/semibold" className={cl(id)}>{pluralise(pluginNames.length, `${label} Plugin`)}</Text>
                 </div>
                 <div className={cl("plugins-grid")}>
                     {pluginNames.map(name => {
@@ -119,7 +119,7 @@ function RegularChanges({ commits }: { commits: ChangelogEntry[]; }) {
 
     return activeCategories.map(({ key, label }) => (
         <section className={Margins.top20} key={key}>
-            <Text tag="h2" variant="heading-md/bold" className={cl(key)}><span>{label}</span></Text>
+            <Text tag="h2" variant="heading-md/semibold" className={cl(key)}><span>{label}</span></Text>
             <ul className={cl("list")}>
                 {grouped[key].map((text, i) => <li className={cl("list-item")} key={i}>{text}</li>)}
             </ul>

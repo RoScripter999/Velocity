@@ -184,7 +184,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
 
     const SearchNotFound = () => (
         <Flex alignItems="flex-start" justifyContent="flex-start" flexDirection="column">
-            <Text variant="text-md/semibold">No search results found</Text>
+            <Text variant="body-md/semibold">No search results found</Text>
             <Text color="text-subtle">We tried, but came up empty.</Text>
         </Flex>
     );
@@ -223,9 +223,9 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
             size="xl"
             title={<SectionHeader
                 title={header}
-                titleVariant="text-lg/semibold"
+                titleVariant="body-lg/semibold"
                 description="View effective permissions and roles breakdowns"
-                descriptionVariant="text-xs/normal"
+                descriptionVariant="body-xs/normal"
                 descriptionColor="text-subtle"
                 layout="horizontal"
                 icon={() => (
@@ -243,7 +243,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
             <div className={cl("modal-content")}>
                 {!selectedItem ? (
                     <div className={cl("modal-no-perms")}>
-                        <Text variant="heading-lg/normal">No permissions to display!</Text>
+                        <Text variant="heading-lg/semibold">No permissions to display!</Text>
                     </div>
                 ) : (
                     <div className={cl("modal-container")}>
@@ -262,7 +262,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                 {filteredRoleGroups.size === 0 ? <SearchNotFound /> : (
                                     Array.from(filteredRoleGroups.entries()).map(([category, items]) => (
                                         <div key={category}>
-                                            <Text variant="text-xs/semibold" className={cl("modal-category-title")} color="text-muted">
+                                            <Text variant="body-xs/semibold" className={cl("modal-category-title")} color="text-muted">
                                                 {category}
                                             </Text>
 
@@ -304,7 +304,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                                             {permission.type === PermissionType.User && user && (
                                                                 <img className={cl("modal-user-img")} src={user.getAvatarURL(void 0, void 0, false)} />
                                                             )}
-                                                            <Text variant="text-md/normal" className={cl("modal-list-item-text")}>
+                                                            <Text variant="body-md/normal" className={cl("modal-list-item-text")}>
                                                                 {getPermissionName(permission)}
                                                             </Text>
                                                         </div>
@@ -341,7 +341,7 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                     filteredPermissionCategories.map(({ category, filteredBits }) => (
                                         <div key={category} className={cl("modal-perm-category")}>
                                             <div className={cl("modal-category-title")}>
-                                                <Text variant="text-md/semibold" color="text-muted" style={{ flexShrink: 0, whiteSpace: "nowrap" }}>{category}</Text>
+                                                <Text variant="body-md/semibold" color="text-muted" style={{ flexShrink: 0, whiteSpace: "nowrap" }}>{category}</Text>
                                             </div>
 
                                             {filteredBits.map(bit => {
@@ -364,8 +364,8 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                                                     ? spec.description()
                                                                     : spec.description
                                                             )}
-                                                            titleVariant="text-md/semibold"
-                                                            descriptionVariant="text-xs/normal"
+                                                            titleVariant="body-md/semibold"
+                                                            descriptionVariant="body-xs/normal"
                                                             descriptionColor="text-subtle"
                                                             style={{ flex: 1 }}
                                                         />

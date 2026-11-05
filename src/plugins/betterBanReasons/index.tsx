@@ -193,8 +193,8 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
                                 @{user.username}
                             </Text>
                         )}
-                        {user.globalName && <Text variant="text-md/normal" color="text-subtle">{user.globalName}</Text>}
-                        {!user.hasUniqueUsername() && <Text variant="text-md/normal" color="text-subtle">#{user.discriminator}</Text>}
+                        {user.globalName && <Text variant="body-md/normal" color="text-subtle">{user.globalName}</Text>}
+                        {!user.hasUniqueUsername() && <Text variant="body-md/normal" color="text-subtle">#{user.discriminator}</Text>}
                     </section>
                 </Flex>
             }
@@ -202,13 +202,13 @@ function BanModalComponent({ guild, user, ban, ...modalProps }: BanModalProps) {
         >
             <div>
                 <Forms.FormSection tag="h4" title={getIntlMessage("BAN_REASON")}>
-                    <Text selectable variant="text-sm/normal">{ban?.reason || getIntlMessage("NO_BAN_REASON")}</Text>
+                    <Text selectable variant="body-sm/normal">{ban?.reason || getIntlMessage("NO_BAN_REASON")}</Text>
                 </Forms.FormSection>
 
                 <Forms.FormSection className={Margins.top16} tag="h4" title="User Info">
-                    <Text selectable variant="text-xs/normal" color="text-muted">User ID: {user.id}</Text>
-                    {user.globalName && <Text selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("DISPLAY_NAME")}: {user.globalName}</Text>}
-                    <Text selectable variant="text-xs/normal" color="text-muted">{getIntlMessage("USER_PROFILE_DISCORD_MEMBER_SINCE")}: {DateUtils.calendarFormat(user.createdAt)}</Text>
+                    <Text selectable variant="body-xs/normal" color="text-muted">User ID: {user.id}</Text>
+                    {user.globalName && <Text selectable variant="body-xs/normal" color="text-muted">{getIntlMessage("DISPLAY_NAME")}: {user.globalName}</Text>}
+                    <Text selectable variant="body-xs/normal" color="text-muted">{getIntlMessage("USER_PROFILE_DISCORD_MEMBER_SINCE")}: {DateUtils.calendarFormat(user.createdAt)}</Text>
 
                     {error && <div className={Margins.top8}> <InlineNotice type="critical" message={error} /> </div>}
                 </Forms.FormSection>

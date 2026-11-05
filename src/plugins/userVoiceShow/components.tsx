@@ -46,8 +46,8 @@ function VoiceChannelTooltip({ channel, isLocked }: VoiceChannelTooltipProps) {
     const Icon = isLocked ? Icons.VoiceLockIcon : Icons.VoiceNormalIcon;
     return (
         <>
-            <Text variant="text-sm/bold">In Voice Chat</Text>
-            <Text variant="text-sm/bold">{Parser.parse(`<#${channel.id}>`)}</Text>
+            <Text variant="body-sm/semibold">In Voice Chat</Text>
+            <Text variant="body-sm/semibold">{Parser.parse(`<#${channel.id}>`)}</Text>
             <div className={cl("vc-members")}>
                 <Icon size="sm" />
                 <UserSummaryItem
