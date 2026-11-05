@@ -41,7 +41,8 @@ const settings = definePluginSettings({
         options: [
             { label: "Username then nickname", value: "user-nick", default: true },
             { label: "Nickname then username", value: "nick-user" },
-            { label: "Username only", value: "user" }
+            { label: "Username only", value: "user" },
+            { label: "Nickname only", value: "nick" }
         ]
     },
     friendNicknames: {
@@ -118,6 +119,8 @@ export default definePlugin({
 
             if (mode === "nick-user")
                 return <>{prefix}{nick} <span className="vc-smyn-suffix">{username}</span></>;
+            if (mode === "nick")
+                return <>{prefix}{nick}</>;
 
             return <>{prefix}{username}</>;
         } catch {

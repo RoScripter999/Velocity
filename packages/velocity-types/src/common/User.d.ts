@@ -8,39 +8,39 @@ export class User extends DiscordRecord {
     constructor(user: object);
     ageVerificationStatus: number;
     avatar: string;
-    avatarDecorationData: ?AvatarDecorationData;
-    banner?: ?string;
+    avatarDecorationData: AvatarDecorationData | null;
+    banner: string | null | undefined;
     bot: boolean;
-    collectibles: ?Collectibles;
+    collectibles: Collectibles | null;
     desktop: boolean;
     discriminator: string;
-    displayNameStyles: ?DisplayNameStyles;
-    email?: string;
+    displayNameStyles: DisplayNameStyles | null;
+    email: string | undefined;
     flags: UserFlags;
-    globalName?: string;
+    globalName: string | undefined;
     guildMemberAvatars: Record<string, string>;
     hasBouncedEmail: boolean;
     id: string;
     mfaEnabled: boolean;
     mobile: boolean;
-    nsfwAllowed?: boolean;
-    personalConnectionId: ?string;
-    phone?: string;
-    premiumState: ?{ subscriptionId: string; };
-    premiumType?: PremiumType;
+    nsfwAllowed: boolean | undefined;
+    personalConnectionId: string | null;
+    phone: string | undefined;
+    premiumState: { subscriptionId: string; } | null;
+    premiumType: PremiumType | undefined;
     premiumUsageFlags: number;
-    primaryGuild: ?ClanData;
+    primaryGuild: ClanData | null;
     publicFlags: UserFlags;
     purchasedFlags: number;
     system: boolean;
     username: string;
     verified: boolean;
 
-    get avatarDecoration(): ?AvatarDecorationData;
+    get avatarDecoration(): AvatarDecorationData | null;
     get createdAt(): Date;
     get isProvisional(): boolean;
-    get nameplate(): ?{ asset: string; skuId: string; };
-    get premiumGroupRole(): ?{ id: string; name: string; color: number; };
+    get nameplate(): { asset: string; skuId: string; } | null;
+    get premiumGroupRole(): { id: string; name: string; color: number; } | null;
     get tag(): string;
 
     addGuildAvatarHash(guildId: string, avatarHash: string): this;
@@ -76,12 +76,12 @@ export class User extends DiscordRecord {
 
 export interface UserJSON {
     avatar: string;
-    avatarDecoration: ?AvatarDecorationData;
+    avatarDecoration: AvatarDecorationData | null;
     discriminator: string;
     id: string;
     publicFlags: UserFlags;
     username: string;
-    globalName?: string;
+    globalName: string | undefined;
 }
 
 export interface ProfileEffect {
@@ -108,22 +108,22 @@ export interface Nameplate {
 export interface ProfilePreset {
     name: string;
     timestamp: number;
-    avatarDataUrl?: ?string;
-    bannerDataUrl?: ?string;
-    bio?: ?string;
-    accentColor?: ?number;
-    themeColors?: ?number[];
-    globalName?: ?string;
-    pronouns?: ?string;
-    avatarDecoration?: ?{
+    avatarDataUrl?: string | null;
+    bannerDataUrl?: string | null;
+    bio?: string | null;
+    accentColor?: number | null;
+    themeColors?: number[] | null;
+    globalName?: string | null;
+    pronouns?: string | null;
+    avatarDecoration?: {
         asset: string;
         skuId: string;
-    };
-    profileEffect?: ?ProfileEffect;
-    nameplate?: ?Nameplate;
-    primaryGuildId?: ?string;
-    customStatus?: ?CustomStatus;
-    displayNameStyles?: ?DisplayNameStyles;
+    } | null;
+    profileEffect?: ProfileEffect | null;
+    nameplate?: Nameplate | null;
+    primaryGuildId?: string | null;
+    customStatus?: CustomStatus | null;
+    displayNameStyles?: DisplayNameStyles | null;
 }
 
 export interface CustomStatus {

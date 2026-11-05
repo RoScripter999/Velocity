@@ -5,7 +5,7 @@
     "tasks": [
         {
             "label": "Build",
-            "detail": "Build velocity in development mode",
+            "detail": "Build vencord in development mode",
             "type": "shell",
             "command": "pnpm build --dev",
             "group": {

@@ -3,6 +3,7 @@ export * from "./application";
 export * from "./channel";
 export * from "./commands";
 export * from "./components";
+export * from "./guild";
 export * from "./messages";
 export * from "./misc";
 export * from "./settings";

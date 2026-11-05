@@ -434,6 +434,22 @@ export default definePlugin({
         ]]
     }),
 
+    /**
+     * Get the reaction target for a reaction command like `+:emoji:`
+     *
+     * in the case of something like
+     * >actual message
+     * >deleted message
+     * >chatbox
+     * discord would grab and try to react to the deleted message
+     *
+     * https://github.com/Vendicated/Vencord/issues/4063
+     */
+    getReactionTarget(channelId: string) {
+        const msgs = MessageStore.getMessages(channelId)._array;
+        return msgs.findLast(msg => !msg.deleted);
+    },
+
     patches: [
         {
             find: "this.truncateTop",
@@ -485,6 +501,14 @@ export default definePlugin({
                     replace: "!$1.deleted &&"
                 }
             ]
+        },
+        {
+            find: "anyScopeRegex(/^\\+:(.+?): *$/)",
+            replacement: {
+                match: /(?<=anyScopeRegex\(\/\^\\\+:\(\.\+\?\): \*\$\/\),action\(\i,\i\)\{.{10,80}?\i=)\i\.\i\.getMessages\((\i\.id)\)\.last\(\)/,
+                replace: "$self.getReactionTarget($1)"
+
+            }
         },
 
         {

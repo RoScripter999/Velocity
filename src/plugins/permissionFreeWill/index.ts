@@ -18,7 +18,6 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
-import { canonicalizeMatch } from "@utils/patches";
 import definePlugin, { OptionType } from "@utils/types";
 
 const settings = definePluginSettings({
@@ -60,9 +59,14 @@ export default definePlugin({
             find: "#{intl::ONBOARDING_CHANNEL_THRESHOLD_WARNING}",
             replacement: [
                 {
-                    // replace export getters with functions that always resolve to true
-                    match: /{(?:\i:\(\)=>\i,?){2}}/,
-                    replace: m => m.replaceAll(canonicalizeMatch(/\(\)=>\i/g), "()=>()=>Promise.resolve(true)")
+                    // FIXME: Stable compat: (?: \i)?
+                    match: /async function(?: \i)?\(\i,\i\){(?=.{0,60}?removingView:)/,
+                    replace: "$&return true;"
+                },
+                {
+                    // FIXME: Stable compat: (?: \i)?
+                    match: /async function(?: \i)?\(\i,\i,\i\){(?=.{0,80}?\.permissionOverwrites)/,
+                    replace: "$&return true;"
                 }
             ],
             predicate: () => settings.store.onboarding
