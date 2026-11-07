@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { VelocityIcon } from "@components/Icons";
 import { LazyComponent } from "@utils/lazyReact";
 import type * as t from "@velocity-types";
 import { filters, find, findCssClassesLazy, mapMangledCssClasses, mapMangledModuleLazy, proxyLazyWebpack, waitFor } from "@webpack";
@@ -25,7 +24,7 @@ import { waitForComponent } from "./internal";
 
 export const Text = waitForComponent<t.Text>("Text", filters.componentByCode('="div",selectable:'));
 
-export let Icons: t.Icons = new Proxy({} as t.Icons, { get: () => VelocityIcon });
+export let Icons: t.Icons = new Proxy({} as t.Icons, { get: () => () => null });
 export function setIcons(component: t.Icons) {
     Icons = component;
 }
@@ -68,10 +67,7 @@ export const TabBar = waitForComponent<t.TabBar>("TabBar", filters.componentByCo
 export const Clickable = waitForComponent<t.Clickable>("Clickable", filters.componentByCode("this.context?this.renderNonInteractive():"));
 export const Avatar = waitForComponent<t.Avatar>("Avatar", filters.componentByCode(".size-1.375*"));
 
-export let FilePicker: t.FilePicker = () => null;
-export function setFilePicker(component: t.FilePicker) {
-    FilePicker = component;
-}
+export const FilePicker = waitForComponent<t.FilePicker>("FilePicker", filters.componentByCode(".currentTarget.files?.[0])"));
 
 export let ColorPicker: t.ColorPicker = () => null;
 export function setColorPicker(component: t.ColorPicker) {

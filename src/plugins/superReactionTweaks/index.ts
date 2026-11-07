@@ -32,13 +32,13 @@ export const settings = definePluginSettings({
         description: "Remove the limit on Super Reactions playing at once",
         default: false
     },
-
     superReactionPlayingLimit: {
         description: "Max Super Reactions to play at once. 0 to disable playing Super Reactions",
         type: OptionType.SLIDER,
         default: 20,
         markers: [0, 5, 10, 20, 40, 60, 80, 100],
-        stickToMarkers: true
+        stickToMarkers: true,
+        hidden: () => settings.store.unlimitedSuperReactionPlaying
     }
 }, {
     superReactionPlayingLimit: {

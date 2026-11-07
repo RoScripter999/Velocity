@@ -19,7 +19,9 @@
 import { Settings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { StartAt } from "@utils/types";
-import { setColorPicker, setCreateScroller, setFilePicker, setIcons, setRoleMemberPopout } from "@webpack/common";
+import type { IconProps, Icons } from "@velocity-types";
+import { findModuleId, onceReady, wreq } from "@webpack";
+import { setColorPicker, setCreateScroller, setIcons, setRoleMemberPopout, useEffect, useState } from "@webpack/common";
 
 export default definePlugin({
     name: "ConcatenatedComponentExtractor",
@@ -27,6 +29,36 @@ export default definePlugin({
     authors: [Devs.sadan],
     startAt: StartAt.Init,
     required: true,
+
+    start() {
+        const iconCache = new Map();
+        let VelocityIcon;
+
+        let moduleId: string | null = null;
+        onceReady.then(() => {
+            moduleId = findModuleId("/ChatWarningIcon.");
+            VelocityIcon = Velocity.Components.VelocityIcon;
+        });
+
+        // FIXME
+        function VelocityIconWrap({ __velocityIconName: name, ...props }) {
+            const [Icon, setIcon] = useState(() => iconCache.get(name));
+            useEffect(() => {
+                if (Icon || moduleId == null) return;
+                wreq(moduleId)(`./${name}.web.tsx`).then(res => {
+                    iconCache.set(name, res[name]);
+                    setIcon(() => res[name]);
+                });
+            }, [name]);
+
+            if (moduleId == null) return <VelocityIcon {...props} />;
+            return Icon ? <Icon {...props} /> : <VelocityIcon {...props} />;
+        }
+
+        setIcons(new Proxy({} as Icons, {
+            get: (_, prop: string) => (props: IconProps) => <VelocityIconWrap {...props} __velocityIconName={prop} />
+        }));
+    },
 
     patches: [
         {
@@ -42,21 +74,6 @@ export default definePlugin({
             replacement: {
                 match: /(?=function (\i)\(\i,\i,\i\)\{.{0,20}?return function\(\i\)\{let\{[^}]+?="ltr",orientation:)/,
                 replace: "$self.setCreateScroller($1);"
-            }
-        },
-        {
-            find: ",PiggyBankIcon:()=>",
-            replacement: {
-                match: /\i\.\i\((\i),\{[\s\S]*?\}\)/,
-                replace: "$&,$self.setIcons($1)"
-            }
-        },
-        {
-            find: ".currentTarget.files?.[0])",
-            lazy: true,
-            replacement: {
-                match: /(?=function (\i)\(\i\)\{let\{filename:\i,className:\i,filters:\i,)/,
-                replace: "$self.setFilePicker($1);"
             }
         },
         {
@@ -89,7 +106,5 @@ export default definePlugin({
 
     setRoleMemberPopout,
     setCreateScroller,
-    setColorPicker,
-    setFilePicker,
-    setIcons
+    setColorPicker
 });

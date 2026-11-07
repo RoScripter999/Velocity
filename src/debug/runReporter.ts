@@ -20,7 +20,7 @@ import { addPatch } from "@api/PluginManager";
 import { initWs } from "@plugins/devCompanion.dev/initWs";
 import { Logger } from "@utils/Logger";
 import * as Webpack from "@webpack";
-import { getBuildNumber, patches, patchTimings } from "@webpack/patcher";
+import { patches, patchTimings } from "@webpack/patcher";
 
 import { loadLazyChunks } from "./loadLazyChunks";
 import { reporterData } from "./reporterData";
@@ -60,7 +60,7 @@ async function runReporter() {
 
         if (IS_REPORTER && IS_WEB) {
             console.log("[REPORTER_META]", {
-                buildNumber: getBuildNumber(),
+                buildNumber: window.GLOBAL_ENV.BUILD_NUMBER || -1,
                 buildHash: window.GLOBAL_ENV.SENTRY_TAGS.buildId
             });
         }

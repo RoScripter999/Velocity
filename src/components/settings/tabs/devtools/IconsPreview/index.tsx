@@ -65,6 +65,7 @@ function IconsTab() {
                 label="Include Webpack Icons"
                 description="Include Discord's own icons"
                 checked={filters.includeWebpack}
+                disabled
                 onChange={v => setFilter(prev => ({ ...prev, includeWebpack: v }))}
                 gap={false}
             />
