@@ -200,8 +200,8 @@ export default definePlugin({
             find: "#{intl::SWITCH_ACCOUNTS_ADD_AN_ACCOUNT_BUTTON}),variant",
             lazy: true,
             replacement: {
-                match: /(actions:\s*\[\s*\{\s*text:[\s\S]*?g\.\i#{intl::SWITCH_ACCOUNTS_ADD_AN_ACCOUNT_BUTTON}\)?,[\s\S]*?\}\s*)(\])/,
-                replace: "$1,$self.LoginButton(true)$2"
+                match: /#{intl::SWITCH_ACCOUNTS_ADD_AN_ACCOUNT_BUTTON}\)[\s\S]{0,120}?\}(?=\])/,
+                replace: "$&,$self.LoginButton(true)"
             }
         },
         // why error stack trace when you can just optional it and prevent the useless error entirely? :D
