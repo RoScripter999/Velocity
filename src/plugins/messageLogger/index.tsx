@@ -131,6 +131,19 @@ function addDeleteStyle() {
     }
 }
 
+const buttonsToRemove = [
+    "edit",
+    "reply",
+    "forward",
+    "thread",
+    "pin",
+    "delete",
+    "mark-unread",
+    "apps",
+    "bookmark",
+    "reminder"
+];
+
 const REMOVE_HISTORY_ID = "ml-remove-history";
 const TOGGLE_DELETE_STYLE_ID = "ml-toggle-style";
 
@@ -164,11 +177,21 @@ function doesMessageHaveHistory(message: MLMessage): boolean {
     return message.deleted || !!message.editHistory?.length || message.attachments?.some((a: MLAttachment) => a.deleted);
 }
 
-const patchMessageContextMenu: NavContextMenuPatchCallback = (children, props) => {
-    const { message } = props;
+const patchMessageContextMenu: NavContextMenuPatchCallback = (children, { message }) => {
     const { deleted, id, channel_id } = message;
 
     if (!doesMessageHaveHistory(message)) return;
+
+    if (deleted) {
+        for (const id of buttonsToRemove) {
+            const group = findGroupChildrenByChildId(id, children);
+            if (group) {
+                const index = group.findIndex(c => c?.props?.id === id);
+                group.splice(index, 1);
+            }
+        }
+    }
+
 
     const group = findGroupChildrenByChildId("delete", children) ?? findGroupChildrenByChildId("copy-id", children) ?? children;
     const idx = group?.findIndex(i => i?.props?.id === "delete" || i?.props?.id === "copy-id");
@@ -629,7 +652,7 @@ export default definePlugin({
 
         // Remove chatbar buttons
         {
-            find: '"message_utilities"',
+            find: '"expanding_buttons"',
             replacement: {
                 match: /\)\("li",\{(.+?),className:/,
                 replace: ")(\"li\",{$1,className:(arguments[0].message.deleted ? \"messagelogger-deleted messagelogger-deleted-message \" : \"\")+"

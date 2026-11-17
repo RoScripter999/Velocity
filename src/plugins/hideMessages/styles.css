@@ -1,15 +1,3 @@
-.vc-hide-messages-card {
-    padding: 0.5em;
-    margin-top: 10px;
-}
-
-.vc-hide-messages-tags-container {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
 .vc-hide-messages-button {
     width: 16px;
     height: 16px;

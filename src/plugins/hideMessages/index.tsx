@@ -21,25 +21,16 @@ import "./styles.css";
 import { findGroupChildrenByChildId, type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
-import { Card } from "@components/Card";
 import ErrorBoundary from "@components/ErrorBoundary";
-import { Flex } from "@components/Flex";
-import pinDms from "@plugins/pinDms";
+import pinDmsPlugin from "@plugins/pinDms";
 import { isPinned } from "@plugins/pinDms/data";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message } from "@velocity-types";
-import { FluxDispatcher, Forms, Icons, Menu, showToast, TagGroup, TextInput, Tooltip, UserStore, useState } from "@webpack/common";
-import type { KeyboardEvent } from "react";
-
-type Rule = Record<"word", string>;
+import { FluxDispatcher, Icons, Menu, showToast, Tooltip, UserStore } from "@webpack/common";
 
 const cl = classNameFactory("vc-hide-messages-");
-
-interface RulesProps {
-    rulesArray: Rule[];
-}
 
 interface PrivateChannelsListInstance {
     forceUpdate(callback?: () => void): void;
@@ -49,16 +40,12 @@ const hiddenDmIds = new Set<string>();
 let privateChannelsListInstance: PrivateChannelsListInstance | null = null;
 let showHiddenDms = false;
 
-const makeEmptyRule: () => Rule = () => ({ word: "" });
-
 const settings = definePluginSettings({
     wordRules: {
-        type: OptionType.COMPONENT,
-        component: () => {
-            const { wordRules } = settings.use(["wordRules"]);
-            return <RulesSettings rulesArray={wordRules} />;
-        },
-        default: [makeEmptyRule()]
+        type: OptionType.STRING,
+        description: "Words or phrases to remove, separated by commas",
+        default: "",
+        multiline: true
     },
     ignoreBots: {
         type: OptionType.BOOLEAN,
@@ -81,76 +68,19 @@ const settings = definePluginSettings({
     }
 });
 
-function RulesSettings({ rulesArray }: RulesProps) {
-    const [inputValue, setInputValue] = useState("");
-    const hasWords = rulesArray.some(r => r.word);
-
-    const handleTag = (action: "add" | "remove", value?: string | Set<string>) => {
-        if (action === "add") {
-            if (!inputValue.trim()) return;
-            const exists = rulesArray.some(r => r.word.toLowerCase() === inputValue.toLowerCase());
-            if (!exists) {
-                rulesArray.push({ word: inputValue });
-                setInputValue("");
-            }
-        } else if (action === "remove" && value instanceof Set) {
-            value.forEach(key => {
-                const index = rulesArray.findIndex(r => r.word === key);
-                if (index !== -1) rulesArray.splice(index, 1);
-            });
-        }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            handleTag("add");
-        }
-    };
-
-    return (
-        <>
-            <Flex flexDirection="row">
-                <TextInput
-                    placeholder="Add word or phrase..."
-                    value={inputValue}
-                    maxLength={50}
-                    helperText="Press Enter to add this word"
-                    showCharacterCount={true}
-                    onChange={setInputValue}
-                    onKeyDown={handleKeyDown}
-                />
-            </Flex>
-
-            {hasWords && (
-                <Forms.FormSection tag="h4" title="Words to Remove">
-                    <Card className={cl("card")}>
-                        <div className={cl("tags-container")}>
-                            <TagGroup
-                                label="Word Filters"
-                                layout="inline"
-                                items={rulesArray.filter(r => r.word).map(r => ({ id: r.word, label: r.word }))}
-                                onRemove={keys => handleTag("remove", keys)}
-                            />
-                        </div>
-                    </Card>
-                </Forms.FormSection>
-            )}
-        </>
-    );
-}
-
 const toggleWord = (word: string) => {
-    const rules = settings.store.wordRules;
-    const index = rules.findIndex(r => r.word.toLowerCase() === word.toLowerCase());
+    const words = settings.store.wordRules.split(",").map(w => w.trim()).filter(Boolean);
+    const index = words.findIndex(w => w.toLowerCase() === word.toLowerCase());
 
     if (index !== -1) {
-        rules.splice(index, 1);
+        words.splice(index, 1);
         showToast({ text: `Removed "${word}" from message filter`, variant: "success" });
     } else {
-        rules.push({ word });
+        words.push(word);
         showToast({ text: `Added "${word}" to message filter`, variant: "success" });
     }
+
+    settings.store.wordRules = words.join(", ");
 };
 
 const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
@@ -173,7 +103,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, { messag
         if (searchGroup) {
             const idx = searchGroup.findIndex(c => c?.props?.id === "search-google");
             if (idx !== -1) {
-                const exists = settings.store.wordRules.some(r => r.word.toLowerCase() === selection.toLowerCase());
+                const exists = settings.store.wordRules.split(",").map(w => w.trim().toLowerCase()).includes(selection.toLowerCase());
                 const displayText = selection.length > 15 ? selection.slice(0, 15) + "..." : selection;
                 searchGroup.splice(idx + 1, 0,
                     <Menu.MenuItem
@@ -196,18 +126,18 @@ const filterMessage = (message: Message) => {
     if (ignoreSelf && message.author.id === UserStore.getCurrentUser()?.id) return false;
     if (ignoreBots && message.author.bot) return false;
 
-    const wordsToRemove = wordRules.filter(r => r.word);
+    const wordsToRemove = wordRules.split(",").map(w => w.trim()).filter(Boolean);
     if (wordsToRemove.length === 0) return false;
 
     const messageContent = message.content;
     if (!messageContent || typeof messageContent !== "string") return false;
 
     if (removeMode === "entire") {
-        return wordsToRemove.some(rule => messageContent.toUpperCase().includes(rule.word.toUpperCase()));
+        return wordsToRemove.some(word => messageContent.toUpperCase().includes(word.toUpperCase()));
     } else {
         let filteredContent = messageContent;
-        wordsToRemove.forEach(rule => {
-            const word = rule.word.toUpperCase();
+        wordsToRemove.forEach(word => {
+            word = word.toUpperCase();
             let temp = "";
             let i = 0;
             while (i < filteredContent.length) {
@@ -251,7 +181,7 @@ function toggleDm(channelId: string) {
 
 const userMenuPatch: NavContextMenuPatchCallback = (children, { channel }) => {
     if (!channel?.isDM()) return;
-    if (isPluginEnabled(pinDms.name) && isPinned(channel.id)) return;
+    if (isPluginEnabled(pinDmsPlugin.name) && isPinned(channel.id)) return;
 
     const group = findGroupChildrenByChildId("pin-dm", children);
     if (!group) return;

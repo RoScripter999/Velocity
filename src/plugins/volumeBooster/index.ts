@@ -60,7 +60,8 @@ export default definePlugin({
             find: "#{intl::USER_VOLUME}",
             lazy: true,
             replacement: {
-                match: /(?<=maxValue:)\i\.isPlatformEmbedded\?(\i\.\i):\i\.\i(?=,)/,
+                // FIXME: Stable compat: (?:\i\.\i|200 or 100), keep only 200 or 100
+                match: /(?<=maxValue:)\i\.isPlatformEmbedded\?(\i\.\i|200):(?:\i\.\i|100)(?=,)/,
                 replace: (_, higherMaxVolume) => `${higherMaxVolume}*$self.settings.store.multiplier`
             }
         },
@@ -72,7 +73,7 @@ export default definePlugin({
                 replace: (_, higherMaxVolume) => `${higherMaxVolume}*$self.settings.store.multiplier`
             }
         },
-        // Patches needed for web
+        // Patches needed for web/vesktop
         {
             find: "streamSourceNode",
             predicate: () => !IS_DISCORD_DESKTOP,

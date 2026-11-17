@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { AnalyticsPayload } from "@api/Analytics";
 import type { Settings } from "@api/Settings";
 import type { CspRequestResult } from "@main/csp/manager";
 import type { PluginIpcMappings } from "@main/ipcPlugins";
@@ -95,7 +96,8 @@ export default {
             if (!IS_DEV) return;
 
             ipcRenderer.on(IpcEvents.RENDERER_CSS_UPDATE, (_e, newCss: string) => cb(newCss));
-        }
+        },
+        sendAnalytics: (payload: AnalyticsPayload) => invoke<void>(IpcEvents.SEND_ANALYTICS, payload)
     },
 
     csp: {

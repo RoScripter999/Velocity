@@ -330,10 +330,16 @@ export type TagGroup = ComponentType<{
      * Will spam warnings about "An aria-label or aria-labelledby prop is required for accessibility." if not provided.
      */
     label?: string;
-    disabledKeys?: string[];
+    /** Disables every item in {@link items}, unless {@link disabledKeys} is set to "all" */
+    disabled?: boolean;
+    disabledKeys?: string[] | "all";
     /** Selection mode of the {@link items}. @default none */
     selectionMode?: "none" | "single" | "multiple";
+    selectionBehavior?: "toggle" | "replace";
     layout?: "default" | "inline";
+    /** @default md */
+    size?: "xs" | "sm" | "md";
+    variant?: "default" | "filter";
     items: Array<{
         id: string | number;
         label: string;
@@ -344,7 +350,5 @@ export type TagGroup = ComponentType<{
     children?: ReactNode;
     selectedKeys?: Set<string>;
     onSelectionChange?(keys: Set<string>): void;
-    /** @default true */
-    removable?: boolean;
-    inInput?: boolean;
+    disallowEmptySelection?: boolean;
 }>;

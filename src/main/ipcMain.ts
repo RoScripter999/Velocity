@@ -215,3 +215,13 @@ ipcMain.on(IpcEvents.SUPPORTS_WINDOWS_MATERIAL, e => {
 });
 
 ipcMain.handle(IpcEvents.OPEN_DEVTOOLS, e => e.sender.openDevTools());
+
+ipcMain.handle(IpcEvents.SEND_ANALYTICS, async (_, payload) => {
+    const url = "https://sid-basidiomycetous-luringly.ngrok-free.app/1/api/velocity-analytics";
+
+    void await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+});

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import * as $Analytics from "./Analytics";
 import * as $Badges from "./Badges";
 import * as $Changelog from "./Changelog";
 import * as $ChatButtons from "./ChatButtons";
@@ -119,6 +120,10 @@ export const Notifications = $Notifications;
  * An api allowing you to patch and add/remove items to/from context menus
  */
 export const ContextMenu = $ContextMenu;
+/**
+ * An API for handling the analytics on velocity and reporting errors
+ */
+export const Analytics = $Analytics;
 
 /**
  * An API for handling the changes on velocity

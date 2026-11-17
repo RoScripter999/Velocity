@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { reportAnalyticsError } from "@api/Analytics";
 import { Logger } from "@utils/Logger";
 import { LazyComponent, type LazyComponentWrapper } from "@utils/react";
 import { type FilterFn, filters, lazyWebpackSearchHistory, waitFor } from "@webpack";
@@ -32,7 +33,7 @@ export function waitForComponent<T extends ComponentType<any> = ComponentType<an
         if (myValue) return myValue;
 
         const error = new Error(`Webpack didn't not find the ${name} Component.`);
-        logger.error(error);
+        reportAnalyticsError(error.message);
 
         if (IS_DEV) throw error;
 

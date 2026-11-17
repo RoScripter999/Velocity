@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { reportAnalyticsError } from "@api/Analytics";
 import { traceFunction } from "@debug/Tracer";
 import { makeLazy, proxyLazy } from "@utils/lazy";
 import { LazyComponent } from "@utils/lazyReact";
@@ -221,6 +222,8 @@ if (IS_DEV && IS_DISCORD_DESKTOP) {
 export function handleModuleNotFound(method: string, ...filter: unknown[]) {
     const err = new Error(`webpack.${method} found no module`);
     logger.error(err, "Filter:", filter);
+
+    reportAnalyticsError(`Failed to find component: webpack.${method} found no module. Filter: ${filter.join(", ")}`);
 
     // Strict behaviour in DevBuilds to fail early and make sure the issue is found
     if (IS_DEV && !devToolsOpen)

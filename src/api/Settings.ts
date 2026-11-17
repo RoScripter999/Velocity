@@ -65,6 +65,7 @@ export interface UpdateSession {
 
 export interface Settings {
     autoUpdate: boolean;
+    analyticsEnabled: boolean;
     autoUpdateNotification: boolean;
     useQuickCss: boolean;
     windowMoveable: boolean;
@@ -140,6 +141,7 @@ export interface Settings {
 
 const DefaultSettings: Settings = {
     autoUpdate: true,
+    analyticsEnabled: true, // Should prob opt-out by default if many negative reviews come or becomes too laggy.
     autoUpdateNotification: true,
     useQuickCss: true,
     eagerPatches: false, // Eagerly patching no longer works due to module factories with the same id being able to have different sources now.

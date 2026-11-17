@@ -40,6 +40,7 @@ import { openInviteModal } from "@utils/discord";
 import { StartAt } from "@utils/types";
 import { SettingsRouter } from "@webpack/common";
 
+import { initAnalytics } from "./api/Analytics";
 import { initChangelog } from "./api/Changelog";
 import { get as dsGet } from "./api/DataStore";
 import { type NotificationData, showNotification } from "./api/Notifications";
@@ -193,6 +194,7 @@ async function init() {
     await onceReady;
     startAllPlugins(StartAt.WebpackReady);
 
+    initAnalytics();
     syncSettings();
     initChangelog();
 

@@ -256,7 +256,7 @@ export default function PluginModal({ plugin, onRestartNeeded, ...modalProps }: 
             title={plugin.name}
             subtitle={
                 <div>
-                    <Span color="text-subtle">{plugin.description}</Span>
+                    <Text variant="body-sm/normal" color="text-subtle">{plugin.description}</Text>
                     {!!plugin.searchTerms?.length && <PluginKeywords plugin={{ ...plugin, searchTerms: plugin.searchTerms }} />}
                     {!!plugin.tags?.length && <PluginTags plugin={{ ...plugin, tags: plugin.tags }} />}
                 </div>

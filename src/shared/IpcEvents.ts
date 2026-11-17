@@ -60,6 +60,8 @@ export const enum IpcEvents {
     RENDERER_CSS_UPDATE = "VelocityRendererCssUpdate",
     PRELOAD_GET_RENDERER_JS = "VelocityPreloadGetRendererJs",
 
+    SEND_ANALYTICS = "VelocitySendAnalytics",
+
     SUPPORTS_WINDOWS_MATERIAL = "VelocitySupportsWindowsMaterial",
     OPEN_DEVTOOLS = "VelocityOpenDevTools",
 
