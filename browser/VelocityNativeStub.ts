@@ -69,6 +69,7 @@ window.VelocityNative = {
                 .then(res => res.text());
         },
         onRendererCssUpdate: NOOP,
+        sendAnalytics: async () => { }
     },
 
     updater: {
