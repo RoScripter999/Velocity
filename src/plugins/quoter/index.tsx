@@ -82,7 +82,7 @@ export const settings = definePluginSettings({
     grayscale: {
         type: OptionType.BOOLEAN,
         description: "Enable grayscale by default.",
-        default: true,
+        default: false,
         hidden: true
     },
     showAvatar: {
