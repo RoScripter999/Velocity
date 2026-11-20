@@ -46,7 +46,7 @@ export type IconProps = SVGProps<SVGSVGElement> & {
 
 export type Icons = Record<IconNames, FC<IconProps>>;
 
-export type CheckboxGroup = ComponentType<Omit<Field extends ComponentType<infer P> ? P : {}, "role"> & {
+export type CheckboxGroup = ComponentType<Omit<FieldProps, "role"> & {
     selectedValues: (string | number)[];
     onChange?(value: (string | number)[]): void;
     options: Array<{

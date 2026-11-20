@@ -230,8 +230,8 @@ export default definePlugin({
                     replace: "MESSAGE_CREATE:function($1){if($self.filterMessage($1.message))return;"
                 },
                 {
-                    match: /LOAD_MESSAGES_SUCCESS:function\(\i\)\{let\{[\s\S]{0,150}?messages:(\i),[\s\S]{0,120}?avoidInitialScroll:\i,[\s\S]{0,40}?\}=\i/,
-                    replace: "$&;$1=$1.filter(m=>!$self.filterMessage(m))"
+                    match: /(LOAD_MESSAGES_SUCCESS:function\(\i\)\{(?:(?!newMessages:)[\s\S]){0,250}newMessages:)(\i)/,
+                    replace: "$1$2.filter(m=>!$self.filterMessage(m))"
                 }
             ]
         },
